@@ -3,3 +3,6 @@ __pycache__/
 *.db
 .env
 .chroma_db/
+.mcp_global_db/
+.usage_logs/
+*.plist
