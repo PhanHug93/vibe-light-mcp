@@ -418,6 +418,171 @@ async def server_health() -> str:
 
 
 # ---------------------------------------------------------------------------
+# Tool 10 — manage_server
+# ---------------------------------------------------------------------------
+
+_MCP_ROOT: Path = Path(__file__).resolve().parent
+
+
+@mcp.tool()
+async def manage_server(action: str) -> str:
+    """Manage MCP server and ChromaDB lifecycle.
+
+    Actions:
+        - ``chroma_start``  — Start ChromaDB HTTP server (port 8888)
+        - ``chroma_stop``   — Stop ChromaDB HTTP server
+        - ``chroma_status`` — Check if ChromaDB is running
+        - ``self_update``   — Pull latest MCP code from Git remote
+
+    Args:
+        action: One of: chroma_start, chroma_stop, chroma_status, self_update.
+
+    Returns:
+        JSON with action result.
+    """
+    import subprocess
+
+    action = action.strip().lower()
+
+    if action == "chroma_status":
+        try:
+            import httpx  # noqa: F811
+            resp = httpx.get("http://localhost:8888/api/v2/heartbeat", timeout=3)
+            heartbeat = resp.json()
+            return json.dumps({
+                "status": "running",
+                "port": 8888,
+                "heartbeat": heartbeat,
+            }, indent=2)
+        except Exception:
+            pass
+
+        # Fallback: check via lsof
+        result = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return json.dumps({
+                "status": "running",
+                "port": 8888,
+                "details": result.stdout.strip().split("\n")[:3],
+            }, indent=2)
+
+        return json.dumps({
+            "status": "stopped",
+            "message": "ChromaDB not running on port 8888.",
+            "hint": "Use action 'chroma_start' to launch it.",
+        }, indent=2)
+
+    elif action == "chroma_start":
+        # Check if already running
+        check = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if check.returncode == 0 and check.stdout.strip():
+            return json.dumps({
+                "status": "already_running",
+                "message": "ChromaDB is already running on port 8888.",
+            }, indent=2)
+
+        # Find chroma binary
+        chroma_bin = str(_MCP_ROOT / ".venv" / "bin" / "chroma")
+        if not Path(chroma_bin).exists():
+            chroma_check = subprocess.run(
+                ["which", "chroma"], capture_output=True, text=True,
+            )
+            chroma_bin = chroma_check.stdout.strip() if chroma_check.returncode == 0 else ""
+
+        if not chroma_bin:
+            return json.dumps({
+                "status": "error",
+                "message": "chroma CLI not found. Install: pip install chromadb",
+            }, indent=2)
+
+        db_path = str(Path.home() / ".mcp_global_db")
+        Path(db_path).mkdir(parents=True, exist_ok=True)
+
+        # Start as background process
+        subprocess.Popen(
+            [chroma_bin, "run", "--path", db_path, "--port", "8888"],
+            stdout=open("/tmp/chromadb.stdout.log", "a"),
+            stderr=open("/tmp/chromadb.stderr.log", "a"),
+            start_new_session=True,
+        )
+
+        # Wait a moment and verify
+        await asyncio.sleep(3)
+
+        verify = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        started = verify.returncode == 0 and verify.stdout.strip()
+
+        return json.dumps({
+            "status": "started" if started else "failed",
+            "port": 8888,
+            "db_path": db_path,
+            "logs": "/tmp/chromadb.stdout.log",
+            "message": "ChromaDB server launched" if started else "Check /tmp/chromadb.stderr.log",
+        }, indent=2)
+
+    elif action == "chroma_stop":
+        result = subprocess.run(
+            ["lsof", "-ti", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        pids = result.stdout.strip().split("\n") if result.stdout.strip() else []
+
+        if not pids:
+            return json.dumps({
+                "status": "not_running",
+                "message": "ChromaDB is not running.",
+            }, indent=2)
+
+        for pid in pids:
+            if pid.isdigit():
+                subprocess.run(["kill", pid], timeout=5)
+
+        await asyncio.sleep(1)
+
+        return json.dumps({
+            "status": "stopped",
+            "killed_pids": pids,
+            "message": "ChromaDB server stopped.",
+        }, indent=2)
+
+    elif action == "self_update":
+        result = subprocess.run(
+            ["git", "pull", "--rebase"],
+            capture_output=True, text=True,
+            cwd=str(_MCP_ROOT), timeout=30,
+        )
+
+        return json.dumps({
+            "status": "success" if result.returncode == 0 else "error",
+            "action": "git pull --rebase",
+            "stdout": result.stdout.strip()[-500:],
+            "stderr": result.stderr.strip()[-300:] if result.returncode != 0 else "",
+            "hint": "Restart MCP server to apply updates." if result.returncode == 0 else "",
+        }, indent=2)
+
+    else:
+        return json.dumps({
+            "status": "error",
+            "message": f"Unknown action: '{action}'",
+            "available_actions": [
+                "chroma_start",
+                "chroma_stop",
+                "chroma_status",
+                "self_update",
+            ],
+        }, indent=2)
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
