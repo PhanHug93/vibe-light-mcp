@@ -453,16 +453,20 @@ _MCP_ROOT: Path = Path(__file__).resolve().parent
 
 @mcp.tool()
 async def manage_server(action: str) -> str:
-    """Manage MCP server and ChromaDB lifecycle.
+    """Start, stop, or check ChromaDB database server. Also update MCP code.
 
-    Actions:
-        - ``chroma_start``  — Start ChromaDB HTTP server (port 8888)
-        - ``chroma_stop``   — Stop ChromaDB HTTP server
-        - ``chroma_status`` — Check if ChromaDB is running
-        - ``self_update``   — Pull latest MCP code from Git remote
+    Call this tool when user asks to:
+    - Start or initialize the database / ChromaDB
+    - Stop or shutdown the database / ChromaDB
+    - Check if database / ChromaDB is running
+    - Update or upgrade the MCP server code
 
     Args:
-        action: One of: chroma_start, chroma_stop, chroma_status, self_update.
+        action: One of:
+            - ``chroma_start``  — Start ChromaDB HTTP server (port 8888)
+            - ``chroma_stop``   — Stop ChromaDB HTTP server
+            - ``chroma_status`` — Check if ChromaDB is running
+            - ``self_update``   — Pull latest MCP code from Git remote
 
     Returns:
         JSON with action result.
