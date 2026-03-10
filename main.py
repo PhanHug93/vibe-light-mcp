@@ -9,6 +9,7 @@ Boots a FastMCP server that exposes five tools:
   4. ``run_terminal_command``       — sandboxed shell execution
   5. ``sync_knowledge``             — git-backed knowledge sync
   6. ``server_health``               — report server status & resource usage
+  7. ``usage_stats``                 — daily usage analytics & satisfaction score
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from mcp.server.fastmcp import FastMCP
 from context_engine import compress_and_store, query_memory
 from execution_engine import execute_terminal_command
 from knowledge_updater import sync_knowledge_from_git
+from usage_tracker import record_tool_call, get_daily_stats
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -138,6 +140,9 @@ async def analyze_workspace(project_path: str) -> str:
 
     knowledge = _read_knowledge(stack)
 
+    # Track usage
+    record_tool_call("analyze_workspace", stack=stack)
+
     return json.dumps(
         {
             "status": "success",
@@ -169,7 +174,9 @@ async def compress_and_store_context(
     Returns:
         JSON string reporting chunk count and storage status.
     """
-    return await asyncio.to_thread(compress_and_store, text_data, metadata_source)
+    result = await asyncio.to_thread(compress_and_store, text_data, metadata_source)
+    record_tool_call("compress_and_store_context", query=metadata_source)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +195,9 @@ async def query_local_memory(query: str, n_results: int = 3) -> str:
     Returns:
         Formatted string of the most relevant stored chunks.
     """
-    return await asyncio.to_thread(query_memory, query, n_results)
+    result = await asyncio.to_thread(query_memory, query, n_results)
+    record_tool_call("query_local_memory", query=query)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +216,9 @@ async def run_terminal_command(command: str, timeout: int = 60) -> str:
     Returns:
         JSON with status, exit_code, stdout, stderr, and the command.
     """
-    return await execute_terminal_command(command, timeout)
+    result = await execute_terminal_command(command, timeout)
+    record_tool_call("run_terminal_command", query=command)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +237,9 @@ async def sync_knowledge(repo_url: str) -> str:
     Returns:
         JSON report with sync status (clone / pull / force_reset / error).
     """
-    return await sync_knowledge_from_git(repo_url)
+    result = await sync_knowledge_from_git(repo_url)
+    record_tool_call("sync_knowledge", query=repo_url)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -312,6 +325,26 @@ async def server_health() -> str:
         indent=2,
         ensure_ascii=False,
     )
+
+# ---------------------------------------------------------------------------
+# Tool 7 — usage_stats
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def usage_stats(date: str = "") -> str:
+    """Get daily usage analytics: tech stack usage frequency and satisfaction score.
+
+    Satisfaction score (0–100): higher = diverse queries (good),
+    lower = repeated/similar queries (knowledge base may need improvement).
+
+    Args:
+        date: Date string YYYY-MM-DD (default: today).
+
+    Returns:
+        JSON with tool usage, stack usage, and satisfaction metrics.
+    """
+    return get_daily_stats(date if date else None)
 
 
 # ---------------------------------------------------------------------------
