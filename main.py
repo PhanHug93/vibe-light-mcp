@@ -429,9 +429,9 @@ async def server_health() -> str:
     uptime_sec = time.time() - _SERVER_START
 
     # ChromaDB status (lazy — don't init just for health check)
-    from context_engine import _collection, _DB_PATH
-    chroma_status = "initialized" if _collection is not None else "not_loaded (lazy)"
-    chroma_dir = Path(_DB_PATH)
+    from context_engine import _chroma_client
+    chroma_status = "connected" if _chroma_client is not None else "not_loaded (lazy)"
+    chroma_dir = Path.home() / ".mcp_global_db"
     chroma_size_mb = 0.0
     if chroma_dir.exists():
         chroma_size_mb = sum(
