@@ -14,6 +14,8 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
+__version__: str = "1.0.1"
+
 import asyncio
 import hashlib
 import json
@@ -450,6 +452,7 @@ async def server_health() -> str:
     return json.dumps(
         {
             "status": "healthy",
+            "version": __version__,
             "pid": os.getpid(),
             "uptime": _format_uptime(uptime_sec),
             "uptime_seconds": round(uptime_sec, 1),
