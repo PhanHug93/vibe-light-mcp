@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "1.0.1"
+__version__: str = "1.0.2"
 
 import asyncio
 import hashlib
@@ -65,10 +65,67 @@ _STACK_SIGNATURES: list[tuple[str, str]] = [
     ("build.gradle.kts",    "android_kotlin"),
     ("build.gradle",        "android_kotlin"),
     ("pubspec.yaml",        "flutter_dart"),
+    ("Podfile",             "ios_swift"),
+    ("Package.swift",       "ios_swift"),
+    ("package.json",        "react_native"),  # checked via keyword scan
     ("package.json",        "vue_js"),
 ]
 
 _SEARCH_DEPTH: int = 1  # root + one level deep
+
+# Keyword triggers: scan source file content for framework-specific patterns.
+_STACK_TRIGGERS: dict[str, dict[str, list[str]]] = {
+    "android_kotlin": {
+        "extensions": [".kt", ".kts"],
+        "keywords": [
+            "@Composable", "ViewModel", "Hilt", "@Inject", "@Provides",
+            "suspend fun", "StateFlow", "viewModelScope", "NavHost",
+            "Room", "@Entity", "@Dao", "Retrofit", "OkHttpClient",
+        ],
+    },
+    "flutter_dart": {
+        "extensions": [".dart"],
+        "keywords": [
+            "StatelessWidget", "StatefulWidget", "BuildContext",
+            "Bloc", "Cubit", "Provider", "GetX", "Riverpod",
+            "GoRouter", "AutoRoute", "pubspec",
+        ],
+    },
+    "kmp": {
+        "extensions": [".kt", ".kts"],
+        "keywords": [
+            "expect ", "actual ", "commonMain", "Multiplatform",
+            "iosMain", "androidMain", "KMM",
+        ],
+    },
+    "vue_js": {
+        "extensions": [".vue", ".ts", ".js"],
+        "keywords": [
+            "defineComponent", "ref(", "reactive(", "computed(",
+            "Pinia", "createApp", "createRouter", "<template>",
+            "v-model", "v-if", "v-for",
+        ],
+    },
+    "react_native": {
+        "extensions": [".tsx", ".ts", ".jsx"],
+        "keywords": [
+            "react-native", "React Native", "NavigationContainer",
+            "createNativeStackNavigator", "FlatList", "StyleSheet",
+            "useNavigation", "Pressable", "SafeAreaView",
+        ],
+    },
+    "ios_swift": {
+        "extensions": [".swift"],
+        "keywords": [
+            "@State", "@Binding", "@ObservedObject", "@StateObject",
+            "NavigationStack", "@MainActor", "async throws",
+            "UIViewController", "SwiftUI", "Combine",
+        ],
+    },
+}
+
+_KEYWORD_SCAN_MAX_FILES: int = 20
+_KEYWORD_SCAN_MAX_BYTES: int = 50_000  # per file
 
 
 # ---------------------------------------------------------------------------
@@ -90,17 +147,115 @@ def _detect_stack(project_path: Path) -> str | None:
     return None
 
 
-def _read_knowledge(stack: str) -> dict[str, str]:
-    """Read ``rules.md`` and ``skills.md`` for *stack*."""
-    stack_dir: Path = _TECH_STACKS_DIR / stack
-    result: dict[str, str] = {}
+def _scan_keywords(project_path: Path, stack: str) -> dict[str, int]:
+    """Scan source files for keyword hits. Returns {keyword: count}."""
+    triggers = _STACK_TRIGGERS.get(stack)
+    if not triggers:
+        return {}
 
+    extensions = set(triggers["extensions"])
+    keywords = triggers["keywords"]
+    hits: dict[str, int] = {}
+    files_scanned = 0
+
+    for source_file in project_path.rglob("*"):
+        if files_scanned >= _KEYWORD_SCAN_MAX_FILES:
+            break
+        if not source_file.is_file():
+            continue
+        if source_file.suffix not in extensions:
+            continue
+        # Skip hidden dirs, build dirs, etc.
+        parts = source_file.relative_to(project_path).parts
+        if any(p.startswith(".") or p in ("build", "node_modules", ".gradle") for p in parts):
+            continue
+
+        try:
+            content = source_file.read_text(encoding="utf-8", errors="ignore")
+            if len(content) > _KEYWORD_SCAN_MAX_BYTES:
+                content = content[:_KEYWORD_SCAN_MAX_BYTES]
+        except (OSError, UnicodeDecodeError):
+            continue
+
+        files_scanned += 1
+        for kw in keywords:
+            count = content.count(kw)
+            if count > 0:
+                hits[kw] = hits.get(kw, 0) + count
+
+    return hits
+
+
+def _detect_stack_enhanced(project_path: Path) -> dict:
+    """Enhanced detection: file signature + keyword scan.
+
+    Returns dict with: stack, method, keyword_hits, confidence.
+    """
+    stack = _detect_stack(project_path)
+    method = "file_signature" if stack else "none"
+
+    if stack is None:
+        # Fallback: try keyword-only detection across all stacks
+        best_stack = None
+        best_score = 0
+        for candidate_stack in _STACK_TRIGGERS:
+            hits = _scan_keywords(project_path, candidate_stack)
+            score = sum(hits.values())
+            if score > best_score:
+                best_score = score
+                best_stack = candidate_stack
+        if best_stack and best_score >= 3:
+            stack = best_stack
+            method = "keyword_only"
+
+    # Keyword scan for matched stack
+    keyword_hits: dict[str, int] = {}
+    confidence = 0.0
+    if stack:
+        keyword_hits = _scan_keywords(project_path, stack)
+        total_hits = sum(keyword_hits.values())
+        unique_keywords = len(keyword_hits)
+
+        if method == "file_signature":
+            # File match + keywords → high confidence
+            confidence = min(0.7 + (unique_keywords * 0.05), 1.0)
+        else:
+            # Keyword-only → lower base confidence
+            confidence = min(0.3 + (unique_keywords * 0.07), 0.9)
+
+        if method == "file_signature" and keyword_hits:
+            method = "file_signature + keyword_scan"
+
+    return {
+        "stack": stack,
+        "method": method,
+        "keyword_hits": keyword_hits,
+        "confidence": round(confidence, 2),
+    }
+
+
+def _read_knowledge(stack: str) -> dict:
+    """Read core rules/skills + list available references for *stack*."""
+    stack_dir: Path = _TECH_STACKS_DIR / stack
+    result: dict[str, str | list[str]] = {}
+
+    # Core files (always loaded)
     for filename in ("rules.md", "skills.md"):
         filepath: Path = stack_dir / filename
         try:
             result[filename] = filepath.read_text(encoding="utf-8")
         except FileNotFoundError:
             result[filename] = f"⚠ {filepath} not found."
+
+    # Progressive disclosure: list references (loaded on demand)
+    refs_dir = stack_dir / "references"
+    if refs_dir.is_dir():
+        result["available_references"] = sorted(
+            f.name for f in refs_dir.iterdir()
+            if f.is_file() and f.suffix == ".md"
+        )
+    else:
+        result["available_references"] = []
 
     return result
 
@@ -119,11 +274,16 @@ async def analyze_workspace(project_path: str) -> str:
     - Get coding rules or skills for a project
     - Understand what technology a project uses
 
+    Uses two-pass detection:
+    1. File signature matching (fast: build.gradle.kts, pubspec.yaml, etc.)
+    2. Keyword scanning (deep: scans source files for framework patterns)
+
     Args:
         project_path: Absolute or relative path to the project root.
 
     Returns:
-        JSON string with detected stack, rules, and skills content.
+        JSON string with detected stack, rules, skills, keyword hits,
+        confidence score, and available references.
     """
     target = Path(project_path).expanduser().resolve()
 
@@ -139,7 +299,9 @@ async def analyze_workspace(project_path: str) -> str:
             indent=2, ensure_ascii=False,
         )
 
-    stack = _detect_stack(target)
+    detection = _detect_stack_enhanced(target)
+    stack = detection["stack"]
+
     if stack is None:
         return json.dumps(
             {
@@ -160,12 +322,78 @@ async def analyze_workspace(project_path: str) -> str:
         {
             "status": "success",
             "detected_stack": stack,
+            "detection_method": detection["method"],
+            "confidence": detection["confidence"],
+            "keyword_hits": detection["keyword_hits"],
             "project_path": str(target),
             "rules": knowledge.get("rules.md", ""),
             "skills": knowledge.get("skills.md", ""),
+            "available_references": knowledge.get("available_references", []),
         },
         indent=2, ensure_ascii=False,
     )
+
+# ---------------------------------------------------------------------------
+# Tool 1b — read_reference (Progressive Disclosure)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def read_reference(stack: str, reference_name: str) -> str:
+    """Read a detailed reference document from a tech stack's references/ directory.
+
+    Call this tool when user asks to:
+    - See detailed examples for a specific topic (e.g. architecture, compose)
+    - Deep dive into a reference document
+    - Get heavy implementation examples beyond core rules
+
+    Only loads content on demand to save context window.
+    Use analyze_workspace first to see available_references.
+
+    Args:
+        stack: Tech stack key (e.g. android_kotlin, flutter_dart).
+        reference_name: Filename of the reference (e.g. architecture.md).
+
+    Returns:
+        JSON with reference content or error message.
+    """
+    refs_dir = _TECH_STACKS_DIR / stack / "references"
+
+    if not refs_dir.is_dir():
+        return json.dumps(
+            {"status": "error", "message": f"No references/ directory for stack '{stack}'."},
+            indent=2, ensure_ascii=False,
+        )
+
+    # Ensure .md extension
+    if not reference_name.endswith(".md"):
+        reference_name += ".md"
+
+    ref_path = refs_dir / reference_name
+    if not ref_path.is_file():
+        available = [f.name for f in refs_dir.iterdir() if f.is_file() and f.suffix == ".md"]
+        return json.dumps(
+            {
+                "status": "error",
+                "message": f"Reference '{reference_name}' not found.",
+                "available_references": available,
+            },
+            indent=2, ensure_ascii=False,
+        )
+
+    content = ref_path.read_text(encoding="utf-8")
+    record_tool_call("read_reference", stack=stack)
+
+    return json.dumps(
+        {
+            "status": "success",
+            "stack": stack,
+            "reference": reference_name,
+            "content": content,
+        },
+        indent=2, ensure_ascii=False,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Helper: Workspace ID
