@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Label: unique identifier for this service -->
+    <key>Label</key>
+    <string>com.mcp.chromadb</string>
+
+    <!-- Program + Arguments -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>source "$HOME/projects/vibe-light-mcp/.venv/bin/activate" &amp;&amp; chroma run --path "$HOME/.mcp_global_db" --port 8888</string>
+    </array>
+
+    <!-- Auto-start when user logs in -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Restart if it crashes -->
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Log files -->
+    <key>StandardOutPath</key>
+    <string>/tmp/chromadb.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/chromadb.stderr.log</string>
+
+    <!-- Working directory -->
+    <key>WorkingDirectory</key>
+    <string>/tmp</string>
+</dict>
+</plist>
