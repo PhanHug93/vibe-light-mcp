@@ -59,23 +59,28 @@ pip install -e .
 ### 2. Start ChromaDB Server
 
 ```bash
-# Chạy 1 lần, để ngầm (tất cả workspace dùng chung)
-bash start_chroma.sh &
+# Option 1: Script (khuyến nghị)
+./start_chroma.sh
 
-# Hoặc dùng nohup để sống sót khi đóng terminal
-nohup bash start_chroma.sh > /tmp/chroma.log 2>&1 &
+# Option 2: Chạy ngầm (sống sót khi đóng terminal)
+nohup ./start_chroma.sh > /tmp/chroma.log 2>&1 &
+
+# Option 3: Auto-start khi login (macOS)
+cp com.mcp.chromadb.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.mcp.chromadb.plist
 ```
 
-> ChromaDB chạy trên `localhost:8888`, data tại `~/.mcp_global_db/`.
+> Script tự kiểm tra port, tìm `chroma` binary, và tạo `~/.mcp_global_db/`.
+> AI clients cũng có thể gọi `manage_server(action="chroma_start")` để khởi động.
 
 ### 3. Kiểm tra
 
 ```bash
-# Python syntax
-.venv/bin/python -m py_compile main.py && echo "✅ OK"
-
 # ChromaDB connection
 curl -s http://localhost:8888/api/v2/heartbeat && echo " ✅ ChromaDB running"
+
+# Python syntax
+.venv/bin/python -m py_compile main.py && echo "✅ MCP OK"
 ```
 
 ---
