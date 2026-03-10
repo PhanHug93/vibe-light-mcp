@@ -3,15 +3,13 @@ TechStackLocalMCP — Entry Point.
 
 Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
-  1. ``analyze_workspace``      — detect tech stack → return rules & skills
-  2. ``store_working_context``  — store to L1 (per-workspace short-term)
-  3. ``store_knowledge``        — store to L2 (global long-term)
-  4. ``search_memory``          — federated search L1+L2 with re-ranking
-  5. ``cleanup_workspace``      — garbage-collect old L1 records
-  6. ``memory_stats``           — L1/L2 collection statistics
-  7. ``run_terminal_command``   — sandboxed shell execution
-  8. ``sync_knowledge``         — git-backed knowledge sync
-  9. ``server_health``          — report server status & resource usage
+  1. ``analyze_workspace``          — detect tech stack → return rules & skills
+  2. ``compress_and_store_context`` — chunk + embed text into ChromaDB
+  3. ``query_local_memory``         — semantic search over stored context
+  4. ``run_terminal_command``       — sandboxed shell execution
+  5. ``sync_knowledge``             — git-backed knowledge sync
+  6. ``server_health``               — report server status & resource usage
+  7. ``usage_stats``                 — daily usage analytics & satisfaction score
 """
 
 from __future__ import annotations
@@ -34,6 +32,7 @@ from context_engine import (
 )
 from execution_engine import execute_terminal_command
 from knowledge_updater import sync_knowledge_from_git
+from usage_tracker import record_tool_call, get_daily_stats
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -147,6 +146,9 @@ async def analyze_workspace(project_path: str) -> str:
 
     knowledge = _read_knowledge(stack)
 
+    # Track usage
+    record_tool_call("analyze_workspace", stack=stack)
+
     return json.dumps(
         {
             "status": "success",
@@ -194,8 +196,9 @@ async def store_working_context(
     Returns:
         JSON string reporting storage status.
     """
-    ws_id = workspace_id or _auto_workspace_id()
-    return await compress_and_store(text_data, metadata_source, "L1", ws_id, tech_stack)
+    result = await asyncio.to_thread(compress_and_store, text_data, metadata_source)
+    record_tool_call("compress_and_store_context", query=metadata_source)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -251,9 +254,9 @@ async def search_memory(
     Returns:
         JSON with merged, re-ranked results from both memory tiers.
     """
-    ws_id = workspace_id or _auto_workspace_id()
-    stack_filter = tech_stack if tech_stack else None
-    return await query_memory(query, ws_id, stack_filter, n_results)
+    result = await asyncio.to_thread(query_memory, query, n_results)
+    record_tool_call("query_local_memory", query=query)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -310,7 +313,9 @@ async def run_terminal_command(command: str, timeout: int = 60) -> str:
     Returns:
         JSON with status, exit_code, stdout, stderr, and the command.
     """
-    return await execute_terminal_command(command, timeout)
+    result = await execute_terminal_command(command, timeout)
+    record_tool_call("run_terminal_command", query=command)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -329,7 +334,9 @@ async def sync_knowledge(repo_url: str) -> str:
     Returns:
         JSON report with sync status (clone / pull / force_reset / error).
     """
-    return await sync_knowledge_from_git(repo_url)
+    result = await sync_knowledge_from_git(repo_url)
+    record_tool_call("sync_knowledge", query=repo_url)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -415,6 +422,26 @@ async def server_health() -> str:
         indent=2,
         ensure_ascii=False,
     )
+
+# ---------------------------------------------------------------------------
+# Tool 7 — usage_stats
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def usage_stats(date: str = "") -> str:
+    """Get daily usage analytics: tech stack usage frequency and satisfaction score.
+
+    Satisfaction score (0–100): higher = diverse queries (good),
+    lower = repeated/similar queries (knowledge base may need improvement).
+
+    Args:
+        date: Date string YYYY-MM-DD (default: today).
+
+    Returns:
+        JSON with tool usage, stack usage, and satisfaction metrics.
+    """
+    return get_daily_stats(date if date else None)
 
 
 # ---------------------------------------------------------------------------
