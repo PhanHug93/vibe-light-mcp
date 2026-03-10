@@ -112,6 +112,11 @@ def _read_knowledge(stack: str) -> dict[str, str]:
 async def analyze_workspace(project_path: str) -> str:
     """Scan a project directory, detect the tech stack, and return rules & skills.
 
+    Call this tool when user asks to:
+    - Analyze, scan, or detect a project's tech stack
+    - Get coding rules or skills for a project
+    - Understand what technology a project uses
+
     Args:
         project_path: Absolute or relative path to the project root.
 
@@ -184,6 +189,11 @@ async def store_working_context(
 ) -> str:
     """Store working context into L1 (per-workspace short-term memory).
 
+    Call this tool when user asks to:
+    - Save, store, or remember code, logs, or error traces
+    - Keep context about current work for later retrieval
+    - Cache file contents or debugging output
+
     Use for: code files, logs, error traces, draft designs.
     Auto-cleaned after 3 days.
 
@@ -214,7 +224,11 @@ async def store_knowledge(
 ) -> str:
     """Store knowledge into L2 (global long-term brain).
 
-    Use for: rules, best practices, solved bugs, boilerplate configs.
+    Call this tool when user asks to:
+    - Save a rule, best practice, or lesson learned permanently
+    - Store a solved bug fix or boilerplate config for reuse
+    - Add knowledge that should be available across all projects
+
     Permanent storage, shared across all workspaces.
 
     Args:
@@ -241,6 +255,11 @@ async def search_memory(
     workspace_id: str = "",
 ) -> str:
     """Federated search across L1 (local) and L2 (global) memory.
+
+    Call this tool when user asks to:
+    - Search, find, or recall stored context or knowledge
+    - Look up previous code, logs, errors, or best practices
+    - Query the memory / knowledge base for relevant information
 
     Queries both tiers, merges results, re-ranks by similarity distance.
     Results are tagged [L1_LOCAL] or [L2_GLOBAL] for context awareness.
@@ -271,6 +290,11 @@ async def cleanup_workspace(
 ) -> str:
     """Delete old L1 records to free resources.
 
+    Call this tool when user asks to:
+    - Clean up, clear, or free memory / context storage
+    - Delete old or expired workspace data
+    - Reset the local working memory
+
     Args:
         days: Records older than this will be deleted (default 3).
         workspace_id: Workspace to clean (auto-detected if empty).
@@ -291,6 +315,11 @@ async def cleanup_workspace(
 async def memory_stats() -> str:
     """Get L1/L2 memory statistics: collection counts and chunk totals.
 
+    Call this tool when user asks to:
+    - Check memory usage, storage stats, or how much context is stored
+    - View workspace or knowledge base statistics
+    - See how many chunks or collections exist
+
     Returns:
         JSON with L1 workspace stats and L2 global chunk count.
     """
@@ -305,6 +334,11 @@ async def memory_stats() -> str:
 @mcp.tool()
 async def run_terminal_command(command: str, timeout: int = 60) -> str:
     """Execute a terminal command with safety checks and timeout.
+
+    Call this tool when user asks to:
+    - Run a shell / terminal / bash command
+    - Execute a script, build, or deployment command
+    - Check system info, file listings, or process status
 
     Args:
         command: The shell command to execute.
@@ -326,6 +360,11 @@ async def run_terminal_command(command: str, timeout: int = 60) -> str:
 @mcp.tool()
 async def sync_knowledge(repo_url: str) -> str:
     """Sync the local tech_stacks/ knowledge base from a remote Git repository.
+
+    Call this tool when user asks to:
+    - Update, sync, or refresh the knowledge base / rules / skills
+    - Pull latest tech stack rules from a Git repo
+    - Import or download coding standards
 
     Args:
         repo_url: HTTPS or SSH URL of the Git repository containing
@@ -376,6 +415,11 @@ def _get_memory_mb() -> float:
 @mcp.tool()
 async def server_health() -> str:
     """Report MCP server health: uptime, memory, ChromaDB status, knowledge base stats.
+
+    Call this tool when user asks to:
+    - Check server health, status, or uptime
+    - See RAM usage or resource consumption
+    - Verify the MCP server is running properly
 
     Returns:
         JSON with server status, resource usage, and available tech stacks.
@@ -431,6 +475,11 @@ async def server_health() -> str:
 @mcp.tool()
 async def usage_stats(date: str = "") -> str:
     """Get daily usage analytics: tech stack usage frequency and satisfaction score.
+
+    Call this tool when user asks to:
+    - View usage statistics or analytics
+    - Check which tech stacks are most used
+    - See satisfaction score or query patterns
 
     Satisfaction score (0–100): higher = diverse queries (good),
     lower = repeated/similar queries (knowledge base may need improvement).
