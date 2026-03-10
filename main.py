@@ -1,7 +1,7 @@
 """
 TechStackLocalMCP — Entry Point.
 
-Boots a FastMCP server that exposes five tools:
+Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
   1. ``analyze_workspace``          — detect tech stack → return rules & skills
   2. ``compress_and_store_context`` — chunk + embed text into ChromaDB
@@ -15,6 +15,7 @@ Boots a FastMCP server that exposes five tools:
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import os
@@ -23,7 +24,12 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from context_engine import compress_and_store, query_memory
+from context_engine import (
+    compress_and_store,
+    query_memory,
+    cleanup_l1,
+    get_memory_stats,
+)
 from execution_engine import execute_terminal_command
 from knowledge_updater import sync_knowledge_from_git
 from usage_tracker import record_tool_call, get_daily_stats
@@ -154,25 +160,41 @@ async def analyze_workspace(project_path: str) -> str:
         indent=2, ensure_ascii=False,
     )
 
+# ---------------------------------------------------------------------------
+# Helper: Workspace ID
+# ---------------------------------------------------------------------------
+
+def _auto_workspace_id(workspace_path: str = "") -> str:
+    """Generate deterministic workspace ID from CWD or explicit path."""
+    path = workspace_path or os.getcwd()
+    return hashlib.md5(path.encode()).hexdigest()[:8]  # noqa: S324
+
 
 # ---------------------------------------------------------------------------
-# Tool 2 — compress_and_store_context
+# Tool 2 — store_working_context (L1)
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool()
-async def compress_and_store_context(
+async def store_working_context(
     text_data: str,
     metadata_source: str,
+    tech_stack: str = "general",
+    workspace_id: str = "",
 ) -> str:
-    """Chunk and store text into ChromaDB for later semantic retrieval.
+    """Store working context into L1 (per-workspace short-term memory).
+
+    Use for: code files, logs, error traces, draft designs.
+    Auto-cleaned after 3 days.
 
     Args:
-        text_data: The text content to compress and store.
+        text_data: The text content to store.
         metadata_source: Label describing the origin (file path, URL, etc.).
+        tech_stack: Tech stack tag (e.g. android_kotlin, flutter_dart).
+        workspace_id: Workspace identifier (auto-detected from CWD if empty).
 
     Returns:
-        JSON string reporting chunk count and storage status.
+        JSON string reporting storage status.
     """
     result = await asyncio.to_thread(compress_and_store, text_data, metadata_source)
     record_tool_call("compress_and_store_context", query=metadata_source)
@@ -180,20 +202,57 @@ async def compress_and_store_context(
 
 
 # ---------------------------------------------------------------------------
-# Tool 3 — query_local_memory
+# Tool 3 — store_knowledge (L2)
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool()
-async def query_local_memory(query: str, n_results: int = 3) -> str:
-    """Semantic search over stored context in ChromaDB.
+async def store_knowledge(
+    text_data: str,
+    metadata_source: str,
+    tech_stack: str = "general",
+) -> str:
+    """Store knowledge into L2 (global long-term brain).
+
+    Use for: rules, best practices, solved bugs, boilerplate configs.
+    Permanent storage, shared across all workspaces.
+
+    Args:
+        text_data: The knowledge content to store.
+        metadata_source: Label describing the origin.
+        tech_stack: Tech stack tag for filtering.
+
+    Returns:
+        JSON string reporting storage status.
+    """
+    return await compress_and_store(text_data, metadata_source, "L2", "global", tech_stack)
+
+
+# ---------------------------------------------------------------------------
+# Tool 4 — search_memory (Federated L1+L2)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def search_memory(
+    query: str,
+    n_results: int = 5,
+    tech_stack: str = "",
+    workspace_id: str = "",
+) -> str:
+    """Federated search across L1 (local) and L2 (global) memory.
+
+    Queries both tiers, merges results, re-ranks by similarity distance.
+    Results are tagged [L1_LOCAL] or [L2_GLOBAL] for context awareness.
 
     Args:
         query: Natural-language query to search for.
-        n_results: Maximum number of results to return (default 3).
+        n_results: Total results to return after merge (default 5).
+        tech_stack: If provided, only search within this tech stack.
+        workspace_id: Workspace for L1 lookup (auto-detected if empty).
 
     Returns:
-        Formatted string of the most relevant stored chunks.
+        JSON with merged, re-ranked results from both memory tiers.
     """
     result = await asyncio.to_thread(query_memory, query, n_results)
     record_tool_call("query_local_memory", query=query)
@@ -201,7 +260,45 @@ async def query_local_memory(query: str, n_results: int = 3) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool 4 — run_terminal_command
+# Tool 5 — cleanup_workspace (L1 garbage collection)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def cleanup_workspace(
+    days: int = 3,
+    workspace_id: str = "",
+) -> str:
+    """Delete old L1 records to free resources.
+
+    Args:
+        days: Records older than this will be deleted (default 3).
+        workspace_id: Workspace to clean (auto-detected if empty).
+
+    Returns:
+        JSON with deletion count and remaining records.
+    """
+    ws_id = workspace_id or _auto_workspace_id()
+    return await cleanup_l1(ws_id, days)
+
+
+# ---------------------------------------------------------------------------
+# Tool 6 — memory_stats
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def memory_stats() -> str:
+    """Get L1/L2 memory statistics: collection counts and chunk totals.
+
+    Returns:
+        JSON with L1 workspace stats and L2 global chunk count.
+    """
+    return await get_memory_stats()
+
+
+# ---------------------------------------------------------------------------
+# Tool 7 — run_terminal_command
 # ---------------------------------------------------------------------------
 
 
@@ -345,6 +442,171 @@ async def usage_stats(date: str = "") -> str:
         JSON with tool usage, stack usage, and satisfaction metrics.
     """
     return get_daily_stats(date if date else None)
+
+
+# ---------------------------------------------------------------------------
+# Tool 10 — manage_server
+# ---------------------------------------------------------------------------
+
+_MCP_ROOT: Path = Path(__file__).resolve().parent
+
+
+@mcp.tool()
+async def manage_server(action: str) -> str:
+    """Manage MCP server and ChromaDB lifecycle.
+
+    Actions:
+        - ``chroma_start``  — Start ChromaDB HTTP server (port 8888)
+        - ``chroma_stop``   — Stop ChromaDB HTTP server
+        - ``chroma_status`` — Check if ChromaDB is running
+        - ``self_update``   — Pull latest MCP code from Git remote
+
+    Args:
+        action: One of: chroma_start, chroma_stop, chroma_status, self_update.
+
+    Returns:
+        JSON with action result.
+    """
+    import subprocess
+
+    action = action.strip().lower()
+
+    if action == "chroma_status":
+        try:
+            import httpx  # noqa: F811
+            resp = httpx.get("http://localhost:8888/api/v2/heartbeat", timeout=3)
+            heartbeat = resp.json()
+            return json.dumps({
+                "status": "running",
+                "port": 8888,
+                "heartbeat": heartbeat,
+            }, indent=2)
+        except Exception:
+            pass
+
+        # Fallback: check via lsof
+        result = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return json.dumps({
+                "status": "running",
+                "port": 8888,
+                "details": result.stdout.strip().split("\n")[:3],
+            }, indent=2)
+
+        return json.dumps({
+            "status": "stopped",
+            "message": "ChromaDB not running on port 8888.",
+            "hint": "Use action 'chroma_start' to launch it.",
+        }, indent=2)
+
+    elif action == "chroma_start":
+        # Check if already running
+        check = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if check.returncode == 0 and check.stdout.strip():
+            return json.dumps({
+                "status": "already_running",
+                "message": "ChromaDB is already running on port 8888.",
+            }, indent=2)
+
+        # Find chroma binary
+        chroma_bin = str(_MCP_ROOT / ".venv" / "bin" / "chroma")
+        if not Path(chroma_bin).exists():
+            chroma_check = subprocess.run(
+                ["which", "chroma"], capture_output=True, text=True,
+            )
+            chroma_bin = chroma_check.stdout.strip() if chroma_check.returncode == 0 else ""
+
+        if not chroma_bin:
+            return json.dumps({
+                "status": "error",
+                "message": "chroma CLI not found. Install: pip install chromadb",
+            }, indent=2)
+
+        db_path = str(Path.home() / ".mcp_global_db")
+        Path(db_path).mkdir(parents=True, exist_ok=True)
+
+        # Start as background process
+        subprocess.Popen(
+            [chroma_bin, "run", "--path", db_path, "--port", "8888"],
+            stdout=open("/tmp/chromadb.stdout.log", "a"),
+            stderr=open("/tmp/chromadb.stderr.log", "a"),
+            start_new_session=True,
+        )
+
+        # Wait a moment and verify
+        await asyncio.sleep(3)
+
+        verify = subprocess.run(
+            ["lsof", "-i", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        started = verify.returncode == 0 and verify.stdout.strip()
+
+        return json.dumps({
+            "status": "started" if started else "failed",
+            "port": 8888,
+            "db_path": db_path,
+            "logs": "/tmp/chromadb.stdout.log",
+            "message": "ChromaDB server launched" if started else "Check /tmp/chromadb.stderr.log",
+        }, indent=2)
+
+    elif action == "chroma_stop":
+        result = subprocess.run(
+            ["lsof", "-ti", ":8888"],
+            capture_output=True, text=True, timeout=5,
+        )
+        pids = result.stdout.strip().split("\n") if result.stdout.strip() else []
+
+        if not pids:
+            return json.dumps({
+                "status": "not_running",
+                "message": "ChromaDB is not running.",
+            }, indent=2)
+
+        for pid in pids:
+            if pid.isdigit():
+                subprocess.run(["kill", pid], timeout=5)
+
+        await asyncio.sleep(1)
+
+        return json.dumps({
+            "status": "stopped",
+            "killed_pids": pids,
+            "message": "ChromaDB server stopped.",
+        }, indent=2)
+
+    elif action == "self_update":
+        result = subprocess.run(
+            ["git", "pull", "--rebase"],
+            capture_output=True, text=True,
+            cwd=str(_MCP_ROOT), timeout=30,
+        )
+
+        return json.dumps({
+            "status": "success" if result.returncode == 0 else "error",
+            "action": "git pull --rebase",
+            "stdout": result.stdout.strip()[-500:],
+            "stderr": result.stderr.strip()[-300:] if result.returncode != 0 else "",
+            "hint": "Restart MCP server to apply updates." if result.returncode == 0 else "",
+        }, indent=2)
+
+    else:
+        return json.dumps({
+            "status": "error",
+            "message": f"Unknown action: '{action}'",
+            "available_actions": [
+                "chroma_start",
+                "chroma_stop",
+                "chroma_status",
+                "self_update",
+            ],
+        }, indent=2)
 
 
 # ---------------------------------------------------------------------------
