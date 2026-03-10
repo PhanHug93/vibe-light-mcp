@@ -1,19 +1,23 @@
 """
 TechStackLocalMCP — Entry Point.
 
-Boots a FastMCP server that exposes five tools:
+Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
-  1. ``analyze_workspace``          — detect tech stack → return rules & skills
-  2. ``compress_and_store_context`` — chunk + embed text into ChromaDB
-  3. ``query_local_memory``         — semantic search over stored context
-  4. ``run_terminal_command``       — sandboxed shell execution
-  5. ``sync_knowledge``             — git-backed knowledge sync
-  6. ``server_health``               — report server status & resource usage
+  1. ``analyze_workspace``      — detect tech stack → return rules & skills
+  2. ``store_working_context``  — store to L1 (per-workspace short-term)
+  3. ``store_knowledge``        — store to L2 (global long-term)
+  4. ``search_memory``          — federated search L1+L2 with re-ranking
+  5. ``cleanup_workspace``      — garbage-collect old L1 records
+  6. ``memory_stats``           — L1/L2 collection statistics
+  7. ``run_terminal_command``   — sandboxed shell execution
+  8. ``sync_knowledge``         — git-backed knowledge sync
+  9. ``server_health``          — report server status & resource usage
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import os
@@ -22,7 +26,12 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from context_engine import compress_and_store, query_memory
+from context_engine import (
+    compress_and_store,
+    query_memory,
+    cleanup_l1,
+    get_memory_stats,
+)
 from execution_engine import execute_terminal_command
 from knowledge_updater import sync_knowledge_from_git
 
@@ -149,50 +158,144 @@ async def analyze_workspace(project_path: str) -> str:
         indent=2, ensure_ascii=False,
     )
 
+# ---------------------------------------------------------------------------
+# Helper: Workspace ID
+# ---------------------------------------------------------------------------
+
+def _auto_workspace_id(workspace_path: str = "") -> str:
+    """Generate deterministic workspace ID from CWD or explicit path."""
+    path = workspace_path or os.getcwd()
+    return hashlib.md5(path.encode()).hexdigest()[:8]  # noqa: S324
+
 
 # ---------------------------------------------------------------------------
-# Tool 2 — compress_and_store_context
+# Tool 2 — store_working_context (L1)
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool()
-async def compress_and_store_context(
+async def store_working_context(
     text_data: str,
     metadata_source: str,
+    tech_stack: str = "general",
+    workspace_id: str = "",
 ) -> str:
-    """Chunk and store text into ChromaDB for later semantic retrieval.
+    """Store working context into L1 (per-workspace short-term memory).
+
+    Use for: code files, logs, error traces, draft designs.
+    Auto-cleaned after 3 days.
 
     Args:
-        text_data: The text content to compress and store.
+        text_data: The text content to store.
         metadata_source: Label describing the origin (file path, URL, etc.).
+        tech_stack: Tech stack tag (e.g. android_kotlin, flutter_dart).
+        workspace_id: Workspace identifier (auto-detected from CWD if empty).
 
     Returns:
-        JSON string reporting chunk count and storage status.
+        JSON string reporting storage status.
     """
-    return await asyncio.to_thread(compress_and_store, text_data, metadata_source)
+    ws_id = workspace_id or _auto_workspace_id()
+    return await compress_and_store(text_data, metadata_source, "L1", ws_id, tech_stack)
 
 
 # ---------------------------------------------------------------------------
-# Tool 3 — query_local_memory
+# Tool 3 — store_knowledge (L2)
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool()
-async def query_local_memory(query: str, n_results: int = 3) -> str:
-    """Semantic search over stored context in ChromaDB.
+async def store_knowledge(
+    text_data: str,
+    metadata_source: str,
+    tech_stack: str = "general",
+) -> str:
+    """Store knowledge into L2 (global long-term brain).
+
+    Use for: rules, best practices, solved bugs, boilerplate configs.
+    Permanent storage, shared across all workspaces.
+
+    Args:
+        text_data: The knowledge content to store.
+        metadata_source: Label describing the origin.
+        tech_stack: Tech stack tag for filtering.
+
+    Returns:
+        JSON string reporting storage status.
+    """
+    return await compress_and_store(text_data, metadata_source, "L2", "global", tech_stack)
+
+
+# ---------------------------------------------------------------------------
+# Tool 4 — search_memory (Federated L1+L2)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def search_memory(
+    query: str,
+    n_results: int = 5,
+    tech_stack: str = "",
+    workspace_id: str = "",
+) -> str:
+    """Federated search across L1 (local) and L2 (global) memory.
+
+    Queries both tiers, merges results, re-ranks by similarity distance.
+    Results are tagged [L1_LOCAL] or [L2_GLOBAL] for context awareness.
 
     Args:
         query: Natural-language query to search for.
-        n_results: Maximum number of results to return (default 3).
+        n_results: Total results to return after merge (default 5).
+        tech_stack: If provided, only search within this tech stack.
+        workspace_id: Workspace for L1 lookup (auto-detected if empty).
 
     Returns:
-        Formatted string of the most relevant stored chunks.
+        JSON with merged, re-ranked results from both memory tiers.
     """
-    return await asyncio.to_thread(query_memory, query, n_results)
+    ws_id = workspace_id or _auto_workspace_id()
+    stack_filter = tech_stack if tech_stack else None
+    return await query_memory(query, ws_id, stack_filter, n_results)
 
 
 # ---------------------------------------------------------------------------
-# Tool 4 — run_terminal_command
+# Tool 5 — cleanup_workspace (L1 garbage collection)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def cleanup_workspace(
+    days: int = 3,
+    workspace_id: str = "",
+) -> str:
+    """Delete old L1 records to free resources.
+
+    Args:
+        days: Records older than this will be deleted (default 3).
+        workspace_id: Workspace to clean (auto-detected if empty).
+
+    Returns:
+        JSON with deletion count and remaining records.
+    """
+    ws_id = workspace_id or _auto_workspace_id()
+    return await cleanup_l1(ws_id, days)
+
+
+# ---------------------------------------------------------------------------
+# Tool 6 — memory_stats
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def memory_stats() -> str:
+    """Get L1/L2 memory statistics: collection counts and chunk totals.
+
+    Returns:
+        JSON with L1 workspace stats and L2 global chunk count.
+    """
+    return await get_memory_stats()
+
+
+# ---------------------------------------------------------------------------
+# Tool 7 — run_terminal_command
 # ---------------------------------------------------------------------------
 
 
