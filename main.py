@@ -428,9 +428,13 @@ async def server_health() -> str:
     """
     uptime_sec = time.time() - _SERVER_START
 
-    # ChromaDB status (lazy — don't init just for health check)
-    from context_engine import _chroma_client
-    chroma_status = "connected" if _chroma_client is not None else "not_loaded (lazy)"
+    # ChromaDB status — check via HTTP heartbeat (don't import internal state)
+    try:
+        import httpx
+        resp = httpx.get("http://localhost:8888/api/v2/heartbeat", timeout=2)
+        chroma_status = "running" if resp.status_code == 200 else "error"
+    except Exception:
+        chroma_status = "not_running"
     chroma_dir = Path.home() / ".mcp_global_db"
     chroma_size_mb = 0.0
     if chroma_dir.exists():
