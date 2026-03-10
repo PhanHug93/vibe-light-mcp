@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "2.0.0"
+__version__: str = "1.0.1"
 
 import asyncio
 import hashlib
