@@ -1,68 +1,88 @@
-# TechStack Local MCP Server
+# 🧠 TechStack Local MCP Server
 
-Local Model Context Protocol (MCP) Server cho Mobile & Web development. Tự động phát hiện tech stack, cung cấp rules/skills cho AI agents, và quản lý context thông minh.
+Local Model Context Protocol (MCP) Server với **Hybrid RAG** (L1/L2 Memory). Tự động phát hiện tech stack, quản lý context thông minh theo 2 tầng, và cung cấp rules/skills cho AI agents.
 
-## Tổng quan
+## Kiến trúc
 
 ```
-AI Agent (Antigravity, Claude, Cursor...)
-        │
-        ▼  (stdio / JSON-RPC)
-┌──────────────────────────────┐
-│     TechStackLocalMCP        │
-│     main.py (FastMCP)        │
-├──────────────────────────────┤
-│  6 Tools:                    │
-│  • analyze_workspace         │
-│  • compress_and_store_context│
-│  • query_local_memory        │
-│  • run_terminal_command      │
-│  • sync_knowledge            │
-│  • server_health             │
-├──────────────────────────────┤
-│  Engines:                    │
-│  • context_engine (ChromaDB) │
-│  • execution_engine (Shell)  │
-│  • knowledge_updater (Git)   │
-├──────────────────────────────┤
-│  Knowledge Base:             │
-│  tech_stacks/                │
-│  ├── android_kotlin/         │
-│  ├── kmp/                    │
-│  ├── flutter_dart/           │
-│  └── vue_js/                 │
-└──────────────────────────────┘
+AI Agent (Antigravity, Claude, Cursor, Windsurf...)
+        │  stdio / JSON-RPC
+        ▼
+┌────────────────────────────────────────┐
+│        TechStackLocalMCP (FastMCP)     │
+│        main.py — 9 Tools              │
+├────────────┬───────────────────────────┤
+│  Engines   │  Knowledge Base           │
+│            │  tech_stacks/             │
+│  context   │  ├── android_kotlin/      │
+│  execution │  ├── kmp/                 │
+│  knowledge │  ├── flutter_dart/        │
+│  tracker   │  └── vue_js/              │
+└──────┬─────┴───────────────────────────┘
+       │  HttpClient (:8888)
+       ▼
+┌────────────────────────────────────────┐
+│      ChromaDB HTTP Server              │
+│      ~/.mcp_global_db                  │
+├──────────────────┬─────────────────────┤
+│  L1: Working     │  L2: Knowledge      │
+│  Memory          │  Brain              │
+│  (per workspace) │  (global, vĩnh viễn)│
+│  TTL: 3 ngày     │  TTL: ♾️            │
+└──────────────────┴─────────────────────┘
 ```
+
+### Hybrid RAG — L1/L2 Memory
+
+| Tầng | Collection | Chức năng | Vòng đời |
+|---|---|---|---|
+| **L1** | `mcp_local_{hash}` | Code đang sửa, logs, drafts — riêng mỗi project | Auto-cleanup 3 ngày |
+| **L2** | `mcp_global_knowledge` | Rules, skills, bug fixes, configs — dùng chung | Vĩnh viễn |
+
+**Federated Search**: Khi AI tìm kiếm → query L1 + L2 cùng lúc → merge → re-rank theo distance → trả kết quả gắn tag `[L1_LOCAL]` / `[L2_GLOBAL]`.
+
+---
 
 ## Cài đặt
 
 ### 1. Clone & Setup
 
 ```bash
-git clone <repo-url> local-mcp-server
-cd local-mcp-server
+git clone https://github.com/PhanHug93/vibe-light-mcp.git
+cd vibe-light-mcp
 
-# Tạo virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Cài dependencies
 pip install -e .
-# hoặc nếu dùng uv:
-uv pip install -e .
 ```
 
-### 2. Kiểm tra hoạt động
+### 2. Start ChromaDB Server
 
 ```bash
-.venv/bin/python -c "import main; print(f'✅ {len(main.mcp._tool_manager._tools)} tools registered')"
+# Chạy 1 lần, để ngầm (tất cả workspace dùng chung)
+bash start_chroma.sh &
+
+# Hoặc dùng nohup để sống sót khi đóng terminal
+nohup bash start_chroma.sh > /tmp/chroma.log 2>&1 &
 ```
 
-## Tích hợp với AI Client
+> ChromaDB chạy trên `localhost:8888`, data tại `~/.mcp_global_db/`.
 
-MCP Server giao tiếp qua **stdio** (JSON-RPC). Mỗi AI client cấu hình bằng file JSON riêng.
+### 3. Kiểm tra
+
+```bash
+# Python syntax
+.venv/bin/python -m py_compile main.py && echo "✅ OK"
+
+# ChromaDB connection
+curl -s http://localhost:8888/api/v2/heartbeat && echo " ✅ ChromaDB running"
+```
 
 ---
+
+## Tích hợp AI Client
+
+Cấu hình qua file JSON. Thay `<username>` bằng username thực tế.
 
 ### Antigravity (Gemini)
 
@@ -72,15 +92,12 @@ File: `~/.gemini/settings.json`
 {
   "mcpServers": {
     "tech-stack-expert": {
-      "command": "/Users/<username>/projects/local-mcp-server/.venv/bin/python",
-      "args": ["/Users/<username>/projects/local-mcp-server/main.py"],
-      "env": {}
+      "command": "/Users/<username>/projects/vibe-light-mcp/.venv/bin/python",
+      "args": ["/Users/<username>/projects/vibe-light-mcp/main.py"]
     }
   }
 }
 ```
-
----
 
 ### Claude Desktop
 
@@ -90,63 +107,54 @@ File: `~/Library/Application Support/Claude/claude_desktop_config.json`
 {
   "mcpServers": {
     "tech-stack-expert": {
-      "command": "/Users/<username>/projects/local-mcp-server/.venv/bin/python",
-      "args": ["/Users/<username>/projects/local-mcp-server/main.py"]
+      "command": "/Users/<username>/projects/vibe-light-mcp/.venv/bin/python",
+      "args": ["/Users/<username>/projects/vibe-light-mcp/main.py"]
     }
   }
 }
 ```
-
----
 
 ### Cursor
 
-File: `~/.cursor/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "tech-stack-expert": {
-      "command": "/Users/<username>/projects/local-mcp-server/.venv/bin/python",
-      "args": ["/Users/<username>/projects/local-mcp-server/main.py"]
-    }
-  }
-}
-```
-
----
+File: `~/.cursor/mcp.json` (cùng format trên)
 
 ### Windsurf
 
-File: `~/.codeium/windsurf/mcp_config.json`
+File: `~/.codeium/windsurf/mcp_config.json` (cùng format trên)
 
-```json
-{
-  "mcpServers": {
-    "tech-stack-expert": {
-      "command": "/Users/<username>/projects/local-mcp-server/.venv/bin/python",
-      "args": ["/Users/<username>/projects/local-mcp-server/main.py"]
-    }
-  }
-}
-```
-
-> **⚠️ Quan trọng**: Thay `<username>` bằng username thực tế trên máy. Dùng **đường dẫn tuyệt đối** cho cả `command` và `args`.
+> ⚠️ **Quan trọng**: Dùng **đường dẫn tuyệt đối**. Đảm bảo ChromaDB server đã chạy trước khi start MCP.
 
 ---
 
-## 6 Tools
+## 9 Tools
+
+### Memory (Hybrid RAG)
+
+| Tool | Tier | Mô tả |
+|---|---|---|
+| `store_working_context(text, source, tech_stack, workspace_id)` | **L1** | Lưu code/log/draft tạm thời (auto-cleanup 3 ngày) |
+| `store_knowledge(text, source, tech_stack)` | **L2** | Lưu knowledge vĩnh viễn (rules, best practices, bug fixes) |
+| `search_memory(query, n_results, tech_stack, workspace_id)` | **L1+L2** | Federated search → merge → re-rank by distance |
+| `cleanup_workspace(days, workspace_id)` | **L1** | Garbage-collect records cũ |
+| `memory_stats()` | **L1+L2** | Thống kê chunks và collections |
+
+### Workspace & Knowledge
 
 | Tool | Mô tả |
 |---|---|
-| `analyze_workspace(project_path)` | Quét project, phát hiện tech stack, trả rules + skills |
-| `compress_and_store_context(text_data, metadata_source)` | Lưu text vào ChromaDB (chunking + embedding) |
-| `query_local_memory(query, n_results)` | Semantic search trong context đã lưu |
-| `run_terminal_command(command, timeout)` | Chạy lệnh terminal (có blocklist bảo mật, timeout 60s) |
+| `analyze_workspace(project_path)` | Quét project → phát hiện tech stack → trả rules + skills |
 | `sync_knowledge(repo_url)` | Đồng bộ knowledge base từ Git repo |
-| `server_health()` | Kiểm tra server: uptime, RAM, ChromaDB, stacks |
 
-## Tech Stacks hỗ trợ
+### System
+
+| Tool | Mô tả |
+|---|---|
+| `run_terminal_command(command, timeout)` | Shell execution có blocklist bảo mật + timeout 60s |
+| `server_health()` | Uptime, RAM, ChromaDB status, knowledge base stats |
+
+---
+
+## Tech Stacks
 
 | Stack | File nhận diện | Knowledge |
 |---|---|---|
@@ -155,50 +163,53 @@ File: `~/.codeium/windsurf/mcp_config.json`
 | Flutter/Dart | `pubspec.yaml` | rules + skills |
 | Vue.js 3 | `package.json` | rules + skills |
 
+---
+
 ## Monitoring
 
 ```bash
-# Terminal
+# Terminal health check
 bash monitor.sh
 
-# Hoặc qua MCP tool (AI agent gọi)
+# Qua MCP tool (AI agent tự gọi)
 # → server_health()
+# → memory_stats()
 ```
 
-## Cấu trúc project
+---
+
+## Cấu trúc Project
 
 ```
-local-mcp-server/
-├── main.py                 # Entry point — FastMCP server (6 tools)
-├── context_engine.py       # ChromaDB RAG (lazy-init, paragraph-aware chunking)
-├── execution_engine.py     # Sandboxed terminal runner (blocklist + timeout)
+vibe-light-mcp/
+├── main.py                 # FastMCP entry point (9 tools)
+├── context_engine.py       # Hybrid RAG — L1/L2, HttpClient, federated search
+├── execution_engine.py     # Sandboxed terminal (blocklist + timeout)
 ├── knowledge_updater.py    # Git sync (clone/pull/force-reset)
-├── monitor.sh              # Health check script
+├── usage_tracker.py        # Daily analytics & satisfaction scoring
+├── start_chroma.sh         # ChromaDB HTTP server launcher
+├── monitor.sh              # Terminal health check
 ├── pyproject.toml          # Dependencies
 ├── .gitignore
 └── tech_stacks/
-    ├── android_kotlin/
-    │   ├── rules.md        # Clean Architecture, Security, Performance...
-    │   └── skills.md       # Gradle, ADB, testing commands...
+    ├── android_kotlin/     # rules.md + skills.md
     ├── kmp/
-    │   ├── rules.md
-    │   └── skills.md
     ├── flutter_dart/
-    │   ├── rules.md
-    │   └── skills.md
     └── vue_js/
-        ├── rules.md
-        └── skills.md
 ```
+
+---
 
 ## Bảo mật
 
-`run_terminal_command` chặn các lệnh nguy hiểm:
+`run_terminal_command` chặn lệnh nguy hiểm:
 
-- **Blocked commands**: `rm`, `sudo`, `mkfs`, `dd`, `kill`, `shutdown`...
-- **Blocked patterns**: `rm -rf`, `chmod 777`, `chown`, pipe to bash, `$(...)`, `` `...` ``
+- **Blocked**: `rm`, `sudo`, `mkfs`, `dd`, `kill`, `shutdown`...
+- **Patterns**: `rm -rf`, `chmod 777`, pipe to bash, `$(...)`
 - **Timeout**: Auto-kill sau 60s
 - **Output**: Truncate tại 50K chars
+
+---
 
 ## License
 
