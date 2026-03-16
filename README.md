@@ -6,6 +6,7 @@
 
 - 🔍 **Tự nhận diện dự án** — Quét project và trả về coding rules + skills phù hợp
 - 🧠 **Nhớ context theo 2 tầng** — Bộ nhớ ngắn hạn (L1) cho project hiện tại + bộ nhớ dài hạn (L2) dùng chung mọi dự án
+- 🔄 **Auto-recall context** — Tự động nhớ lại ngữ cảnh từ các cuộc hội thoại trước, tránh AI quên khi chat dài
 - 🔎 **Tìm kiếm thông minh** — Federated search ghép kết quả từ cả L1 và L2, xếp hạng theo độ liên quan
 - 🛡️ **Chạy lệnh an toàn** — Terminal có blocklist bảo mật, tự kill sau 60s
 - 📊 **Theo dõi sử dụng** — Thống kê tech stack nào được hỏi nhiều, đo mức hài lòng
@@ -17,6 +18,7 @@
 | Vấn đề | Giải pháp |
 |---|---|
 | AI quên context sau vài tin nhắn | **L1 Memory** — lưu code, logs, error traces tạm thời |
+| AI quên context khi hội thoại quá dài | **Auto-Recall** — tự tìm lại context liên quan từ memory |
 | Phải dạy lại AI cùng một rule nhiều lần | **L2 Knowledge** — lưu vĩnh viễn, dùng chung mọi project |
 | Lỗi "database is locked" khi mở nhiều workspace | **ChromaDB HTTP Server** — một server duy nhất, mọi workspace kết nối qua mạng |
 | AI không biết project dùng công nghệ gì | **Auto-detect** — quét file, trả rules + skills theo tech stack |
@@ -31,7 +33,7 @@
                  ▼  stdio (JSON-RPC)
   ┌──────────────────────────────────┐
   │   TechStack Local MCP Server     │
-  │   10 Tools · FastMCP · Python    │
+  │   11 Tools · FastMCP · Python    │
   └──────────────┬───────────────────┘
                  │  HttpClient
                  ▼
@@ -150,9 +152,25 @@ Thêm config vào file JSON của AI client. Thay `<username>` bằng tên user 
 
 > ⚠️ Dùng **đường dẫn tuyệt đối**. Đảm bảo ChromaDB đã chạy trước.
 
+### Bước 4 — Kích hoạt Auto-Recall (khuyến nghị)
+
+Để AI tự động nhớ lại context từ các cuộc hội thoại trước, copy file rules vào dự án cần dùng:
+
+```bash
+# Copy vào dự án cần MCP memory
+cp /path/to/vibe-light-mcp/mcp_rules.md /path/to/your-project/.gemini/rules.md
+```
+
+> 💡 **Ghi chú**: Chỉ dự án nào có file `rules.md` này mới kích hoạt auto-recall. Các dự án khác không bị ảnh hưởng.
+
+Sau khi thêm rules, AI sẽ tự động:
+- Gọi `auto_recall` ở đầu mỗi cuộc hội thoại để lấy context cũ
+- Lưu thông tin quan trọng (bug fix, decisions) vào memory
+- Detect tech stack khi bắt đầu dự án mới
+
 ---
 
-## 🛠 10 Tools
+## 🛠 11 Tools
 
 ### 🧠 Memory — Lưu trữ & Tìm kiếm context
 
@@ -161,6 +179,7 @@ Thêm config vào file JSON của AI client. Thay `<username>` bằng tên user 
 | `store_working_context` | Lưu code/log tạm thời vào L1 | *"Lưu file này lại"*, *"Nhớ error trace này"* |
 | `store_knowledge` | Lưu knowledge vĩnh viễn vào L2 | *"Nhớ rule này cho mọi project"* |
 | `search_memory` | Tìm trong cả L1 + L2 | *"Tìm lại lỗi NullPointer hôm qua"* |
+| `auto_recall` | ⚡ Tự nhớ lại context (rate-limited, fail-safe) | *Tự động gọi ở đầu hội thoại* |
 | `cleanup_workspace` | Dọn dẹp L1 cũ | *"Xóa context cũ"* |
 | `memory_stats` | Xem thống kê bộ nhớ | *"Đang lưu bao nhiêu chunks?"* |
 
@@ -199,11 +218,12 @@ Thêm config vào file JSON của AI client. Thay `<username>` bằng tên user 
 
 ```
 vibe-light-mcp/
-├── main.py                 # MCP Server entry point (10 tools)
-├── context_engine.py       # Hybrid RAG — L1/L2, federated search
+├── main.py                 # MCP Server entry point (11 tools)
+├── context_engine.py       # Hybrid RAG — L1/L2, federated search, auto-recall
 ├── execution_engine.py     # Terminal runner (blocklist + timeout)
 ├── knowledge_updater.py    # Git sync engine
 ├── usage_tracker.py        # Daily analytics & satisfaction scoring
+├── mcp_rules.md            # User rules — copy vào dự án để kích hoạt auto-recall
 ├── start_chroma.sh         # ChromaDB launcher script
 ├── com.mcp.chromadb.plist  # macOS auto-start service
 ├── monitor.sh              # Terminal health check

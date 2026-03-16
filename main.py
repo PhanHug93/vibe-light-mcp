@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "1.0.2"
+__version__: str = "1.0.3"
 
 import asyncio
 import hashlib
@@ -29,6 +29,7 @@ from mcp.server.fastmcp import FastMCP
 from context_engine import (
     compress_and_store,
     query_memory,
+    quick_recall,
     cleanup_l1,
     get_memory_stats,
 )
@@ -67,6 +68,10 @@ _STACK_SIGNATURES: list[tuple[str, str]] = [
     ("pubspec.yaml",        "flutter_dart"),
     ("Podfile",             "ios_swift"),
     ("Package.swift",       "ios_swift"),
+    ("pyproject.toml",      "python"),
+    ("setup.py",            "python"),
+    ("Pipfile",             "python"),
+    ("requirements.txt",    "python"),
     ("package.json",        "react_native"),  # checked via keyword scan
     ("package.json",        "vue_js"),
 ]
@@ -75,6 +80,15 @@ _SEARCH_DEPTH: int = 1  # root + one level deep
 
 # Keyword triggers: scan source file content for framework-specific patterns.
 _STACK_TRIGGERS: dict[str, dict[str, list[str]]] = {
+    "python": {
+        "extensions": [".py", ".pyi"],
+        "keywords": [
+            "FastAPI", "@app.route", "BaseModel", "pydantic",
+            "async def", "asyncio", "pytest", "django",
+            "flask", "SQLAlchemy", "dataclass", "import typing",
+            "def main", "if __name__", "from __future__",
+        ],
+    },
     "android_kotlin": {
         "extensions": [".kt", ".kts"],
         "keywords": [
@@ -436,7 +450,8 @@ async def store_working_context(
     Returns:
         JSON string reporting storage status.
     """
-    result = await asyncio.to_thread(compress_and_store, text_data, metadata_source)
+    ws_id = workspace_id or _auto_workspace_id()
+    result = await compress_and_store(text_data, metadata_source, "L1", ws_id, tech_stack)
     record_tool_call("compress_and_store_context", query=metadata_source)
     return result
 
@@ -503,9 +518,100 @@ async def search_memory(
     Returns:
         JSON with merged, re-ranked results from both memory tiers.
     """
-    result = await asyncio.to_thread(query_memory, query, n_results)
+    ws_id = workspace_id or _auto_workspace_id()
+    result = await query_memory(query, ws_id, tech_stack or None, n_results)
     record_tool_call("query_local_memory", query=query)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Tool 4b — auto_recall (Context Recall for AI Agents)
+# ---------------------------------------------------------------------------
+
+# Rate limiter state
+_recall_cache: dict[str, tuple[float, str]] = {}  # hash → (timestamp, result)
+_RECALL_COOLDOWN: float = 10.0  # seconds between actual queries
+_RECALL_CACHE_SIZE: int = 20    # max cached results
+
+
+@mcp.tool()
+async def auto_recall(
+    user_message: str,
+    workspace_id: str = "",
+    tech_stack: str = "",
+    n_results: int = 3,
+) -> str:
+    """⚡ Auto-retrieve relevant context from memory for the current conversation.
+
+    IMPORTANT: Call this at the START of every conversation to recall
+    previous context and avoid losing information from past sessions.
+    Also call when the conversation is getting long (>10 turns) to
+    refresh your memory.
+
+    This tool is:
+    - Rate-limited (max 1 query per 10s, duplicates return cached results)
+    - Fail-safe (always returns valid JSON, never blocks)
+    - Fast (5s timeout, compact output ≤3000 chars)
+
+    Args:
+        user_message: The user's current message to find relevant context for.
+        workspace_id: Workspace identifier (auto-detected from CWD if empty).
+        tech_stack: Filter results by tech stack (optional).
+        n_results: Max context chunks to return (default 3, max 5).
+
+    Returns:
+        JSON with status and recalled context (if any).
+    """
+    import time as _time
+
+    ws_id = workspace_id or _auto_workspace_id()
+    n_results = min(n_results, 5)
+
+    # --- Rate limiter + Dedup ---
+    query_hash = hashlib.md5(f"{user_message}:{ws_id}".encode()).hexdigest()[:12]  # noqa: S324
+    now = _time.time()
+
+    if query_hash in _recall_cache:
+        cached_time, cached_result = _recall_cache[query_hash]
+        if now - cached_time < _RECALL_COOLDOWN:
+            return json.dumps({
+                "status": "cached",
+                "message": "Using cached recall (rate-limited).",
+                "context": cached_result,
+            }, ensure_ascii=False)
+
+    # Prune old cache entries
+    if len(_recall_cache) > _RECALL_CACHE_SIZE:
+        oldest_keys = sorted(_recall_cache, key=lambda k: _recall_cache[k][0])
+        for k in oldest_keys[:len(oldest_keys) // 2]:
+            del _recall_cache[k]
+
+    # --- Recall ---
+    try:
+        context = await quick_recall(
+            query=user_message,
+            workspace_id=ws_id,
+            tech_stack=tech_stack or None,
+            n_results=n_results,
+        )
+    except Exception:  # noqa: BLE001
+        context = ""
+
+    # Cache result
+    _recall_cache[query_hash] = (now, context)
+    record_tool_call("auto_recall", query=user_message[:100])
+
+    if not context:
+        return json.dumps({
+            "status": "no_context",
+            "message": "No relevant context found in memory. This is normal for new topics.",
+        }, ensure_ascii=False)
+
+    return json.dumps({
+        "status": "success",
+        "message": "Relevant context recalled from memory. Use this to inform your response.",
+        "context": context,
+    }, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
@@ -895,6 +1001,236 @@ async def manage_server(action: str) -> str:
                 "self_update",
             ],
         }, indent=2)
+
+
+# ---------------------------------------------------------------------------
+# Helpers — Markdown Section Parsing & Merging
+# ---------------------------------------------------------------------------
+
+import re as _re
+
+
+def _parse_md_sections(content: str) -> dict[str, str]:
+    """Parse markdown into ``{header: body}`` by ``## `` (H2) headers.
+
+    The key ``"__preamble__"`` holds any content before the first H2.
+    Keys are the header text (without ``## `` prefix), values are the
+    body text following that header up to the next H2 or end-of-file.
+    """
+    sections: dict[str, str] = {}
+    # Split at lines starting with '## '
+    parts = _re.split(r"(?m)^## ", content)
+
+    # First part is the preamble (title + any text before the first H2)
+    if parts:
+        preamble = parts[0].strip()
+        if preamble:
+            sections["__preamble__"] = preamble
+
+    for part in parts[1:]:
+        lines = part.split("\n", 1)
+        header = lines[0].strip()
+        body = lines[1].strip() if len(lines) > 1 else ""
+        sections[header] = body
+
+    return sections
+
+
+def _merge_md_sections(existing: str, new_content: str) -> tuple[str, list[str], list[str]]:
+    """Merge new H2 sections into existing markdown, skipping duplicates.
+
+    Returns:
+        (merged_text, added_headers, skipped_headers)
+    """
+    existing_sections = _parse_md_sections(existing)
+    new_sections = _parse_md_sections(new_content)
+
+    added: list[str] = []
+    skipped: list[str] = []
+
+    for header, body in new_sections.items():
+        if header == "__preamble__":
+            continue  # Don't merge preambles
+        if header in existing_sections:
+            skipped.append(header)
+        else:
+            added.append(header)
+            existing += f"\n\n## {header}\n\n{body}"
+
+    return existing.strip() + "\n", added, skipped
+
+
+def _replace_md_section(content: str, section_header: str, new_body: str) -> tuple[str, bool]:
+    """Replace the body of a specific ``## section_header`` in *content*.
+
+    Returns:
+        (updated_content, was_found)
+    """
+    # Pattern: match from '## header\n' to the next '## ' or end-of-file
+    pattern = (
+        r"(^## " + _re.escape(section_header) + r"[ \t]*\n)"  # header line
+        r"(.*?)"                                                 # body (lazy)
+        r"(?=^## |\Z)"                                           # next H2 or EOF
+    )
+    match = _re.search(pattern, content, _re.MULTILINE | _re.DOTALL)
+    if not match:
+        return content, False
+
+    replacement = match.group(1) + "\n" + new_body.strip() + "\n\n"
+    updated = content[: match.start()] + replacement + content[match.end():]
+    return updated, True
+
+
+# ---------------------------------------------------------------------------
+# Tool 11 — update_tech_stack (Merge-aware Knowledge Update)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def update_tech_stack(
+    stack: str,
+    target_file: str,
+    new_content: str,
+    mode: str = "append",
+    section_header: str = "",
+) -> str:
+    """Update a tech stack knowledge file with merge support (no data loss).
+
+    Call this tool when user asks to:
+    - Add new rules, skills, or references to an existing tech stack
+    - Update a specific section of rules or skills
+    - Extend the knowledge base with additional content
+
+    Three modes:
+    - ``append``          — Add new sections to end of file, skip duplicates
+    - ``replace_section`` — Replace a specific ## section (requires section_header)
+    - ``overwrite``       — Replace entire file content (use with caution)
+
+    Args:
+        stack: Tech stack key (e.g. python, android_kotlin, flutter_dart).
+        target_file: One of "rules", "skills", or a reference filename
+            (e.g. "testing" → references/testing.md).
+        new_content: The markdown content to add or replace.
+        mode: Update mode — "append" (default), "replace_section", "overwrite".
+        section_header: Required for replace_section mode.
+            The H2 header text to replace (without "## " prefix).
+
+    Returns:
+        JSON with update status, sections added/skipped (append mode),
+        or replacement result (replace_section mode).
+    """
+    stack_dir = _TECH_STACKS_DIR / stack
+
+    # Resolve target file path
+    if target_file in ("rules", "rules.md"):
+        target_path = stack_dir / "rules.md"
+    elif target_file in ("skills", "skills.md"):
+        target_path = stack_dir / "skills.md"
+    else:
+        # Treat as a reference file
+        ref_name = target_file if target_file.endswith(".md") else f"{target_file}.md"
+        target_path = stack_dir / "references" / ref_name
+
+    # Validate mode
+    valid_modes = ("append", "replace_section", "overwrite")
+    if mode not in valid_modes:
+        return json.dumps({
+            "status": "error",
+            "message": f"Invalid mode: '{mode}'. Use one of: {valid_modes}",
+        }, indent=2, ensure_ascii=False)
+
+    if mode == "replace_section" and not section_header:
+        return json.dumps({
+            "status": "error",
+            "message": "section_header is required for replace_section mode.",
+        }, indent=2, ensure_ascii=False)
+
+    # Ensure parent directories exist
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Read existing content (empty string if file doesn't exist yet)
+    existing_content = ""
+    if target_path.is_file():
+        existing_content = target_path.read_text(encoding="utf-8")
+
+    # --- Mode: overwrite ---
+    if mode == "overwrite":
+        target_path.write_text(new_content, encoding="utf-8")
+        record_tool_call("update_tech_stack", stack=stack)
+        return json.dumps({
+            "status": "success",
+            "mode": "overwrite",
+            "stack": stack,
+            "file": str(target_path.relative_to(_BASE_DIR)),
+            "size": len(new_content),
+            "message": "File overwritten completely.",
+        }, indent=2, ensure_ascii=False)
+
+    # --- Mode: append (with dedup) ---
+    if mode == "append":
+        if not existing_content:
+            # No existing file → just write new content
+            target_path.write_text(new_content, encoding="utf-8")
+            record_tool_call("update_tech_stack", stack=stack)
+            return json.dumps({
+                "status": "success",
+                "mode": "append",
+                "stack": stack,
+                "file": str(target_path.relative_to(_BASE_DIR)),
+                "message": "New file created (no existing content).",
+                "size": len(new_content),
+            }, indent=2, ensure_ascii=False)
+
+        merged, added, skipped = _merge_md_sections(existing_content, new_content)
+        target_path.write_text(merged, encoding="utf-8")
+        record_tool_call("update_tech_stack", stack=stack)
+        return json.dumps({
+            "status": "success",
+            "mode": "append",
+            "stack": stack,
+            "file": str(target_path.relative_to(_BASE_DIR)),
+            "sections_added": added,
+            "sections_skipped_duplicate": skipped,
+            "message": (
+                f"Added {len(added)} new section(s), "
+                f"skipped {len(skipped)} duplicate(s)."
+            ),
+        }, indent=2, ensure_ascii=False)
+
+    # --- Mode: replace_section ---
+    if mode == "replace_section":
+        if not existing_content:
+            return json.dumps({
+                "status": "error",
+                "message": f"File does not exist yet. Use 'append' mode to create it first.",
+            }, indent=2, ensure_ascii=False)
+
+        updated, found = _replace_md_section(
+            existing_content, section_header, new_content,
+        )
+        if not found:
+            # List available sections for hint
+            sections = _parse_md_sections(existing_content)
+            available = [h for h in sections if h != "__preamble__"]
+            return json.dumps({
+                "status": "error",
+                "message": f"Section '## {section_header}' not found.",
+                "available_sections": available,
+            }, indent=2, ensure_ascii=False)
+
+        target_path.write_text(updated, encoding="utf-8")
+        record_tool_call("update_tech_stack", stack=stack)
+        return json.dumps({
+            "status": "success",
+            "mode": "replace_section",
+            "stack": stack,
+            "file": str(target_path.relative_to(_BASE_DIR)),
+            "replaced_section": section_header,
+            "message": f"Section '## {section_header}' updated successfully.",
+        }, indent=2, ensure_ascii=False)
+
+    # Should not reach here
+    return json.dumps({"status": "error", "message": "Unexpected state."}, indent=2)
 
 
 # ---------------------------------------------------------------------------
