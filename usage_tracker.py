@@ -10,12 +10,23 @@ Architecture: Pure logic — no MCP dependency.
 ``main.py`` imports and wraps with ``@mcp.tool()``.
 
 Storage: JSON files in ``./.usage_logs/YYYY-MM-DD.json``.
+
+Performance notes:
+  - **Buffered writes**: ``record_tool_call`` appends to an in-memory
+    buffer and flushes to disk only when the buffer reaches
+    ``_FLUSH_SIZE`` entries.  An ``atexit`` hook guarantees any
+    remaining entries are written on shutdown.
+  - **Bounded similarity**: Satisfaction scoring limits pairwise
+    comparisons to a sliding window (``_SIMILARITY_WINDOW``) and
+    short-circuits on exact matches and length mismatches.
 """
 
 from __future__ import annotations
 
+import atexit
 import json
 import logging
+import threading
 from collections import Counter
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -30,6 +41,8 @@ logger = logging.getLogger(__name__)
 _BASE_DIR: Path = Path(__file__).resolve().parent
 _LOG_DIR: Path = _BASE_DIR / ".usage_logs"
 _SIMILARITY_THRESHOLD: float = 0.7  # queries ≥70% similar → "repeated"
+_SIMILARITY_WINDOW: int = 20        # compare only last N queries
+_FLUSH_SIZE: int = 10               # flush buffer after N entries
 
 
 # ---------------------------------------------------------------------------
@@ -69,10 +82,53 @@ def _save_log(entries: list[dict], date: str | None = None) -> None:
 
 
 def _is_similar(a: str, b: str, threshold: float = _SIMILARITY_THRESHOLD) -> bool:
-    """Check if two strings are similar above threshold (0–1)."""
+    """Check if two strings are similar above threshold (0–1).
+
+    Optimisations over the original:
+    - Exact match → True immediately (O(1))
+    - Length mismatch > 2× → False immediately (skip SequenceMatcher)
+    """
     if not a or not b:
         return False
-    return SequenceMatcher(None, a.lower(), b.lower()).ratio() >= threshold
+    # Normalise once (callers should pre-normalise when possible)
+    a_lower = a.lower()
+    b_lower = b.lower()
+    # Exact match shortcut
+    if a_lower == b_lower:
+        return True
+    # Length ratio shortcut — very different lengths can't be similar
+    len_a, len_b = len(a_lower), len(b_lower)
+    if len_a > 2 * len_b or len_b > 2 * len_a:
+        return False
+    return SequenceMatcher(None, a_lower, b_lower).ratio() >= threshold
+
+
+# ---------------------------------------------------------------------------
+# Buffered write for record_tool_call (Fix #3)
+# ---------------------------------------------------------------------------
+
+_buffer: list[dict] = []
+_buffer_lock = threading.Lock()
+
+
+def _flush_buffer() -> None:
+    """Flush buffered entries to disk (thread-safe, append-only)."""
+    global _buffer  # noqa: PLW0603
+    with _buffer_lock:
+        if not _buffer:
+            return
+        to_flush = list(_buffer)
+        _buffer = []
+
+    # Merge with existing log file
+    existing = _load_log()
+    existing.extend(to_flush)
+    _save_log(existing)
+    logger.debug("Flushed %d usage entries to disk.", len(to_flush))
+
+
+# Guarantee flush on interpreter shutdown.
+atexit.register(_flush_buffer)
 
 
 # ---------------------------------------------------------------------------
@@ -88,13 +144,15 @@ def record_tool_call(
 ) -> None:
     """Record a tool call for analytics.
 
+    Entries are buffered in memory and flushed to disk when the buffer
+    reaches ``_FLUSH_SIZE`` or at interpreter shutdown (``atexit``).
+
     Args:
         tool_name: Name of the MCP tool called.
         stack: Detected tech stack (if applicable).
         query: The user's query/input text (for similarity analysis).
         metadata: Any extra info to store.
     """
-    entries = _load_log()
     entry: dict = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "tool": tool_name,
@@ -106,8 +164,12 @@ def record_tool_call(
     if metadata:
         entry["metadata"] = metadata
 
-    entries.append(entry)
-    _save_log(entries)
+    with _buffer_lock:
+        _buffer.append(entry)
+        should_flush = len(_buffer) >= _FLUSH_SIZE
+
+    if should_flush:
+        _flush_buffer()
 
 
 def get_daily_stats(date: str | None = None) -> str:
@@ -117,12 +179,18 @@ def get_daily_stats(date: str | None = None) -> str:
       - Higher = more diverse queries (user exploring new knowledge)
       - Lower = many repeated/similar queries (user re-requesting same info)
 
+    Performance: Similarity comparisons are bounded to a sliding window
+    of ``_SIMILARITY_WINDOW`` previous queries (O(n×k) instead of O(n²)).
+
     Args:
         date: Date string YYYY-MM-DD (default: today).
 
     Returns:
         JSON string with daily report.
     """
+    # Flush buffer first so stats include recent calls
+    _flush_buffer()
+
     target_date = date or _today_str()
     entries = _load_log(target_date)
 
@@ -145,16 +213,29 @@ def get_daily_stats(date: str | None = None) -> str:
         e["stack"] for e in entries if e.get("stack")
     )
 
-    # --- Satisfaction scoring ---
+    # --- Satisfaction scoring (bounded window) ---
     queries: list[str] = [e["query"] for e in entries if e.get("query")]
     total_queries = len(queries)
     repeated_count = 0
 
     if total_queries >= 2:
-        # Compare each query with all previous queries
-        for i in range(1, len(queries)):
-            for j in range(i):
-                if _is_similar(queries[i], queries[j]):
+        # Pre-normalise for faster comparison
+        normalised = [q.lower() for q in queries]
+        # Exact-match dedup set
+        seen_exact: set[str] = set()
+
+        for i in range(len(normalised)):
+            q = normalised[i]
+            # Exact match shortcut
+            if q in seen_exact:
+                repeated_count += 1
+                continue
+            seen_exact.add(q)
+
+            # Fuzzy match within bounded window (last _SIMILARITY_WINDOW)
+            window_start = max(0, i - _SIMILARITY_WINDOW)
+            for j in range(window_start, i):
+                if _is_similar(normalised[i], normalised[j]):
                     repeated_count += 1
                     break  # count once per query
 
