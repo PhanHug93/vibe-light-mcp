@@ -29,7 +29,10 @@ _registry_cache: dict[str, Any] | None = None
 
 
 def _load_registry(tech_stacks_dir: Path) -> dict[str, Any]:
-    """Load stack registry from YAML file, with fallback to empty."""
+    """Load stack registry from ``registry.yaml``.
+
+    Requires PyYAML (hard dependency declared in pyproject.toml).
+    """
     global _registry_cache
     if _registry_cache is not None:
         return _registry_cache
@@ -40,78 +43,19 @@ def _load_registry(tech_stacks_dir: Path) -> dict[str, Any]:
         _registry_cache = {"signatures": [], "triggers": {}}
         return _registry_cache
 
+    import yaml  # hard dependency (pyyaml>=6.0)
+
     try:
-        # PyYAML is optional — use safe_load
-        import yaml
         raw = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
         _registry_cache = {
             "signatures": raw.get("signatures", []),
             "triggers": raw.get("triggers", {}),
         }
-    except ImportError:
-        # Fallback: basic YAML parsing for simple structure
-        logger.warning("PyYAML not installed — using basic parser for registry.yaml")
-        _registry_cache = _parse_registry_basic(yaml_path)
     except Exception as exc:
         logger.error("Failed to load registry.yaml: %s", exc)
         _registry_cache = {"signatures": [], "triggers": {}}
 
     return _registry_cache
-
-
-def _parse_registry_basic(yaml_path: Path) -> dict[str, Any]:
-    """Minimal YAML-subset parser for registry.yaml (no external deps).
-
-    Handles only the exact format used by our registry file.
-    """
-    import re
-
-    text = yaml_path.read_text(encoding="utf-8")
-    signatures: list[dict[str, str]] = []
-    triggers: dict[str, dict[str, list[str]]] = {}
-
-    # Parse signatures section
-    sig_match = re.findall(r"-\s+file:\s+(.+)\n\s+stack:\s+(.+)", text)
-    for file_name, stack_name in sig_match:
-        signatures.append({
-            "file": file_name.strip(),
-            "stack": stack_name.strip(),
-        })
-
-    # Parse triggers section
-    trigger_section = text.split("triggers:")[1] if "triggers:" in text else ""
-    current_stack = None
-    current_key = None
-
-    for line in trigger_section.split("\n"):
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        # Stack name (2-space indent, no dash)
-        indent = len(line) - len(line.lstrip())
-        if indent == 2 and stripped.endswith(":") and not stripped.startswith("-"):
-            current_stack = stripped[:-1]
-            triggers[current_stack] = {"extensions": [], "keywords": []}
-            current_key = None
-        elif indent == 4 and ":" in stripped:
-            key_part = stripped.split(":")[0].strip()
-            value_part = stripped.split(":", 1)[1].strip()
-            current_key = key_part
-            # Inline list: [".py", ".pyi"]
-            if value_part.startswith("[") and value_part.endswith("]"):
-                items = [
-                    s.strip().strip('"').strip("'")
-                    for s in value_part[1:-1].split(",")
-                    if s.strip()
-                ]
-                if current_stack and current_key:
-                    triggers[current_stack][current_key] = items
-        elif indent >= 6 and stripped.startswith("- ") and current_stack and current_key:
-            value = stripped[2:].strip().strip('"').strip("'")
-            triggers[current_stack][current_key].append(value)
-
-    return {"signatures": signatures, "triggers": triggers}
 
 
 # ---------------------------------------------------------------------------
