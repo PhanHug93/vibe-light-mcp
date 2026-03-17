@@ -107,85 +107,10 @@ def _get_embedding_fn():
     return _embedding_fn_cache
 
 # ---------------------------------------------------------------------------
-# Semantic Chunking (kept from v2 — unchanged)
+# Semantic Chunking — delegated to text_splitter (SRP)
 # ---------------------------------------------------------------------------
 
-_SEPARATORS: list[str] = ["\n\n", "\n", ". ", " "]
-_DEFAULT_CHUNK_SIZE: int = 1000
-_DEFAULT_CHUNK_OVERLAP: int = 150
-
-
-def recursive_text_split(
-    text: str,
-    chunk_size: int = _DEFAULT_CHUNK_SIZE,
-    chunk_overlap: int = _DEFAULT_CHUNK_OVERLAP,
-    separators: list[str] | None = None,
-) -> list[str]:
-    """Recursively split *text* at semantic anchor points.
-
-    Priority order: ``\\n\\n`` → ``\\n`` → ``. `` → `` ``
-    Preserves code functions, paragraphs, and sentences intact.
-    """
-    if not text.strip():
-        return []
-    if len(text) <= chunk_size:
-        return [text.strip()]
-
-    seps = separators if separators is not None else list(_SEPARATORS)
-
-    if not seps:
-        chunks: list[str] = []
-        start = 0
-        while start < len(text):
-            end = min(start + chunk_size, len(text))
-            chunk = text[start:end].strip()
-            if chunk:
-                chunks.append(chunk)
-            start += chunk_size - chunk_overlap
-        return chunks
-
-    sep = seps[0]
-    remaining_seps = seps[1:]
-    segments = text.split(sep)
-
-    merged_chunks: list[str] = []
-    current_chunk = ""
-
-    for segment in segments:
-        segment = segment.strip()
-        if not segment:
-            continue
-        candidate = f"{current_chunk}{sep}{segment}" if current_chunk else segment
-        if len(candidate) <= chunk_size:
-            current_chunk = candidate
-        else:
-            if current_chunk:
-                merged_chunks.append(current_chunk.strip())
-            if len(segment) > chunk_size:
-                merged_chunks.extend(
-                    recursive_text_split(segment, chunk_size, chunk_overlap, remaining_seps)
-                )
-                current_chunk = ""
-            else:
-                current_chunk = segment
-
-    if current_chunk.strip():
-        merged_chunks.append(current_chunk.strip())
-
-    if chunk_overlap > 0 and len(merged_chunks) > 1:
-        overlapped: list[str] = [merged_chunks[0]]
-        for i in range(1, len(merged_chunks)):
-            prev = merged_chunks[i - 1]
-            tail = prev[-chunk_overlap:] if len(prev) > chunk_overlap else prev
-            for break_sep in _SEPARATORS:
-                idx = tail.find(break_sep)
-                if idx != -1:
-                    tail = tail[idx + len(break_sep):]
-                    break
-            overlapped.append(f"{tail.strip()} {merged_chunks[i]}".strip())
-        return overlapped
-
-    return merged_chunks
+from src.utils.text_splitter import recursive_text_split  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
