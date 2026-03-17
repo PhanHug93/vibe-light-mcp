@@ -28,10 +28,12 @@ from pathlib import Path
 # Logging & Constants
 # ---------------------------------------------------------------------------
 
+from src.config import PROJECT_ROOT, TECH_STACKS_DIR
+
 logger = logging.getLogger(__name__)
 
-_BASE_DIR: Path = Path(__file__).resolve().parent
-_TECH_STACKS_DIR: Path = _BASE_DIR / "tech_stacks"
+_BASE_DIR: Path = PROJECT_ROOT
+_TECH_STACKS_DIR: Path = TECH_STACKS_DIR
 _COMMAND_TIMEOUT: int = 120  # generous for large repos / slow networks
 
 

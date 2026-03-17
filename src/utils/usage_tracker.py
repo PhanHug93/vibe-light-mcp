@@ -32,17 +32,19 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Logging & Constants
-# ---------------------------------------------------------------------------
+from src.config import (
+    USAGE_LOG_DIR,
+    SIMILARITY_THRESHOLD,
+    SIMILARITY_WINDOW,
+    FLUSH_SIZE,
+)
 
 logger = logging.getLogger(__name__)
 
-_BASE_DIR: Path = Path(__file__).resolve().parent
-_LOG_DIR: Path = _BASE_DIR / ".usage_logs"
-_SIMILARITY_THRESHOLD: float = 0.7  # queries ≥70% similar → "repeated"
-_SIMILARITY_WINDOW: int = 20        # compare only last N queries
-_FLUSH_SIZE: int = 10               # flush buffer after N entries
+_LOG_DIR: Path = USAGE_LOG_DIR
+_SIMILARITY_THRESHOLD: float = SIMILARITY_THRESHOLD
+_SIMILARITY_WINDOW: int = SIMILARITY_WINDOW
+_FLUSH_SIZE: int = FLUSH_SIZE
 
 
 # ---------------------------------------------------------------------------
