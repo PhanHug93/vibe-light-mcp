@@ -49,26 +49,33 @@ from chromadb.api.models.Collection import Collection
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+from src.config import (
+    CHROMA_HOST,
+    CHROMA_PORT,
+    CHROMA_CONNECT_TIMEOUT,
+    CHROMA_OP_TIMEOUT,
+    CHROMA_POOL_SIZE,
+    CHROMA_HEARTBEAT_INTERVAL,
+    EMBEDDING_MODEL,
+    L1_PREFIX,
+    L2_COLLECTION,
+    L1_TTL_DAYS,
+    QUICK_RECALL_TIMEOUT,
+    QUICK_RECALL_MAX_CHARS,
+)
 
-_CHROMA_HOST: str = "localhost"
-_CHROMA_PORT: int = 8888
-
-_L1_PREFIX: str = "mcp_local_"
-_L2_COLLECTION: str = "mcp_global_knowledge"
-
-_L1_TTL_DAYS: int = 3  # Auto-cleanup threshold for L1
-
-_CHROMA_CONNECT_TIMEOUT: int = 5   # seconds — initial connection + heartbeat
-_CHROMA_OP_TIMEOUT: int = 15       # seconds — per ChromaDB operation
-_CHROMA_POOL_SIZE: int = 4         # dedicated thread-pool workers
-_CHROMA_HEARTBEAT_INTERVAL: int = 30  # seconds — proactive staleness check
-
-_EMBEDDING_MODEL: str = "all-MiniLM-L12-v2"  # 384d, 12 layers — better than default L6
-_QUICK_RECALL_TIMEOUT: int = 5     # seconds — fast timeout for auto-recall
-_QUICK_RECALL_MAX_CHARS: int = 3000  # truncate auto-recall output
+_CHROMA_HOST: str = CHROMA_HOST
+_CHROMA_PORT: int = CHROMA_PORT
+_L1_PREFIX: str = L1_PREFIX
+_L2_COLLECTION: str = L2_COLLECTION
+_L1_TTL_DAYS: int = L1_TTL_DAYS
+_CHROMA_CONNECT_TIMEOUT: int = CHROMA_CONNECT_TIMEOUT
+_CHROMA_OP_TIMEOUT: int = CHROMA_OP_TIMEOUT
+_CHROMA_POOL_SIZE: int = CHROMA_POOL_SIZE
+_CHROMA_HEARTBEAT_INTERVAL: int = CHROMA_HEARTBEAT_INTERVAL
+_EMBEDDING_MODEL: str = EMBEDDING_MODEL
+_QUICK_RECALL_TIMEOUT: int = QUICK_RECALL_TIMEOUT
+_QUICK_RECALL_MAX_CHARS: int = QUICK_RECALL_MAX_CHARS
 
 
 # ---------------------------------------------------------------------------
