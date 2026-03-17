@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "1.0.4"
+__version__: str = "1.0.5"
 
 import asyncio
 import hashlib
@@ -348,7 +348,7 @@ async def search_memory(
 
 # Rate limiter state
 _recall_cache: dict[str, tuple[float, str]] = {}  # hash → (timestamp, result)
-_RECALL_COOLDOWN: float = 10.0  # seconds between actual queries
+_RECALL_COOLDOWN: float = 3.0   # seconds between actual queries (was 10.0)
 _RECALL_CACHE_SIZE: int = 20    # max cached results
 
 
@@ -367,7 +367,7 @@ async def auto_recall(
     refresh your memory.
 
     This tool is:
-    - Rate-limited (max 1 query per 10s, duplicates return cached results)
+    - Rate-limited (max 1 query per 3s, duplicates return cached results)
     - Fail-safe (always returns valid JSON, never blocks)
     - Fast (5s timeout, compact output ≤3000 chars)
 
@@ -394,7 +394,11 @@ async def auto_recall(
     n_results = min(n_results, 5)
 
     # --- Rate limiter + Dedup ---
-    query_hash = hashlib.md5(f"{user_message}:{ws_id}".encode()).hexdigest()[:12]  # noqa: S324
+    # Include tech_stack in hash to avoid cross-context cache hits
+    # when user sends similar short queries ("fix this") in different stacks
+    query_hash = hashlib.md5(  # noqa: S324
+        f"{user_message}:{ws_id}:{tech_stack}".encode(),
+    ).hexdigest()[:12]
     now = _time.time()
 
     if query_hash in _recall_cache:
