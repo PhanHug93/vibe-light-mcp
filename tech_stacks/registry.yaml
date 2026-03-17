@@ -1,0 +1,137 @@
+# Stack Registry — Auto-detection signatures and keyword triggers.
+# Add a new tech stack by appending a section here — NO code changes needed.
+
+# File signatures: files whose presence identifies a tech stack.
+# Ordered by specificity: most specific first.
+signatures:
+  - file: settings.gradle.kts
+    stack: kmp
+  - file: build.gradle.kts
+    stack: android_kotlin
+  - file: build.gradle
+    stack: android_kotlin
+  - file: pubspec.yaml
+    stack: flutter_dart
+  - file: Podfile
+    stack: ios_swift
+  - file: Package.swift
+    stack: ios_swift
+  - file: pyproject.toml
+    stack: python
+  - file: setup.py
+    stack: python
+  - file: Pipfile
+    stack: python
+  - file: requirements.txt
+    stack: python
+  - file: package.json
+    stack: react_native
+  - file: package.json
+    stack: vue_js
+
+# Keyword triggers: per-stack file extensions and code patterns.
+triggers:
+  python:
+    extensions: [".py", ".pyi"]
+    keywords:
+      - FastAPI
+      - "@app.route"
+      - BaseModel
+      - pydantic
+      - "async def"
+      - asyncio
+      - pytest
+      - django
+      - flask
+      - SQLAlchemy
+      - dataclass
+      - "import typing"
+      - "def main"
+      - "if __name__"
+      - "from __future__"
+
+  android_kotlin:
+    extensions: [".kt", ".kts"]
+    keywords:
+      - "@Composable"
+      - ViewModel
+      - Hilt
+      - "@Inject"
+      - "@Provides"
+      - "suspend fun"
+      - StateFlow
+      - viewModelScope
+      - NavHost
+      - Room
+      - "@Entity"
+      - "@Dao"
+      - Retrofit
+      - OkHttpClient
+
+  flutter_dart:
+    extensions: [".dart"]
+    keywords:
+      - StatelessWidget
+      - StatefulWidget
+      - BuildContext
+      - Bloc
+      - Cubit
+      - Provider
+      - GetX
+      - Riverpod
+      - GoRouter
+      - AutoRoute
+      - pubspec
+
+  kmp:
+    extensions: [".kt", ".kts"]
+    keywords:
+      - "expect "
+      - "actual "
+      - commonMain
+      - Multiplatform
+      - iosMain
+      - androidMain
+      - KMM
+
+  vue_js:
+    extensions: [".vue", ".ts", ".js"]
+    keywords:
+      - defineComponent
+      - "ref("
+      - "reactive("
+      - "computed("
+      - Pinia
+      - createApp
+      - createRouter
+      - "<template>"
+      - v-model
+      - v-if
+      - v-for
+
+  react_native:
+    extensions: [".tsx", ".ts", ".jsx"]
+    keywords:
+      - react-native
+      - React Native
+      - NavigationContainer
+      - createNativeStackNavigator
+      - FlatList
+      - StyleSheet
+      - useNavigation
+      - Pressable
+      - SafeAreaView
+
+  ios_swift:
+    extensions: [".swift"]
+    keywords:
+      - "@State"
+      - "@Binding"
+      - "@ObservedObject"
+      - "@StateObject"
+      - NavigationStack
+      - "@MainActor"
+      - "async throws"
+      - UIViewController
+      - SwiftUI
+      - Combine

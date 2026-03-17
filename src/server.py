@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "1.0.3"
+__version__: str = "1.0.4"
 
 import asyncio
 import hashlib
@@ -102,7 +102,7 @@ async def analyze_workspace(project_path: str) -> str:
             indent=2, ensure_ascii=False,
         )
 
-    detection = detect_stack_enhanced(target)
+    detection = detect_stack_enhanced(target, _TECH_STACKS_DIR)
     stack = detection["stack"]
 
     if stack is None:
@@ -669,28 +669,26 @@ async def usage_stats(date: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool 10 — manage_server
+# Tool 10 — manage_chroma (P6: ISP — separated from self_update)
 # ---------------------------------------------------------------------------
 
 _MCP_ROOT: Path = PROJECT_ROOT
 
 
 @mcp.tool()
-async def manage_server(action: str) -> str:
-    """Start, stop, or check ChromaDB database server. Also update MCP code.
+async def manage_chroma(action: str) -> str:
+    """Start, stop, or check ChromaDB database server status.
 
     Call this tool when user asks to:
     - Start or initialize the database / ChromaDB
     - Stop or shutdown the database / ChromaDB
     - Check if database / ChromaDB is running
-    - Update or upgrade the MCP server code
 
     Args:
         action: One of:
-            - ``chroma_start``  — Start ChromaDB HTTP server (port 8888)
-            - ``chroma_stop``   — Stop ChromaDB HTTP server
-            - ``chroma_status`` — Check if ChromaDB is running
-            - ``self_update``   — Pull latest MCP code from Git remote
+            - ``start``  — Start ChromaDB HTTP server (port 8888)
+            - ``stop``   — Stop ChromaDB HTTP server
+            - ``status`` — Check if ChromaDB is running
 
     Returns:
         JSON with action result.
@@ -699,7 +697,7 @@ async def manage_server(action: str) -> str:
 
     action = action.strip().lower()
 
-    if action == "chroma_status":
+    if action == "status":
         try:
             import httpx  # noqa: F811
             resp = httpx.get("http://localhost:8888/api/v2/heartbeat", timeout=3)
@@ -727,10 +725,10 @@ async def manage_server(action: str) -> str:
         return json.dumps({
             "status": "stopped",
             "message": "ChromaDB not running on port 8888.",
-            "hint": "Use action 'chroma_start' to launch it.",
+            "hint": "Use action 'start' to launch it.",
         }, indent=2)
 
-    elif action == "chroma_start":
+    elif action == "start":
         # Check if already running
         check = subprocess.run(
             ["lsof", "-i", ":8888"],
@@ -759,8 +757,7 @@ async def manage_server(action: str) -> str:
         db_path = str(CHROMA_DB_PATH)
         CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
 
-        # Start as background process
-        # P5 fix: use context manager to avoid fd leak
+        # Start as background process (fd leak fixed)
         stdout_f = open("/tmp/chromadb.stdout.log", "a")  # noqa: SIM115
         stderr_f = open("/tmp/chromadb.stderr.log", "a")  # noqa: SIM115
         subprocess.Popen(
@@ -769,7 +766,6 @@ async def manage_server(action: str) -> str:
             stderr=stderr_f,
             start_new_session=True,
         )
-        # Close parent-side handles (child process inherits them)
         stdout_f.close()
         stderr_f.close()
 
@@ -790,7 +786,7 @@ async def manage_server(action: str) -> str:
             "message": "ChromaDB server launched" if started else "Check /tmp/chromadb.stderr.log",
         }, indent=2)
 
-    elif action == "chroma_stop":
+    elif action == "stop":
         result = subprocess.run(
             ["lsof", "-ti", ":8888"],
             capture_output=True, text=True, timeout=5,
@@ -815,32 +811,45 @@ async def manage_server(action: str) -> str:
             "message": "ChromaDB server stopped.",
         }, indent=2)
 
-    elif action == "self_update":
-        result = subprocess.run(
-            ["git", "pull", "--rebase"],
-            capture_output=True, text=True,
-            cwd=str(_MCP_ROOT), timeout=30,
-        )
-
-        return json.dumps({
-            "status": "success" if result.returncode == 0 else "error",
-            "action": "git pull --rebase",
-            "stdout": result.stdout.strip()[-500:],
-            "stderr": result.stderr.strip()[-300:] if result.returncode != 0 else "",
-            "hint": "Restart MCP server to apply updates." if result.returncode == 0 else "",
-        }, indent=2)
-
     else:
         return json.dumps({
             "status": "error",
             "message": f"Unknown action: '{action}'",
-            "available_actions": [
-                "chroma_start",
-                "chroma_stop",
-                "chroma_status",
-                "self_update",
-            ],
+            "available_actions": ["start", "stop", "status"],
         }, indent=2)
+
+
+# ---------------------------------------------------------------------------
+# Tool 10b — self_update (P6: ISP — separated from manage_chroma)
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool()
+async def self_update() -> str:
+    """Pull latest MCP server code from Git remote.
+
+    Call this tool when user asks to:
+    - Update or upgrade the MCP server code
+    - Pull latest changes for the MCP server
+
+    Returns:
+        JSON with git pull result and restart hint.
+    """
+    import subprocess
+
+    result = subprocess.run(
+        ["git", "pull", "--rebase"],
+        capture_output=True, text=True,
+        cwd=str(_MCP_ROOT), timeout=30,
+    )
+
+    return json.dumps({
+        "status": "success" if result.returncode == 0 else "error",
+        "action": "git pull --rebase",
+        "stdout": result.stdout.strip()[-500:],
+        "stderr": result.stderr.strip()[-300:] if result.returncode != 0 else "",
+        "hint": "Restart MCP server to apply updates." if result.returncode == 0 else "",
+    }, indent=2)
 
 
 # Markdown helpers imported from src.utils.markdown_utils
@@ -953,7 +962,7 @@ async def update_tech_stack(
             "status": "success",
             "mode": "append",
             "stack": stack,
-            "file": str(target_path.relative_to(_BASE_DIR)),
+            "file": str(target_path.relative_to(PROJECT_ROOT)),
             "sections_added": added,
             "sections_skipped_duplicate": skipped,
             "message": (
@@ -989,7 +998,7 @@ async def update_tech_stack(
             "status": "success",
             "mode": "replace_section",
             "stack": stack,
-            "file": str(target_path.relative_to(_BASE_DIR)),
+            "file": str(target_path.relative_to(PROJECT_ROOT)),
             "replaced_section": section_header,
             "message": f"Section '## {section_header}' updated successfully.",
         }, indent=2, ensure_ascii=False)
