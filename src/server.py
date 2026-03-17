@@ -14,7 +14,7 @@ Boots a FastMCP server exposing tools for Hybrid RAG (L1/L2 Memory):
 
 from __future__ import annotations
 
-__version__: str = "1.0.5"
+__version__: str = "1.0.6"
 
 import asyncio
 import hashlib
@@ -44,9 +44,12 @@ from src.utils.usage_tracker import record_tool_call, get_daily_stats
 # Logging
 # ---------------------------------------------------------------------------
 
+import sys
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(name)-20s | %(levelname)-7s | %(message)s",
+    stream=sys.stderr,  # CRITICAL: never write to stdout (stdio transport)
 )
 logger = logging.getLogger(__name__)
 
