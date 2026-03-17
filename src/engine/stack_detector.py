@@ -1,6 +1,7 @@
 """Stack Detector — Tech stack auto-detection via file signatures + keyword scan.
 
 Standalone module, no MCP dependency. Extracted from ``server.py`` (SRP).
+Stack definitions loaded from ``tech_stacks/registry.yaml`` (Open/Closed).
 
 Usage::
 
@@ -9,90 +10,108 @@ Usage::
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Configuration — Stack Signatures & Keyword Triggers
+# Registry Loader — reads from YAML config (P7: Open/Closed Principle)
 # ---------------------------------------------------------------------------
-
-# Ordered by specificity: most specific first.
-STACK_SIGNATURES: list[tuple[str, str]] = [
-    ("settings.gradle.kts", "kmp"),
-    ("build.gradle.kts",    "android_kotlin"),
-    ("build.gradle",        "android_kotlin"),
-    ("pubspec.yaml",        "flutter_dart"),
-    ("Podfile",             "ios_swift"),
-    ("Package.swift",       "ios_swift"),
-    ("pyproject.toml",      "python"),
-    ("setup.py",            "python"),
-    ("Pipfile",             "python"),
-    ("requirements.txt",    "python"),
-    ("package.json",        "react_native"),  # disambiguated via keyword scan
-    ("package.json",        "vue_js"),
-]
-
-STACK_TRIGGERS: dict[str, dict[str, list[str]]] = {
-    "python": {
-        "extensions": [".py", ".pyi"],
-        "keywords": [
-            "FastAPI", "@app.route", "BaseModel", "pydantic",
-            "async def", "asyncio", "pytest", "django",
-            "flask", "SQLAlchemy", "dataclass", "import typing",
-            "def main", "if __name__", "from __future__",
-        ],
-    },
-    "android_kotlin": {
-        "extensions": [".kt", ".kts"],
-        "keywords": [
-            "@Composable", "ViewModel", "Hilt", "@Inject", "@Provides",
-            "suspend fun", "StateFlow", "viewModelScope", "NavHost",
-            "Room", "@Entity", "@Dao", "Retrofit", "OkHttpClient",
-        ],
-    },
-    "flutter_dart": {
-        "extensions": [".dart"],
-        "keywords": [
-            "StatelessWidget", "StatefulWidget", "BuildContext",
-            "Bloc", "Cubit", "Provider", "GetX", "Riverpod",
-            "GoRouter", "AutoRoute", "pubspec",
-        ],
-    },
-    "kmp": {
-        "extensions": [".kt", ".kts"],
-        "keywords": [
-            "expect ", "actual ", "commonMain", "Multiplatform",
-            "iosMain", "androidMain", "KMM",
-        ],
-    },
-    "vue_js": {
-        "extensions": [".vue", ".ts", ".js"],
-        "keywords": [
-            "defineComponent", "ref(", "reactive(", "computed(",
-            "Pinia", "createApp", "createRouter", "<template>",
-            "v-model", "v-if", "v-for",
-        ],
-    },
-    "react_native": {
-        "extensions": [".tsx", ".ts", ".jsx"],
-        "keywords": [
-            "react-native", "React Native", "NavigationContainer",
-            "createNativeStackNavigator", "FlatList", "StyleSheet",
-            "useNavigation", "Pressable", "SafeAreaView",
-        ],
-    },
-    "ios_swift": {
-        "extensions": [".swift"],
-        "keywords": [
-            "@State", "@Binding", "@ObservedObject", "@StateObject",
-            "NavigationStack", "@MainActor", "async throws",
-            "UIViewController", "SwiftUI", "Combine",
-        ],
-    },
-}
 
 _SEARCH_DEPTH: int = 1  # root + one level deep
 _KEYWORD_SCAN_MAX_FILES: int = 20
 _KEYWORD_SCAN_MAX_BYTES: int = 50_000  # per file
+
+# Cache loaded registry
+_registry_cache: dict[str, Any] | None = None
+
+
+def _load_registry(tech_stacks_dir: Path) -> dict[str, Any]:
+    """Load stack registry from YAML file, with fallback to empty."""
+    global _registry_cache
+    if _registry_cache is not None:
+        return _registry_cache
+
+    yaml_path = tech_stacks_dir / "registry.yaml"
+    if not yaml_path.exists():
+        logger.warning("registry.yaml not found at %s — no stacks configured.", yaml_path)
+        _registry_cache = {"signatures": [], "triggers": {}}
+        return _registry_cache
+
+    try:
+        # PyYAML is optional — use safe_load
+        import yaml
+        raw = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        _registry_cache = {
+            "signatures": raw.get("signatures", []),
+            "triggers": raw.get("triggers", {}),
+        }
+    except ImportError:
+        # Fallback: basic YAML parsing for simple structure
+        logger.warning("PyYAML not installed — using basic parser for registry.yaml")
+        _registry_cache = _parse_registry_basic(yaml_path)
+    except Exception as exc:
+        logger.error("Failed to load registry.yaml: %s", exc)
+        _registry_cache = {"signatures": [], "triggers": {}}
+
+    return _registry_cache
+
+
+def _parse_registry_basic(yaml_path: Path) -> dict[str, Any]:
+    """Minimal YAML-subset parser for registry.yaml (no external deps).
+
+    Handles only the exact format used by our registry file.
+    """
+    import re
+
+    text = yaml_path.read_text(encoding="utf-8")
+    signatures: list[dict[str, str]] = []
+    triggers: dict[str, dict[str, list[str]]] = {}
+
+    # Parse signatures section
+    sig_match = re.findall(r"-\s+file:\s+(.+)\n\s+stack:\s+(.+)", text)
+    for file_name, stack_name in sig_match:
+        signatures.append({
+            "file": file_name.strip(),
+            "stack": stack_name.strip(),
+        })
+
+    # Parse triggers section
+    trigger_section = text.split("triggers:")[1] if "triggers:" in text else ""
+    current_stack = None
+    current_key = None
+
+    for line in trigger_section.split("\n"):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        # Stack name (2-space indent, no dash)
+        indent = len(line) - len(line.lstrip())
+        if indent == 2 and stripped.endswith(":") and not stripped.startswith("-"):
+            current_stack = stripped[:-1]
+            triggers[current_stack] = {"extensions": [], "keywords": []}
+            current_key = None
+        elif indent == 4 and ":" in stripped:
+            key_part = stripped.split(":")[0].strip()
+            value_part = stripped.split(":", 1)[1].strip()
+            current_key = key_part
+            # Inline list: [".py", ".pyi"]
+            if value_part.startswith("[") and value_part.endswith("]"):
+                items = [
+                    s.strip().strip('"').strip("'")
+                    for s in value_part[1:-1].split(",")
+                    if s.strip()
+                ]
+                if current_stack and current_key:
+                    triggers[current_stack][current_key] = items
+        elif indent >= 6 and stripped.startswith("- ") and current_stack and current_key:
+            value = stripped[2:].strip().strip('"').strip("'")
+            triggers[current_stack][current_key].append(value)
+
+    return {"signatures": signatures, "triggers": triggers}
 
 
 # ---------------------------------------------------------------------------
@@ -100,7 +119,7 @@ _KEYWORD_SCAN_MAX_BYTES: int = 50_000  # per file
 # ---------------------------------------------------------------------------
 
 
-def _detect_by_signature(project_path: Path) -> str | None:
+def _detect_by_signature(project_path: Path, signatures: list[dict[str, str]]) -> str | None:
     """Scan *project_path* for signature files and return the stack key."""
     for depth in range(_SEARCH_DEPTH + 1):
         search_dirs: list[Path] = (
@@ -108,20 +127,24 @@ def _detect_by_signature(project_path: Path) -> str | None:
             else [d for d in project_path.iterdir() if d.is_dir()]
         )
         for directory in search_dirs:
-            for signature, stack in STACK_SIGNATURES:
-                if (directory / signature).exists():
-                    return stack
+            for entry in signatures:
+                if (directory / entry["file"]).exists():
+                    return entry["stack"]
     return None
 
 
-def _scan_keywords(project_path: Path, stack: str) -> dict[str, int]:
+def _scan_keywords(
+    project_path: Path,
+    stack: str,
+    all_triggers: dict[str, dict[str, list[str]]],
+) -> dict[str, int]:
     """Scan source files for keyword hits. Returns {keyword: count}."""
-    triggers = STACK_TRIGGERS.get(stack)
+    triggers = all_triggers.get(stack)
     if not triggers:
         return {}
 
-    extensions = set(triggers["extensions"])
-    keywords = triggers["keywords"]
+    extensions = set(triggers.get("extensions", []))
+    keywords = triggers.get("keywords", [])
     hits: dict[str, int] = {}
     files_scanned = 0
 
@@ -153,20 +176,34 @@ def _scan_keywords(project_path: Path, stack: str) -> dict[str, int]:
     return hits
 
 
-def detect_stack_enhanced(project_path: Path) -> dict:
+def detect_stack_enhanced(project_path: Path, tech_stacks_dir: Path | None = None) -> dict:
     """Enhanced detection: file signature + keyword scan.
 
-    Returns dict with: stack, method, keyword_hits, confidence.
+    Args:
+        project_path: The project directory to analyze.
+        tech_stacks_dir: Path to tech_stacks/ (for loading registry.yaml).
+            If None, uses config default.
+
+    Returns:
+        dict with: stack, method, keyword_hits, confidence.
     """
-    stack = _detect_by_signature(project_path)
+    if tech_stacks_dir is None:
+        from src.config import TECH_STACKS_DIR
+        tech_stacks_dir = TECH_STACKS_DIR
+
+    registry = _load_registry(tech_stacks_dir)
+    signatures = registry["signatures"]
+    all_triggers = registry["triggers"]
+
+    stack = _detect_by_signature(project_path, signatures)
     method = "file_signature" if stack else "none"
 
     if stack is None:
         # Fallback: try keyword-only detection across all stacks
         best_stack = None
         best_score = 0
-        for candidate_stack in STACK_TRIGGERS:
-            hits = _scan_keywords(project_path, candidate_stack)
+        for candidate_stack in all_triggers:
+            hits = _scan_keywords(project_path, candidate_stack, all_triggers)
             score = sum(hits.values())
             if score > best_score:
                 best_score = score
@@ -179,8 +216,7 @@ def detect_stack_enhanced(project_path: Path) -> dict:
     keyword_hits: dict[str, int] = {}
     confidence = 0.0
     if stack:
-        keyword_hits = _scan_keywords(project_path, stack)
-        total_hits = sum(keyword_hits.values())
+        keyword_hits = _scan_keywords(project_path, stack, all_triggers)
         unique_keywords = len(keyword_hits)
 
         if method == "file_signature":
