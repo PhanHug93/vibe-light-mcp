@@ -1,6 +1,6 @@
 [project]
 name = "local-mcp-server"
-version = "1.0.8"
+version = "1.0.9"
 description = "Local Model Context Protocol Server for Mobile & Web Tech Stacks"
 requires-python = ">=3.10"
 dependencies = [

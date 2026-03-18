@@ -253,6 +253,45 @@ Bổ sung:
 
 ---
 
+## 🔄 Multi-Instance Behavior
+
+MCP Server có hành vi khác nhau tùy transport:
+
+| Transport | Multi-Instance | Ghi chú |
+|---|---|---|
+| `stdio` | ✅ Hỗ trợ | Mỗi IDE client spawn process riêng, hoạt động độc lập |
+| `sse` | ❌ Singleton | Chỉ 1 server, dùng `cascade_bridge.py` để kết nối thêm client |
+| `streamable-http` | ❌ Singleton | Tương tự SSE |
+
+### Tại sao SSE/HTTP là Singleton?
+
+SSE/HTTP server phải bind port (mặc định `8000`). Nếu instance thứ 2 cố start → **port conflict** → crash. Server sử dụng **lock file** (`~/.mcp_server.lock`) để:
+
+- Phát hiện server đang chạy → exit gracefully + gợi ý kết nối
+- Phát hiện server đã chết (stale lock) → tự dọn lock cũ + start mới
+
+### Kết nối nhiều IDE client vào 1 SSE server
+
+```bash
+# Terminal 1: Start SSE server (chỉ cần 1 lần)
+python main.py --transport sse --port 8000
+
+# Terminal 2+: Các client khác sử dụng cascade_bridge.py
+MCP_BRIDGE_URL=http://127.0.0.1:8000 python cascade_bridge.py
+```
+
+### Troubleshooting
+
+```bash
+# Xem lock file hiện tại
+cat ~/.mcp_server.lock
+
+# Xoá lock file nếu server bị crash bất thường
+rm ~/.mcp_server.lock
+```
+
+---
+
 ## 📚 Tech Stacks hỗ trợ
 
 Android/Kotlin · KMP · Flutter/Dart · iOS/Swift · Python · React Native · Vue.js 3
