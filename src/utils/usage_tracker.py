@@ -24,9 +24,12 @@ Performance notes:
 from __future__ import annotations
 
 import atexit
+import contextlib
 import json
 import logging
+import sys
 import threading
+import time
 from collections import Counter
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -48,6 +51,43 @@ _FLUSH_SIZE: int = FLUSH_SIZE
 
 
 # ---------------------------------------------------------------------------
+# Cross-platform file lock (Unix: fcntl, Windows: msvcrt)
+# ---------------------------------------------------------------------------
+
+@contextlib.contextmanager
+def _file_lock(f):
+    """Acquire an exclusive file lock, cross-platform.
+
+    - Unix/macOS: ``fcntl.flock``
+    - Windows: ``msvcrt.locking``
+    - Fallback: no-op (log warning once)
+    """
+    if sys.platform == "win32":
+        import msvcrt
+        # msvcrt.locking locks 1 byte at current position
+        msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)
+        try:
+            yield
+        finally:
+            try:
+                f.seek(0)
+                msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+            except OSError:
+                pass
+    else:
+        try:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        except ImportError:
+            logger.warning("fcntl not available — file locking disabled.")
+            yield
+
+
+# ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
 
@@ -59,28 +99,49 @@ def _today_str() -> str:
 
 def _log_path(date: str | None = None) -> Path:
     """Return the log file path for a given date (default: today)."""
-    return _LOG_DIR / f"{date or _today_str()}.json"
+    return _LOG_DIR / f"{date or _today_str()}.jsonl"
 
 
 def _load_log(date: str | None = None) -> list[dict]:
-    """Load today's log entries."""
-    path = _log_path(date)
-    if not path.exists():
-        return []
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return []
+    """Load log entries (supports both .jsonl and legacy .json)."""
+    jsonl_path = _LOG_DIR / f"{date or _today_str()}.jsonl"
+    json_path = _LOG_DIR / f"{date or _today_str()}.json"
+
+    entries: list[dict] = []
+
+    # Read JSONL (primary format)
+    if jsonl_path.exists():
+        try:
+            for line in jsonl_path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line:
+                    entries.append(json.loads(line))
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.warning("Failed to read %s: %s", jsonl_path, exc)
+
+    # Backward compat: also read legacy .json if exists
+    if json_path.exists():
+        try:
+            legacy = json.loads(json_path.read_text(encoding="utf-8"))
+            if isinstance(legacy, list):
+                entries.extend(legacy)
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    return entries
 
 
-def _save_log(entries: list[dict], date: str | None = None) -> None:
-    """Persist log entries to disk."""
+def _append_jsonl(entries: list[dict], date: str | None = None) -> None:
+    """Append entries to JSONL file with cross-platform file lock."""
     _LOG_DIR.mkdir(parents=True, exist_ok=True)
     path = _log_path(date)
-    path.write_text(
-        json.dumps(entries, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    lines = "".join(json.dumps(e, ensure_ascii=False) + "\n" for e in entries)
+    try:
+        with open(path, "a", encoding="utf-8") as f:
+            with _file_lock(f):
+                f.write(lines)
+    except OSError as exc:
+        logger.warning("Failed to write usage log: %s", exc)
 
 
 def _is_similar(a: str, b: str, threshold: float = _SIMILARITY_THRESHOLD) -> bool:
@@ -114,7 +175,7 @@ _buffer_lock = threading.Lock()
 
 
 def _flush_buffer() -> None:
-    """Flush buffered entries to disk (thread-safe, append-only)."""
+    """Flush buffered entries to disk (thread-safe, append-only JSONL)."""
     global _buffer  # noqa: PLW0603
     with _buffer_lock:
         if not _buffer:
@@ -122,10 +183,7 @@ def _flush_buffer() -> None:
         to_flush = list(_buffer)
         _buffer = []
 
-    # Merge with existing log file
-    existing = _load_log()
-    existing.extend(to_flush)
-    _save_log(existing)
+    _append_jsonl(to_flush)
     logger.debug("Flushed %d usage entries to disk.", len(to_flush))
 
 

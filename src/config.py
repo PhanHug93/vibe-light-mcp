@@ -69,6 +69,12 @@ QUICK_RECALL_MAX_CHARS: int = 3000  # truncate auto-recall output
 DEFAULT_COMMAND_TIMEOUT: int = 60  # seconds
 MAX_OUTPUT_CHARS: int = 50_000     # truncate huge outputs
 
+MCP_EXEC_MODE: str = os.getenv("MCP_EXEC_MODE", "allowlist")
+"""Execution security mode:
+- ``allowlist``    — only pre-approved commands (default, production-safe)
+- ``unrestricted`` — all commands allowed (trusted dev environments only)
+"""
+
 # ---------------------------------------------------------------------------
 # Usage Tracker
 # ---------------------------------------------------------------------------
@@ -76,3 +82,16 @@ MAX_OUTPUT_CHARS: int = 50_000     # truncate huge outputs
 SIMILARITY_THRESHOLD: float = 0.7  # queries >=70% similar → "repeated"
 SIMILARITY_WINDOW: int = 20        # compare only last N queries
 FLUSH_SIZE: int = 10               # flush buffer after N entries
+
+# ---------------------------------------------------------------------------
+# MCP Server Transport
+# ---------------------------------------------------------------------------
+
+MCP_TRANSPORT: str = os.getenv("MCP_TRANSPORT", "stdio")
+"""Transport protocol: ``stdio`` | ``sse`` | ``streamable-http``."""
+
+MCP_HOST: str = os.getenv("MCP_HOST", "127.0.0.1")
+"""Bind address for SSE / Streamable HTTP server."""
+
+MCP_PORT: int = int(os.getenv("MCP_PORT", "8000"))
+"""Listen port for SSE / Streamable HTTP server."""
