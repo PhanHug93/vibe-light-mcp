@@ -24,11 +24,11 @@ Equivalent curl commands::
       -H 'Accept: application/json, text/event-stream' \\
       -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 """
+
 from __future__ import annotations
 
 import argparse
 import asyncio
-import json
 import sys
 
 
@@ -119,11 +119,14 @@ async def test_http(url: str) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Test MCP HTTP endpoints")
     parser.add_argument(
-        "--url", default="http://127.0.0.1:8000",
+        "--url",
+        default="http://127.0.0.1:8000",
         help="Server URL (default: %(default)s)",
     )
     parser.add_argument(
-        "--mode", choices=["sse", "http", "both"], default="both",
+        "--mode",
+        choices=["sse", "http", "both"],
+        default="both",
         help="Which transport to test (default: %(default)s)",
     )
     args = parser.parse_args()

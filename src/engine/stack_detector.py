@@ -39,7 +39,9 @@ def _load_registry(tech_stacks_dir: Path) -> dict[str, Any]:
 
     yaml_path = tech_stacks_dir / "registry.yaml"
     if not yaml_path.exists():
-        logger.warning("registry.yaml not found at %s — no stacks configured.", yaml_path)
+        logger.warning(
+            "registry.yaml not found at %s — no stacks configured.", yaml_path
+        )
         _registry_cache = {"signatures": [], "triggers": {}}
         return _registry_cache
 
@@ -63,11 +65,14 @@ def _load_registry(tech_stacks_dir: Path) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _detect_by_signature(project_path: Path, signatures: list[dict[str, str]]) -> str | None:
+def _detect_by_signature(
+    project_path: Path, signatures: list[dict[str, str]]
+) -> str | None:
     """Scan *project_path* for signature files and return the stack key."""
     for depth in range(_SEARCH_DEPTH + 1):
         search_dirs: list[Path] = (
-            [project_path] if depth == 0
+            [project_path]
+            if depth == 0
             else [d for d in project_path.iterdir() if d.is_dir()]
         )
         for directory in search_dirs:
@@ -101,7 +106,10 @@ def _scan_keywords(
             continue
         # Skip hidden dirs, build dirs, etc.
         parts = source_file.relative_to(project_path).parts
-        if any(p.startswith(".") or p in ("build", "node_modules", ".gradle") for p in parts):
+        if any(
+            p.startswith(".") or p in ("build", "node_modules", ".gradle")
+            for p in parts
+        ):
             continue
 
         try:
@@ -120,7 +128,9 @@ def _scan_keywords(
     return hits
 
 
-def detect_stack_enhanced(project_path: Path, tech_stacks_dir: Path | None = None) -> dict:
+def detect_stack_enhanced(
+    project_path: Path, tech_stacks_dir: Path | None = None
+) -> dict:
     """Enhanced detection: file signature + keyword scan.
 
     Args:
@@ -133,6 +143,7 @@ def detect_stack_enhanced(project_path: Path, tech_stacks_dir: Path | None = Non
     """
     if tech_stacks_dir is None:
         from src.config import TECH_STACKS_DIR
+
         tech_stacks_dir = TECH_STACKS_DIR
 
     registry = _load_registry(tech_stacks_dir)
@@ -206,8 +217,7 @@ def read_knowledge(stack: str, tech_stacks_dir: Path) -> dict:
     refs_dir = stack_dir / "references"
     if refs_dir.is_dir():
         result["available_references"] = sorted(
-            f.name for f in refs_dir.iterdir()
-            if f.is_file() and f.suffix == ".md"
+            f.name for f in refs_dir.iterdir() if f.is_file() and f.suffix == ".md"
         )
     else:
         result["available_references"] = []

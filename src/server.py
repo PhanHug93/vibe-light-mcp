@@ -14,9 +14,10 @@ Architecture (SOLID):
   - All business logic lives in ``src/engine/`` and ``src/db/``.
   - All tool handlers live in ``src/tools/``.
 """
+
 from __future__ import annotations
 
-__version__: str = "1.0.10"
+__version__: str = "1.0.11"
 
 import logging
 import sys

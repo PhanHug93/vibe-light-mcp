@@ -2,17 +2,21 @@
 
 Extracted from ``server.py`` for SRP compliance.
 """
+
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
 from src.config import PROJECT_ROOT, TECH_STACKS_DIR
 from src.engine.knowledge import sync_knowledge_from_git
 from src.tools.helpers import validate_path_within, validate_stack_name
-from src.utils.markdown_utils import parse_md_sections, merge_md_sections, replace_md_section
+from src.utils.markdown_utils import (
+    parse_md_sections,
+    merge_md_sections,
+    replace_md_section,
+)
 from src.utils.usage_tracker import record_tool_call, get_daily_stats
 
 
@@ -75,9 +79,14 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
         # Security: validate stack name
         stack_err = validate_stack_name(stack)
         if stack_err:
-            return json.dumps({
-                "status": "error", "message": stack_err,
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": stack_err,
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         stack_dir = TECH_STACKS_DIR / stack
 
@@ -87,30 +96,45 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
         elif target_file in ("skills", "skills.md"):
             target_path = stack_dir / "skills.md"
         else:
-            ref_name = target_file if target_file.endswith(".md") else f"{target_file}.md"
+            ref_name = (
+                target_file if target_file.endswith(".md") else f"{target_file}.md"
+            )
             target_path = stack_dir / "references" / ref_name
 
         # Security: validate resolved path stays within TECH_STACKS_DIR
         try:
             target_path = validate_path_within(target_path, TECH_STACKS_DIR)
         except ValueError as exc:
-            return json.dumps({
-                "status": "error", "message": str(exc),
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": str(exc),
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         # Validate mode
         valid_modes = ("append", "replace_section", "overwrite")
         if mode not in valid_modes:
-            return json.dumps({
-                "status": "error",
-                "message": f"Invalid mode: '{mode}'. Use one of: {valid_modes}",
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": f"Invalid mode: '{mode}'. Use one of: {valid_modes}",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         if mode == "replace_section" and not section_header:
-            return json.dumps({
-                "status": "error",
-                "message": "section_header is required for replace_section mode.",
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": "section_header is required for replace_section mode.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         # Ensure parent directories exist
         target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -124,75 +148,101 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
         if mode == "overwrite":
             target_path.write_text(new_content, encoding="utf-8")
             record_tool_call("update_tech_stack", stack=stack)
-            return json.dumps({
-                "status": "success",
-                "mode": "overwrite",
-                "stack": stack,
-                "file": str(target_path.relative_to(PROJECT_ROOT)),
-                "size": len(new_content),
-                "message": "File overwritten completely.",
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "success",
+                    "mode": "overwrite",
+                    "stack": stack,
+                    "file": str(target_path.relative_to(PROJECT_ROOT)),
+                    "size": len(new_content),
+                    "message": "File overwritten completely.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         # Mode: append (with dedup)
         if mode == "append":
             if not existing_content:
                 target_path.write_text(new_content, encoding="utf-8")
                 record_tool_call("update_tech_stack", stack=stack)
-                return json.dumps({
-                    "status": "success",
-                    "mode": "append",
-                    "stack": stack,
-                    "file": str(target_path.relative_to(PROJECT_ROOT)),
-                    "message": "New file created (no existing content).",
-                    "size": len(new_content),
-                }, indent=2, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "status": "success",
+                        "mode": "append",
+                        "stack": stack,
+                        "file": str(target_path.relative_to(PROJECT_ROOT)),
+                        "message": "New file created (no existing content).",
+                        "size": len(new_content),
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
             merged, added, skipped = merge_md_sections(existing_content, new_content)
             target_path.write_text(merged, encoding="utf-8")
             record_tool_call("update_tech_stack", stack=stack)
-            return json.dumps({
-                "status": "success",
-                "mode": "append",
-                "stack": stack,
-                "file": str(target_path.relative_to(PROJECT_ROOT)),
-                "sections_added": added,
-                "sections_skipped_duplicate": skipped,
-                "message": (
-                    f"Added {len(added)} new section(s), "
-                    f"skipped {len(skipped)} duplicate(s)."
-                ),
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "success",
+                    "mode": "append",
+                    "stack": stack,
+                    "file": str(target_path.relative_to(PROJECT_ROOT)),
+                    "sections_added": added,
+                    "sections_skipped_duplicate": skipped,
+                    "message": (
+                        f"Added {len(added)} new section(s), "
+                        f"skipped {len(skipped)} duplicate(s)."
+                    ),
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         # Mode: replace_section
         if mode == "replace_section":
             if not existing_content:
-                return json.dumps({
-                    "status": "error",
-                    "message": "File does not exist yet. Use 'append' mode to create it first.",
-                }, indent=2, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "status": "error",
+                        "message": "File does not exist yet. Use 'append' mode to create it first.",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
             updated, found = replace_md_section(
-                existing_content, section_header, new_content,
+                existing_content,
+                section_header,
+                new_content,
             )
             if not found:
                 sections = parse_md_sections(existing_content)
                 available = [h for h in sections if h != "__preamble__"]
-                return json.dumps({
-                    "status": "error",
-                    "message": f"Section '## {section_header}' not found.",
-                    "available_sections": available,
-                }, indent=2, ensure_ascii=False)
+                return json.dumps(
+                    {
+                        "status": "error",
+                        "message": f"Section '## {section_header}' not found.",
+                        "available_sections": available,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
             target_path.write_text(updated, encoding="utf-8")
             record_tool_call("update_tech_stack", stack=stack)
-            return json.dumps({
-                "status": "success",
-                "mode": "replace_section",
-                "stack": stack,
-                "file": str(target_path.relative_to(PROJECT_ROOT)),
-                "replaced_section": section_header,
-                "message": f"Section '## {section_header}' updated successfully.",
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "success",
+                    "mode": "replace_section",
+                    "stack": stack,
+                    "file": str(target_path.relative_to(PROJECT_ROOT)),
+                    "replaced_section": section_header,
+                    "message": f"Section '## {section_header}' updated successfully.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
 
         return json.dumps({"status": "error", "message": "Unexpected state."}, indent=2)
 

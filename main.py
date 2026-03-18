@@ -23,6 +23,7 @@ Usage::
 
 The actual server implementation lives in ``src/server.py``.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -47,12 +48,13 @@ from src.config import MCP_TRANSPORT, MCP_HOST, MCP_PORT, MCP_LOCK_FILE  # noqa:
 # Singleton Lock — prevents multiple SSE/HTTP servers on the same port
 # ---------------------------------------------------------------------------
 
+
 def _is_process_alive(pid: int) -> bool:
     """Check if a process with the given PID is still running."""
     try:
         os.kill(pid, 0)  # Signal 0 = check existence, no actual signal sent
         return True
-    except ProcessNotFoundError:
+    except ProcessLookupError:
         return False
     except PermissionError:
         # Process exists but we don't have permission — still alive
@@ -132,13 +134,15 @@ def _cleanup_lock() -> None:
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def _parse_args() -> argparse.Namespace:
     """Parse CLI arguments with env-var fallbacks from config."""
     parser = argparse.ArgumentParser(
         description="TechStack Local MCP Server",
     )
     parser.add_argument(
-        "--transport", "-t",
+        "--transport",
+        "-t",
         choices=["stdio", "sse", "streamable-http"],
         default=MCP_TRANSPORT,
         help="Transport protocol (default: %(default)s, env: MCP_TRANSPORT)",
@@ -149,7 +153,8 @@ def _parse_args() -> argparse.Namespace:
         help="Bind address for HTTP transports (default: %(default)s, env: MCP_HOST)",
     )
     parser.add_argument(
-        "--port", "-p",
+        "--port",
+        "-p",
         type=int,
         default=MCP_PORT,
         help="Listen port for HTTP transports (default: %(default)s, env: MCP_PORT)",
@@ -160,6 +165,7 @@ def _parse_args() -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Boot the MCP server with the selected transport."""
@@ -192,6 +198,7 @@ def main() -> None:
     # B1: Pre-warm embedding model before event loop starts
     # Avoids 2-5s cold-start block on the first tool call.
     from src.db.embedding import pre_warm_embedding  # noqa: E402
+
     pre_warm_embedding()
 
     # Startup diagnostic (stderr only — never pollute stdout/stdio)

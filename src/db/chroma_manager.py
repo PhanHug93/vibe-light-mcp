@@ -11,6 +11,7 @@ Usage::
     mgr = get_manager()
     collection = mgr.run_with_timeout(mgr._get_l1_direct, workspace_id)
 """
+
 from __future__ import annotations
 
 import concurrent.futures
@@ -25,7 +26,6 @@ from chromadb.api.models.Collection import Collection
 from src.config import (
     CHROMA_HOST,
     CHROMA_PORT,
-    CHROMA_CONNECT_TIMEOUT,
     CHROMA_OP_TIMEOUT,
     CHROMA_POOL_SIZE,
     CHROMA_HEARTBEAT_INTERVAL,
@@ -73,7 +73,8 @@ class ChromaManager:
             thread_name_prefix="query",
         )
         self._health_thread = threading.Thread(
-            target=self._background_health_loop, daemon=True,
+            target=self._background_health_loop,
+            daemon=True,
             name="chroma-health",
         )
         self._health_thread.start()
@@ -166,7 +167,9 @@ class ChromaManager:
             fut = self._executor.submit(fn, *args, **kwargs)
             return fut.result(timeout=timeout)
         except concurrent.futures.TimeoutError:
-            logger.error("ChromaDB operation timed out after %ds: %s", timeout, fn.__name__)
+            logger.error(
+                "ChromaDB operation timed out after %ds: %s", timeout, fn.__name__
+            )
             self.reset()
             raise TimeoutError(
                 f"ChromaDB operation '{fn.__name__}' timed out after {timeout}s."
@@ -195,10 +198,14 @@ class ChromaManager:
         # Slow path: create collection (outside lock — network I/O)
         client = self.connect()
         ef = get_embedding_fn()
-        collection = client.get_or_create_collection(
-            name=collection_name,
-            embedding_function=ef,
-        ) if ef else client.get_or_create_collection(name=collection_name)
+        collection = (
+            client.get_or_create_collection(
+                name=collection_name,
+                embedding_function=ef,
+            )
+            if ef
+            else client.get_or_create_collection(name=collection_name)
+        )
 
         # Assign under lock (fast pointer swap + LRU eviction)
         with self._lock:
@@ -216,10 +223,14 @@ class ChromaManager:
 
         client = self.connect()
         ef = get_embedding_fn()
-        self._l2_collection = client.get_or_create_collection(
-            name=L2_COLLECTION,
-            embedding_function=ef,
-        ) if ef else client.get_or_create_collection(name=L2_COLLECTION)
+        self._l2_collection = (
+            client.get_or_create_collection(
+                name=L2_COLLECTION,
+                embedding_function=ef,
+            )
+            if ef
+            else client.get_or_create_collection(name=L2_COLLECTION)
+        )
         logger.info("L2 collection ready: %s", L2_COLLECTION)
         return self._l2_collection
 

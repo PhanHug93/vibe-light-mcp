@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 from src.tools.helpers import validate_path_within, validate_stack_name
@@ -11,6 +10,7 @@ from src.engine.execution import _check_interpreter_abuse
 # -----------------------------------------------------------------------
 # Fix 1: Command Injection — repo_url validation
 # -----------------------------------------------------------------------
+
 
 class TestRepoUrlValidation:
     """Ensure malicious repo_url values are rejected."""
@@ -56,6 +56,7 @@ class TestRepoUrlValidation:
 # Fix 2: Path Traversal — validate_path_within
 # -----------------------------------------------------------------------
 
+
 class TestPathTraversalPrevention:
     """Ensure ../../ attacks are blocked."""
 
@@ -92,6 +93,7 @@ class TestPathTraversalPrevention:
 # Fix 2b: Stack name validation
 # -----------------------------------------------------------------------
 
+
 class TestStackNameValidation:
     """Ensure stack names with traversal chars are rejected."""
 
@@ -123,11 +125,14 @@ class TestStackNameValidation:
 # Issue 1 (Session 2): Living off the Land — interpreter inline guard
 # -----------------------------------------------------------------------
 
+
 class TestInterpreterInlineGuard:
     """Ensure interpreter inline flags are blocked."""
 
     def test_python_c_blocked(self):
-        result = _check_interpreter_abuse("python3", 'python3 -c "import os; os.system(\"rm -rf /\")"')
+        result = _check_interpreter_abuse(
+            "python3", 'python3 -c "import os; os.system("rm -rf /")"'
+        )
         assert result is not None
         assert "Living off the Land" in result
 
@@ -136,19 +141,21 @@ class TestInterpreterInlineGuard:
         assert result is not None
 
     def test_node_eval_blocked(self):
-        result = _check_interpreter_abuse("node", 'node --eval "require(\"child_process\").exec(\"rm -rf /\")"')
+        result = _check_interpreter_abuse(
+            "node", 'node --eval "require("child_process").exec("rm -rf /")"'
+        )
         assert result is not None
 
     def test_ruby_e_blocked(self):
-        result = _check_interpreter_abuse("ruby", 'ruby -e "system(\"rm -rf /\")"')
+        result = _check_interpreter_abuse("ruby", 'ruby -e "system("rm -rf /")"')
         assert result is not None
 
     def test_perl_e_blocked(self):
-        result = _check_interpreter_abuse("perl", 'perl -e "system(\"rm -rf /\")"')
+        result = _check_interpreter_abuse("perl", 'perl -e "system("rm -rf /")"')
         assert result is not None
 
     def test_php_r_blocked(self):
-        result = _check_interpreter_abuse("php", 'php -r "system(\"rm -rf /\")"')
+        result = _check_interpreter_abuse("php", 'php -r "system("rm -rf /")"')
         assert result is not None
 
     def test_python_script_allowed(self):

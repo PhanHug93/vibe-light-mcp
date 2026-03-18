@@ -2,6 +2,7 @@
 
 Extracted from ``server.py`` for SRP compliance.
 """
+
 from __future__ import annotations
 
 import json
@@ -45,13 +46,15 @@ def register_workspace_tools(mcp: FastMCP) -> None:
         if not target.exists():
             return json.dumps(
                 {"status": "error", "message": f"Path does not exist: {target}"},
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
 
         if not target.is_dir():
             return json.dumps(
                 {"status": "error", "message": f"Not a directory: {target}"},
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
 
         detection = detect_stack_enhanced(target, _TECH_STACKS_DIR)
@@ -65,7 +68,8 @@ def register_workspace_tools(mcp: FastMCP) -> None:
                     "scanned_path": str(target),
                     "hint": "Supported: build.gradle(.kts), pubspec.yaml, package.json",
                 },
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
 
         knowledge = read_knowledge(stack, _TECH_STACKS_DIR)
@@ -83,7 +87,8 @@ def register_workspace_tools(mcp: FastMCP) -> None:
                 "skills": knowledge.get("skills.md", ""),
                 "available_references": knowledge.get("available_references", []),
             },
-            indent=2, ensure_ascii=False,
+            indent=2,
+            ensure_ascii=False,
         )
 
     @mcp.tool()
@@ -110,15 +115,20 @@ def register_workspace_tools(mcp: FastMCP) -> None:
         if stack_err:
             return json.dumps(
                 {"status": "error", "message": stack_err},
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
 
         refs_dir = _TECH_STACKS_DIR / stack / "references"
 
         if not refs_dir.is_dir():
             return json.dumps(
-                {"status": "error", "message": f"No references/ directory for stack '{stack}'."},
-                indent=2, ensure_ascii=False,
+                {
+                    "status": "error",
+                    "message": f"No references/ directory for stack '{stack}'.",
+                },
+                indent=2,
+                ensure_ascii=False,
             )
 
         if not reference_name.endswith(".md"):
@@ -130,17 +140,21 @@ def register_workspace_tools(mcp: FastMCP) -> None:
         except ValueError as exc:
             return json.dumps(
                 {"status": "error", "message": str(exc)},
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
         if not ref_path.is_file():
-            available = [f.name for f in refs_dir.iterdir() if f.is_file() and f.suffix == ".md"]
+            available = [
+                f.name for f in refs_dir.iterdir() if f.is_file() and f.suffix == ".md"
+            ]
             return json.dumps(
                 {
                     "status": "error",
                     "message": f"Reference '{reference_name}' not found.",
                     "available_references": available,
                 },
-                indent=2, ensure_ascii=False,
+                indent=2,
+                ensure_ascii=False,
             )
 
         content = ref_path.read_text(encoding="utf-8")
@@ -153,5 +167,6 @@ def register_workspace_tools(mcp: FastMCP) -> None:
                 "reference": reference_name,
                 "content": content,
             },
-            indent=2, ensure_ascii=False,
+            indent=2,
+            ensure_ascii=False,
         )

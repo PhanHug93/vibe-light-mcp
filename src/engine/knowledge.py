@@ -42,9 +42,7 @@ _TECH_STACKS_DIR: Path = TECH_STACKS_DIR
 _COMMAND_TIMEOUT: int = 120  # generous for large repos / slow networks
 
 # Allowed URL patterns (security: reject anything else)
-_VALID_URL_RE = re.compile(
-    r"^(https?://[^\s;|&`$]+|git@[^\s;|&`$]+)$"
-)
+_VALID_URL_RE = re.compile(r"^(https?://[^\s;|&`$]+|git@[^\s;|&`$]+)$")
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +74,8 @@ async def _run_git(
     Uses ``create_subprocess_exec`` to eliminate shell injection.
     """
     process = await asyncio.create_subprocess_exec(
-        "git", *args,
+        "git",
+        *args,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         cwd=str(cwd) if cwd else None,
@@ -144,7 +143,9 @@ async def sync_knowledge_from_git(repo_url: str) -> str:
                 shutil.rmtree(_TECH_STACKS_DIR)
 
             code, stdout, stderr = await _run_git(
-                "clone", repo_url, str(_TECH_STACKS_DIR),
+                "clone",
+                repo_url,
+                str(_TECH_STACKS_DIR),
                 cwd=_BASE_DIR,
             )
 
@@ -177,7 +178,10 @@ async def sync_knowledge_from_git(repo_url: str) -> str:
         logger.info("Existing git repo found — pulling latest changes.")
 
         code, stdout, stderr = await _run_git(
-            "pull", "origin", "main", "--rebase",
+            "pull",
+            "origin",
+            "main",
+            "--rebase",
             cwd=_TECH_STACKS_DIR,
         )
 

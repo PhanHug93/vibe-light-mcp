@@ -13,6 +13,7 @@ Usage::
     # During operation
     ef = get_embedding_fn()  # cached, thread-safe
 """
+
 from __future__ import annotations
 
 import logging
@@ -55,13 +56,16 @@ def get_embedding_fn():
             from chromadb.utils.embedding_functions import (
                 SentenceTransformerEmbeddingFunction,
             )
+
             _embedding_fn_cache = SentenceTransformerEmbeddingFunction(
                 model_name=EMBEDDING_MODEL,
             )
             logger.info("Embedding model: %s (sentence-transformers)", EMBEDDING_MODEL)
         except Exception:  # noqa: BLE001
             _embedding_fn_cache = None
-            logger.info("Embedding model: default ONNX (sentence-transformers not available)")
+            logger.info(
+                "Embedding model: default ONNX (sentence-transformers not available)"
+            )
 
         _embedding_initialized = True
 

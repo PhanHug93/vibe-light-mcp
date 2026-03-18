@@ -26,6 +26,7 @@ Environment variables::
     MCP_BRIDGE_URL   — Server URL (default: http://127.0.0.1:8000)
     MCP_BRIDGE_MODE  — "sse" or "http" (default: "sse")
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -53,12 +54,13 @@ logger = logging.getLogger("cascade_bridge")
 _SERVER_URL: str = os.getenv("MCP_BRIDGE_URL", "http://127.0.0.1:8000")
 _BRIDGE_MODE: str = os.getenv("MCP_BRIDGE_MODE", "sse")  # "sse" | "http"
 _REQUEST_TIMEOUT: int = 60  # seconds per tool call
-_CONNECT_TIMEOUT: int = 5   # seconds for initial connection
+_CONNECT_TIMEOUT: int = 5  # seconds for initial connection
 
 
 # ---------------------------------------------------------------------------
 # SSE Bridge — connects to /sse, sends via /messages/
 # ---------------------------------------------------------------------------
+
 
 async def _run_sse_bridge() -> None:
     """Bridge stdio ↔ SSE transport.
@@ -83,135 +85,143 @@ async def _run_sse_bridge() -> None:
     # POST requests use normal timeout.
     sse_timeout = httpx.Timeout(
         connect=_CONNECT_TIMEOUT,
-        read=None,     # ← SSE stream stays open indefinitely
+        read=None,  # ← SSE stream stays open indefinitely
         write=10.0,
         pool=10.0,
     )
     post_timeout = httpx.Timeout(_REQUEST_TIMEOUT)
 
     async with httpx.AsyncClient(timeout=post_timeout) as post_client:
-      async with httpx.AsyncClient(timeout=sse_timeout) as sse_client:
-        # --- SSE connection (background task reads events) ---
-        response_queue: asyncio.Queue[str] = asyncio.Queue()
+        async with httpx.AsyncClient(timeout=sse_timeout) as sse_client:
+            # --- SSE connection (background task reads events) ---
+            response_queue: asyncio.Queue[str] = asyncio.Queue()
 
-        async def _read_sse() -> None:
-            """Read SSE events and push to queue."""
-            nonlocal messages_url
-            try:
-                async with sse_client.stream("GET", sse_url) as resp:
-                    resp.raise_for_status()
-                    buffer = ""
-                    async for chunk in resp.aiter_text():
-                        buffer += chunk
-                        while "\n\n" in buffer:
-                            event_text, buffer = buffer.split("\n\n", 1)
-                            for line in event_text.split("\n"):
-                                if line.startswith("event: endpoint"):
-                                    continue
-                                if line.startswith("data: "):
-                                    data = line[6:]
-                                    # First event from SSE is the messages endpoint
-                                    if messages_url is None and data.startswith("/"):
-                                        # Resolve relative URL
-                                        messages_url = f"{_SERVER_URL}{data}"
-                                        logger.info("Messages endpoint: %s", messages_url)
-                                    else:
-                                        await response_queue.put(data)
-            except httpx.HTTPError as exc:
-                logger.error("SSE connection error: %s", exc)
-            except Exception as exc:
-                logger.error("SSE reader error: %s", exc)
-
-        # Start SSE reader in background
-        sse_task = asyncio.create_task(_read_sse())
-
-        # Wait for messages endpoint to be discovered
-        for _ in range(50):  # 5s max
-            if messages_url is not None:
-                break
-            await asyncio.sleep(0.1)
-
-        if messages_url is None:
-            logger.error("Timeout: SSE did not provide messages endpoint")
-            sys.exit(1)
-
-        logger.info("Bridge ready (pid=%d, mode=sse)", os.getpid())
-
-        # --- Stdin reader → POST to messages endpoint ---
-        # Use run_in_executor for cross-platform stdin reading.
-        # connect_read_pipe does NOT work on Windows ProactorEventLoop.
-        loop = asyncio.get_event_loop()
-
-        async def _read_stdin() -> None:
-            """Read JSON-RPC from stdin and POST to server."""
-            while True:
-                # Read stdin in thread pool — works on all platforms
-                line_bytes = await loop.run_in_executor(
-                    None, sys.stdin.buffer.readline,
-                )
-                if not line_bytes:
-                    break  # EOF
-
-                line_str = line_bytes.decode("utf-8", errors="replace").strip()
-                if not line_str:
-                    continue
-
-                # Validate JSON
+            async def _read_sse() -> None:
+                """Read SSE events and push to queue."""
+                nonlocal messages_url
                 try:
-                    json.loads(line_str)
-                except json.JSONDecodeError:
-                    logger.warning("Invalid JSON from stdin: %s", line_str[:100])
-                    continue
-
-                # POST to MCP server
-                try:
-                    resp = await post_client.post(
-                        messages_url,
-                        content=line_str,
-                        headers={"Content-Type": "application/json"},
-                    )
-                    if resp.status_code not in (200, 202):
-                        logger.warning(
-                            "Server returned %d: %s",
-                            resp.status_code,
-                            resp.text[:200],
-                        )
+                    async with sse_client.stream("GET", sse_url) as resp:
+                        resp.raise_for_status()
+                        buffer = ""
+                        async for chunk in resp.aiter_text():
+                            buffer += chunk
+                            while "\n\n" in buffer:
+                                event_text, buffer = buffer.split("\n\n", 1)
+                                for line in event_text.split("\n"):
+                                    if line.startswith("event: endpoint"):
+                                        continue
+                                    if line.startswith("data: "):
+                                        data = line[6:]
+                                        # First event from SSE is the messages endpoint
+                                        if messages_url is None and data.startswith(
+                                            "/"
+                                        ):
+                                            # Resolve relative URL
+                                            messages_url = f"{_SERVER_URL}{data}"
+                                            logger.info(
+                                                "Messages endpoint: %s", messages_url
+                                            )
+                                        else:
+                                            await response_queue.put(data)
                 except httpx.HTTPError as exc:
-                    error_response = json.dumps({
-                        "jsonrpc": "2.0",
-                        "id": None,
-                        "error": {
-                            "code": -32000,
-                            "message": f"Bridge connection error: {exc}",
-                        },
-                    })
-                    sys.stdout.write(error_response + "\n")
+                    logger.error("SSE connection error: %s", exc)
+                except Exception as exc:
+                    logger.error("SSE reader error: %s", exc)
+
+            # Start SSE reader in background
+            sse_task = asyncio.create_task(_read_sse())
+
+            # Wait for messages endpoint to be discovered
+            for _ in range(50):  # 5s max
+                if messages_url is not None:
+                    break
+                await asyncio.sleep(0.1)
+
+            if messages_url is None:
+                logger.error("Timeout: SSE did not provide messages endpoint")
+                sys.exit(1)
+
+            logger.info("Bridge ready (pid=%d, mode=sse)", os.getpid())
+
+            # --- Stdin reader → POST to messages endpoint ---
+            # Use run_in_executor for cross-platform stdin reading.
+            # connect_read_pipe does NOT work on Windows ProactorEventLoop.
+            loop = asyncio.get_event_loop()
+
+            async def _read_stdin() -> None:
+                """Read JSON-RPC from stdin and POST to server."""
+                while True:
+                    # Read stdin in thread pool — works on all platforms
+                    line_bytes = await loop.run_in_executor(
+                        None,
+                        sys.stdin.buffer.readline,
+                    )
+                    if not line_bytes:
+                        break  # EOF
+
+                    line_str = line_bytes.decode("utf-8", errors="replace").strip()
+                    if not line_str:
+                        continue
+
+                    # Validate JSON
+                    try:
+                        json.loads(line_str)
+                    except json.JSONDecodeError:
+                        logger.warning("Invalid JSON from stdin: %s", line_str[:100])
+                        continue
+
+                    # POST to MCP server
+                    try:
+                        resp = await post_client.post(
+                            messages_url,
+                            content=line_str,
+                            headers={"Content-Type": "application/json"},
+                        )
+                        if resp.status_code not in (200, 202):
+                            logger.warning(
+                                "Server returned %d: %s",
+                                resp.status_code,
+                                resp.text[:200],
+                            )
+                    except httpx.HTTPError as exc:
+                        error_response = json.dumps(
+                            {
+                                "jsonrpc": "2.0",
+                                "id": None,
+                                "error": {
+                                    "code": -32000,
+                                    "message": f"Bridge connection error: {exc}",
+                                },
+                            }
+                        )
+                        sys.stdout.write(error_response + "\n")
+                        sys.stdout.flush()
+
+            stdin_task = asyncio.create_task(_read_stdin())
+
+            # --- Response writer: queue → stdout ---
+            async def _write_responses() -> None:
+                """Write SSE events to stdout for the MCP client."""
+                while True:
+                    data = await response_queue.get()
+                    sys.stdout.write(data + "\n")
                     sys.stdout.flush()
 
-        stdin_task = asyncio.create_task(_read_stdin())
+            writer_task = asyncio.create_task(_write_responses())
 
-        # --- Response writer: queue → stdout ---
-        async def _write_responses() -> None:
-            """Write SSE events to stdout for the MCP client."""
-            while True:
-                data = await response_queue.get()
-                sys.stdout.write(data + "\n")
-                sys.stdout.flush()
-
-        writer_task = asyncio.create_task(_write_responses())
-
-        # Wait for stdin EOF or SSE disconnect
-        done, pending = await asyncio.wait(
-            [sse_task, stdin_task, writer_task],
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-        for task in pending:
-            task.cancel()
+            # Wait for stdin EOF or SSE disconnect
+            done, pending = await asyncio.wait(
+                [sse_task, stdin_task, writer_task],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in pending:
+                task.cancel()
 
 
 # ---------------------------------------------------------------------------
 # Streamable HTTP Bridge — simpler, single /mcp endpoint
 # ---------------------------------------------------------------------------
+
 
 async def _run_http_bridge() -> None:
     """Bridge stdio ↔ Streamable HTTP transport.
@@ -235,7 +245,8 @@ async def _run_http_bridge() -> None:
         while True:
             # Read stdin in thread pool — works on all platforms
             line_bytes = await loop.run_in_executor(
-                None, sys.stdin.buffer.readline,
+                None,
+                sys.stdin.buffer.readline,
             )
             if not line_bytes:
                 break  # EOF
@@ -272,14 +283,16 @@ async def _run_http_bridge() -> None:
                                     sys.stdout.write(stripped + "\n")
                                     sys.stdout.flush()
             except httpx.HTTPError as exc:
-                error_response = json.dumps({
-                    "jsonrpc": "2.0",
-                    "id": None,
-                    "error": {
-                        "code": -32000,
-                        "message": f"Bridge error: {exc}",
-                    },
-                })
+                error_response = json.dumps(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "error": {
+                            "code": -32000,
+                            "message": f"Bridge error: {exc}",
+                        },
+                    }
+                )
                 sys.stdout.write(error_response + "\n")
                 sys.stdout.flush()
 
@@ -287,6 +300,7 @@ async def _run_http_bridge() -> None:
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Run the bridge in the configured mode."""

@@ -19,10 +19,10 @@ Usage::
         cleanup_l1, get_memory_stats,
     )
 """
+
 from __future__ import annotations
 
 import asyncio
-import concurrent.futures
 import hashlib
 import json
 import logging
@@ -114,9 +114,7 @@ def _sync_store(
     # Content-hash IDs: same source + content → same ID → upsert overwrites.
     # Prevents DB bloat from repeated stores of the same file.
     ids = [
-        hashlib.sha256(
-            f"{metadata_source}:{chunk}".encode()
-        ).hexdigest()[:16] + f"_{i}"
+        hashlib.sha256(f"{metadata_source}:{chunk}".encode()).hexdigest()[:16] + f"_{i}"
         for i, chunk in enumerate(chunks)
     ]
     metadatas = [
@@ -178,18 +176,22 @@ def _query_single_tier(
         if count > 0:
             n = min(n_results, count)
             raw = col.query(
-                query_texts=[query], n_results=n, where=where_filter,
+                query_texts=[query],
+                n_results=n,
+                where=where_filter,
             )
             docs = raw["documents"][0] if raw["documents"] else []
             metas = raw["metadatas"][0] if raw["metadatas"] else []
             dists = raw["distances"][0] if raw.get("distances") else []
             for i, doc in enumerate(docs):
-                results.append({
-                    "tier": tier_label,
-                    "document": doc,
-                    "metadata": metas[i] if i < len(metas) else {},
-                    "distance": dists[i] if i < len(dists) else 999.0,
-                })
+                results.append(
+                    {
+                        "tier": tier_label,
+                        "document": doc,
+                        "metadata": metas[i] if i < len(metas) else {},
+                        "distance": dists[i] if i < len(dists) else 999.0,
+                    }
+                )
     except Exception as exc:  # noqa: BLE001
         logger.warning("%s query failed: %s", tier_label, exc)
         mgr.reset()
@@ -221,13 +223,17 @@ def _sync_query_hybrid(
         _query_single_tier,
         "L1_LOCAL",
         lambda: mgr.get_l1_direct(workspace_id),
-        query, n_results, where_filter,
+        query,
+        n_results,
+        where_filter,
     )
     l2_future = mgr._query_executor.submit(
         _query_single_tier,
         "L2_GLOBAL",
         mgr.get_l2_direct,
-        query, n_results, where_filter,
+        query,
+        n_results,
+        where_filter,
     )
 
     try:
@@ -398,7 +404,7 @@ def _sync_memory_stats() -> str:
         except Exception:  # noqa: BLE001
             count = -1
         if name.startswith(_L1_PREFIX):
-            workspace = name[len(_L1_PREFIX):]
+            workspace = name[len(_L1_PREFIX) :]
             l1_stats[workspace] = count
         elif name == _L2_COLLECTION:
             l2_count = count
@@ -442,7 +448,9 @@ async def compress_and_store(
         return await asyncio.wait_for(
             loop.run_in_executor(
                 mgr._executor,
-                lambda: _sync_store(text_data, metadata_source, tier, workspace_id, tech_stack),
+                lambda: _sync_store(
+                    text_data, metadata_source, tier, workspace_id, tech_stack
+                ),
             ),
             timeout=_ASYNC_TIMEOUT,
         )
@@ -534,13 +542,17 @@ def _sync_quick_recall(
         _query_single_tier,
         "L1_LOCAL",
         lambda: mgr.get_l1_direct(workspace_id),
-        query, n_results, where_filter,
+        query,
+        n_results,
+        where_filter,
     )
     l2_future = mgr._query_executor.submit(
         _query_single_tier,
         "L2_GLOBAL",
         mgr.get_l2_direct,
-        query, n_results, where_filter,
+        query,
+        n_results,
+        where_filter,
     )
 
     try:

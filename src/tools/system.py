@@ -5,6 +5,7 @@ Extracted from ``server.py`` for SRP compliance.
 ⚠ All subprocess calls use ``asyncio.create_subprocess_exec`` to avoid
 blocking the event loop (Review Fix #2).
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -30,6 +31,7 @@ _MCP_ROOT: Path = PROJECT_ROOT
 # Async subprocess helper (DRY)
 # ---------------------------------------------------------------------------
 
+
 async def _async_run(
     *cmd: str,
     cwd: str | None = None,
@@ -49,7 +51,8 @@ async def _async_run(
     )
     try:
         stdout_bytes, stderr_bytes = await asyncio.wait_for(
-            proc.communicate(), timeout=timeout,
+            proc.communicate(),
+            timeout=timeout,
         )
         return (
             proc.returncode or 0,
@@ -109,6 +112,7 @@ def register_system_tools(mcp: FastMCP) -> None:
         chroma_status = "not_running"
         try:
             import httpx
+
             async with httpx.AsyncClient(timeout=2) as client:
                 resp = await client.get("http://localhost:8888/api/v2/heartbeat")
                 chroma_status = "running" if resp.status_code == 200 else "error"
@@ -179,40 +183,53 @@ def register_system_tools(mcp: FastMCP) -> None:
             # Try HTTP heartbeat first (async, non-blocking)
             try:
                 import httpx
+
                 async with httpx.AsyncClient(timeout=3) as client:
                     resp = await client.get("http://localhost:8888/api/v2/heartbeat")
                     heartbeat = resp.json()
-                    return json.dumps({
-                        "status": "running",
-                        "port": 8888,
-                        "heartbeat": heartbeat,
-                    }, indent=2)
+                    return json.dumps(
+                        {
+                            "status": "running",
+                            "port": 8888,
+                            "heartbeat": heartbeat,
+                        },
+                        indent=2,
+                    )
             except Exception:
                 pass
 
             # Fallback: async lsof
             rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
             if rc == 0 and stdout.strip():
-                return json.dumps({
-                    "status": "running",
-                    "port": 8888,
-                    "details": stdout.strip().split("\n")[:3],
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "status": "running",
+                        "port": 8888,
+                        "details": stdout.strip().split("\n")[:3],
+                    },
+                    indent=2,
+                )
 
-            return json.dumps({
-                "status": "stopped",
-                "message": "ChromaDB not running on port 8888.",
-                "hint": "Use action 'start' to launch it.",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "stopped",
+                    "message": "ChromaDB not running on port 8888.",
+                    "hint": "Use action 'start' to launch it.",
+                },
+                indent=2,
+            )
 
         elif action == "start":
             # Check if already running
             rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
             if rc == 0 and stdout.strip():
-                return json.dumps({
-                    "status": "already_running",
-                    "message": "ChromaDB is already running on port 8888.",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "status": "already_running",
+                        "message": "ChromaDB is already running on port 8888.",
+                    },
+                    indent=2,
+                )
 
             # Find chroma binary
             chroma_bin = str(_MCP_ROOT / ".venv" / "bin" / "chroma")
@@ -221,16 +238,24 @@ def register_system_tools(mcp: FastMCP) -> None:
                 chroma_bin = stdout.strip() if rc == 0 else ""
 
             if not chroma_bin:
-                return json.dumps({
-                    "status": "error",
-                    "message": "chroma CLI not found. Install: pip install chromadb",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "status": "error",
+                        "message": "chroma CLI not found. Install: pip install chromadb",
+                    },
+                    indent=2,
+                )
 
             db_path = str(CHROMA_DB_PATH)
             CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
 
             # Log directory: persistent, with rotation
-            from src.config import MCP_LOG_DIR, CHROMA_LOG_MAX_BYTES, CHROMA_LOG_BACKUP_COUNT
+            from src.config import (
+                MCP_LOG_DIR,
+                CHROMA_LOG_MAX_BYTES,
+                CHROMA_LOG_BACKUP_COUNT,
+            )
+
             MCP_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
             stdout_log = MCP_LOG_DIR / "chromadb.stdout.log"
@@ -241,16 +266,21 @@ def register_system_tools(mcp: FastMCP) -> None:
                 if log_path.exists() and log_path.stat().st_size > CHROMA_LOG_MAX_BYTES:
                     for i in range(CHROMA_LOG_BACKUP_COUNT, 0, -1):
                         dst = log_path.parent / f"{log_path.stem}.{i}{log_path.suffix}"
-                        src = (log_path.parent / f"{log_path.stem}.{i - 1}{log_path.suffix}"
-                               if i > 1 else log_path)
+                        src = (
+                            log_path.parent
+                            / f"{log_path.stem}.{i - 1}{log_path.suffix}"
+                            if i > 1
+                            else log_path
+                        )
                         if src.exists():
                             dst.unlink(missing_ok=True)
                             src.rename(dst)
 
             # Start as background process (detached)
             import subprocess
-            stdout_f = open(stdout_log, "a", encoding="utf-8")   # noqa: SIM115
-            stderr_f = open(stderr_log, "a", encoding="utf-8")   # noqa: SIM115
+
+            stdout_f = open(stdout_log, "a", encoding="utf-8")  # noqa: SIM115
+            stderr_f = open(stderr_log, "a", encoding="utf-8")  # noqa: SIM115
             subprocess.Popen(
                 [chroma_bin, "run", "--path", db_path, "--port", "8888"],
                 stdout=stdout_f,
@@ -266,23 +296,31 @@ def register_system_tools(mcp: FastMCP) -> None:
             rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
             started = rc == 0 and stdout.strip()
 
-            return json.dumps({
-                "status": "started" if started else "failed",
-                "port": 8888,
-                "db_path": db_path,
-                "logs": str(MCP_LOG_DIR),
-                "message": "ChromaDB server launched" if started else f"Check {stderr_log}",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "started" if started else "failed",
+                    "port": 8888,
+                    "db_path": db_path,
+                    "logs": str(MCP_LOG_DIR),
+                    "message": "ChromaDB server launched"
+                    if started
+                    else f"Check {stderr_log}",
+                },
+                indent=2,
+            )
 
         elif action == "stop":
             rc, stdout, _ = await _async_run("lsof", "-ti", ":8888", timeout=5)
             pids = stdout.strip().split("\n") if stdout.strip() else []
 
             if not pids:
-                return json.dumps({
-                    "status": "not_running",
-                    "message": "ChromaDB is not running.",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "status": "not_running",
+                        "message": "ChromaDB is not running.",
+                    },
+                    indent=2,
+                )
 
             for pid in pids:
                 if pid.isdigit():
@@ -290,18 +328,24 @@ def register_system_tools(mcp: FastMCP) -> None:
 
             await asyncio.sleep(1)
 
-            return json.dumps({
-                "status": "stopped",
-                "killed_pids": pids,
-                "message": "ChromaDB server stopped.",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "stopped",
+                    "killed_pids": pids,
+                    "message": "ChromaDB server stopped.",
+                },
+                indent=2,
+            )
 
         else:
-            return json.dumps({
-                "status": "error",
-                "message": f"Unknown action: '{action}'",
-                "available_actions": ["start", "stop", "status"],
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": f"Unknown action: '{action}'",
+                    "available_actions": ["start", "stop", "status"],
+                },
+                indent=2,
+            )
 
     @mcp.tool()
     async def self_update() -> str:
@@ -315,17 +359,23 @@ def register_system_tools(mcp: FastMCP) -> None:
             JSON with git pull result and restart hint.
         """
         rc, stdout, stderr = await _async_run(
-            "git", "pull", "--rebase",
-            cwd=str(_MCP_ROOT), timeout=30,
+            "git",
+            "pull",
+            "--rebase",
+            cwd=str(_MCP_ROOT),
+            timeout=30,
         )
 
-        return json.dumps({
-            "status": "success" if rc == 0 else "error",
-            "action": "git pull --rebase",
-            "stdout": stdout.strip()[-500:],
-            "stderr": stderr.strip()[-300:] if rc != 0 else "",
-            "hint": "Restart MCP server to apply updates." if rc == 0 else "",
-        }, indent=2)
+        return json.dumps(
+            {
+                "status": "success" if rc == 0 else "error",
+                "action": "git pull --rebase",
+                "stdout": stdout.strip()[-500:],
+                "stderr": stderr.strip()[-300:] if rc != 0 else "",
+                "hint": "Restart MCP server to apply updates." if rc == 0 else "",
+            },
+            indent=2,
+        )
 
     @mcp.tool()
     async def backup_memory_database(max_backups: int = 5) -> str:
@@ -353,10 +403,13 @@ def register_system_tools(mcp: FastMCP) -> None:
         backup_dir.mkdir(parents=True, exist_ok=True)
 
         if not db_path.exists():
-            return json.dumps({
-                "status": "error",
-                "message": f"ChromaDB directory not found: {db_path}",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": f"ChromaDB directory not found: {db_path}",
+                },
+                indent=2,
+            )
 
         # Create timestamped backup
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -386,18 +439,23 @@ def register_system_tools(mcp: FastMCP) -> None:
                 removed.append(old.name)
 
             record_tool_call("backup_memory_database")
-            return json.dumps({
-                "status": "success",
-                "backup_path": str(backup_path),
-                "size_mb": size_mb,
-                "total_backups": min(len(existing), max_backups),
-                "cleaned_up": removed,
-                "message": f"Backup created: {backup_name} ({size_mb} MB)",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "status": "success",
+                    "backup_path": str(backup_path),
+                    "size_mb": size_mb,
+                    "total_backups": min(len(existing), max_backups),
+                    "cleaned_up": removed,
+                    "message": f"Backup created: {backup_name} ({size_mb} MB)",
+                },
+                indent=2,
+            )
 
         except Exception as exc:  # noqa: BLE001
-            return json.dumps({
-                "status": "error",
-                "message": f"Backup failed: {exc}",
-            }, indent=2)
-
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": f"Backup failed: {exc}",
+                },
+                indent=2,
+            )
