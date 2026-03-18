@@ -1,0 +1,42 @@
+# ============================================================================
+# Systemd Service — ChromaDB for TechStack MCP Server (Linux)
+# ============================================================================
+# Install:
+#   sudo cp scripts/chromadb.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable chromadb
+#   sudo systemctl start chromadb
+#
+# Logs:
+#   journalctl -u chromadb -f
+#
+# Status:
+#   systemctl status chromadb
+# ============================================================================
+
+[Unit]
+Description=ChromaDB Vector Database for MCP Server
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+# Adjust paths below to match your installation
+Environment=CHROMA_DB_PATH=%h/.mcp_global_db
+Environment=CHROMA_PORT=8888
+ExecStartPre=/bin/mkdir -p %h/.mcp_global_db/logs
+ExecStart=%h/projects/vibe-light-mcp/.venv/bin/chroma run --path %h/.mcp_global_db --port 8888
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.mcp_global_db/logs/chromadb.stdout.log
+StandardError=append:%h/.mcp_global_db/logs/chromadb.stderr.log
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.mcp_global_db
+
+[Install]
+WantedBy=multi-user.target

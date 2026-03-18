@@ -79,7 +79,18 @@ async def _run_sse_bridge() -> None:
 
     logger.info("Connecting to SSE at %s ...", sse_url)
 
-    async with httpx.AsyncClient(timeout=httpx.Timeout(_REQUEST_TIMEOUT)) as client:
+    # SSE stream needs NO read timeout (long-lived connection).
+    # POST requests use normal timeout.
+    sse_timeout = httpx.Timeout(
+        connect=_CONNECT_TIMEOUT,
+        read=None,     # ← SSE stream stays open indefinitely
+        write=10.0,
+        pool=10.0,
+    )
+    post_timeout = httpx.Timeout(_REQUEST_TIMEOUT)
+
+    async with httpx.AsyncClient(timeout=post_timeout) as post_client:
+      async with httpx.AsyncClient(timeout=sse_timeout) as sse_client:
         # --- SSE connection (background task reads events) ---
         response_queue: asyncio.Queue[str] = asyncio.Queue()
 
@@ -87,7 +98,7 @@ async def _run_sse_bridge() -> None:
             """Read SSE events and push to queue."""
             nonlocal messages_url
             try:
-                async with client.stream("GET", sse_url) as resp:
+                async with sse_client.stream("GET", sse_url) as resp:
                     resp.raise_for_status()
                     buffer = ""
                     async for chunk in resp.aiter_text():
@@ -154,7 +165,7 @@ async def _run_sse_bridge() -> None:
 
                 # POST to MCP server
                 try:
-                    resp = await client.post(
+                    resp = await post_client.post(
                         messages_url,
                         content=line_str,
                         headers={"Content-Type": "application/json"},

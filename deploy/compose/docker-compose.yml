@@ -1,0 +1,157 @@
+# ============================================================================
+# Docker Compose — TechStack Local MCP Server (Production)
+# ============================================================================
+# Target: Ubuntu Server (Intel i5, 8GB RAM), chạy 24/7
+#
+# Network Architecture (Dual-Network):
+#   ┌────────────────────────────────────────────────────────────────┐
+#   │  mcp_internal (internal: true — NO external access)           │
+#   │  ┌──────────┐          ┌──────────────┐                       │
+#   │  │ chromadb │◄────────►│  mcp_server  │                       │
+#   │  │ :8000    │          │              │                       │
+#   │  └──────────┘          └──────┬───────┘                       │
+#   └───────────────────────────────┼───────────────────────────────┘
+#   ┌───────────────────────────────┼───────────────────────────────┐
+#   │  mcp_exposed (bridge)         │                               │
+#   │                    ┌──────────┴───────┐                       │
+#   │                    │  mcp_server      │──► :8000 (host)       │
+#   │                    └──────────────────┘                       │
+#   └───────────────────────────────────────────────────────────────┘
+#
+# ChromaDB: Chỉ ở mcp_internal → KHÔNG thể truy cập từ host/LAN
+# MCP Server: Ở cả 2 network → truy cập ChromaDB nội bộ + expose port ra host
+#
+# Usage (từ project root):
+#   cp deploy/compose/.env.example deploy/compose/.env  # Lần đầu
+#   docker compose -f deploy/compose/docker-compose.yml up -d
+#   docker compose -f deploy/compose/docker-compose.yml logs -f
+#   docker compose -f deploy/compose/docker-compose.yml down
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # ChromaDB — Vector Database (Internal Only)
+  # --------------------------------------------------------------------------
+  # ⚠ KHÔNG expose port ra host. ChromaDB chỉ giao tiếp nội bộ với mcp_server
+  # qua mạng Docker internal. Điều này ngăn bất kỳ ai trên mạng LAN truy cập
+  # trực tiếp vào Vector DB chứa toàn bộ memory/knowledge của AI.
+  # --------------------------------------------------------------------------
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: mcp-chromadb
+    restart: unless-stopped
+    # KHÔNG có "ports:" → ChromaDB chỉ reachable qua mcp_internal
+    networks:
+      - mcp_internal
+    volumes:
+      - chroma_data:/chroma/chroma    # Named volume — persistent qua restart
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    # ── Resource Limits (Server 8GB RAM) ──────────────────────────────────
+    # ChromaDB + hnswlib có thể ngốn RAM khi index lớn.
+    # Giới hạn 2.5GB để chừa RAM cho OS + MCP Server + embedding model.
+    deploy:
+      resources:
+        limits:
+          memory: 2560M
+        reservations:
+          memory: 512M
+
+    # ── Log Rotation ─────────────────────────────────────────────────────
+    # Không có rotation → ChromaDB log có thể phình hàng chục GB.
+    # json-file driver: max 10MB/file × 3 files = tối đa 30MB log.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # --------------------------------------------------------------------------
+  # MCP Server — AI Coding Assistant (SSE/HTTP exposed)
+  # --------------------------------------------------------------------------
+  mcp_server:
+    build:
+      context: ../..                    # Project root (chứa pyproject.toml, src/, main.py)
+      dockerfile: deploy/docker/Dockerfile
+    container_name: mcp-server
+    restart: unless-stopped
+    depends_on:
+      chromadb:
+        condition: service_healthy      # Chờ ChromaDB healthy trước khi boot
+    # ── Dual Network ─────────────────────────────────────────────────────
+    # mcp_internal: giao tiếp với ChromaDB (internal, không ai ngoài truy cập)
+    # mcp_exposed:  cho phép Docker map port ra host (port 8000)
+    networks:
+      - mcp_internal
+      - mcp_exposed
+    ports:
+      - "${MCP_EXTERNAL_PORT:-8000}:${MCP_PORT:-8000}"   # Chỉ MCP được expose
+    volumes:
+      - usage_logs:/data                                  # Named volume: logs + usage data
+      - ../../tech_stacks:/app/tech_stacks:rw             # Bind mount: git pull trên host → container thấy ngay
+    env_file:
+      - .env
+    environment:
+      - MCP_TRANSPORT=${MCP_TRANSPORT:-sse}
+      - MCP_HOST=${MCP_HOST:-0.0.0.0}
+      - MCP_PORT=${MCP_PORT:-8000}
+      - MCP_CHROMA_HOST=chromadb                          # Tên service Docker = hostname nội bộ
+      - MCP_CHROMA_PORT=8000                              # Port mặc định của chromadb/chroma image
+      - MCP_EXEC_MODE=${MCP_EXEC_MODE:-allowlist}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${MCP_PORT:-8000}/sse', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    # ── Resource Limits (Server 8GB RAM) ──────────────────────────────────
+    # MCP Server + embedding model (sentence-transformers) ~400-800MB.
+    # Giới hạn 1.5GB → đủ cho embedding + request handling.
+    # Budget: ChromaDB 2.5GB + MCP 1.5GB + OS 2GB = 6GB / 8GB (chừa 2GB buffer)
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+        reservations:
+          memory: 256M
+
+    # ── Log Rotation ─────────────────────────────────────────────────────
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ===========================================================================
+# Networks (Dual-Network Security Model)
+# ===========================================================================
+networks:
+  # Internal: ChromaDB ↔ MCP Server giao tiếp qua hostname.
+  # internal: true → KHÔNG có default gateway → container không thể ra internet
+  # và host/LAN không thể vào. ChromaDB hoàn toàn bị cô lập.
+  mcp_internal:
+    driver: bridge
+    internal: true
+
+  # Exposed: Chỉ MCP Server join network này để Docker có thể
+  # map port container ra host. ChromaDB KHÔNG join network này.
+  mcp_exposed:
+    driver: bridge
+
+# ===========================================================================
+# Volumes — Dữ liệu persistent qua restart/rebuild
+# ===========================================================================
+volumes:
+  chroma_data:
+    driver: local     # ChromaDB Vector DB (L1/L2 memory — não bộ AI)
+  usage_logs:
+    driver: local     # MCP usage logs, backup data

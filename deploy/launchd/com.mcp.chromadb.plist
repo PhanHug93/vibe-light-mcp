@@ -12,7 +12,7 @@
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>source "$HOME/projects/vibe-light-mcp/.venv/bin/activate" &amp;&amp; chroma run --path "$HOME/.mcp_global_db" --port 8888</string>
+        <string>mkdir -p "$HOME/.mcp_global_db/logs" &amp;&amp; source "$HOME/projects/vibe-light-mcp/.venv/bin/activate" &amp;&amp; chroma run --path "$HOME/.mcp_global_db" --port 8888</string>
     </array>
 
     <!-- Auto-start when user logs in -->
@@ -23,11 +23,11 @@
     <key>KeepAlive</key>
     <true/>
 
-    <!-- Log files -->
+    <!-- Log files (persistent — survives reboot, unlike /tmp/) -->
     <key>StandardOutPath</key>
-    <string>/tmp/chromadb.stdout.log</string>
+    <string>/Users/admin/.mcp_global_db/logs/chromadb.stdout.log</string>
     <key>StandardErrorPath</key>
-    <string>/tmp/chromadb.stderr.log</string>
+    <string>/Users/admin/.mcp_global_db/logs/chromadb.stderr.log</string>
 
     <!-- Working directory -->
     <key>WorkingDirectory</key>

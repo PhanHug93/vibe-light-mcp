@@ -229,10 +229,28 @@ def register_system_tools(mcp: FastMCP) -> None:
             db_path = str(CHROMA_DB_PATH)
             CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
 
+            # Log directory: persistent, with rotation
+            from src.config import MCP_LOG_DIR, CHROMA_LOG_MAX_BYTES, CHROMA_LOG_BACKUP_COUNT
+            MCP_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+            stdout_log = MCP_LOG_DIR / "chromadb.stdout.log"
+            stderr_log = MCP_LOG_DIR / "chromadb.stderr.log"
+
+            # Simple rotation: if log exceeds max size, rotate .log → .1 → .2 → .3
+            for log_path in (stdout_log, stderr_log):
+                if log_path.exists() and log_path.stat().st_size > CHROMA_LOG_MAX_BYTES:
+                    for i in range(CHROMA_LOG_BACKUP_COUNT, 0, -1):
+                        dst = log_path.parent / f"{log_path.stem}.{i}{log_path.suffix}"
+                        src = (log_path.parent / f"{log_path.stem}.{i - 1}{log_path.suffix}"
+                               if i > 1 else log_path)
+                        if src.exists():
+                            dst.unlink(missing_ok=True)
+                            src.rename(dst)
+
             # Start as background process (detached)
-            stdout_f = open("/tmp/chromadb.stdout.log", "a")  # noqa: SIM115
-            stderr_f = open("/tmp/chromadb.stderr.log", "a")  # noqa: SIM115
             import subprocess
+            stdout_f = open(stdout_log, "a", encoding="utf-8")   # noqa: SIM115
+            stderr_f = open(stderr_log, "a", encoding="utf-8")   # noqa: SIM115
             subprocess.Popen(
                 [chroma_bin, "run", "--path", db_path, "--port", "8888"],
                 stdout=stdout_f,
@@ -252,8 +270,8 @@ def register_system_tools(mcp: FastMCP) -> None:
                 "status": "started" if started else "failed",
                 "port": 8888,
                 "db_path": db_path,
-                "logs": "/tmp/chromadb.stdout.log",
-                "message": "ChromaDB server launched" if started else "Check /tmp/chromadb.stderr.log",
+                "logs": str(MCP_LOG_DIR),
+                "message": "ChromaDB server launched" if started else f"Check {stderr_log}",
             }, indent=2)
 
         elif action == "stop":
@@ -308,3 +326,78 @@ def register_system_tools(mcp: FastMCP) -> None:
             "stderr": stderr.strip()[-300:] if rc != 0 else "",
             "hint": "Restart MCP server to apply updates." if rc == 0 else "",
         }, indent=2)
+
+    @mcp.tool()
+    async def backup_memory_database(max_backups: int = 5) -> str:
+        """Backup ChromaDB memory database to a compressed archive.
+
+        Call this tool when user asks to:
+        - Backup the memory / database / ChromaDB
+        - Create a snapshot of the knowledge base
+        - Protect against data loss
+
+        Creates a timestamped .tar.gz in ~/.mcp_global_db/backups/.
+        Auto-cleans old backups beyond max_backups.
+
+        Args:
+            max_backups: Maximum number of backups to keep (default 5).
+
+        Returns:
+            JSON with backup path, size, and cleanup info.
+        """
+        import tarfile
+        from datetime import datetime
+
+        db_path = CHROMA_DB_PATH
+        backup_dir = db_path / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+
+        if not db_path.exists():
+            return json.dumps({
+                "status": "error",
+                "message": f"ChromaDB directory not found: {db_path}",
+            }, indent=2)
+
+        # Create timestamped backup
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_name = f"chromadb_backup_{timestamp}.tar.gz"
+        backup_path = backup_dir / backup_name
+
+        try:
+            # Compress — exclude backups/ and logs/ from archive
+            with tarfile.open(backup_path, "w:gz") as tar:
+                for item in db_path.iterdir():
+                    if item.name in ("backups", "logs"):
+                        continue
+                    tar.add(str(item), arcname=item.name)
+
+            backup_size = backup_path.stat().st_size
+            size_mb = round(backup_size / (1024 * 1024), 2)
+
+            # Cleanup old backups (keep newest max_backups)
+            existing = sorted(
+                backup_dir.glob("chromadb_backup_*.tar.gz"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            removed = []
+            for old in existing[max_backups:]:
+                old.unlink()
+                removed.append(old.name)
+
+            record_tool_call("backup_memory_database")
+            return json.dumps({
+                "status": "success",
+                "backup_path": str(backup_path),
+                "size_mb": size_mb,
+                "total_backups": min(len(existing), max_backups),
+                "cleaned_up": removed,
+                "message": f"Backup created: {backup_name} ({size_mb} MB)",
+            }, indent=2)
+
+        except Exception as exc:  # noqa: BLE001
+            return json.dumps({
+                "status": "error",
+                "message": f"Backup failed: {exc}",
+            }, indent=2)
+

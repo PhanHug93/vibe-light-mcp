@@ -42,6 +42,16 @@ CHROMA_POOL_SIZE: int = 4         # dedicated thread-pool workers
 CHROMA_HEARTBEAT_INTERVAL: int = 30  # seconds — proactive staleness check
 
 # ---------------------------------------------------------------------------
+# Logging (ChromaDB + MCP Server)
+# ---------------------------------------------------------------------------
+
+MCP_LOG_DIR: Path = CHROMA_DB_PATH / "logs"
+"""Persistent log directory for ChromaDB and MCP server logs."""
+
+CHROMA_LOG_MAX_BYTES: int = 5 * 1024 * 1024  # 5 MB per log file
+CHROMA_LOG_BACKUP_COUNT: int = 3              # keep 3 rotated backups
+
+# ---------------------------------------------------------------------------
 # Embedding
 # ---------------------------------------------------------------------------
 

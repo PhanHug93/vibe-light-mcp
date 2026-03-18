@@ -30,10 +30,15 @@ import re
 import shlex
 import shutil
 import signal
+import subprocess as _subprocess
+import sys
 
 from src.config import DEFAULT_COMMAND_TIMEOUT, MAX_OUTPUT_CHARS, MCP_EXEC_MODE
 
 logger = logging.getLogger(__name__)
+
+# Platform detection — used for process group management
+IS_WINDOWS = sys.platform == "win32"
 
 # ---------------------------------------------------------------------------
 # Layer 2 — Allowlist (deny-by-default)
@@ -408,13 +413,19 @@ async def execute_terminal_command(
 
     try:
         # Start in a NEW PROCESS GROUP so we can kill the entire tree,
-        # not just the shell wrapper.  `os.setsid()` makes the shell
-        # the leader of a new session/process group.
+        # not just the shell wrapper.
+        #   Unix:    os.setsid() → new session/process group
+        #   Windows: CREATE_NEW_PROCESS_GROUP → new process group
+        platform_kwargs: dict = (
+            {"creationflags": _subprocess.CREATE_NEW_PROCESS_GROUP}
+            if IS_WINDOWS
+            else {"preexec_fn": os.setsid}
+        )
         process = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            preexec_fn=os.setsid,
+            **platform_kwargs,
         )
 
         try:
@@ -477,19 +488,27 @@ async def _kill_process_tree(process: asyncio.subprocess.Process) -> None:
     the shell wrapper.  Child processes (e.g. ``gradlew assembleDebug``
     consuming 4 GB RAM) become orphans and keep running forever.
 
-    This function:
-    1. Sends ``SIGTERM`` to the entire process group (graceful).
-    2. Waits 3 seconds for cleanup.
-    3. Sends ``SIGKILL`` if any process is still alive (force).
+    Cross-platform:
+      - **Unix**: ``os.killpg(pgid, SIGTERM/SIGKILL)`` — kill by process group.
+      - **Windows**: ``taskkill /F /T /PID`` — kill process tree (no POSIX signals).
     """
     pid = process.pid
     if pid is None:
         return
 
+    if IS_WINDOWS:
+        await _kill_process_tree_windows(pid, process)
+    else:
+        await _kill_process_tree_unix(pid, process)
+
+
+async def _kill_process_tree_unix(
+    pid: int, process: asyncio.subprocess.Process
+) -> None:
+    """Unix: kill entire process group via SIGTERM → SIGKILL."""
     try:
         pgid = os.getpgid(pid)
     except ProcessLookupError:
-        # Already dead — nothing to do
         return
 
     # Step 1: Graceful termination (SIGTERM to entire group)
@@ -519,4 +538,49 @@ async def _kill_process_tree(process: asyncio.subprocess.Process) -> None:
         await asyncio.wait_for(process.wait(), timeout=2)
     except asyncio.TimeoutError:
         logger.error("Process group %d still alive after SIGKILL!", pgid)
+
+
+async def _kill_process_tree_windows(
+    pid: int, process: asyncio.subprocess.Process
+) -> None:
+    """Windows: kill process tree via taskkill /F /T.
+
+    Windows does not have POSIX signals (SIGTERM/SIGKILL) or process groups
+    (setsid/killpg). Instead we use:
+      - ``CTRL_BREAK_EVENT`` for graceful stop (only works with
+        CREATE_NEW_PROCESS_GROUP).
+      - ``taskkill /F /T /PID`` for force-killing the entire process tree.
+    """
+    # Step 1: Graceful — send CTRL_BREAK_EVENT
+    try:
+        os.kill(pid, signal.CTRL_BREAK_EVENT)  # type: ignore[attr-defined]
+        logger.info("CTRL_BREAK_EVENT sent to PID %d", pid)
+    except (ProcessLookupError, OSError):
+        return
+
+    # Step 2: Wait for graceful shutdown
+    try:
+        await asyncio.wait_for(process.wait(), timeout=3)
+        logger.info("PID %d terminated gracefully", pid)
+        return
+    except asyncio.TimeoutError:
+        pass
+
+    # Step 3: Force kill entire process tree
+    try:
+        kill_proc = await asyncio.create_subprocess_shell(
+            f"taskkill /F /T /PID {pid}",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        await asyncio.wait_for(kill_proc.wait(), timeout=5)
+        logger.warning("taskkill /F /T sent to PID %d (force)", pid)
+    except (asyncio.TimeoutError, OSError) as exc:
+        logger.error("Failed to taskkill PID %d: %s", pid, exc)
+
+    # Final wait to reap
+    try:
+        await asyncio.wait_for(process.wait(), timeout=2)
+    except asyncio.TimeoutError:
+        logger.error("PID %d still alive after taskkill!", pid)
 
