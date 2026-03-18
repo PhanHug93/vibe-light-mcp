@@ -20,6 +20,7 @@ Usage::
 
     result = await execute_terminal_command("git status")
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -28,7 +29,6 @@ import logging
 import os
 import re
 import shlex
-import shutil
 import signal
 import subprocess as _subprocess
 import sys
@@ -46,73 +46,208 @@ IS_WINDOWS = sys.platform == "win32"
 
 # Safe commands for development workflows.
 # These are base binary names (after normalization).
-_ALLOWED_COMMANDS: frozenset[str] = frozenset({
-    # File inspection (read-only)
-    "ls", "cat", "head", "tail", "less", "more", "file", "stat",
-    "wc", "du", "df", "tree", "find", "locate", "which", "whereis",
-    "realpath", "readlink", "basename", "dirname",
-
-    # Text processing
-    "grep", "rg", "ag", "awk", "sed", "sort", "uniq", "cut", "tr",
-    "diff", "comm", "paste", "column", "jq", "yq", "xargs",
-
-    # Development tools
-    "git", "python", "python3", "pip", "pip3", "uv",
-    "node", "npm", "npx", "yarn", "pnpm", "bun", "deno",
-    "java", "javac", "kotlin", "kotlinc", "gradle", "gradlew", "mvn",
-    "swift", "swiftc", "xcodebuild", "pod", "carthage",
-    "flutter", "dart", "pub",
-    "cargo", "rustc", "go", "make", "cmake",
-    "ruby", "gem", "bundle", "rake",
-    "php", "composer",
-    "dotnet", "nuget",
-
-    # Build & package tools
-    "docker", "docker-compose", "podman",
-    "terraform", "ansible", "kubectl", "helm",
-
-    # Shell utilities (safe)
-    "echo", "printf", "date", "env", "printenv", "id", "whoami",
-    "uname", "hostname", "pwd", "true", "false", "yes", "seq",
-    "sleep", "timeout", "time", "tee", "xdg-open", "open",
-
-    # Network inspection (read-only)
-    "ping", "curl", "wget", "httpie", "http",
-    "dig", "nslookup", "host", "traceroute",
-    "lsof", "netstat", "ss",
-
-    # Process inspection (read-only)
-    "ps", "top", "htop", "pgrep", "uptime", "free",
-
-    # Archive (read-only extraction)
-    "tar", "unzip", "gzip", "gunzip", "bzip2", "xz", "zstd",
-
-    # Editor/pager
-    "vim", "nvim", "nano", "code",
-
-    # Project-specific
-    "repomix", "pytest", "mypy", "ruff", "black", "isort", "flake8",
-    "eslint", "prettier", "tsc", "webpack", "vite", "esbuild",
-    "chroma",
-
-    # File operations (controlled)
-    "mkdir", "touch", "cp", "mv", "ln", "chmod",
-})
+_ALLOWED_COMMANDS: frozenset[str] = frozenset(
+    {
+        # File inspection (read-only)
+        "ls",
+        "cat",
+        "head",
+        "tail",
+        "less",
+        "more",
+        "file",
+        "stat",
+        "wc",
+        "du",
+        "df",
+        "tree",
+        "find",
+        "locate",
+        "which",
+        "whereis",
+        "realpath",
+        "readlink",
+        "basename",
+        "dirname",
+        # Text processing
+        "grep",
+        "rg",
+        "ag",
+        "awk",
+        "sed",
+        "sort",
+        "uniq",
+        "cut",
+        "tr",
+        "diff",
+        "comm",
+        "paste",
+        "column",
+        "jq",
+        "yq",
+        "xargs",
+        # Development tools
+        "git",
+        "python",
+        "python3",
+        "pip",
+        "pip3",
+        "uv",
+        "node",
+        "npm",
+        "npx",
+        "yarn",
+        "pnpm",
+        "bun",
+        "deno",
+        "java",
+        "javac",
+        "kotlin",
+        "kotlinc",
+        "gradle",
+        "gradlew",
+        "mvn",
+        "swift",
+        "swiftc",
+        "xcodebuild",
+        "pod",
+        "carthage",
+        "flutter",
+        "dart",
+        "pub",
+        "cargo",
+        "rustc",
+        "go",
+        "make",
+        "cmake",
+        "ruby",
+        "gem",
+        "bundle",
+        "rake",
+        "php",
+        "composer",
+        "dotnet",
+        "nuget",
+        # Build & package tools
+        "docker",
+        "docker-compose",
+        "podman",
+        "terraform",
+        "ansible",
+        "kubectl",
+        "helm",
+        # Shell utilities (safe)
+        "echo",
+        "printf",
+        "date",
+        "env",
+        "printenv",
+        "id",
+        "whoami",
+        "uname",
+        "hostname",
+        "pwd",
+        "true",
+        "false",
+        "yes",
+        "seq",
+        "sleep",
+        "timeout",
+        "time",
+        "tee",
+        "xdg-open",
+        "open",
+        # Network inspection (read-only)
+        "ping",
+        "curl",
+        "wget",
+        "httpie",
+        "http",
+        "dig",
+        "nslookup",
+        "host",
+        "traceroute",
+        "lsof",
+        "netstat",
+        "ss",
+        # Process inspection (read-only)
+        "ps",
+        "top",
+        "htop",
+        "pgrep",
+        "uptime",
+        "free",
+        # Archive (read-only extraction)
+        "tar",
+        "unzip",
+        "gzip",
+        "gunzip",
+        "bzip2",
+        "xz",
+        "zstd",
+        # Editor/pager
+        "vim",
+        "nvim",
+        "nano",
+        "code",
+        # Project-specific
+        "repomix",
+        "pytest",
+        "mypy",
+        "ruff",
+        "black",
+        "isort",
+        "flake8",
+        "eslint",
+        "prettier",
+        "tsc",
+        "webpack",
+        "vite",
+        "esbuild",
+        "chroma",
+        # File operations (controlled)
+        "mkdir",
+        "touch",
+        "cp",
+        "mv",
+        "ln",
+        "chmod",
+    }
+)
 
 # Commands that are NEVER allowed even in unrestricted mode.
-_ALWAYS_BLOCKED: frozenset[str] = frozenset({
-    "rm", "rmdir",          # Destructive file operations
-    "sudo", "su", "doas",   # Privilege escalation
-    "mkfs", "fdisk", "parted", "format",  # Disk formatting
-    "dd",                   # Raw disk write
-    "shutdown", "reboot", "poweroff", "halt", "init",  # System control
-    "kill", "killall", "pkill",  # Process killing (use IDE instead)
-    "mount", "umount",      # Filesystem mount
-    "chown",                # Ownership change (privilege)
-    "iptables", "ufw",      # Firewall
-    "crontab",              # Scheduled tasks
-    "passwd", "useradd", "userdel", "usermod",  # User management
-})
+_ALWAYS_BLOCKED: frozenset[str] = frozenset(
+    {
+        "rm",
+        "rmdir",  # Destructive file operations
+        "sudo",
+        "su",
+        "doas",  # Privilege escalation
+        "mkfs",
+        "fdisk",
+        "parted",
+        "format",  # Disk formatting
+        "dd",  # Raw disk write
+        "shutdown",
+        "reboot",
+        "poweroff",
+        "halt",
+        "init",  # System control
+        "kill",
+        "killall",
+        "pkill",  # Process killing (use IDE instead)
+        "mount",
+        "umount",  # Filesystem mount
+        "chown",  # Ownership change (privilege)
+        "iptables",
+        "ufw",  # Firewall
+        "crontab",  # Scheduled tasks
+        "passwd",
+        "useradd",
+        "userdel",
+        "usermod",  # User management
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -122,31 +257,56 @@ _ALWAYS_BLOCKED: frozenset[str] = frozenset({
 # Interpreters that can execute arbitrary code via command-line flags.
 # Maps base command → set of dangerous inline-execution flags.
 _INTERPRETER_INLINE_FLAGS: dict[str, frozenset[str]] = {
-    "python":  frozenset({"-c"}),
+    "python": frozenset({"-c"}),
     "python3": frozenset({"-c"}),
-    "node":    frozenset({"-e", "--eval", "--print", "-p"}),
-    "ruby":    frozenset({"-e", "--eval"}),
-    "perl":    frozenset({"-e", "-E"}),
-    "php":     frozenset({"-r"}),
-    "lua":     frozenset({"-e"}),
+    "node": frozenset({"-e", "--eval", "--print", "-p"}),
+    "ruby": frozenset({"-e", "--eval"}),
+    "perl": frozenset({"-e", "-E"}),
+    "php": frozenset({"-r"}),
+    "lua": frozenset({"-e"}),
 }
 
 # python -m <module> is allowed ONLY for these safe modules.
-_SAFE_PYTHON_MODULES: frozenset[str] = frozenset({
-    # Testing
-    "pytest", "unittest", "doctest", "coverage",
-    # Package management
-    "pip", "venv", "ensurepip", "virtualenv",
-    # Code quality
-    "mypy", "ruff", "black", "isort", "flake8", "pylint", "pyright",
-    # Build tools
-    "build", "setuptools", "wheel", "twine",
-    # Debugging / profiling
-    "pdb", "cProfile", "timeit", "trace",
-    # Stdlib safe utilities
-    "json.tool", "http.server", "compileall", "py_compile",
-    "site", "sysconfig", "platform",
-})
+_SAFE_PYTHON_MODULES: frozenset[str] = frozenset(
+    {
+        # Testing
+        "pytest",
+        "unittest",
+        "doctest",
+        "coverage",
+        # Package management
+        "pip",
+        "venv",
+        "ensurepip",
+        "virtualenv",
+        # Code quality
+        "mypy",
+        "ruff",
+        "black",
+        "isort",
+        "flake8",
+        "pylint",
+        "pyright",
+        # Build tools
+        "build",
+        "setuptools",
+        "wheel",
+        "twine",
+        # Debugging / profiling
+        "pdb",
+        "cProfile",
+        "timeit",
+        "trace",
+        # Stdlib safe utilities
+        "json.tool",
+        "http.server",
+        "compileall",
+        "py_compile",
+        "site",
+        "sysconfig",
+        "platform",
+    }
+)
 
 
 def _check_interpreter_abuse(base_cmd: str, full_command: str) -> str | None:
@@ -218,30 +378,29 @@ _SHELL_META_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     # Command substitution — can execute arbitrary hidden commands
     (re.compile(r"`[^`]+`"), "backtick command substitution"),
     (re.compile(r"\$\("), "$(…) command substitution"),
-
     # Variable expansion tricks — can build blocked commands dynamically
     (re.compile(r"\$\{[^}]+\}"), "${…} variable expansion"),
-
     # Eval — executes arbitrary string as command
     (re.compile(r"\beval\b"), "eval command"),
-
     # Base64 decode piped to interpreter — obfuscation attack
-    (re.compile(r"base64\s+(-d|--decode).*\|\s*(sh|bash|zsh|python|perl|ruby)",
-                re.IGNORECASE), "base64 decode piped to interpreter"),
-
+    (
+        re.compile(
+            r"base64\s+(-d|--decode).*\|\s*(sh|bash|zsh|python|perl|ruby)",
+            re.IGNORECASE,
+        ),
+        "base64 decode piped to interpreter",
+    ),
     # Pipe into interpreter — arbitrary code execution
-    (re.compile(r"\|\s*(sh|bash|zsh|python[23]?|perl|ruby|node)\b"),
-     "pipe into interpreter"),
-
+    (
+        re.compile(r"\|\s*(sh|bash|zsh|python[23]?|perl|ruby|node)\b"),
+        "pipe into interpreter",
+    ),
     # Fork bomb pattern
     (re.compile(r":\s*\(\s*\)\s*\{"), "fork bomb pattern"),
-
     # Direct /dev/ writes
     (re.compile(r">\s*/dev/sd[a-z]"), "direct write to block device"),
-
     # Redirect to overwrite critical system files
     (re.compile(r">\s*/etc/"), "redirect to /etc/"),
-
     # Hex/octal escape execution
     (re.compile(r"\\x[0-9a-fA-F]{2}.*\|\s*(sh|bash)"), "hex escape execution"),
 ]
@@ -286,7 +445,7 @@ def _normalize_command_name(command: str) -> str | None:
     # Handle common wrappers
     if base in ("env",):
         # "env python3 script.py" → extract "python3"
-        remaining = parts[parts.index(cmd_token) + 1:]
+        remaining = parts[parts.index(cmd_token) + 1 :]
         for part in remaining:
             if "=" in part:
                 continue
@@ -583,4 +742,3 @@ async def _kill_process_tree_windows(
         await asyncio.wait_for(process.wait(), timeout=2)
     except asyncio.TimeoutError:
         logger.error("PID %d still alive after taskkill!", pid)
-

@@ -15,31 +15,58 @@ from __future__ import annotations
 # ---------------------------------------------------------------------------
 
 SEPARATORS: list[str] = ["\n\n", "\n", ". ", " "]
-DEFAULT_CHUNK_SIZE: int = 2500   # increased from 1000 to contain full classes
+DEFAULT_CHUNK_SIZE: int = 2500  # increased from 1000 to contain full classes
 DEFAULT_CHUNK_OVERLAP: int = 150
-CODE_CHUNK_SIZE: int = 2500      # code-aware chunking target size
+CODE_CHUNK_SIZE: int = 2500  # code-aware chunking target size
 
 # Keywords that typically start a top-level code block (Kotlin, Dart, Swift,
 # Java, Python, TypeScript).  Used for split-point detection at brace depth 0.
 TOP_LEVEL_KEYWORDS: set[str] = {
     # Kotlin / Java
-    "class", "object", "interface", "enum", "fun", "val", "var",
-    "abstract", "open", "data", "sealed", "annotation", "suspend",
-    "override", "private", "protected", "internal", "public",
+    "class",
+    "object",
+    "interface",
+    "enum",
+    "fun",
+    "val",
+    "var",
+    "abstract",
+    "open",
+    "data",
+    "sealed",
+    "annotation",
+    "suspend",
+    "override",
+    "private",
+    "protected",
+    "internal",
+    "public",
     # Dart / Flutter
-    "void", "Future", "Stream", "Widget", "State",
+    "void",
+    "Future",
+    "Stream",
+    "Widget",
+    "State",
     # Swift
-    "func", "struct", "protocol", "extension",
+    "func",
+    "struct",
+    "protocol",
+    "extension",
     # Python
-    "def", "async",
+    "def",
+    "async",
     # TypeScript / JavaScript
-    "function", "export", "const", "let",
+    "function",
+    "export",
+    "const",
+    "let",
 }
 
 
 # ---------------------------------------------------------------------------
 # Code Detection
 # ---------------------------------------------------------------------------
+
 
 def is_code_content(text: str) -> bool:
     """Heuristic: detect if *text* is source code (not prose).
@@ -59,7 +86,11 @@ def is_code_content(text: str) -> bool:
         if first_word in TOP_LEVEL_KEYWORDS:
             return True
         # Annotations / decorators: skip and continue scanning
-        if stripped.startswith("@") or stripped.startswith("//") or stripped.startswith("#"):
+        if (
+            stripped.startswith("@")
+            or stripped.startswith("//")
+            or stripped.startswith("#")
+        ):
             continue
     return False
 
@@ -67,6 +98,7 @@ def is_code_content(text: str) -> bool:
 # ---------------------------------------------------------------------------
 # Code-Aware Splitting
 # ---------------------------------------------------------------------------
+
 
 def code_aware_split(
     text: str,
@@ -115,7 +147,9 @@ def code_aware_split(
                 # Blank line at top level
                 is_split_point = True
             else:
-                first_word = stripped.split("(")[0].split("{")[0].split(":")[0].split(" ")[0]
+                first_word = (
+                    stripped.split("(")[0].split("{")[0].split(":")[0].split(" ")[0]
+                )
                 if first_word in TOP_LEVEL_KEYWORDS or stripped.startswith("@"):
                     is_split_point = True
 
@@ -160,6 +194,7 @@ def code_aware_split(
 # ---------------------------------------------------------------------------
 # Text Splitting (separator-based)
 # ---------------------------------------------------------------------------
+
 
 def text_split(
     text: str,
@@ -226,7 +261,7 @@ def text_split(
             for break_sep in SEPARATORS:
                 idx = tail.find(break_sep)
                 if idx != -1:
-                    tail = tail[idx + len(break_sep):]
+                    tail = tail[idx + len(break_sep) :]
                     break
             overlapped.append(f"{tail.strip()} {merged_chunks[i]}".strip())
         return overlapped
@@ -237,6 +272,7 @@ def text_split(
 # ---------------------------------------------------------------------------
 # Public API — Smart Splitter
 # ---------------------------------------------------------------------------
+
 
 def recursive_text_split(
     text: str,

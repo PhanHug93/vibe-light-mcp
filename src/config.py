@@ -36,9 +36,9 @@ CHROMA_DB_PATH: Path = Path(
     os.getenv("MCP_CHROMA_DB", str(Path.home() / ".mcp_global_db"))
 ).expanduser()
 
-CHROMA_CONNECT_TIMEOUT: int = 5   # seconds — initial connection + heartbeat
-CHROMA_OP_TIMEOUT: int = 15       # seconds — per ChromaDB operation
-CHROMA_POOL_SIZE: int = 4         # dedicated thread-pool workers
+CHROMA_CONNECT_TIMEOUT: int = 5  # seconds — initial connection + heartbeat
+CHROMA_OP_TIMEOUT: int = 15  # seconds — per ChromaDB operation
+CHROMA_POOL_SIZE: int = 4  # dedicated thread-pool workers
 CHROMA_HEARTBEAT_INTERVAL: int = 30  # seconds — proactive staleness check
 
 # ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ MCP_LOG_DIR: Path = CHROMA_DB_PATH / "logs"
 """Persistent log directory for ChromaDB and MCP server logs."""
 
 CHROMA_LOG_MAX_BYTES: int = 5 * 1024 * 1024  # 5 MB per log file
-CHROMA_LOG_BACKUP_COUNT: int = 3              # keep 3 rotated backups
+CHROMA_LOG_BACKUP_COUNT: int = 3  # keep 3 rotated backups
 
 # ---------------------------------------------------------------------------
 # Embedding
@@ -69,7 +69,7 @@ L1_TTL_DAYS: int = 3  # auto-cleanup threshold
 # Quick Recall
 # ---------------------------------------------------------------------------
 
-QUICK_RECALL_TIMEOUT: int = 5     # seconds — fast timeout for auto-recall
+QUICK_RECALL_TIMEOUT: int = 5  # seconds — fast timeout for auto-recall
 QUICK_RECALL_MAX_CHARS: int = 3000  # truncate auto-recall output
 
 # ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ QUICK_RECALL_MAX_CHARS: int = 3000  # truncate auto-recall output
 # ---------------------------------------------------------------------------
 
 DEFAULT_COMMAND_TIMEOUT: int = 60  # seconds
-MAX_OUTPUT_CHARS: int = 50_000     # truncate huge outputs
+MAX_OUTPUT_CHARS: int = 50_000  # truncate huge outputs
 
 MCP_EXEC_MODE: str = os.getenv("MCP_EXEC_MODE", "allowlist")
 """Execution security mode:
@@ -90,8 +90,8 @@ MCP_EXEC_MODE: str = os.getenv("MCP_EXEC_MODE", "allowlist")
 # ---------------------------------------------------------------------------
 
 SIMILARITY_THRESHOLD: float = 0.7  # queries >=70% similar → "repeated"
-SIMILARITY_WINDOW: int = 20        # compare only last N queries
-FLUSH_SIZE: int = 10               # flush buffer after N entries
+SIMILARITY_WINDOW: int = 20  # compare only last N queries
+FLUSH_SIZE: int = 10  # flush buffer after N entries
 
 # ---------------------------------------------------------------------------
 # MCP Server Transport

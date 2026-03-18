@@ -54,7 +54,9 @@ class ViewModel {
 }"""
     chunks = code_aware_split(kotlin, chunk_size=200)
     for chunk in chunks:
-        assert chunk.count("{") == chunk.count("}"), f"Unbalanced braces in: {chunk[:80]}..."
+        assert chunk.count("{") == chunk.count("}"), (
+            f"Unbalanced braces in: {chunk[:80]}..."
+        )
 
 
 def test_code_split_keeps_giant_class_intact() -> None:
@@ -67,7 +69,7 @@ def test_code_split_keeps_giant_class_intact() -> None:
 
 
 def test_small_code_returned_as_single_chunk() -> None:
-    small = "fun hello() { println(\"hi\") }"
+    small = 'fun hello() { println("hi") }'
     chunks = code_aware_split(small, chunk_size=2500)
     assert len(chunks) == 1
 

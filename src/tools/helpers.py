@@ -2,10 +2,13 @@
 
 Extracted from ``server.py`` for SRP compliance.
 """
+
 from __future__ import annotations
 
 import hashlib
 import os
+import re
+from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Workspace ID
@@ -54,6 +57,7 @@ def get_memory_mb() -> float:
     """Get current process RSS memory in MB (macOS/Linux)."""
     try:
         import resource
+
         rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         return rss / (1024 * 1024)  # bytes → MB on macOS
     except Exception:  # noqa: BLE001
@@ -64,8 +68,6 @@ def get_memory_mb() -> float:
 # Security helpers
 # ---------------------------------------------------------------------------
 
-import re
-from pathlib import Path
 
 _SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
@@ -80,7 +82,10 @@ def validate_path_within(path: Path, root: Path) -> Path:
     """
     resolved = path.resolve()
     root_resolved = root.resolve()
-    if not str(resolved).startswith(str(root_resolved) + os.sep) and resolved != root_resolved:
+    if (
+        not str(resolved).startswith(str(root_resolved) + os.sep)
+        and resolved != root_resolved
+    ):
         raise ValueError(
             f"Path traversal detected: '{path}' resolves outside '{root}'."
         )
@@ -101,4 +106,3 @@ def validate_stack_name(stack: str) -> str | None:
             "Must contain only letters, digits, underscores, dashes, or dots."
         )
     return None
-

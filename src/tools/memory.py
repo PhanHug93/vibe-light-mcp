@@ -2,6 +2,7 @@
 
 Extracted from ``server.py`` for SRP compliance.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -66,7 +67,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 {"status": "error", "message": WORKSPACE_ERROR_MSG},
                 ensure_ascii=False,
             )
-        result = await compress_and_store(text_data, metadata_source, "L1", ws_id, tech_stack)
+        result = await compress_and_store(
+            text_data, metadata_source, "L1", ws_id, tech_stack
+        )
         record_tool_call("compress_and_store_context", query=metadata_source)
         return result
 
@@ -93,7 +96,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
         Returns:
             JSON string reporting storage status.
         """
-        return await compress_and_store(text_data, metadata_source, "L2", "global", tech_stack)
+        return await compress_and_store(
+            text_data, metadata_source, "L2", "global", tech_stack
+        )
 
     @mcp.tool()
     async def search_memory(
@@ -183,16 +188,19 @@ def register_memory_tools(mcp: FastMCP) -> None:
             if query_hash in _recall_cache:
                 cached_time, cached_result = _recall_cache[query_hash]
                 if now - cached_time < _RECALL_COOLDOWN:
-                    return json.dumps({
-                        "status": "cached",
-                        "message": "Using cached recall (rate-limited).",
-                        "context": cached_result,
-                    }, ensure_ascii=False)
+                    return json.dumps(
+                        {
+                            "status": "cached",
+                            "message": "Using cached recall (rate-limited).",
+                            "context": cached_result,
+                        },
+                        ensure_ascii=False,
+                    )
 
             # Prune old cache entries
             if len(_recall_cache) > _RECALL_CACHE_SIZE:
                 oldest_keys = sorted(_recall_cache, key=lambda k: _recall_cache[k][0])
-                for k in oldest_keys[:len(oldest_keys) // 2]:
+                for k in oldest_keys[: len(oldest_keys) // 2]:
                     del _recall_cache[k]
 
         # Recall
@@ -211,16 +219,22 @@ def register_memory_tools(mcp: FastMCP) -> None:
         record_tool_call("auto_recall", query=user_message[:100])
 
         if not context:
-            return json.dumps({
-                "status": "no_context",
-                "message": "No relevant context found in memory. This is normal for new topics.",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "no_context",
+                    "message": "No relevant context found in memory. This is normal for new topics.",
+                },
+                ensure_ascii=False,
+            )
 
-        return json.dumps({
-            "status": "success",
-            "message": "Relevant context recalled from memory. Use this to inform your response.",
-            "context": context,
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "status": "success",
+                "message": "Relevant context recalled from memory. Use this to inform your response.",
+                "context": context,
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.tool()
     async def cleanup_workspace(

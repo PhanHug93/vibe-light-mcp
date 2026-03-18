@@ -29,7 +29,6 @@ import json
 import logging
 import sys
 import threading
-import time
 from collections import Counter
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -54,6 +53,7 @@ _FLUSH_SIZE: int = FLUSH_SIZE
 # Cross-platform file lock (Unix: fcntl, Windows: msvcrt)
 # ---------------------------------------------------------------------------
 
+
 @contextlib.contextmanager
 def _file_lock(f):
     """Acquire an exclusive file lock, cross-platform.
@@ -64,6 +64,7 @@ def _file_lock(f):
     """
     if sys.platform == "win32":
         import msvcrt
+
         # msvcrt.locking locks 1 byte at current position
         msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)
         try:
@@ -77,6 +78,7 @@ def _file_lock(f):
     else:
         try:
             import fcntl
+
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
                 yield
@@ -269,9 +271,7 @@ def get_daily_stats(date: str | None = None) -> str:
     tool_counts: Counter = Counter(e["tool"] for e in entries)
 
     # --- Stack usage ---
-    stack_counts: Counter = Counter(
-        e["stack"] for e in entries if e.get("stack")
-    )
+    stack_counts: Counter = Counter(e["stack"] for e in entries if e.get("stack"))
 
     # --- Satisfaction scoring (bounded window) ---
     queries: list[str] = [e["query"] for e in entries if e.get("query")]

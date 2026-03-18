@@ -39,7 +39,8 @@ def parse_md_sections(content: str) -> dict[str, str]:
 
 
 def merge_md_sections(
-    existing: str, new_content: str,
+    existing: str,
+    new_content: str,
 ) -> tuple[str, list[str], list[str]]:
     """Merge new H2 sections into existing markdown, skipping duplicates.
 
@@ -65,7 +66,9 @@ def merge_md_sections(
 
 
 def replace_md_section(
-    content: str, section_header: str, new_body: str,
+    content: str,
+    section_header: str,
+    new_body: str,
 ) -> tuple[str, bool]:
     """Replace the body of a specific ``## section_header`` in *content*.
 
@@ -74,13 +77,13 @@ def replace_md_section(
     """
     pattern = (
         r"(^## " + re.escape(section_header) + r"[ \t]*\n)"  # header line
-        r"(.*?)"                                                 # body (lazy)
-        r"(?=^## |\Z)"                                           # next H2 or EOF
+        r"(.*?)"  # body (lazy)
+        r"(?=^## |\Z)"  # next H2 or EOF
     )
     match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
     if not match:
         return content, False
 
     replacement = match.group(1) + "\n" + new_body.strip() + "\n\n"
-    updated = content[: match.start()] + replacement + content[match.end():]
+    updated = content[: match.start()] + replacement + content[match.end() :]
     return updated, True
