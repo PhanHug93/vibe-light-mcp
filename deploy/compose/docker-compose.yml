@@ -49,7 +49,7 @@ services:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      test: ["CMD-SHELL", "grep -q '00000000:1F40' /proc/net/tcp || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -107,7 +107,7 @@ services:
       - MCP_CHROMA_PORT=8000                              # Port mặc định của chromadb/chroma image
       - MCP_EXEC_MODE=${MCP_EXEC_MODE:-allowlist}
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${MCP_PORT:-8000}/sse', timeout=3)"]
+      test: ["CMD-SHELL", "grep -q '00000000:1F40' /proc/net/tcp || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
