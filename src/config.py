@@ -95,3 +95,12 @@ MCP_HOST: str = os.getenv("MCP_HOST", "127.0.0.1")
 
 MCP_PORT: int = int(os.getenv("MCP_PORT", "8000"))
 """Listen port for SSE / Streamable HTTP server."""
+
+# ---------------------------------------------------------------------------
+# Singleton Lock (SSE / Streamable HTTP only)
+# ---------------------------------------------------------------------------
+
+MCP_LOCK_FILE: Path = Path(
+    os.getenv("MCP_LOCK_FILE", str(Path.home() / ".mcp_server.lock"))
+).expanduser()
+"""Lock file to prevent multiple SSE/HTTP server instances on the same port."""
