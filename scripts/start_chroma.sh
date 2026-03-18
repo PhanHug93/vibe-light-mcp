@@ -42,4 +42,23 @@ echo "   Data: $DB_PATH"
 echo "   PID:  $$"
 echo ""
 
-exec "$CHROMA_BIN" run --path "$DB_PATH" --port "$PORT"
+# Log directory: persistent, with simple rotation
+LOG_DIR="$DB_PATH/logs"
+mkdir -p "$LOG_DIR"
+
+MAX_LOG_SIZE=5242880  # 5 MB
+
+for LOG_FILE in "$LOG_DIR/chromadb.stdout.log" "$LOG_DIR/chromadb.stderr.log"; do
+    if [ -f "$LOG_FILE" ] && [ "$(stat -f%z "$LOG_FILE" 2>/dev/null || stat -c%s "$LOG_FILE" 2>/dev/null)" -gt "$MAX_LOG_SIZE" ]; then
+        [ -f "${LOG_FILE}.2" ] && mv "${LOG_FILE}.2" "${LOG_FILE}.3"
+        [ -f "${LOG_FILE}.1" ] && mv "${LOG_FILE}.1" "${LOG_FILE}.2"
+        mv "$LOG_FILE" "${LOG_FILE}.1"
+        echo "   ♻️  Rotated $(basename "$LOG_FILE")"
+    fi
+done
+
+echo "   Logs: $LOG_DIR"
+echo ""
+
+exec "$CHROMA_BIN" run --path "$DB_PATH" --port "$PORT" \
+    >> "$LOG_DIR/chromadb.stdout.log" 2>> "$LOG_DIR/chromadb.stderr.log"

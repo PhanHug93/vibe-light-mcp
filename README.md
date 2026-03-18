@@ -13,7 +13,161 @@
 
 ---
 
-## ⚡ Cài đặt
+## 📖 Mục lục
+
+- [🐳 Deploy bằng Docker (Production)](#-deploy-bằng-docker-production)
+- [⚡ Cài đặt thủ công (Development)](#-cài-đặt-thủ-công-development)
+- [🔌 Kết nối AI Client](#-kết-nối-ai-client)
+- [🤖 Tích hợp AI Agent](#-tích-hợp-ai-agent--kích-hoạt-đầy-đủ-sức-mạnh-mcp)
+- [🛠 Tools](#-tools)
+- [🛡️ Security Model](#️-security-model)
+- [🔄 Multi-Instance Behavior](#-multi-instance-behavior)
+
+---
+
+## 🐳 Deploy bằng Docker (Production)
+
+Cách deploy được khuyến nghị — **hoạt động trên mọi OS**, tự quản lý ChromaDB, log rotation, resource limits.
+
+### Yêu cầu
+
+- [Docker Engine](https://docs.docker.com/engine/install/) ≥ 20.10
+- [Docker Compose](https://docs.docker.com/compose/install/) ≥ 2.0
+- RAM tối thiểu: **4GB** (khuyến nghị 8GB cho production)
+
+### Bước 1: Clone dự án
+
+```bash
+git clone https://github.com/PhanHug93/vibe-light-mcp.git
+cd vibe-light-mcp
+```
+
+### Bước 2: Tạo file cấu hình
+
+```bash
+cp deploy/compose/.env.example deploy/compose/.env
+```
+
+Chỉnh sửa `deploy/compose/.env` nếu cần thay đổi port:
+
+```env
+# Port MCP Server expose ra host (mặc định 8000)
+MCP_EXTERNAL_PORT=8000
+
+# Transport mode: sse (default) hoặc streamable-http
+MCP_TRANSPORT=sse
+```
+
+### Bước 3: Khởi động
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml up -d
+```
+
+Lần đầu sẽ build image (~3-5 phút). Các lần sau chỉ mất vài giây.
+
+### Bước 4: Kiểm tra
+
+```bash
+# Xem status
+docker compose -f deploy/compose/docker-compose.yml ps
+
+# Kết quả mong đợi:
+# NAME           STATUS                   PORTS
+# mcp-chromadb   Up (healthy)             (no ports — internal only)
+# mcp-server     Up (healthy)             0.0.0.0:8000->8000/tcp
+```
+
+```bash
+# Test MCP Server phản hồi
+curl http://localhost:8000/sse
+# → data: (stream connection opened)
+```
+
+### Bước 5: Kết nối AI Client
+
+Xem mục [🔌 Kết nối AI Client](#-kết-nối-ai-client) bên dưới. Với Docker, dùng **SSE mode** (cascade bridge).
+
+### Quản lý hàng ngày
+
+```bash
+# Shortcut: gán alias cho docker compose
+DC="docker compose -f deploy/compose/docker-compose.yml"
+
+# Xem logs realtime
+$DC logs -f mcp-server
+
+# Dừng tất cả
+$DC down
+
+# Khởi động lại
+$DC up -d
+
+# Rebuild sau khi update code (git pull)
+$DC build --no-cache && $DC up -d
+
+# Xem resource usage
+docker stats mcp-server mcp-chromadb
+```
+
+<details>
+<summary><strong>🏗 Kiến trúc Docker (chi tiết)</strong></summary>
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  mcp_internal (internal: true — NO external access)        │
+│  ┌──────────────┐          ┌──────────────┐                │
+│  │   chromadb   │◄────────►│  mcp_server  │                │
+│  │   :8000      │          │              │                │
+│  │ (NO exposed  │          └──────┬───────┘                │
+│  │  ports)      │                 │                         │
+│  └──────────────┘                 │                         │
+└───────────────────────────────────┼─────────────────────────┘
+┌───────────────────────────────────┼─────────────────────────┐
+│  mcp_exposed (bridge)             │                         │
+│                        ┌──────────┴───────┐                 │
+│                        │  mcp_server      │──► :8000 (host) │
+│                        └──────────────────┘                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Component | Chi tiết |
+|---|---|
+| **ChromaDB** | Internal-only — KHÔNG expose port ra host/LAN, bảo vệ Vector DB |
+| **MCP Server** | Dual-network: internal (giao tiếp ChromaDB) + exposed (port 8000 ra host) |
+| **Resource Limits** | ChromaDB: 2.5GB RAM / MCP: 1.5GB RAM (tối ưu cho server 8GB) |
+| **Log Rotation** | json-file, max 10MB × 3 files = tối đa 30MB log/service |
+| **Security** | Non-root user (`mcpuser`), ChromaDB cô lập hoàn toàn |
+| **Restart** | `unless-stopped` — auto-restart khi crash hoặc reboot |
+| **Volumes** | `chroma_data` (persistent DB), `usage_logs` (logs), `tech_stacks` (bind mount) |
+
+</details>
+
+<details>
+<summary><strong>📂 Cấu trúc thư mục Deploy</strong></summary>
+
+```
+deploy/
+├── docker/
+│   └── Dockerfile              # Multi-stage build (python:3.10-slim)
+├── compose/
+│   ├── docker-compose.yml      # 2 services: chromadb + mcp_server
+│   └── .env.example            # Template biến môi trường
+├── launchd/
+│   └── com.mcp.chromadb.plist  # macOS auto-start (khi không dùng Docker)
+└── systemd/
+    └── chromadb.service        # Linux auto-start (khi không dùng Docker)
+```
+
+</details>
+
+---
+
+## ⚡ Cài đặt thủ công (Development)
+
+Dùng khi bạn muốn chạy trực tiếp trên máy **không qua Docker** (dev local, debug, stdio mode).
+
+### Bước 1: Clone & cài đặt
 
 ```bash
 git clone https://github.com/PhanHug93/vibe-light-mcp.git
@@ -23,7 +177,7 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## 🗄️ Khởi động ChromaDB
+### Bước 2: Khởi động ChromaDB
 
 ```bash
 ./scripts/start_chroma.sh
@@ -33,12 +187,26 @@ pip install -e .
 <summary>Auto-start mỗi khi bật máy (macOS)</summary>
 
 ```bash
-cp scripts/com.mcp.chromadb.plist ~/Library/LaunchAgents/
+cp deploy/launchd/com.mcp.chromadb.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.mcp.chromadb.plist
 ```
 </details>
 
-## 🚀 Chạy MCP Server
+<details>
+<summary>Auto-start mỗi khi bật máy (Linux — Systemd)</summary>
+
+```bash
+sudo cp deploy/systemd/chromadb.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable chromadb
+sudo systemctl start chromadb
+
+# Xem logs
+journalctl -u chromadb -f
+```
+</details>
+
+### Bước 3: Chạy MCP Server
 
 ```bash
 # stdio (mặc định — cho Antigravity, Claude)
@@ -47,14 +215,8 @@ python main.py
 # SSE server (streaming, multi-client)
 python main.py --transport sse --port 8000
 
-# Streamable HTTP (MCP spec mới, streaming)
+# Streamable HTTP
 python main.py --transport streamable-http --port 8000
-```
-
-Hoặc cấu hình qua biến môi trường:
-
-```bash
-MCP_TRANSPORT=sse MCP_PORT=9000 python main.py
 ```
 
 ### Biến môi trường
@@ -64,11 +226,17 @@ MCP_TRANSPORT=sse MCP_PORT=9000 python main.py
 | `MCP_TRANSPORT` | `stdio` | `stdio` · `sse` · `streamable-http` |
 | `MCP_HOST` | `127.0.0.1` | Bind address cho HTTP transports |
 | `MCP_PORT` | `8000` | Listen port cho HTTP transports |
-| `MCP_EXEC_MODE` | `allowlist` | `allowlist` (chỉ lệnh an toàn) · `unrestricted` (cho phép tất cả — chỉ dùng khi dev) |
+| `MCP_EXEC_MODE` | `allowlist` | `allowlist` (an toàn) · `unrestricted` (dev only) |
 | `MCP_CHROMA_HOST` | `localhost` | ChromaDB host |
 | `MCP_CHROMA_PORT` | `8888` | ChromaDB port |
 
+---
+
 ## 🔌 Kết nối AI Client
+
+Có **2 cách** kết nối AI client — chọn tùy kiểu deploy:
+
+### Cách A: stdio (Cài đặt thủ công — phổ biến nhất)
 
 Thay `<username>` bằng username trên máy.
 
@@ -120,7 +288,6 @@ Thay `<username>` bằng username trên máy.
 <details>
 <summary><strong>Windsurf / Cascade</strong> — <code>~/.codeium/windsurf/mcp_config.json</code></summary>
 
-**Option A: stdio trực tiếp**
 ```json
 {
   "mcpServers": {
@@ -131,30 +298,47 @@ Thay `<username>` bằng username trên máy.
   }
 }
 ```
+</details>
 
-**Option B: Bridge (nếu stdio gặp trục trặc trên Android Studio)**
+### Cách B: SSE qua Bridge (Docker hoặc SSE server)
 
-Chạy SSE server trước: `python main.py --transport sse`
+Khi MCP chạy ở **SSE mode** (Docker hoặc `python main.py --transport sse`), dùng `cascade_bridge.py` để kết nối:
+
+**Bước 1**: Đảm bảo MCP Server (SSE) đang chạy trên port 8000.
+
+**Bước 2**: Cấu hình AI client trỏ vào bridge:
+
+<details>
+<summary><strong>Antigravity</strong> — <code>~/.gemini/settings.json</code></summary>
 
 ```json
 {
   "mcpServers": {
     "tech-stack-expert": {
       "command": "/Users/<username>/projects/vibe-light-mcp/.venv/bin/python",
-      "args": ["/Users/<username>/projects/vibe-light-mcp/cascade_bridge.py"]
+      "args": ["/Users/<username>/projects/vibe-light-mcp/cascade_bridge.py"],
+      "env": {
+        "MCP_BRIDGE_URL": "http://127.0.0.1:8000"
+      }
     }
   }
 }
 ```
 </details>
 
-> ⚠️ Dùng **đường dẫn tuyệt đối**. Đảm bảo ChromaDB đã chạy trước khi mở AI client.
+<details>
+<summary><strong>Các client khác</strong> (Claude, Cursor, Windsurf)</summary>
+
+Tương tự Antigravity — thay `main.py` bằng `cascade_bridge.py` và thêm `env.MCP_BRIDGE_URL`.
+</details>
+
+> ⚠️ Dùng **đường dẫn tuyệt đối**. Với Docker: đảm bảo `docker compose up -d` đã chạy trước khi mở AI client.
+
+---
 
 ## 🤖 Tích hợp AI Agent — Kích hoạt đầy đủ sức mạnh MCP
 
-Để AI agent tận dụng **100% khả năng** của MCP (auto-recall, memory, tech detection), bạn cần copy System Prompt vào rules file của project:
-
-### Quick Setup (chọn 1 lệnh theo nền tảng)
+Để AI agent tận dụng **100% khả năng** của MCP (auto-recall, memory, tech detection), copy System Prompt vào rules file của project:
 
 ```bash
 # Antigravity (Gemini)
@@ -208,6 +392,7 @@ cp /path/to/vibe-light-mcp/docs/mcp_system_prompt.md /your-project/.github/copil
 | `auto_recall` | ⚡ Tự nhớ context (rate-limited, fail-safe, cache 3s) |
 | `cleanup_workspace` | Dọn dẹp L1 cũ hơn N ngày |
 | `memory_stats` | Thống kê bộ nhớ L1/L2 |
+| `backup_memory_database` | 📦 Backup ChromaDB → .tar.gz (auto-cleanup, giữ 5 bản) |
 
 ### 🔍 Workspace & Knowledge
 
@@ -232,7 +417,7 @@ cp /path/to/vibe-light-mcp/docs/mcp_system_prompt.md /your-project/.github/copil
 
 ## 🛡️ Security Model
 
-Hệ thống bảo mật sử dụng **Defense-in-Depth** (4 lớp bảo vệ) thay vì blocklist:
+Hệ thống bảo mật sử dụng **Defense-in-Depth** (4 lớp bảo vệ):
 
 | Layer | Tên | Chức năng |
 |---|---|---|
@@ -255,39 +440,43 @@ Bổ sung:
 
 ## 🔄 Multi-Instance Behavior
 
-MCP Server có hành vi khác nhau tùy transport:
-
 | Transport | Multi-Instance | Ghi chú |
 |---|---|---|
-| `stdio` | ✅ Hỗ trợ | Mỗi IDE client spawn process riêng, hoạt động độc lập |
+| `stdio` | ✅ Hỗ trợ | Mỗi IDE client spawn process riêng |
 | `sse` | ❌ Singleton | Chỉ 1 server, dùng `cascade_bridge.py` để kết nối thêm client |
 | `streamable-http` | ❌ Singleton | Tương tự SSE |
 
-### Tại sao SSE/HTTP là Singleton?
-
-SSE/HTTP server phải bind port (mặc định `8000`). Nếu instance thứ 2 cố start → **port conflict** → crash. Server sử dụng **lock file** (`~/.mcp_server.lock`) để:
-
+SSE/HTTP server dùng **lock file** (`~/.mcp_server.lock`) để ngăn conflict:
 - Phát hiện server đang chạy → exit gracefully + gợi ý kết nối
 - Phát hiện server đã chết (stale lock) → tự dọn lock cũ + start mới
 
-### Kết nối nhiều IDE client vào 1 SSE server
-
 ```bash
-# Terminal 1: Start SSE server (chỉ cần 1 lần)
-python main.py --transport sse --port 8000
+# Kết nối nhiều client vào 1 SSE server
+python main.py --transport sse --port 8000  # Terminal 1
+MCP_BRIDGE_URL=http://127.0.0.1:8000 python cascade_bridge.py  # Terminal 2+
 
-# Terminal 2+: Các client khác sử dụng cascade_bridge.py
-MCP_BRIDGE_URL=http://127.0.0.1:8000 python cascade_bridge.py
+# Troubleshooting
+cat ~/.mcp_server.lock    # Xem lock
+rm ~/.mcp_server.lock     # Xoá nếu crash bất thường
 ```
 
-### Troubleshooting
+---
+
+## 📦 Backup & Recovery
 
 ```bash
-# Xem lock file hiện tại
-cat ~/.mcp_server.lock
+# Backup qua MCP tool (AI gọi tự động)
+# → backup_memory_database
 
-# Xoá lock file nếu server bị crash bất thường
-rm ~/.mcp_server.lock
+# Backup thủ công
+bash scripts/backup_chroma.sh
+
+# Backup tự động (cron — weekly 3AM)
+crontab -e
+# Thêm dòng: 0 3 * * 0 /path/to/vibe-light-mcp/scripts/backup_chroma.sh
+
+# Restore
+tar xzf ~/.mcp_global_db/backups/chromadb_backup_YYYYMMDD_HHMMSS.tar.gz -C ~/.mcp_global_db
 ```
 
 ---
