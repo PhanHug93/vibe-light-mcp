@@ -17,7 +17,7 @@ Architecture (SOLID):
 
 from __future__ import annotations
 
-__version__: str = "1.0.11"
+__version__: str = "1.0.12"
 
 import logging
 import sys

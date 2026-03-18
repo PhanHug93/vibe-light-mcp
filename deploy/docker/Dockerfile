@@ -20,16 +20,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ cmake build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy chỉ file dependency (maximize Docker layer cache)
+# Copy dependency file + source code
 COPY pyproject.toml ./
+COPY src/ ./src/
+COPY main.py ./
+COPY cascade_bridge.py ./
 
-# Cài dependencies vào venv riêng (không dùng --no-cache-dir để tận dụng cache)
+# Cài dependencies vào venv riêng
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Ưu tiên cài quality (sentence-transformers), fallback nếu thiếu torch
-RUN pip install --no-cache-dir -e ".[quality]" 2>/dev/null \
-    || pip install --no-cache-dir -e .
+# Upgrade pip (base image có pip 23.x quá cũ)
+RUN pip install --no-cache-dir --upgrade pip
+
+# Install deps (tách riêng để dễ debug nếu fail)
+RUN pip install --no-cache-dir "pyyaml>=6.0" "httpx>=0.27.0" "hatchling"
+RUN pip install --no-cache-dir "mcp[cli]>=1.2.0"
+RUN pip install --no-cache-dir "chromadb>=0.4.20"
+RUN pip install --no-cache-dir "onnxruntime>=1.17.0"
 
 # ---------------------------------------------------------------------------
 # Stage 2: Runtime — Image nhẹ, chỉ chứa app + venv
@@ -88,9 +96,6 @@ EXPOSE ${MCP_PORT}
 USER mcpuser
 
 # ── Entrypoint ────────────────────────────────────────────────────────────
-# Dùng ENTRYPOINT + CMD tách riêng để hỗ trợ override arguments:
-#   docker run mcp-server                         → SSE mode (default)
-#   docker run mcp-server --transport stdio        → stdio mode (pipe)
-#   docker exec mcp-server python main.py --help   → xem options
+# main.py reads MCP_TRANSPORT, MCP_PORT from env vars (set in docker-compose).
+# No CMD args → env vars control transport mode.
 ENTRYPOINT ["python", "main.py"]
-CMD ["--transport", "sse", "--port", "8000"]
