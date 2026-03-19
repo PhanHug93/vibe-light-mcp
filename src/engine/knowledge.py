@@ -25,7 +25,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
+import signal
 import shutil
 from pathlib import Path
 
@@ -72,6 +74,11 @@ async def _run_git(
 
     Returns ``(exit_code, stdout, stderr)``.
     Uses ``create_subprocess_exec`` to eliminate shell injection.
+
+    Security & reliability:
+    - ``start_new_session=True`` creates a new process group (Unix: setsid).
+    - On timeout, kills the entire process group (``os.killpg``), preventing
+      zombie git processes from lingering after network timeout.
     """
     process = await asyncio.create_subprocess_exec(
         "git",
@@ -79,11 +86,32 @@ async def _run_git(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         cwd=str(cwd) if cwd else None,
+        start_new_session=True,  # Unix: setsid → new process group
     )
-    stdout_bytes, stderr_bytes = await asyncio.wait_for(
-        process.communicate(),
-        timeout=timeout,
-    )
+
+    try:
+        stdout_bytes, stderr_bytes = await asyncio.wait_for(
+            process.communicate(),
+            timeout=timeout,
+        )
+    except asyncio.TimeoutError:
+        # Kill entire process group to prevent zombie children
+        if process.pid is not None:
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                # Give it a moment to die gracefully
+                await asyncio.sleep(0.5)
+                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            except (ProcessLookupError, PermissionError, OSError):
+                # Process already dead, or Windows (no killpg)
+                process.kill()
+        logger.warning(
+            "Git command timed out (%ds), killed process group (pid=%s).",
+            timeout,
+            process.pid,
+        )
+        raise  # Re-raise TimeoutError for caller to handle
+
     return (
         process.returncode or 0,
         stdout_bytes.decode("utf-8", errors="replace").strip(),
@@ -140,7 +168,12 @@ async def sync_knowledge_from_git(repo_url: str) -> str:
 
             # Remove stale directory (non-git leftovers).
             if _TECH_STACKS_DIR.exists():
-                shutil.rmtree(_TECH_STACKS_DIR)
+                import time as _time
+                _backup = _TECH_STACKS_DIR.with_name(
+                    f"tech_stacks.backup_{int(_time.time())}"
+                )
+                shutil.move(str(_TECH_STACKS_DIR), str(_backup))
+                logger.info("Backed up existing tech_stacks to %s", _backup.name)
 
             code, stdout, stderr = await _run_git(
                 "clone",
@@ -148,6 +181,13 @@ async def sync_knowledge_from_git(repo_url: str) -> str:
                 str(_TECH_STACKS_DIR),
                 cwd=_BASE_DIR,
             )
+
+            # Security: remove git hooks from cloned repo (prevent execution
+            # of attacker-supplied post-checkout/post-merge scripts)
+            hooks_dir = _TECH_STACKS_DIR / ".git" / "hooks"
+            if hooks_dir.is_dir():
+                shutil.rmtree(hooks_dir)
+                logger.info("Removed git hooks from cloned repo (security)")
 
             if code != 0:
                 return json.dumps(

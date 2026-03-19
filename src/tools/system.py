@@ -12,6 +12,7 @@ import asyncio
 import json
 import os
 import signal
+import sys
 import time
 from pathlib import Path
 
@@ -48,7 +49,7 @@ async def _async_run(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         cwd=cwd,
-        preexec_fn=os.setsid,
+        preexec_fn=os.setsid if sys.platform != "win32" else None,
     )
     try:
         stdout_bytes, stderr_bytes = await asyncio.wait_for(
@@ -90,7 +91,13 @@ def register_system_tools(mcp: FastMCP) -> None:
             JSON with status, exit_code, stdout, stderr, and the command.
         """
         result = await execute_terminal_command(command, timeout)
-        record_tool_call("run_terminal_command", query=command)
+        # Security: log only base command name — full args may contain secrets
+        import shlex as _shlex
+        try:
+            _base_cmd = _shlex.split(command)[0]
+        except ValueError:
+            _base_cmd = command.split()[0] if command.split() else command
+        record_tool_call("run_terminal_command", query=_base_cmd)
         return result
 
     @mcp.tool()
@@ -125,9 +132,14 @@ def register_system_tools(mcp: FastMCP) -> None:
         chroma_dir = Path.home() / ".mcp_global_db"
         chroma_size_mb = 0.0
         if chroma_dir.exists():
-            chroma_size_mb = sum(
-                f.stat().st_size for f in chroma_dir.rglob("*") if f.is_file()
-            ) / (1024 * 1024)
+            _total_bytes = 0
+            for _dp, _, _fns in os.walk(chroma_dir):
+                for _fn in _fns:
+                    try:
+                        _total_bytes += os.path.getsize(os.path.join(_dp, _fn))
+                    except OSError:
+                        pass
+            chroma_size_mb = _total_bytes / (1024 * 1024)
 
         # Knowledge base stats
         stacks: dict[str, dict[str, int]] = {}

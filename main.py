@@ -105,16 +105,22 @@ def _check_singleton(port: int) -> bool:
 
 
 def _create_lock_file(pid: int, port: int) -> None:
-    """Write lock file with the current server's PID, port and timestamp."""
+    """Write lock file atomically (exclusive create to prevent TOCTOU race)."""
     lock_data = {
         "pid": pid,
         "port": port,
         "started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
     }
-    MCP_LOCK_FILE.write_text(
-        json.dumps(lock_data, indent=2),
-        encoding="utf-8",
-    )
+    content = json.dumps(lock_data, indent=2)
+    try:
+        # O_CREAT | O_EXCL → fail if file already exists (atomic check+create)
+        fd = os.open(str(MCP_LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(content)
+    except FileExistsError:
+        # Race lost — another process created the lock between check and here.
+        # Overwrite with our data (current behavior as fallback).
+        MCP_LOCK_FILE.write_text(content, encoding="utf-8")
 
 
 def _cleanup_lock() -> None:

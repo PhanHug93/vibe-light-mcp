@@ -4,8 +4,10 @@ Security model (REPLACED blocklist → allowlist):
   - **Layer 1 — Shell Normalization**: resolve real binary name via
     ``shutil.which()`` + basename to defeat path-based bypass
     (``/bin/rm``, ``./rm``, ``../../bin/rm`` all resolve to ``rm``).
-  - **Layer 2 — Allowlist**: only pre-approved commands pass.
-    Configurable via ``MCP_EXEC_MODE`` env var.
+  - **Layer 2 — Allowlist + Guarded Gate**: only pre-approved commands
+    pass.  Infrastructure commands (docker, kubectl, terraform, etc.) are
+    in a separate *guarded* set — they pass Layer 2 **only if** Layer 1.8
+    also approves the specific subcommand.
   - **Layer 3 — Shell Meta-Attack Detection**: block dangerous shell
     patterns (backtick substitution, ``$()``, ``eval``, pipe-to-interpreter).
   - **Layer 4 — Audit Logging**: every command logged to stderr.
@@ -128,14 +130,8 @@ _ALLOWED_COMMANDS: frozenset[str] = frozenset(
         "composer",
         "dotnet",
         "nuget",
-        # Build & package tools
-        "docker",
-        "docker-compose",
-        "podman",
-        "terraform",
-        "ansible",
-        "kubectl",
-        "helm",
+        # NOTE: docker, podman, kubectl, terraform, ansible, helm
+        # are in _GUARDED_COMMANDS (require Layer 1.8 subcommand check).
         # Shell utilities (safe)
         "echo",
         "printf",
@@ -246,6 +242,24 @@ _ALWAYS_BLOCKED: frozenset[str] = frozenset(
         "useradd",
         "userdel",
         "usermod",  # User management
+    }
+)
+
+# Commands that require SUBCOMMAND-LEVEL validation (Layer 1.8).
+# They are NOT in _ALLOWED_COMMANDS — they can only pass Layer 2 if
+# _check_container_escape() explicitly approves the subcommand.
+# This is defense-in-depth: even if Layer 1.8 has a bug, the command
+# never silently passes through _ALLOWED_COMMANDS.
+_GUARDED_COMMANDS: frozenset[str] = frozenset(
+    {
+        "docker",
+        "docker-compose",
+        "podman",
+        "kubectl",
+        "terraform",
+        "ansible",
+        "ansible-playbook",
+        "helm",
     }
 )
 
@@ -463,8 +477,10 @@ _INFRA_BLOCKED_PATTERNS: dict[str, frozenset[str]] = {
 def _check_container_escape(base_cmd: str, full_command: str) -> str | None:
     """Detect container escape attacks via docker/podman/kubectl.
 
-    Blocks: ``docker run -v /:/host ubuntu rm -rf /host``
-    Allows: ``docker ps``, ``docker images``, ``docker logs``, ``docker build``
+    **Deny-by-default**: only explicitly safe subcommands are allowed.
+    This prevents parser confusion attacks like:
+      ``docker --host tcp://1.2.3.4:2375 run ubuntu``
+    where the parser may mistake a flag-value for the subcommand.
 
     Returns rejection reason or None if safe.
     """
@@ -477,32 +493,48 @@ def _check_container_escape(base_cmd: str, full_command: str) -> str | None:
         except ValueError:
             tokens = full_command.split()
 
-        # Find the subcommand (first non-flag token after docker/podman)
-        subcmd = None
+        # Extract ALL non-flag tokens after the base command.
+        # Then check if ANY of them is a blocked subcommand (catches
+        # parser confusion from --flag VALUE patterns).
         found_base = False
+        non_flag_tokens: list[str] = []
         for token in tokens:
             if not found_base:
                 if os.path.basename(token).lower() == base_lower:
                     found_base = True
                 continue
-            if token.startswith("-"):
-                continue  # skip global flags like --debug
-            subcmd = token.lower()
-            break
+            if not token.startswith("-"):
+                non_flag_tokens.append(token.lower())
 
-        if subcmd is None:
-            return None  # bare "docker" with no subcommand → safe
+        if not non_flag_tokens:
+            return None  # bare "docker" with no args → safe
 
-        # Blocked subcommands
-        if subcmd in _CONTAINER_BLOCKED_SUBCOMMANDS:
+        # DENY-BY-DEFAULT: first non-flag token must be a known safe
+        # subcommand.  If parser was confused by --flag VALUE, the
+        # real subcommand will appear later → scan ALL tokens.
+        first_subcmd = non_flag_tokens[0]
+
+        # Check if ANY non-flag token is a blocked subcommand
+        # (catches: docker --host tcp://x run ubuntu)
+        for token in non_flag_tokens:
+            if token in _CONTAINER_BLOCKED_SUBCOMMANDS:
+                return (
+                    f"🐳 BLOCKED: `{base_cmd} {token}` can escape container "
+                    f"sandbox and access host filesystem with root privileges. "
+                    f"Use `docker ps/images/logs/build` for safe operations. "
+                    f"Set MCP_EXEC_MODE=unrestricted to override."
+                )
+
+        # First token must be a known safe subcommand
+        if first_subcmd not in _CONTAINER_SAFE_SUBCOMMANDS:
             return (
-                f"🐳 BLOCKED: `{base_cmd} {subcmd}` can escape container sandbox "
-                f"and access host filesystem with root privileges. "
-                f"Use `docker ps/images/logs/build` for safe operations. "
+                f"🐳 BLOCKED: `{base_cmd} {first_subcmd}` is not a recognized "
+                f"safe subcommand. Allowed: ps, images, logs, build, compose, "
+                f"inspect, stats, etc. "
                 f"Set MCP_EXEC_MODE=unrestricted to override."
             )
 
-        return None  # safe subcommand
+        return None  # safe subcommand confirmed
 
     # ── kubectl ─────────────────────────────────────────────────────
     if base_lower == "kubectl":
@@ -511,23 +543,27 @@ def _check_container_escape(base_cmd: str, full_command: str) -> str | None:
         except ValueError:
             tokens = full_command.split()
 
-        subcmd = None
         found_base = False
+        non_flag_tokens: list[str] = []  # noqa: F841
         for token in tokens:
             if not found_base:
                 if os.path.basename(token).lower() == "kubectl":
                     found_base = True
                 continue
-            if token.startswith("-"):
-                continue
-            subcmd = token.lower()
-            break
+            if not token.startswith("-"):
+                non_flag_tokens.append(token.lower())
 
-        if subcmd and subcmd in _KUBECTL_BLOCKED_SUBCOMMANDS:
-            return (
-                f"☸️ BLOCKED: `kubectl {subcmd}` can modify or destroy cluster "
-                f"resources. Use `kubectl get/describe/logs` for safe operations."
-            )
+        if not non_flag_tokens:
+            return None
+
+        # Scan ALL non-flag tokens for blocked subcommands
+        for token in non_flag_tokens:
+            if token in _KUBECTL_BLOCKED_SUBCOMMANDS:
+                return (
+                    f"☸️ BLOCKED: `kubectl {token}` can modify or destroy "
+                    f"cluster resources. Use `kubectl get/describe/logs` "
+                    f"for safe operations."
+                )
 
         return None
 
@@ -676,9 +712,16 @@ def _is_command_safe(command: str) -> str | None:
             f"No configuration can override this."
         )
 
-    # --- Layer 2: Allowlist check (configurable) ---
+    # --- Layer 2: Allowlist + Guarded Gate (configurable) ---
     if MCP_EXEC_MODE == "allowlist":
-        if base_cmd_lower not in _ALLOWED_COMMANDS:
+        if base_cmd_lower in _GUARDED_COMMANDS:
+            # Guarded commands MUST pass Layer 1.8 subcommand check.
+            # If Layer 1.8 returns None (safe), allow.  Otherwise, block.
+            container_escape = _check_container_escape(base_cmd, stripped)
+            if container_escape is not None:
+                return container_escape
+            # Passed guard → continue to remaining layers
+        elif base_cmd_lower not in _ALLOWED_COMMANDS:
             return (
                 f"⛔ DENIED: `{base_cmd}` is not in the allowlist. "
                 f"Allowed commands: development tools, read-only utilities. "
@@ -689,11 +732,6 @@ def _is_command_safe(command: str) -> str | None:
     interpreter_abuse = _check_interpreter_abuse(base_cmd, stripped)
     if interpreter_abuse is not None:
         return interpreter_abuse
-
-    # --- Layer 1.8: Container escape guard (docker/kubectl/terraform) ---
-    container_escape = _check_container_escape(base_cmd, stripped)
-    if container_escape is not None:
-        return container_escape
 
     # --- Layer 3: Shell meta-attack detection ---
     for pattern, description in _SHELL_META_PATTERNS:

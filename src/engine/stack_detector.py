@@ -87,7 +87,14 @@ def _scan_keywords(
     stack: str,
     all_triggers: dict[str, dict[str, list[str]]],
 ) -> dict[str, int]:
-    """Scan source files for keyword hits. Returns {keyword: count}."""
+    """Scan source files for keyword hits. Returns {keyword: count}.
+
+    Uses ``os.walk()`` with **directory pruning** instead of ``rglob("*")``.
+    This skips entire subtrees (node_modules, .gradle, build) without
+    entering them — O(1) instead of O(150K) for large JS projects.
+    """
+    import os as _os
+
     triggers = all_triggers.get(stack)
     if not triggers:
         return {}
@@ -97,33 +104,61 @@ def _scan_keywords(
     hits: dict[str, int] = {}
     files_scanned = 0
 
-    for source_file in project_path.rglob("*"):
-        if files_scanned >= _KEYWORD_SCAN_MAX_FILES:
-            break
-        if not source_file.is_file():
-            continue
-        if source_file.suffix not in extensions:
-            continue
-        # Skip hidden dirs, build dirs, etc.
-        parts = source_file.relative_to(project_path).parts
-        if any(
-            p.startswith(".") or p in ("build", "node_modules", ".gradle")
-            for p in parts
-        ):
-            continue
+    # Directories to skip entirely (never descend into)
+    _SKIP_DIRS: frozenset[str] = frozenset(
+        {
+            "node_modules",
+            ".gradle",
+            "build",
+            "dist",
+            ".git",
+            ".svn",
+            ".hg",
+            "__pycache__",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".tox",
+            ".venv",
+            "venv",
+            ".idea",
+            ".vscode",
+            "vendor",
+            "Pods",
+        }
+    )
 
-        try:
-            content = source_file.read_text(encoding="utf-8", errors="ignore")
-            if len(content) > _KEYWORD_SCAN_MAX_BYTES:
-                content = content[:_KEYWORD_SCAN_MAX_BYTES]
-        except (OSError, UnicodeDecodeError):
-            continue
+    for dirpath, dirnames, filenames in _os.walk(project_path):
+        # ── Prune directories IN-PLACE before os.walk descends ──
+        # This is the key optimization: os.walk won't enter pruned dirs.
+        dirnames[:] = [
+            d for d in dirnames
+            if not d.startswith(".") and d not in _SKIP_DIRS
+        ]
 
-        files_scanned += 1
-        for kw in keywords:
-            count = content.count(kw)
-            if count > 0:
-                hits[kw] = hits.get(kw, 0) + count
+        for fname in filenames:
+            if files_scanned >= _KEYWORD_SCAN_MAX_FILES:
+                return hits
+
+            # Check extension
+            _, ext = _os.path.splitext(fname)
+            if ext not in extensions:
+                continue
+
+            source_file = Path(dirpath) / fname
+            try:
+                content = source_file.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
+                if len(content) > _KEYWORD_SCAN_MAX_BYTES:
+                    content = content[:_KEYWORD_SCAN_MAX_BYTES]
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            files_scanned += 1
+            for kw in keywords:
+                count = content.count(kw)
+                if count > 0:
+                    hits[kw] = hits.get(kw, 0) + count
 
     return hits
 
