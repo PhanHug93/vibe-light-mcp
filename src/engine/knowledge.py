@@ -169,6 +169,7 @@ async def sync_knowledge_from_git(repo_url: str) -> str:
             # Remove stale directory (non-git leftovers).
             if _TECH_STACKS_DIR.exists():
                 import time as _time
+
                 _backup = _TECH_STACKS_DIR.with_name(
                     f"tech_stacks.backup_{int(_time.time())}"
                 )

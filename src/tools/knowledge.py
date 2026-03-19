@@ -162,9 +162,12 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
         # Mode: overwrite
         if mode == "overwrite":
             import logging as _logging
+
             _logging.getLogger(__name__).warning(
                 "update_tech_stack OVERWRITE: stack=%s file=%s size=%d",
-                stack, target_path.name, len(new_content),
+                stack,
+                target_path.name,
+                len(new_content),
             )
             target_path.write_text(new_content, encoding="utf-8")
             record_tool_call("update_tech_stack", stack=stack)

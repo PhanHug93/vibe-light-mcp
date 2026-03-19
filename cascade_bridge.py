@@ -118,13 +118,9 @@ async def _run_sse_bridge() -> None:
             try:
                 async with session.get(sse_url, timeout=sse_timeout) as resp:
                     if resp.status != 200:
-                        logger.error(
-                            "SSE connection refused: HTTP %d", resp.status
-                        )
+                        logger.error("SSE connection refused: HTTP %d", resp.status)
                         await asyncio.sleep(reconnect_delay)
-                        reconnect_delay = min(
-                            reconnect_delay * 2, _RECONNECT_MAX
-                        )
+                        reconnect_delay = min(reconnect_delay * 2, _RECONNECT_MAX)
                         continue
 
                     # Connection succeeded — reset reconnect delay
@@ -161,9 +157,7 @@ async def _run_sse_bridge() -> None:
                                     and data.startswith("/")
                                 ):
                                     messages_url = f"{_SERVER_URL}{data}"
-                                    logger.info(
-                                        "Messages endpoint: %s", messages_url
-                                    )
+                                    logger.info("Messages endpoint: %s", messages_url)
                                     endpoint_ready.set()
                                 elif event_type == "message" or (
                                     event_type == "" and messages_url is not None
@@ -216,9 +210,7 @@ async def _run_sse_bridge() -> None:
 
             # Reconnect with exponential backoff
             if not shutdown_event.is_set():
-                logger.info(
-                    "Reconnecting to SSE in %.1fs ...", reconnect_delay
-                )
+                logger.info("Reconnecting to SSE in %.1fs ...", reconnect_delay)
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 2, _RECONNECT_MAX)
 
@@ -308,9 +300,7 @@ async def _run_sse_bridge() -> None:
         """Drain the queue and write to stdout immediately."""
         while not shutdown_event.is_set():
             try:
-                data = await asyncio.wait_for(
-                    response_queue.get(), timeout=1.0
-                )
+                data = await asyncio.wait_for(response_queue.get(), timeout=1.0)
                 sys.stdout.write(data + "\n")
                 sys.stdout.flush()
             except asyncio.TimeoutError:
@@ -322,9 +312,10 @@ async def _run_sse_bridge() -> None:
 
     import aiohttp
 
-    async with aiohttp.ClientSession() as sse_session, \
-               aiohttp.ClientSession() as post_session:
-
+    async with (
+        aiohttp.ClientSession() as sse_session,
+        aiohttp.ClientSession() as post_session,
+    ):
         sse_task = asyncio.create_task(_read_sse(sse_session))
 
         # Wait for the messages endpoint to be discovered
