@@ -18,6 +18,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 from src.config import PROJECT_ROOT, TECH_STACKS_DIR, CHROMA_DB_PATH
+from src.config import CHROMA_HOST, CHROMA_PORT
 from src.engine.execution import execute_terminal_command
 from src.tools.helpers import format_uptime, get_memory_mb
 from src.utils.usage_tracker import record_tool_call
@@ -114,7 +115,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             import httpx
 
             async with httpx.AsyncClient(timeout=2) as client:
-                resp = await client.get("http://localhost:8888/api/v2/heartbeat")
+                chroma_url = f"http://{CHROMA_HOST}:{CHROMA_PORT}/api/v2/heartbeat"
+                resp = await client.get(chroma_url)
                 chroma_status = "running" if resp.status_code == 200 else "error"
         except Exception:
             pass
@@ -185,12 +187,13 @@ def register_system_tools(mcp: FastMCP) -> None:
                 import httpx
 
                 async with httpx.AsyncClient(timeout=3) as client:
-                    resp = await client.get("http://localhost:8888/api/v2/heartbeat")
+                    chroma_url = f"http://{CHROMA_HOST}:{CHROMA_PORT}/api/v2/heartbeat"
+                    resp = await client.get(chroma_url)
                     heartbeat = resp.json()
                     return json.dumps(
                         {
                             "status": "running",
-                            "port": 8888,
+                            "port": CHROMA_PORT,
                             "heartbeat": heartbeat,
                         },
                         indent=2,
@@ -199,12 +202,12 @@ def register_system_tools(mcp: FastMCP) -> None:
                 pass
 
             # Fallback: async lsof
-            rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
+            rc, stdout, _ = await _async_run("lsof", "-i", f":{CHROMA_PORT}", timeout=5)
             if rc == 0 and stdout.strip():
                 return json.dumps(
                     {
                         "status": "running",
-                        "port": 8888,
+                        "port": CHROMA_PORT,
                         "details": stdout.strip().split("\n")[:3],
                     },
                     indent=2,
@@ -213,7 +216,7 @@ def register_system_tools(mcp: FastMCP) -> None:
             return json.dumps(
                 {
                     "status": "stopped",
-                    "message": "ChromaDB not running on port 8888.",
+                    "message": f"ChromaDB not running on port {CHROMA_PORT}.",
                     "hint": "Use action 'start' to launch it.",
                 },
                 indent=2,
@@ -221,12 +224,12 @@ def register_system_tools(mcp: FastMCP) -> None:
 
         elif action == "start":
             # Check if already running
-            rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
+            rc, stdout, _ = await _async_run("lsof", "-i", f":{CHROMA_PORT}", timeout=5)
             if rc == 0 and stdout.strip():
                 return json.dumps(
                     {
                         "status": "already_running",
-                        "message": "ChromaDB is already running on port 8888.",
+                        "message": f"ChromaDB is already running on port {CHROMA_PORT}.",
                     },
                     indent=2,
                 )
@@ -282,7 +285,7 @@ def register_system_tools(mcp: FastMCP) -> None:
             stdout_f = open(stdout_log, "a", encoding="utf-8")  # noqa: SIM115
             stderr_f = open(stderr_log, "a", encoding="utf-8")  # noqa: SIM115
             subprocess.Popen(
-                [chroma_bin, "run", "--path", db_path, "--port", "8888"],
+                [chroma_bin, "run", "--path", db_path, "--port", str(CHROMA_PORT)],
                 stdout=stdout_f,
                 stderr=stderr_f,
                 start_new_session=True,
@@ -293,13 +296,13 @@ def register_system_tools(mcp: FastMCP) -> None:
             await asyncio.sleep(3)
 
             # Verify
-            rc, stdout, _ = await _async_run("lsof", "-i", ":8888", timeout=5)
+            rc, stdout, _ = await _async_run("lsof", "-i", f":{CHROMA_PORT}", timeout=5)
             started = rc == 0 and stdout.strip()
 
             return json.dumps(
                 {
                     "status": "started" if started else "failed",
-                    "port": 8888,
+                    "port": CHROMA_PORT,
                     "db_path": db_path,
                     "logs": str(MCP_LOG_DIR),
                     "message": "ChromaDB server launched"
@@ -310,7 +313,7 @@ def register_system_tools(mcp: FastMCP) -> None:
             )
 
         elif action == "stop":
-            rc, stdout, _ = await _async_run("lsof", "-ti", ":8888", timeout=5)
+            rc, stdout, _ = await _async_run("lsof", "-ti", f":{CHROMA_PORT}", timeout=5)
             pids = stdout.strip().split("\n") if stdout.strip() else []
 
             if not pids:
