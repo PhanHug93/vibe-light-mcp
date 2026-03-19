@@ -71,27 +71,70 @@ TOP_LEVEL_KEYWORDS: set[str] = {
 def is_code_content(text: str) -> bool:
     """Heuristic: detect if *text* is source code (not prose).
 
-    Checks for:
-    - ≥3 brace pairs ``{ }``
-    - At least one top-level keyword present
+    Two strategies:
+    1. **Brace-based** (Kotlin, Java, Dart, Swift, TypeScript):
+       ≥3 brace pairs ``{ }`` + top-level keyword.
+    2. **Indentation-based** (Python):
+       ``def``/``class`` followed by indented lines, decorators ``@``,
+       or docstrings ``\"\"\"``/``'''``.
     """
+    lines = text.split("\n")[:120]  # scan first 120 lines
+
+    # ── Strategy 1: Brace-based (Kotlin/Java/Dart/Swift/TS) ──
     brace_count = min(text.count("{"), text.count("}"))
-    if brace_count < 3:
-        return False
-    for line in text.split("\n")[:100]:  # scan first 100 lines only
+    if brace_count >= 3:
+        for line in lines:
+            stripped = line.lstrip()
+            if not stripped:
+                continue
+            first_word = stripped.split("(")[0].split("{")[0].split(":")[0].split(" ")[0]
+            if first_word in TOP_LEVEL_KEYWORDS:
+                return True
+            if stripped.startswith("@") or stripped.startswith("//"):
+                continue
+
+    # ── Strategy 2: Indentation-based (Python) ──
+    python_signals = 0
+    has_def_or_class = False
+
+    for i, line in enumerate(lines):
         stripped = line.lstrip()
         if not stripped:
             continue
-        first_word = stripped.split("(")[0].split("{")[0].split(":")[0].split(" ")[0]
-        if first_word in TOP_LEVEL_KEYWORDS:
-            return True
-        # Annotations / decorators: skip and continue scanning
-        if (
-            stripped.startswith("@")
-            or stripped.startswith("//")
-            or stripped.startswith("#")
-        ):
-            continue
+
+        # Decorator pattern: @something
+        if stripped.startswith("@") and not stripped.startswith("@@"):
+            python_signals += 1
+
+        # def/class with colon
+        if stripped.startswith(("def ", "class ", "async def ")):
+            if stripped.rstrip().endswith(":"):
+                has_def_or_class = True
+                python_signals += 2
+                # Check if next non-empty line is indented
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    next_line = lines[j]
+                    if next_line.strip():
+                        if next_line[0] in (" ", "\t"):
+                            python_signals += 2
+                        break
+
+        # import statements
+        if stripped.startswith(("import ", "from ")) and " import " in stripped:
+            python_signals += 1
+
+        # Docstrings
+        if stripped.startswith('"""') or stripped.startswith("'''"):
+            python_signals += 1
+
+        # Type hints: -> or : type
+        if " -> " in stripped and ("def " in stripped):
+            python_signals += 1
+
+    # Python: need def/class + enough signals
+    if has_def_or_class and python_signals >= 4:
+        return True
+
     return False
 
 

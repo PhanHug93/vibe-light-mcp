@@ -27,6 +27,8 @@ import atexit
 import contextlib
 import json
 import logging
+import os
+import signal
 import sys
 import threading
 from collections import Counter
@@ -169,7 +171,7 @@ def _is_similar(a: str, b: str, threshold: float = _SIMILARITY_THRESHOLD) -> boo
 
 
 # ---------------------------------------------------------------------------
-# Buffered write for record_tool_call (Fix #3)
+# Buffered write for record_tool_call
 # ---------------------------------------------------------------------------
 
 _buffer: list[dict] = []
@@ -189,8 +191,32 @@ def _flush_buffer() -> None:
     logger.debug("Flushed %d usage entries to disk.", len(to_flush))
 
 
+def _sigterm_handler(signum: int, frame: object) -> None:
+    """Handle SIGTERM/SIGINT: flush buffer then exit.
+
+    Prevents data loss when server is stopped via:
+    - ``docker stop`` (sends SIGTERM)
+    - ``systemctl stop`` (sends SIGTERM)
+    - ``kill <pid>`` without -9 (sends SIGTERM)
+
+    Note: SIGKILL (kill -9) CANNOT be caught — data loss is unavoidable.
+    """
+    logger.info("Signal %d received — flushing usage buffer before exit.", signum)
+    _flush_buffer()
+    # Re-raise to allow normal shutdown chain
+    sys.exit(0)
+
+
 # Guarantee flush on interpreter shutdown.
 atexit.register(_flush_buffer)
+
+# Also catch SIGTERM (docker stop, systemctl stop, kill <pid>).
+# SIGINT (Ctrl+C) is usually handled by Python's KeyboardInterrupt,
+# but we install a handler anyway for safety.
+if threading.current_thread() is threading.main_thread():
+    signal.signal(signal.SIGTERM, _sigterm_handler)
+    if hasattr(signal, "SIGINT"):
+        signal.signal(signal.SIGINT, _sigterm_handler)
 
 
 # ---------------------------------------------------------------------------

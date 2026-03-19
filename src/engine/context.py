@@ -62,12 +62,6 @@ def _get_mgr() -> ChromaManager:
         _mgr = get_manager()
     return _mgr
 
-
-def _workspace_hash(path: str) -> str:
-    """Generate short deterministic hash from workspace path."""
-    return hashlib.md5(path.encode()).hexdigest()[:8]  # noqa: S324
-
-
 # ---------------------------------------------------------------------------
 # Sync Core Functions (all ChromaDB calls go through _mgr)
 # ---------------------------------------------------------------------------

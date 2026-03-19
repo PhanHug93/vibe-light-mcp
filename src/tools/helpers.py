@@ -25,11 +25,24 @@ WORKSPACE_ERROR_MSG: str = (
 def make_workspace_id(workspace_path: str) -> str:
     """Generate deterministic workspace ID from an explicit project path.
 
+    **Path normalization** (prevents hash fragmentation):
+      - ``~/projects/foo`` → ``/Users/admin/projects/foo``
+      - ``/projects/foo/`` → ``/projects/foo``  (strip trailing slash)
+      - ``/projects/./foo/../foo`` → ``/projects/foo``  (resolve)
+      - On Windows: case-folded (``C:\\Foo`` == ``c:\\foo``)
+
     Raises *ValueError* if *workspace_path* is empty.
     """
     if not workspace_path or not workspace_path.strip():
         raise ValueError(WORKSPACE_ERROR_MSG)
-    return hashlib.md5(workspace_path.strip().encode()).hexdigest()[:8]  # noqa: S324
+
+    # Normalize: expanduser → resolve → strip trailing sep → consistent case
+    normalized = str(Path(workspace_path.strip()).expanduser().resolve())
+    # On Windows, paths are case-insensitive
+    if os.name == "nt":
+        normalized = normalized.lower()
+
+    return hashlib.md5(normalized.encode()).hexdigest()[:8]  # noqa: S324
 
 
 # ---------------------------------------------------------------------------

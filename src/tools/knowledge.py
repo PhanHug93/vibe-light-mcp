@@ -139,6 +139,21 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
         # Ensure parent directories exist
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Security: limit content size (prevent memory bomb / rules poisoning)
+        _MAX_CONTENT_SIZE = 100_000  # 100KB — generous for markdown files
+        if len(new_content) > _MAX_CONTENT_SIZE:
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": (
+                        f"Content too large ({len(new_content)} chars). "
+                        f"Max: {_MAX_CONTENT_SIZE}."
+                    ),
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+
         # Read existing content
         existing_content = ""
         if target_path.is_file():
@@ -146,6 +161,11 @@ def register_knowledge_tools(mcp: FastMCP) -> None:
 
         # Mode: overwrite
         if mode == "overwrite":
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "update_tech_stack OVERWRITE: stack=%s file=%s size=%d",
+                stack, target_path.name, len(new_content),
+            )
             target_path.write_text(new_content, encoding="utf-8")
             record_tool_call("update_tech_stack", stack=stack)
             return json.dumps(

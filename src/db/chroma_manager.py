@@ -121,6 +121,13 @@ class ChromaManager:
             if self._client is not None:
                 return self._client
             logger.info("Connecting to ChromaDB at %s:%d ...", CHROMA_HOST, CHROMA_PORT)
+            if CHROMA_HOST not in ("localhost", "127.0.0.1", "::1"):
+                logger.warning(
+                    "⚠ ChromaDB at %s:%d is NOT localhost — memory data is "
+                    "accessible to anyone on the network. Set "
+                    "MCP_CHROMA_HOST=localhost for production use.",
+                    CHROMA_HOST, CHROMA_PORT,
+                )
 
         # --- Network call OUTSIDE lock ---
         # Multiple threads may reach here simultaneously — that's OK.
