@@ -371,6 +371,196 @@ def _check_interpreter_abuse(base_cmd: str, full_command: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Layer 1.8 — Container Escape Guard ("Docker = Root" prevention)
+# ---------------------------------------------------------------------------
+
+# docker/podman subcommands that are SAFE (read-only or build-only).
+# Everything else is blocked when volume mounts or exec are detected.
+_CONTAINER_SAFE_SUBCOMMANDS: frozenset[str] = frozenset(
+    {
+        # Read-only inspection
+        "ps",
+        "images",
+        "logs",
+        "inspect",
+        "stats",
+        "info",
+        "version",
+        "top",
+        "port",
+        "diff",
+        "history",
+        "search",
+        "events",
+        # Build (no host filesystem escape)
+        "build",
+        "tag",
+        "push",
+        "pull",
+        "login",
+        "logout",
+        # Compose (safe subset)
+        "compose",
+        # Network / volume inspection
+        "network",
+        "volume",
+        # Container lifecycle (no host escape)
+        "start",
+        "stop",
+        "restart",
+        "pause",
+        "unpause",
+        "wait",
+        "kill",
+        "rename",
+    }
+)
+
+# docker subcommands that are ALWAYS blocked (host escape vectors)
+_CONTAINER_BLOCKED_SUBCOMMANDS: frozenset[str] = frozenset(
+    {
+        "run",  # can mount host FS → root escape
+        "exec",  # arbitrary command inside running container
+        "cp",  # copy files between host and container
+        "export",  # export container filesystem
+        "import",  # import filesystem as image
+        "load",  # load image from tar (can contain malicious layers)
+        "commit",  # commit container state to image
+        "create",  # like run but without starting (can still mount)
+        "update",  # change container resource limits
+        "attach",  # interactive access to running container
+    }
+)
+
+# kubectl subcommands that are dangerous
+_KUBECTL_BLOCKED_SUBCOMMANDS: frozenset[str] = frozenset(
+    {
+        "exec",
+        "run",
+        "apply",
+        "delete",
+        "edit",
+        "patch",
+        "replace",
+        "create",
+        "drain",
+        "cordon",
+        "taint",
+        "rollout",
+        "scale",
+    }
+)
+
+# Infrastructure commands that are ALWAYS dangerous with certain subcommands
+_INFRA_BLOCKED_PATTERNS: dict[str, frozenset[str]] = {
+    "terraform": frozenset({"destroy", "apply", "import", "taint", "untaint"}),
+    "ansible": frozenset({"all", "playbook"}),  # ansible <host-pattern> -a "..."
+    "ansible-playbook": frozenset(),  # always blocked
+    "helm": frozenset({"install", "upgrade", "rollback", "delete", "uninstall"}),
+}
+
+
+def _check_container_escape(base_cmd: str, full_command: str) -> str | None:
+    """Detect container escape attacks via docker/podman/kubectl.
+
+    Blocks: ``docker run -v /:/host ubuntu rm -rf /host``
+    Allows: ``docker ps``, ``docker images``, ``docker logs``, ``docker build``
+
+    Returns rejection reason or None if safe.
+    """
+    base_lower = base_cmd.lower()
+
+    # ── Docker / Podman ─────────────────────────────────────────────
+    if base_lower in ("docker", "podman"):
+        try:
+            tokens = shlex.split(full_command)
+        except ValueError:
+            tokens = full_command.split()
+
+        # Find the subcommand (first non-flag token after docker/podman)
+        subcmd = None
+        found_base = False
+        for token in tokens:
+            if not found_base:
+                if os.path.basename(token).lower() == base_lower:
+                    found_base = True
+                continue
+            if token.startswith("-"):
+                continue  # skip global flags like --debug
+            subcmd = token.lower()
+            break
+
+        if subcmd is None:
+            return None  # bare "docker" with no subcommand → safe
+
+        # Blocked subcommands
+        if subcmd in _CONTAINER_BLOCKED_SUBCOMMANDS:
+            return (
+                f"🐳 BLOCKED: `{base_cmd} {subcmd}` can escape container sandbox "
+                f"and access host filesystem with root privileges. "
+                f"Use `docker ps/images/logs/build` for safe operations. "
+                f"Set MCP_EXEC_MODE=unrestricted to override."
+            )
+
+        return None  # safe subcommand
+
+    # ── kubectl ─────────────────────────────────────────────────────
+    if base_lower == "kubectl":
+        try:
+            tokens = shlex.split(full_command)
+        except ValueError:
+            tokens = full_command.split()
+
+        subcmd = None
+        found_base = False
+        for token in tokens:
+            if not found_base:
+                if os.path.basename(token).lower() == "kubectl":
+                    found_base = True
+                continue
+            if token.startswith("-"):
+                continue
+            subcmd = token.lower()
+            break
+
+        if subcmd and subcmd in _KUBECTL_BLOCKED_SUBCOMMANDS:
+            return (
+                f"☸️ BLOCKED: `kubectl {subcmd}` can modify or destroy cluster "
+                f"resources. Use `kubectl get/describe/logs` for safe operations."
+            )
+
+        return None
+
+    # ── Terraform / Ansible / Helm ──────────────────────────────────
+    if base_lower in _INFRA_BLOCKED_PATTERNS:
+        blocked_subcmds = _INFRA_BLOCKED_PATTERNS[base_lower]
+
+        # If no specific subcommands defined, block entirely
+        if not blocked_subcmds:
+            return (
+                f"🏗️ BLOCKED: `{base_cmd}` can execute arbitrary commands on "
+                f"remote hosts. Set MCP_EXEC_MODE=unrestricted to override."
+            )
+
+        try:
+            tokens = shlex.split(full_command)
+        except ValueError:
+            tokens = full_command.split()
+
+        for token in tokens[1:]:  # skip command itself
+            if token.lower() in blocked_subcmds:
+                return (
+                    f"🏗️ BLOCKED: `{base_cmd} {token}` is a destructive "
+                    f"infrastructure operation. "
+                    f"Set MCP_EXEC_MODE=unrestricted to override."
+                )
+
+        return None
+
+    return None  # not a container/infra command
+
+
+# ---------------------------------------------------------------------------
 # Layer 3 — Shell Meta-Attack Detection
 # ---------------------------------------------------------------------------
 
@@ -499,6 +689,11 @@ def _is_command_safe(command: str) -> str | None:
     interpreter_abuse = _check_interpreter_abuse(base_cmd, stripped)
     if interpreter_abuse is not None:
         return interpreter_abuse
+
+    # --- Layer 1.8: Container escape guard (docker/kubectl/terraform) ---
+    container_escape = _check_container_escape(base_cmd, stripped)
+    if container_escape is not None:
+        return container_escape
 
     # --- Layer 3: Shell meta-attack detection ---
     for pattern, description in _SHELL_META_PATTERNS:
