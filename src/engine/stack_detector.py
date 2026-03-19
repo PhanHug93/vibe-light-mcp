@@ -131,8 +131,7 @@ def _scan_keywords(
         # ── Prune directories IN-PLACE before os.walk descends ──
         # This is the key optimization: os.walk won't enter pruned dirs.
         dirnames[:] = [
-            d for d in dirnames
-            if not d.startswith(".") and d not in _SKIP_DIRS
+            d for d in dirnames if not d.startswith(".") and d not in _SKIP_DIRS
         ]
 
         for fname in filenames:
@@ -146,9 +145,7 @@ def _scan_keywords(
 
             source_file = Path(dirpath) / fname
             try:
-                content = source_file.read_text(
-                    encoding="utf-8", errors="ignore"
-                )
+                content = source_file.read_text(encoding="utf-8", errors="ignore")
                 if len(content) > _KEYWORD_SCAN_MAX_BYTES:
                     content = content[:_KEYWORD_SCAN_MAX_BYTES]
             except (OSError, UnicodeDecodeError):

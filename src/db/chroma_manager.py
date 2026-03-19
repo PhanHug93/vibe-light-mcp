@@ -126,7 +126,8 @@ class ChromaManager:
                     "⚠ ChromaDB at %s:%d is NOT localhost — memory data is "
                     "accessible to anyone on the network. Set "
                     "MCP_CHROMA_HOST=localhost for production use.",
-                    CHROMA_HOST, CHROMA_PORT,
+                    CHROMA_HOST,
+                    CHROMA_PORT,
                 )
 
         # --- Network call OUTSIDE lock ---

@@ -62,6 +62,7 @@ def _get_mgr() -> ChromaManager:
         _mgr = get_manager()
     return _mgr
 
+
 # ---------------------------------------------------------------------------
 # Sync Core Functions (all ChromaDB calls go through _mgr)
 # ---------------------------------------------------------------------------

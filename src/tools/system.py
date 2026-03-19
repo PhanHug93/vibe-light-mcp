@@ -93,6 +93,7 @@ def register_system_tools(mcp: FastMCP) -> None:
         result = await execute_terminal_command(command, timeout)
         # Security: log only base command name — full args may contain secrets
         import shlex as _shlex
+
         try:
             _base_cmd = _shlex.split(command)[0]
         except ValueError:
@@ -325,7 +326,9 @@ def register_system_tools(mcp: FastMCP) -> None:
             )
 
         elif action == "stop":
-            rc, stdout, _ = await _async_run("lsof", "-ti", f":{CHROMA_PORT}", timeout=5)
+            rc, stdout, _ = await _async_run(
+                "lsof", "-ti", f":{CHROMA_PORT}", timeout=5
+            )
             pids = stdout.strip().split("\n") if stdout.strip() else []
 
             if not pids:

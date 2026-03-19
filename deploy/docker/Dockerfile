@@ -46,13 +46,15 @@ FROM python:3.10-slim AS runtime
 
 LABEL maintainer="PhanHug93"
 LABEL description="TechStack Local MCP Server — Production"
-LABEL version="1.0.10"
+LABEL version="1.0.14"
 
 # ── Non-root user ──────────────────────────────────────────────────────────
 # Tạo user `mcpuser` (uid=1000) để KHÔNG chạy dưới quyền root.
 # Lý do: Nếu container bị exploit, attacker chỉ có quyền user thường,
 # không thể leo thang đặc quyền ra host system.
-RUN groupadd --gid 1000 mcpuser \
+RUN apt-get update && apt-get install -y --no-install-recommends gosu \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 1000 mcpuser \
     && useradd --uid 1000 --gid mcpuser --shell /bin/bash --create-home mcpuser
 
 WORKDIR /app
@@ -92,10 +94,14 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
 
 EXPOSE ${MCP_PORT}
 
-# ── Chuyển sang non-root user ─────────────────────────────────────────────
-USER mcpuser
+# ── Copy entrypoint (runs as root, then drops to mcpuser) ─────────────────
+COPY --chmod=755 deploy/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# ── Start as root — entrypoint.sh fixes bind mount ownership,
+#    then drops to mcpuser via gosu ─────────────────────────────────────────
+# DO NOT add "USER mcpuser" here — entrypoint handles privilege drop.
 
 # ── Entrypoint ────────────────────────────────────────────────────────────
-# main.py reads MCP_TRANSPORT, MCP_PORT from env vars (set in docker-compose).
-# No CMD args → env vars control transport mode.
-ENTRYPOINT ["python", "main.py"]
+# entrypoint.sh chowns writable bind mounts, then exec gosu mcpuser python main.py
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["python", "main.py"]
