@@ -17,8 +17,8 @@
 
 - [🚀 Quick Start (Khuyến nghị)](#-quick-start-khuyến-nghị)
 - [⚡ Cài đặt thủ công (không Docker)](#-cài-đặt-thủ-công-không-docker)
+- [🌐 SSE Hybrid — Multi-Client Architecture](#-sse-hybrid--multi-client-architecture)
 - [🐳 Deploy Full Docker (Production Server)](#-deploy-full-docker-production-server)
-- [🔌 Kết nối AI Client](#-kết-nối-ai-client)
 - [🤖 Tích hợp AI Agent](#-tích-hợp-ai-agent--kích-hoạt-đầy-đủ-sức-mạnh-mcp)
 - [🛠 Tools](#-tools)
 - [🛡️ Security Model](#️-security-model)
@@ -234,6 +234,125 @@ Giống [Quick Start Bước 3](#bước-3-cấu-hình-ai-client), nhưng **khô
 | `MCP_EXEC_MODE` | `allowlist` | `allowlist` (an toàn) · `unrestricted` (dev only) |
 | `MCP_CHROMA_HOST` | `localhost` | ChromaDB host |
 | `MCP_CHROMA_PORT` | `8888` | ChromaDB port |
+
+---
+
+## 🌐 SSE Hybrid — Multi-Client Architecture
+
+> 💡 **Khi nào dùng?** Khi bạn muốn **nhiều AI IDE cùng kết nối 1 MCP server** (Windsurf + Cursor + Claude...) hoặc chia sẻ MCP cho team qua mạng LAN.
+
+Kiến trúc hybrid: ChromaDB chạy Docker, MCP Server chạy SSE trên host, các client kết nối qua `cascade_bridge.py`.
+
+```
+ AI Client 1 (Windsurf)     AI Client 2 (Cursor)     AI Client 3 (Claude)
+     │  stdio                    │  stdio                    │  stdio
+     ▼                           ▼                           ▼
+ cascade_bridge.py          cascade_bridge.py          cascade_bridge.py
+     │  HTTP POST + SSE          │  HTTP POST + SSE          │  HTTP POST + SSE
+     └───────────────────────────┼───────────────────────────┘
+                                 ▼
+                        main.py (MCP Server)
+                        SSE mode — port 8000
+                                 │  HTTP :9000
+                                 ▼
+                     ChromaDB (Docker Container)
+```
+
+### Bước 1: Khởi động MCP Server ở chế độ SSE
+
+```bash
+cd /path/to/vibe-light-mcp
+source .venv/bin/activate
+
+# Start ChromaDB (nếu chưa chạy)
+docker start mcp-chromadb
+
+# Start MCP Server — SSE mode
+python main.py --transport sse --port 8000
+```
+
+> Server sẽ chạy foreground, log ra terminal. Dùng `tmux` hoặc `nohup` nếu muốn chạy nền.
+
+### Bước 2: Cấu hình AI Client với Bridge
+
+`cascade_bridge.py` là proxy stdio ↔ SSE — nhận JSON-RPC từ stdin, POST lên MCP server, và stream kết quả về stdout **real-time**.
+
+<details>
+<summary><strong>Windsurf / Cascade</strong> — <code>~/.codeium/windsurf/mcp_config.json</code></summary>
+
+```json
+{
+  "mcpServers": {
+    "tech-stack-expert": {
+      "command": "/Users/<username>/projects/vibe-light-mcp/.venv/bin/python",
+      "args": ["/Users/<username>/projects/vibe-light-mcp/cascade_bridge.py"],
+      "env": {
+        "MCP_BRIDGE_URL": "http://127.0.0.1:8000",
+        "MCP_BRIDGE_MODE": "sse"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Cursor</strong> — <code>~/.cursor/mcp.json</code></summary>
+
+```json
+{
+  "mcpServers": {
+    "tech-stack-expert": {
+      "command": "/Users/<username>/projects/vibe-light-mcp/.venv/bin/python",
+      "args": ["/Users/<username>/projects/vibe-light-mcp/cascade_bridge.py"],
+      "env": {
+        "MCP_BRIDGE_URL": "http://127.0.0.1:8000",
+        "MCP_BRIDGE_MODE": "sse"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Antigravity / Claude / Cline</strong> — cấu hình tương tự</summary>
+
+Thay path file config cho phù hợp:
+- Antigravity: `~/.gemini/antigravity/mcp_config.json`
+- Claude: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Cline: `.vscode/mcp.json` trong project
+
+Nội dung `mcpServers` giống Windsurf ở trên — chỉ đổi path tới `cascade_bridge.py`.
+</details>
+
+### Bước 3: Kết nối nhiều client
+
+```bash
+# Terminal 1: MCP Server (SSE mode)
+python main.py --transport sse --port 8000
+
+# Terminal 2+: Mỗi client tự động chạy cascade_bridge.py qua config.
+# Hoặc test thủ công:
+MCP_BRIDGE_URL=http://127.0.0.1:8000 python cascade_bridge.py
+```
+
+### Biến môi trường Bridge
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `MCP_BRIDGE_URL` | `http://127.0.0.1:8000` | URL MCP server (SSE/HTTP) |
+| `MCP_BRIDGE_MODE` | `sse` | `sse` · `http` (streamable-http) |
+
+### Troubleshooting SSE
+
+| Vấn đề | Nguyên nhân | Giải pháp |
+|---|---|---|
+| Bridge treo không nhận response | Server chưa chạy hoặc sai port | Kiểm tra `python main.py --transport sse` có đang chạy |
+| `Timeout: SSE did not provide messages endpoint` | Server chưa sẵn sàng | Đợi server khởi động xong rồi mới chạy bridge |
+| `SSE connection error` | Firewall hoặc port bị chiếm | Kiểm tra `lsof -i :8000` |
+| `SSE stream closed by server` | Server bị restart | Bridge tự reconnect (exponential backoff 1s → 30s) |
+| `singleton lock` khi start server | Đã có server chạy trước đó | `rm ~/.mcp_server.lock` hoặc dùng bridge kết nối |
 
 ---
 
