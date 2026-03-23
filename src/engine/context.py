@@ -126,9 +126,18 @@ def _sync_store(
         for i in range(len(chunks))
     ]
 
+    # Batch upsert: avoids HTTP timeout on large documents (>100 chunks).
+    # Each batch is independently retried by ChromaManager if needed.
+    _UPSERT_BATCH_SIZE = 50
+
     try:
-        # upsert: same content+source → overwrite (no duplicates)
-        collection.upsert(documents=chunks, ids=ids, metadatas=metadatas)
+        for batch_start in range(0, len(chunks), _UPSERT_BATCH_SIZE):
+            batch_end = min(batch_start + _UPSERT_BATCH_SIZE, len(chunks))
+            collection.upsert(
+                documents=chunks[batch_start:batch_end],
+                ids=ids[batch_start:batch_end],
+                metadatas=metadatas[batch_start:batch_end],
+            )
     except Exception as exc:  # noqa: BLE001
         mgr.reset()
         return json.dumps(

@@ -292,7 +292,11 @@ def register_system_tools(mcp: FastMCP) -> None:
                             dst.unlink(missing_ok=True)
                             src.rename(dst)
 
-            # Start as background process (detached)
+            # Start as background process (detached).
+            # ⚠ File handles are intentionally NOT closed here — Popen
+            # inherits the fds via fork.  Closing after Popen would make
+            # the subprocess write to a closed fd (data loss).
+            # The OS reclaims fds when the subprocess exits.
             import subprocess
 
             stdout_f = open(stdout_log, "a", encoding="utf-8")  # noqa: SIM115
@@ -303,8 +307,6 @@ def register_system_tools(mcp: FastMCP) -> None:
                 stderr=stderr_f,
                 start_new_session=True,
             )
-            stdout_f.close()
-            stderr_f.close()
 
             await asyncio.sleep(3)
 

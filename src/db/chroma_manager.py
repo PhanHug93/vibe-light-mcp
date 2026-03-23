@@ -1,19 +1,37 @@
-"""ChromaDB Connection Manager — Thread-safe, Timeout-protected.
+"""ChromaDB Connection Manager — Thread-safe, Timeout-protected, Auto-retry.
 
 Extracted from ``src/engine/context.py`` — single responsibility:
 manage the ChromaDB HTTP client lifecycle, connection pooling,
 health checks, and collection access.
+
+Key design decisions
+--------------------
+* **Dedicated ThreadPoolExecutor** (``CHROMA_POOL_SIZE`` workers) keeps
+  ChromaDB I/O isolated from asyncio's default pool — a slow or dead
+  ChromaDB can no longer starve ``run_terminal_command`` and other tools.
+* **Per-operation timeout** via ``concurrent.futures.Future.result(timeout)``
+  guarantees every ChromaDB call finishes (or raises) within
+  ``CHROMA_OP_TIMEOUT`` seconds.
+* **Exponential backoff retry** (max 3 attempts) absorbs transient
+  network glitches before resetting the entire connection.
+* **Auto-reconnect**: on persistent failure the client and all cached
+  collections are invalidated.  The next call transparently creates a
+  fresh connection.
+* **Cosine distance**: all collections use ``cosine`` similarity — the
+  standard for semantic search with normalized embeddings.
+* **Graceful shutdown**: ``atexit`` hook ensures thread pools are cleaned up.
 
 Usage::
 
     from src.db.chroma_manager import get_manager
 
     mgr = get_manager()
-    collection = mgr.run_with_timeout(mgr._get_l1_direct, workspace_id)
+    collection = mgr.run_with_timeout(mgr.get_l1_direct, workspace_id)
 """
 
 from __future__ import annotations
 
+import atexit
 import concurrent.futures
 import logging
 import threading
@@ -29,6 +47,7 @@ from src.config import (
     CHROMA_OP_TIMEOUT,
     CHROMA_POOL_SIZE,
     CHROMA_HEARTBEAT_INTERVAL,
+    CHROMA_DISTANCE_FN,
     L1_PREFIX,
     L2_COLLECTION,
 )
@@ -36,26 +55,22 @@ from src.db.embedding import get_embedding_fn
 
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+_MAX_RETRIES: int = 3
+"""Maximum retry attempts for transient ChromaDB failures."""
+
+_RETRY_BACKOFF_BASE: float = 0.5
+"""Base delay (seconds) for exponential backoff: 0.5s → 1s → 2s."""
+
+_COLLECTION_METADATA: dict = {"hnsw:space": CHROMA_DISTANCE_FN}
+"""Metadata applied to every new collection — enforces cosine distance."""
+
 
 class ChromaManager:
-    """Thread-safe ChromaDB client with dedicated pool, timeouts & auto-reconnect.
-
-    Key design decisions
-    --------------------
-    * **Dedicated ThreadPoolExecutor** (``CHROMA_POOL_SIZE`` workers) keeps
-      ChromaDB I/O isolated from asyncio's default pool — a slow or dead
-      ChromaDB can no longer starve ``run_terminal_command`` and other tools.
-    * **Per-operation timeout** via ``concurrent.futures.Future.result(timeout)``
-      guarantees every ChromaDB call finishes (or raises) within
-      ``CHROMA_OP_TIMEOUT`` seconds.
-    * **Auto-reconnect**: on *any* ChromaDB failure the client and all cached
-      collections are invalidated.  The next call transparently creates a
-      fresh connection.
-    * **Persistent query executor** (2 workers) for L1+L2 parallel queries —
-      avoids thread churn from creating/destroying pools per query.
-    * **Background health checker** daemon validates the connection every
-      ``CHROMA_HEARTBEAT_INTERVAL`` seconds — off the hot path.
-    """
+    """Thread-safe ChromaDB client with dedicated pool, timeouts & auto-reconnect."""
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -131,8 +146,6 @@ class ChromaManager:
                 )
 
         # --- Network call OUTSIDE lock ---
-        # Multiple threads may reach here simultaneously — that's OK.
-        # Each creates and validates independently; first to finish wins.
         try:
             client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
             client.heartbeat()  # Slow network call — NOT under lock!
@@ -154,6 +167,42 @@ class ChromaManager:
         return self._client
 
     # ------------------------------------------------------------------
+    # Retry helper (exponential backoff)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _retry(
+        fn: callable,
+        *args,
+        max_retries: int = _MAX_RETRIES,
+        backoff_base: float = _RETRY_BACKOFF_BASE,
+        **kwargs,
+    ):
+        """Execute *fn* with exponential backoff retry on transient failures.
+
+        Retry sequence: immediate → 0.5s → 1s → fail.
+        Only retries on Exception (not TimeoutError from run_with_timeout).
+        """
+        last_exc: Exception | None = None
+        for attempt in range(max_retries):
+            try:
+                return fn(*args, **kwargs)
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                if attempt < max_retries - 1:
+                    delay = backoff_base * (2 ** attempt)
+                    logger.warning(
+                        "ChromaDB retry %d/%d for %s (backoff %.1fs): %s",
+                        attempt + 1,
+                        max_retries,
+                        fn.__name__,
+                        delay,
+                        exc,
+                    )
+                    time.sleep(delay)
+        raise last_exc  # type: ignore[misc]
+
+    # ------------------------------------------------------------------
     # Timeout helper (outer boundary ONLY)
     # ------------------------------------------------------------------
 
@@ -170,9 +219,13 @@ class ChromaManager:
         already run inside the executor must call ChromaDB directly
         (via ``get_l1_direct`` / ``get_l2_direct``) to avoid nested
         executor submissions and deadlock.
+
+        Includes retry with exponential backoff before raising.
         """
         try:
-            fut = self._executor.submit(fn, *args, **kwargs)
+            fut = self._executor.submit(
+                self._retry, fn, *args, **kwargs,
+            )
             return fut.result(timeout=timeout)
         except concurrent.futures.TimeoutError:
             logger.error(
@@ -194,6 +247,7 @@ class ChromaManager:
         """Get or create an L1 collection — direct call, no executor.
 
         Thread-safe: all ``_l1_cache`` mutations protected by ``self._lock``.
+        Uses cosine distance for semantic search consistency.
         """
         collection_name = f"{L1_PREFIX}{workspace_id}"
 
@@ -210,9 +264,13 @@ class ChromaManager:
             client.get_or_create_collection(
                 name=collection_name,
                 embedding_function=ef,
+                metadata=_COLLECTION_METADATA,
             )
             if ef
-            else client.get_or_create_collection(name=collection_name)
+            else client.get_or_create_collection(
+                name=collection_name,
+                metadata=_COLLECTION_METADATA,
+            )
         )
 
         # Assign under lock (fast pointer swap + LRU eviction)
@@ -225,7 +283,10 @@ class ChromaManager:
         return collection
 
     def get_l2_direct(self) -> Collection:
-        """Get or create the L2 collection — direct call, no executor."""
+        """Get or create the L2 collection — direct call, no executor.
+
+        Uses cosine distance for semantic search consistency.
+        """
         if self._l2_collection is not None and self._healthy:
             return self._l2_collection
 
@@ -235,9 +296,13 @@ class ChromaManager:
             client.get_or_create_collection(
                 name=L2_COLLECTION,
                 embedding_function=ef,
+                metadata=_COLLECTION_METADATA,
             )
             if ef
-            else client.get_or_create_collection(name=L2_COLLECTION)
+            else client.get_or_create_collection(
+                name=L2_COLLECTION,
+                metadata=_COLLECTION_METADATA,
+            )
         )
         logger.info("L2 collection ready: %s", L2_COLLECTION)
         return self._l2_collection
@@ -257,6 +322,7 @@ class ChromaManager:
             client.get_or_create_collection,
             name=collection_name,
             embedding_function=get_embedding_fn(),
+            metadata=_COLLECTION_METADATA,
         )
         self._l1_cache[collection_name] = collection
         return collection
@@ -271,6 +337,7 @@ class ChromaManager:
             client.get_or_create_collection,
             name=L2_COLLECTION,
             embedding_function=get_embedding_fn(),
+            metadata=_COLLECTION_METADATA,
         )
         return self._l2_collection
 
@@ -287,6 +354,20 @@ class ChromaManager:
             self._healthy = False
         logger.warning("ChromaDB connection reset — will reconnect on next call.")
 
+    # ------------------------------------------------------------------
+    # Graceful shutdown
+    # ------------------------------------------------------------------
+
+    def shutdown(self) -> None:
+        """Shutdown thread pools gracefully.
+
+        Called via ``atexit`` to ensure clean process exit without
+        lingering threads or pending futures.
+        """
+        logger.info("ChromaManager shutting down thread pools...")
+        self._executor.shutdown(wait=False)
+        self._query_executor.shutdown(wait=False)
+
 
 # ---------------------------------------------------------------------------
 # Singleton
@@ -297,11 +378,15 @@ _manager_lock = threading.Lock()
 
 
 def get_manager() -> ChromaManager:
-    """Return the singleton ChromaManager instance."""
+    """Return the singleton ChromaManager instance.
+
+    Registers ``atexit`` shutdown on first creation.
+    """
     global _manager  # noqa: PLW0603
     if _manager is not None:
         return _manager
     with _manager_lock:
         if _manager is None:
             _manager = ChromaManager()
+            atexit.register(_manager.shutdown)
     return _manager

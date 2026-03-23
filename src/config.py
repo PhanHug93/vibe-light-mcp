@@ -55,7 +55,15 @@ CHROMA_LOG_BACKUP_COUNT: int = 3  # keep 3 rotated backups
 # Embedding
 # ---------------------------------------------------------------------------
 
-EMBEDDING_MODEL: str = "all-MiniLM-L12-v2"  # 384d, 12 layers
+EMBEDDING_MODEL: str = "all-MiniLM-L12-v2"
+"""Quality embedding model (384d, 12 layers). Used when ``sentence-transformers``
+is installed (``pip install local-mcp-server[quality]``)."""
+
+EMBEDDING_MODEL_DEFAULT: str = "all-MiniLM-L6-v2"
+"""Lightweight ONNX model (256d, 6 layers). Always available via ChromaDB built-in."""
+
+CHROMA_DISTANCE_FN: str = "cosine"
+"""Distance function for HNSW index. ``cosine`` is standard for semantic search."""
 
 # ---------------------------------------------------------------------------
 # L1/L2 Memory

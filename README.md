@@ -1,5 +1,7 @@
 # 🧠 TechStack Local MCP Server
 
+![Version](https://img.shields.io/badge/version-1.0.14-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-green) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
+
 > Biến AI của bạn thành một developer thực thụ — tự nhận diện project, nhớ context, và học hỏi qua từng workspace.
 
 **TechStack Local MCP Server** là một [MCP](https://modelcontextprotocol.io/) server chạy local, giúp các AI coding assistants (Antigravity, Claude, Cursor, Windsurf...) trở nên thông minh hơn bằng cách:
@@ -21,6 +23,7 @@
 - [🐳 Deploy Full Docker (Production Server)](#-deploy-full-docker-production-server)
 - [🤖 Tích hợp AI Agent](#-tích-hợp-ai-agent--kích-hoạt-đầy-đủ-sức-mạnh-mcp)
 - [🛠 Tools](#-tools)
+- [📥 Import Skills — Mở rộng Knowledge Base](#-import-skills--mở-rộng-knowledge-base)
 - [🛡️ Security Model](#️-security-model)
 - [🔄 Multi-Instance Behavior](#-multi-instance-behavior)
 
@@ -523,6 +526,98 @@ cp /path/to/vibe-light-mcp/docs/mcp_system_prompt.md /your-project/.github/copil
 
 ---
 
+## 📥 Import Skills — Mở rộng Knowledge Base
+
+Import hàng trăm coding skills từ GitHub repo vào ChromaDB L2 — giúp AI agent có thêm knowledge để hỗ trợ bạn tốt hơn.
+
+### Quick Start
+
+```bash
+# Interactive — nhập repo URL rồi bấm Enter
+./scripts/import_skills.sh
+
+# Non-interactive — truyền args trực tiếp
+./scripts/import_skills.sh https://github.com/HoangNguyen0403/agent-skills-standard develop
+```
+
+### Cách hoạt động
+
+```
+import_skills.sh
+  │
+  ├── 1. Nhập repo URL + branch
+  ├── 2. git clone --depth 1
+  ├── 3. Detect skills/ directory
+  ├── 4. Gọi seed_skills.py
+  │       └── ThreadPoolExecutor(5 threads)
+  │           ├── Parse SKILL.md (YAML + Markdown)
+  │           ├── Group by category → tech_stack
+  │           ├── Chunk (recursive_text_split)
+  │           └── Upsert → ChromaDB L2
+  ├── 5. In summary report
+  └── 6. Cleanup /tmp
+```
+
+### Tùy chọn nâng cao
+
+```bash
+# Preview không ghi dữ liệu
+./scripts/import_skills.sh --dry-run https://github.com/.../repo develop
+
+# Tùy chỉnh số threads
+./scripts/import_skills.sh --workers 8 https://github.com/.../repo develop
+
+# Gọi Python script trực tiếp
+python3 scripts/seed_skills.py /path/to/skills --workers 5 --dry-run
+```
+
+### Cấu trúc repo yêu cầu
+
+Repo cần có thư mục `skills/` với cấu trúc:
+
+```
+skills/
+├── android/
+│   ├── clean-architecture/
+│   │   └── SKILL.md          ← YAML frontmatter + markdown
+│   └── navigation/
+│       └── SKILL.md
+├── flutter/
+│   ├── bloc-pattern/
+│   │   └── SKILL.md
+│   └── ...
+└── ...
+```
+
+Mỗi `SKILL.md` có format:
+
+```markdown
+---
+name: Clean Architecture
+description: Hướng dẫn triển khai Clean Architecture cho Android
+---
+
+## Nội dung skill...
+```
+
+### Category Mapping
+
+Folder name tự động map sang `tech_stack` key:
+
+| Folder | Tech Stack Key |
+|---|---|
+| `android` | `android_kotlin` |
+| `flutter` | `flutter_dart` |
+| `ios` | `ios_swift` |
+| `react-native` | `react_native` |
+| `spring-boot` | `spring_boot` |
+| `vue` | `vue_js` |
+| *other* | `folder_name` (auto) |
+
+> 💡 **Idempotent**: Chạy lại bao nhiêu lần cũng không tạo duplicate — nhờ content-hash ID.
+
+---
+
 ## 🛡️ Security Model
 
 Hệ thống bảo mật sử dụng **Defense-in-Depth** (4 lớp bảo vệ):
@@ -592,7 +687,9 @@ tar xzf ~/.mcp_global_db/backups/chromadb_backup_YYYYMMDD_HHMMSS.tar.gz -C ~/.mc
 
 ## 📚 Tech Stacks hỗ trợ
 
-Android/Kotlin · KMP · Flutter/Dart · iOS/Swift · Python · React Native · Vue.js 3
+**Built-in:** Android/Kotlin · KMP · Flutter/Dart · iOS/Swift · Python · React Native · Vue.js 3
+
+**Importable (via `import_skills.sh`):** Angular · React · NestJS · Next.js · Laravel · Go · PHP · TypeScript · JavaScript · Java · Spring Boot · Database · Quality Engineering · và hơn nữa...
 
 > 💡 Thêm stack mới? Chỉ cần sửa `tech_stacks/registry.yaml` — không cần sửa code.
 

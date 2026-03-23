@@ -1,0 +1,131 @@
+# requirements.lock — Exact dependency versions for reproducible builds
+#
+# Generated: 2026-03-23 from production .venv (Python 3.10+)
+# Usage:     pip install -r requirements.lock
+#
+# ⚠ This file pins ALL 99 packages (direct + transitive).
+#   Use this for production deployments and CI/CD pipelines.
+#   For development, use: pip install -e ".[quality]"
+#
+# Direct dependencies are marked with [DIRECT].
+
+# --- Core MCP Framework ---
+mcp==1.26.0                      # [DIRECT] MCP SDK (FastMCP, transports)
+starlette==0.52.1                # ASGI framework (MCP HTTP transport)
+uvicorn==0.41.0                  # ASGI server
+uvloop==0.22.1                   # Fast event loop (Unix only)
+httptools==0.7.1                 # Fast HTTP parser for uvicorn
+sse-starlette==3.3.2             # SSE support for MCP streaming
+anyio==4.12.1                    # Async I/O abstraction
+httpx==0.28.1                    # [DIRECT] Async HTTP client
+httpx-sse==0.4.3                 # SSE client for MCP
+httpcore==1.0.9                  # HTTP connection pool
+h11==0.16.0                      # HTTP/1.1 parser
+pydantic==2.12.5                 # Data validation
+pydantic-settings==2.13.1        # Settings management
+pydantic_core==2.41.5            # Pydantic core (Rust)
+typer==0.24.1                    # CLI framework
+click==8.3.1                     # CLI toolkit
+rich==14.3.3                     # Rich terminal output
+shellingham==1.5.4               # Shell detection
+annotated-types==0.7.0           # Type annotations
+annotated-doc==0.0.4             # Docstring annotations
+typing-inspection==0.4.2         # Type inspection utils
+typing_extensions==4.15.0        # Backported typing features
+python-dotenv==1.2.2             # .env file support
+python-multipart==0.0.22         # Multipart form parsing
+
+# --- Vector Database (ChromaDB) ---
+chromadb==1.5.5                  # [DIRECT] Vector database client
+onnxruntime==1.24.3              # [DIRECT] ONNX model inference
+numpy==2.4.3                     # Numerical computing
+tokenizers==0.22.2               # HuggingFace tokenizers
+mmh3==5.2.1                      # MurmurHash3
+flatbuffers==25.12.19            # Serialization (ONNX)
+PyPika==0.51.1                   # SQL query builder
+overrides==7.7.0                 # Method override decorator
+orjson==3.11.7                   # Fast JSON (ChromaDB)
+pybase64==1.4.3                  # Base64 encoding
+
+# --- ChromaDB Telemetry & Observability ---
+opentelemetry-api==1.40.0
+opentelemetry-sdk==1.40.0
+opentelemetry-exporter-otlp-proto-common==1.40.0
+opentelemetry-exporter-otlp-proto-grpc==1.40.0
+opentelemetry-proto==1.40.0
+opentelemetry-semantic-conventions==0.61b0
+grpcio==1.78.0                   # gRPC (telemetry export)
+protobuf==6.33.5                 # Protocol Buffers
+googleapis-common-protos==1.73.0 # Google API protos
+posthog==3.20.0                   # Analytics (ChromaDB; disabled)
+
+# --- Async I/O ---
+aiohttp==3.13.3                  # [DIRECT] Async HTTP (SSE transport)
+aiohappyeyeballs==2.6.1          # Happy Eyeballs algorithm
+aiosignal==1.4.0                 # Signal handling
+frozenlist==1.8.0                # Frozen list type
+multidict==6.7.1                 # Multi-value dict
+yarl==1.23.0                     # URL parsing
+propcache==0.4.1                 # Property caching
+attrs==25.4.0                    # Class decorators
+
+# --- YAML & Config ---
+PyYAML==6.0.3                    # [DIRECT] YAML parser
+
+# --- HuggingFace (model download) ---
+huggingface_hub==1.6.0           # Model hub client
+hf-xet==1.3.2                    # HF storage backend
+filelock==3.25.1                 # File locking
+fsspec==2026.2.0                 # Filesystem abstraction
+tqdm==4.67.3                     # Progress bars
+requests==2.32.5                 # HTTP client (legacy)
+urllib3==2.6.3                   # HTTP low-level
+certifi==2026.2.25               # CA certificates
+charset-normalizer==3.4.5        # Character encoding
+idna==3.11                       # IDNA encoding
+
+# --- Security & Crypto ---
+bcrypt==5.0.0                    # Password hashing
+cryptography==46.0.5             # Cryptographic primitives
+cffi==2.0.0                      # C FFI
+pycparser==3.0                   # C parser
+
+# --- JSON Schema (ChromaDB validation) ---
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+referencing==0.37.0
+rpds-py==0.30.0
+
+# --- Kubernetes (ChromaDB cloud) ---
+kubernetes==35.0.0
+oauthlib==3.3.1
+requests-oauthlib==2.0.0
+PyJWT==2.11.0
+websocket-client==1.9.0
+websockets==16.0
+python-dateutil==2.9.0.post0
+six==1.17.0
+durationpy==0.10
+
+# --- Misc ---
+Pygments==2.19.2                 # Syntax highlighting (rich)
+markdown-it-py==4.0.0            # Markdown parsing (rich)
+mdurl==0.1.2                     # URL parsing (markdown)
+packaging==26.0                  # Version parsing
+sympy==1.14.0                    # Symbolic math (onnxruntime)
+mpmath==1.3.0                    # Multi-precision math
+tenacity==9.1.4                  # Retry logic (chromadb)
+importlib_metadata==8.7.1        # Metadata access
+importlib_resources==6.5.2       # Resource access
+zipp==3.23.0                     # Zip file support
+build==1.4.0                     # PEP 517 build
+pyproject_hooks==1.2.0           # Build hooks
+
+# --- Dev/Test (exclude in production if desired) ---
+pytest==9.0.2                    # Test framework
+pytest-asyncio==1.3.0            # Async test support
+pytest-cov==7.0.0                # Coverage plugin
+coverage==7.13.5                 # Code coverage
+iniconfig==2.3.0                 # INI config (pytest)
+pluggy==1.6.0                    # Plugin system (pytest)
+ruff==0.15.6                     # Linter
