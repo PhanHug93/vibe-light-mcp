@@ -67,12 +67,20 @@ def format_uptime(seconds: float) -> str:
 
 
 def get_memory_mb() -> float:
-    """Get current process RSS memory in MB (macOS/Linux)."""
+    """Get current process RSS memory in MB (macOS/Linux).
+
+    ``ru_maxrss`` units vary by platform:
+      - macOS: bytes
+      - Linux: kilobytes
+    """
     try:
         import resource
+        import sys as _sys
 
         rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return rss / (1024 * 1024)  # bytes → MB on macOS
+        if _sys.platform == "darwin":
+            return rss / (1024 * 1024)  # macOS: bytes → MB
+        return rss / 1024  # Linux: KB → MB
     except Exception:  # noqa: BLE001
         return 0.0
 
