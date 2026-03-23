@@ -190,7 +190,7 @@ class ChromaManager:
             except Exception as exc:  # noqa: BLE001
                 last_exc = exc
                 if attempt < max_retries - 1:
-                    delay = backoff_base * (2 ** attempt)
+                    delay = backoff_base * (2**attempt)
                     logger.warning(
                         "ChromaDB retry %d/%d for %s (backoff %.1fs): %s",
                         attempt + 1,
@@ -224,7 +224,10 @@ class ChromaManager:
         """
         try:
             fut = self._executor.submit(
-                self._retry, fn, *args, **kwargs,
+                self._retry,
+                fn,
+                *args,
+                **kwargs,
             )
             return fut.result(timeout=timeout)
         except concurrent.futures.TimeoutError:

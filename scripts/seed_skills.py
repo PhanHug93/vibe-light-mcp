@@ -94,7 +94,7 @@ def parse_skill_md(filepath: Path) -> dict[str, str]:
             elif line.startswith("description:"):
                 description = line[12:].strip().strip("\"'")
         # Remove frontmatter from body
-        body = text[fm_match.end():]
+        body = text[fm_match.end() :]
     else:
         body = text
 
@@ -193,15 +193,11 @@ def import_category(
 
     # Build IDs and metadata (same logic as context.py _sync_store)
     metadata_source = f"agent-skills-standard/{tech_stack}"
-    batch_id = hashlib.md5(
-        f"{metadata_source}:L2:global".encode()
-    ).hexdigest()[:8]
+    batch_id = hashlib.md5(f"{metadata_source}:L2:global".encode()).hexdigest()[:8]
     timestamp = datetime.now(timezone.utc).isoformat()
 
     ids = [
-        hashlib.sha256(
-            f"{metadata_source}:{chunk}".encode()
-        ).hexdigest()[:16] + f"_{i}"
+        hashlib.sha256(f"{metadata_source}:{chunk}".encode()).hexdigest()[:16] + f"_{i}"
         for i, chunk in enumerate(chunks)
     ]
     metadatas = [
@@ -351,11 +347,13 @@ def main() -> None:
                 results.append(result)
             except Exception as exc:
                 logger.error("❌ %s failed: %s", ts, exc)
-                results.append({
-                    "tech_stack": ts,
-                    "status": "error",
-                    "error": str(exc),
-                })
+                results.append(
+                    {
+                        "tech_stack": ts,
+                        "status": "error",
+                        "error": str(exc),
+                    }
+                )
 
     # ── Summary ─────────────────────────────────────────────────
     elapsed_total = time.monotonic() - start_total
