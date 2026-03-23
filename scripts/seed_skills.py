@@ -35,7 +35,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from src.config import CHROMA_HOST, CHROMA_PORT, EMBEDDING_MODEL  # noqa: E402
+from src.config import CHROMA_HOST, CHROMA_PORT, CHROMA_DISTANCE_FN  # noqa: E402
 from src.utils.text_splitter import recursive_text_split  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -325,6 +325,7 @@ def main() -> None:
     collection = client.get_or_create_collection(
         name=L2_COLLECTION,
         embedding_function=ef,
+        metadata={"hnsw:space": CHROMA_DISTANCE_FN},
     )
     l2_before = collection.count()
     logger.info("📦 L2 collection '%s' has %d chunks", L2_COLLECTION, l2_before)
