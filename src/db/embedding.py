@@ -111,4 +111,3 @@ def pre_warm_embedding() -> None:
     logger.info("Pre-warming embedding model...")
     get_embedding_fn()
     logger.info("Embedding model ready.")
-
