@@ -45,6 +45,50 @@ from src.config import MCP_TRANSPORT, MCP_HOST, MCP_PORT, MCP_LOCK_FILE  # noqa:
 
 
 # ---------------------------------------------------------------------------
+# Startup Migration — detect & fix embedding function mismatches
+# ---------------------------------------------------------------------------
+
+
+def _run_startup_migration() -> None:
+    """Check all L1/L2 collections for embedding mismatches and migrate.
+
+    Best-effort: if ChromaDB is unreachable (e.g. stdio transport without
+    a running ChromaDB server), this is a silent no-op.  Migration will
+    run on the next successful startup.
+    """
+    import logging as _logging
+
+    _log = _logging.getLogger("startup.migration")
+
+    try:
+        from src.db.embedding import get_embedding_fn
+        from src.config import CHROMA_HOST, CHROMA_PORT
+
+        import chromadb
+
+        ef = get_embedding_fn()
+        if ef is None:
+            _log.info("No embedding function available — skipping migration check.")
+            return
+
+        client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        client.heartbeat()
+
+        from src.db.migrate_embeddings import check_and_migrate
+
+        report = check_and_migrate(client, ef)
+
+        if report.get("migrated"):
+            _log.info("Migration report: %s", report["summary"])
+        else:
+            _log.info("No embedding migration needed.")
+
+    except Exception as exc:  # noqa: BLE001
+        # Non-fatal: ChromaDB might not be running yet (stdio mode)
+        _log.debug("Startup migration skipped (ChromaDB not reachable): %s", exc)
+
+
+# ---------------------------------------------------------------------------
 # Singleton Lock — prevents multiple SSE/HTTP servers on the same port
 # ---------------------------------------------------------------------------
 
@@ -206,6 +250,11 @@ def main() -> None:
     from src.db.embedding import pre_warm_embedding  # noqa: E402
 
     pre_warm_embedding()
+
+    # B2: Auto-migrate collections with mismatched embedding functions.
+    # Safe for old Docker users upgrading from versions that used the
+    # implicit default embedding.  Runs once, skips if already compatible.
+    _run_startup_migration()
 
     # Startup diagnostic (stderr only — never pollute stdout/stdio)
     transport_info = f"transport={args.transport}"

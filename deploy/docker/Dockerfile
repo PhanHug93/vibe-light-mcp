@@ -46,7 +46,7 @@ FROM python:3.10-slim AS runtime
 
 LABEL maintainer="PhanHug93"
 LABEL description="TechStack Local MCP Server — Production"
-LABEL version="1.0.14"
+LABEL version="1.0.15"
 
 # ── Non-root user ──────────────────────────────────────────────────────────
 # Tạo user `mcpuser` (uid=1000) để KHÔNG chạy dưới quyền root.
