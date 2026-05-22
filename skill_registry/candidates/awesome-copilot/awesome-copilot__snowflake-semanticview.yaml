@@ -1,0 +1,82 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__snowflake-semanticview
+name: snowflake-semanticview
+description: Create, alter, and validate Snowflake semantic views using Snowflake
+  CLI (snow). Use when asked to build or troubleshoot semantic views/semantic layer
+  definitions with CREATE/ALTER SEMANTIC VIEW, to validate semantic-view DDL against
+  Snowflake via CLI, or to guide Snowflake CLI installation and connection setup.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/snowflake-semanticview/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- snowflake-semanticview
+content:
+  kind: skill_markdown
+  sha256: f9fd64e6980ec2016956afa1dbc3997da9a5d3f3c80a5df0aa78f133a5a4fbb6
+  char_count: 4411
+  text: "# Snowflake Semantic Views\n\n## One-Time Setup\n\n- Verify Snowflake CLI\
+    \ installation by opening a new terminal and running `snow --help`.\n- If Snowflake\
+    \ CLI is missing or the user cannot install it, direct them to https://docs.snowflake.com/en/developer-guide/snowflake-cli/installation/installation.\n\
+    - Configure a Snowflake connection with `snow connection add` per https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections#add-a-connection.\n\
+    - Use the configured connection for all validation and execution steps.\n\n##\
+    \ Workflow For Each Semantic View Request\n\n1. Confirm the target database, schema,\
+    \ role, warehouse, and final semantic view name.\n2. Confirm the model follows\
+    \ a star schema (facts with conformed dimensions).\n3. Draft the semantic view\
+    \ DDL using the official syntax:\n   - https://docs.snowflake.com/en/sql-reference/sql/create-semantic-view\n\
+    4. Populate synonyms and comments for each dimension, fact, and metric:\n   -\
+    \ Read Snowflake table/view/column comments first (preferred source):\n     -\
+    \ https://docs.snowflake.com/en/sql-reference/sql/comment\n   - If comments or\
+    \ synonyms are missing, ask whether you can create them, whether the user wants\
+    \ to provide text, or whether you should draft suggestions for approval.\n5. Use\
+    \ SELECT statements with DISTINCT and LIMIT (maximum 1000 rows) to discover relationships\
+    \ between fact and dimension tables, identify column data types, and create more\
+    \ meaningful comments and synonyms for columns.\n6. Create a temporary validation\
+    \ name (for example, append `__tmp_validate`) while keeping the same database\
+    \ and schema.\n7. Always validate by sending the DDL to Snowflake via Snowflake\
+    \ CLI before finalizing:\n   - Use `snow sql` to execute the statement with the\
+    \ configured connection.\n   - If flags differ by version, check `snow sql --help`\
+    \ and use the connection option shown there.\n8. If validation fails, iterate\
+    \ on the DDL and re-run the validation step until it succeeds.\n9. Apply the final\
+    \ DDL (create or alter) using the real semantic view name.\n10. Run a sample query\
+    \ against the final semantic view to confirm it works as expected. It has a different\
+    \ SQL syntax as can be seen here: https://docs.snowflake.com/en/user-guide/views-semantic/querying#querying-a-semantic-view\n\
+    Example:\n\n```SQL\nSELECT * FROM SEMANTIC_VIEW(\n    my_semview_name\n    DIMENSIONS\
+    \ customer.customer_market_segment\n    METRICS orders.order_average_value\n)\n\
+    ORDER BY customer_market_segment;\n```\n\n11. Clean up any temporary semantic\
+    \ view created during validation.\n\n## Synonyms And Comments (Required)\n\n-\
+    \ Use the semantic view syntax for synonyms and comments:\n\n```\nWITH SYNONYMS\
+    \ [ = ] ( 'synonym' [ , ... ] )\nCOMMENT = 'comment_about_dim_fact_or_metric'\n\
+    ```\n\n- Treat synonyms as informational only; do not use them to reference dimensions,\
+    \ facts, or metrics elsewhere.\n- Use Snowflake comments as the preferred and\
+    \ first source for synonyms and comments:\n  - https://docs.snowflake.com/en/sql-reference/sql/comment\n\
+    - If Snowflake comments are missing, ask whether you can create them, whether\
+    \ the user wants to provide text, or whether you should draft suggestions for\
+    \ approval.\n- Do not invent synonyms or comments without user approval.\n\n##\
+    \ Validation Pattern (Required)\n\n- Never skip validation. Always execute the\
+    \ DDL against Snowflake with Snowflake CLI before presenting it as final.\n- Prefer\
+    \ a temporary name for validation to avoid clobbering the real view.\n\n## Example\
+    \ CLI Validation (Template)\n\n```bash\n# Replace placeholders with real values.\n\
+    snow sql -q \"<CREATE OR ALTER SEMANTIC VIEW ...>\" --connection <connection_name>\n\
+    ```\n\nIf the CLI uses a different connection flag in your version, run:\n\n```bash\n\
+    snow sql --help\n```\n\n## Notes\n\n- Treat installation and connection setup\
+    \ as one-time steps, but confirm they are done before the first validation.\n\
+    - Keep the final semantic view definition identical to the validated temporary\
+    \ definition except for the name.\n- Do not omit synonyms or comments; consider\
+    \ them required for completeness even if optional in syntax."

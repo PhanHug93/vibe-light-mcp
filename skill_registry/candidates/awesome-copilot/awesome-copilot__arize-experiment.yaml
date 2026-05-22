@@ -1,0 +1,268 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-experiment
+name: arize-experiment
+description: Creates, runs, and analyzes Arize experiments for evaluating and comparing
+  model performance. Covers experiment CRUD, exporting runs, comparing results, and
+  evaluation workflows using the ax CLI. Use when the user mentions create experiment,
+  run experiment, compare models, model performance, evaluate AI, experiment results,
+  benchmark, A/B test models, or measure accuracy.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-experiment/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- testing
+languages: []
+platforms: []
+aliases:
+- arize-experiment
+content:
+  kind: skill_markdown
+  sha256: 388c2ed4e5ca253ea11a1bea5975bf3fa763c02d2b297a7f5eaabe629e3c79cc
+  char_count: 18584
+  text: "# Arize Experiment Skill\n\n> **`SPACE`** \u2014 All `--space` flags and\
+    \ the `ARIZE_SPACE` env var accept a space **name** (e.g., `my-workspace`) or\
+    \ a base64 space **ID** (e.g., `U3BhY2U6...`). Find yours with `ax spaces list`.\n\
+    \n## Concepts\n\n- **Experiment** = a named evaluation run against a specific\
+    \ dataset version, containing one run per example\n- **Experiment Run** = the\
+    \ result of processing one dataset example -- includes the model output, optional\
+    \ evaluations, and optional metadata\n- **Dataset** = a versioned collection of\
+    \ examples; every experiment is tied to a dataset and a specific dataset version\n\
+    - **Evaluation** = a named metric attached to a run (e.g., `correctness`, `relevance`),\
+    \ with optional label, score, and explanation\n\nThe typical flow: export a dataset\
+    \ \u2192 process each example \u2192 collect outputs and evaluations \u2192 create\
+    \ an experiment with the runs.\n\n## Prerequisites\n\nProceed directly with the\
+    \ task \u2014 run the `ax` command you need. Do NOT check versions, env vars,\
+    \ or profiles upfront.\n\nIf an `ax` command fails, troubleshoot based on the\
+    \ error:\n- `command not found` or version error \u2192 see references/ax-setup.md\n\
+    - `401 Unauthorized` / missing API key \u2192 run `ax profiles show` to inspect\
+    \ the current profile. If the profile is missing or the API key is wrong, follow\
+    \ references/ax-profiles.md to create/update it. If the user doesn't have their\
+    \ key, direct them to https://app.arize.com/admin > API Keys\n- Space unknown\
+    \ \u2192 run `ax spaces list` to pick by name, or ask the user\n- Project unclear\
+    \ \u2192 ask the user, or run `ax projects list -o json --limit 100` and present\
+    \ as selectable options\n- **Security:** Never read `.env` files or search the\
+    \ filesystem for credentials. Use `ax profiles` for Arize credentials and `ax\
+    \ ai-integrations` for LLM provider keys. If credentials are not available through\
+    \ these channels, ask the user.\n- **CRITICAL \u2014 Never fabricate outputs:**\
+    \ When running an experiment, you MUST call the real model API specified by the\
+    \ user for every dataset example. Never fabricate, simulate, or hardcode model\
+    \ outputs, latencies, or evaluation scores. If you cannot call the API (missing\
+    \ SDK, missing credentials, network error), stop and tell the user what is needed\
+    \ before proceeding.\n\n## List Experiments: `ax experiments list`\n\nBrowse experiments,\
+    \ optionally filtered by dataset. Output goes to stdout.\n\n```bash\nax experiments\
+    \ list\nax experiments list --dataset DATASET_NAME --space SPACE --limit 20  \
+    \ # DATASET_NAME: name or ID (name preferred)\nax experiments list --cursor CURSOR_TOKEN\n\
+    ax experiments list -o json\n```\n\n### Flags\n\n| Flag | Type | Default | Description\
+    \ |\n|------|------|---------|-------------|\n| `--dataset` | string | none |\
+    \ Filter by dataset |\n| `--limit, -l` | int | 15 | Max results (1-100) |\n| `--cursor`\
+    \ | string | none | Pagination cursor from previous response |\n| `-o, --output`\
+    \ | string | table | Output format: table, json, csv, parquet, or file path |\n\
+    | `-p, --profile` | string | default | Configuration profile |\n\n## Get Experiment:\
+    \ `ax experiments get`\n\nQuick metadata lookup -- returns experiment name, linked\
+    \ dataset/version, and timestamps.\n\n```bash\nax experiments get NAME_OR_ID\n\
+    ax experiments get NAME_OR_ID -o json\nax experiments get NAME_OR_ID --dataset\
+    \ DATASET_NAME --space SPACE   # required when using experiment name instead of\
+    \ ID\n```\n\n### Flags\n\n| Flag | Type | Default | Description |\n|------|------|---------|-------------|\n\
+    | `NAME_OR_ID` | string | required | Experiment name or ID (positional) |\n| `--dataset`\
+    \ | string | none | Dataset name or ID (required if using experiment name instead\
+    \ of ID) |\n| `--space` | string | none | Space name or ID (required if using\
+    \ dataset name instead of ID) |\n| `-o, --output` | string | table | Output format\
+    \ |\n| `-p, --profile` | string | default | Configuration profile |\n\n### Response\
+    \ fields\n\n| Field | Type | Description |\n|-------|------|-------------|\n|\
+    \ `id` | string | Experiment ID |\n| `name` | string | Experiment name |\n| `dataset_id`\
+    \ | string | Linked dataset ID |\n| `dataset_version_id` | string | Specific dataset\
+    \ version used |\n| `experiment_traces_project_id` | string | Project where experiment\
+    \ traces are stored |\n| `created_at` | datetime | When the experiment was created\
+    \ |\n| `updated_at` | datetime | Last modification time |\n\n## Export Experiment:\
+    \ `ax experiments export`\n\nDownload all runs to a file. By default uses the\
+    \ REST API; pass `--all` to use Arrow Flight for bulk transfer.\n\n```bash\n#\
+    \ EXPERIMENT_NAME, DATASET_NAME: name or ID (name preferred)\nax experiments export\
+    \ EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE\n# -> experiment_abc123_20260305_141500/runs.json\n\
+    \nax experiments export EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE --all\n\
+    ax experiments export EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE --output-dir\
+    \ ./results\nax experiments export EXPERIMENT_NAME --dataset DATASET_NAME --space\
+    \ SPACE --stdout\nax experiments export EXPERIMENT_NAME --dataset DATASET_NAME\
+    \ --space SPACE --stdout | jq '.[0]'\n```\n\n### Flags\n\n| Flag | Type | Default\
+    \ | Description |\n|------|------|---------|-------------|\n| `NAME_OR_ID` | string\
+    \ | required | Experiment name or ID (positional) |\n| `--dataset` | string |\
+    \ none | Dataset name or ID (required if using experiment name instead of ID)\
+    \ |\n| `--space` | string | none | Space name or ID (required if using dataset\
+    \ name instead of ID) |\n| `--all` | bool | false | Use Arrow Flight for bulk\
+    \ export (see below) |\n| `--output-dir` | string | `.` | Output directory |\n\
+    | `--stdout` | bool | false | Print JSON to stdout instead of file |\n| `-p, --profile`\
+    \ | string | default | Configuration profile |\n\n### REST vs Flight (`--all`)\n\
+    \n- **REST** (default): Lower friction -- no Arrow/Flight dependency, standard\
+    \ HTTPS ports, works through any corporate proxy or firewall. Limited to 500 runs\
+    \ per page.\n- **Flight** (`--all`): Required for experiments with more than 500\
+    \ runs. Uses gRPC+TLS on a separate host/port (`flight.arize.com:443`) which some\
+    \ corporate networks may block.\n\n**Agent auto-escalation rule:** If a REST export\
+    \ returns exactly 500 runs, the result is likely truncated. Re-run with `--all`\
+    \ to get the full dataset.\n\nOutput is a JSON array of run objects:\n\n```json\n\
+    [\n  {\n    \"id\": \"run_001\",\n    \"example_id\": \"ex_001\",\n    \"output\"\
+    : \"The answer is 4.\",\n    \"evaluations\": {\n      \"correctness\": { \"label\"\
+    : \"correct\", \"score\": 1.0 },\n      \"relevance\": { \"score\": 0.95, \"explanation\"\
+    : \"Directly answers the question\" }\n    },\n    \"metadata\": { \"model\":\
+    \ \"gpt-4o\", \"latency_ms\": 1234 }\n  }\n]\n```\n\n## Create Experiment: `ax\
+    \ experiments create`\n\nCreate a new experiment with runs from a data file.\n\
+    \n```bash\nax experiments create --name \"gpt-4o-baseline\" --dataset DATASET_NAME\
+    \ --space SPACE --file runs.json\nax experiments create --name \"claude-test\"\
+    \ --dataset DATASET_NAME --space SPACE --file runs.csv\n```\n\n### Flags\n\n|\
+    \ Flag | Type | Required | Description |\n|------|------|----------|-------------|\n\
+    | `--name, -n` | string | yes | Experiment name |\n| `--dataset` | string | yes\
+    \ | Dataset to run the experiment against |\n| `--space, -s` | string | no | Space\
+    \ name or ID (required if using dataset name instead of ID) |\n| `--file, -f`\
+    \ | path | yes | Data file with runs: CSV, JSON, JSONL, or Parquet |\n| `-o, --output`\
+    \ | string | no | Output format |\n| `-p, --profile` | string | no | Configuration\
+    \ profile |\n\n### Passing data via stdin\n\nUse `--file -` to pipe data directly\
+    \ \u2014 no temp file needed:\n\n```bash\necho '[{\"example_id\": \"ex_001\",\
+    \ \"output\": \"Paris\"}]' | ax experiments create --name \"my-experiment\" --dataset\
+    \ DATASET_NAME --space SPACE --file -\n\n# Or with a heredoc\nax experiments create\
+    \ --name \"my-experiment\" --dataset DATASET_NAME --space SPACE --file - << 'EOF'\n\
+    [{\"example_id\": \"ex_001\", \"output\": \"Paris\"}]\nEOF\n```\n\n### Required\
+    \ columns in the runs file\n\n| Column | Type | Required | Description |\n|--------|------|----------|-------------|\n\
+    | `example_id` | string | yes | ID of the dataset example this run corresponds\
+    \ to |\n| `output` | string | yes | The model/system output for this example |\n\
+    \nAdditional columns are passed through as `additionalProperties` on the run.\n\
+    \n## Delete Experiment: `ax experiments delete`\n\n```bash\nax experiments delete\
+    \ NAME_OR_ID\nax experiments delete NAME_OR_ID --dataset DATASET_NAME --space\
+    \ SPACE   # required when using experiment name instead of ID\nax experiments\
+    \ delete NAME_OR_ID --force   # skip confirmation prompt\n```\n\n### Flags\n\n\
+    | Flag | Type | Default | Description |\n|------|------|---------|-------------|\n\
+    | `NAME_OR_ID` | string | required | Experiment name or ID (positional) |\n| `--dataset`\
+    \ | string | none | Dataset name or ID (required if using experiment name instead\
+    \ of ID) |\n| `--space` | string | none | Space name or ID (required if using\
+    \ dataset name instead of ID) |\n| `--force, -f` | bool | false | Skip confirmation\
+    \ prompt |\n| `-p, --profile` | string | default | Configuration profile |\n\n\
+    ## Experiment Run Schema\n\nEach run corresponds to one dataset example:\n\n```json\n\
+    {\n  \"example_id\": \"required -- links to dataset example\",\n  \"output\":\
+    \ \"required -- the model/system output for this example\",\n  \"evaluations\"\
+    : {\n    \"metric_name\": {\n      \"label\": \"optional string label (e.g., 'correct',\
+    \ 'incorrect')\",\n      \"score\": \"optional numeric score (e.g., 0.95)\",\n\
+    \      \"explanation\": \"optional freeform text\"\n    }\n  },\n  \"metadata\"\
+    : {\n    \"model\": \"gpt-4o\",\n    \"temperature\": 0.7,\n    \"latency_ms\"\
+    : 1234\n  }\n}\n```\n\n### Evaluation fields\n\n| Field | Type | Required | Description\
+    \ |\n|-------|------|----------|-------------|\n| `label` | string | no | Categorical\
+    \ classification (e.g., `correct`, `incorrect`, `partial`) |\n| `score` | number\
+    \ | no | Numeric quality score (e.g., 0.0 - 1.0) |\n| `explanation` | string |\
+    \ no | Freeform reasoning for the evaluation |\n\nAt least one of `label`, `score`,\
+    \ or `explanation` should be present per evaluation.\n\n## Workflows\n\n### Run\
+    \ an experiment against a dataset\n\n1. Find or create a dataset:\n   ```bash\n\
+    \   ax datasets list --space SPACE\n   ax datasets export DATASET_NAME --space\
+    \ SPACE --stdout | jq 'length'\n   ```\n2. Export the dataset examples:\n   ```bash\n\
+    \   ax datasets export DATASET_NAME --space SPACE\n   ```\n3. Call the real model\
+    \ API for each example and collect outputs. Use `ax datasets export --stdout`\
+    \ to pipe examples directly into an inference script:\n\n   ```bash\n   ax datasets\
+    \ export DATASET_NAME --space SPACE --stdout | python3 infer.py > runs.json\n\
+    \   ```\n\n   Write `infer.py` to read examples from stdin, call the target model,\
+    \ and write runs JSON to stdout. The script below is a template \u2014 first inspect\
+    \ the exported dataset JSON to find the correct input field name, then uncomment\
+    \ the provider block the user wants:\n\n   ```python\n   import json, sys, time\n\
+    \n   examples = json.load(sys.stdin)\n   runs = []\n\n   for ex in examples:\n\
+    \       # Inspect the exported JSON to find the right field (e.g. \"input\", \"\
+    question\", \"prompt\")\n       user_input = ex.get(\"input\") or ex.get(\"question\"\
+    ) or ex.get(\"prompt\") or str(ex)\n\n       start = time.time()\n\n       # ===\
+    \ CALL THE REAL MODEL API HERE \u2014 never fabricate or simulate ===\n      \
+    \ # Uncomment and adapt the provider block the user requested:\n       #\n   \
+    \    # OpenAI (pip install openai  \u2014 uses OPENAI_API_KEY env var):\n    \
+    \   #   from openai import OpenAI\n       #   resp = OpenAI().chat.completions.create(\n\
+    \       #       model=\"gpt-4o\",\n       #       messages=[{\"role\": \"user\"\
+    , \"content\": user_input}]\n       #   )\n       #   output_text = resp.choices[0].message.content\n\
+    \       #\n       # Anthropic (pip install anthropic  \u2014 uses ANTHROPIC_API_KEY\
+    \ env var):\n       #   import anthropic\n       #   resp = anthropic.Anthropic().messages.create(\n\
+    \       #       model=\"claude-sonnet-4-6\", max_tokens=1024,\n       #      \
+    \ messages=[{\"role\": \"user\", \"content\": user_input}]\n       #   )\n   \
+    \    #   output_text = resp.content[0].text\n       #\n       # Google Gemini\
+    \ (pip install google-genai  \u2014 uses GOOGLE_API_KEY env var):\n       #  \
+    \ from google import genai\n       #   resp = genai.Client().models.generate_content(\n\
+    \       #       model=\"gemini-2.5-pro\", contents=user_input\n       #   )\n\
+    \       #   output_text = resp.text\n       #\n       # Custom / OpenAI-compatible\
+    \ proxy (pip install openai \u2014 uses CUSTOM_BASE_URL + CUSTOM_API_KEY env vars):\n\
+    \       # Use this for Azure OpenAI, NVIDIA NIM, local Ollama, or any OpenAI-compatible\
+    \ endpoint,\n       # including a test integration proxy. Matches the `custom`\
+    \ provider in `ax ai-integrations create`.\n       #   import os\n       #   from\
+    \ openai import OpenAI\n       #   resp = OpenAI(\n       #       base_url=os.environ[\"\
+    CUSTOM_BASE_URL\"],          # e.g. https://my-proxy.example.com/v1\n       #\
+    \       api_key=os.environ.get(\"CUSTOM_API_KEY\", \"none\"),\n       #   ).chat.completions.create(\n\
+    \       #       model=os.environ.get(\"CUSTOM_MODEL\", \"default\"),\n       #\
+    \       messages=[{\"role\": \"user\", \"content\": user_input}]\n       #   )\n\
+    \       #   output_text = resp.choices[0].message.content\n\n       latency_ms\
+    \ = round((time.time() - start) * 1000)\n       runs.append({\n           \"example_id\"\
+    : ex[\"id\"],\n           \"output\": output_text,\n           \"metadata\": {\"\
+    model\": \"MODEL_NAME\", \"latency_ms\": latency_ms}\n       })\n       print(f\"\
+    \  {ex['id']}: {latency_ms}ms\", file=sys.stderr)\n\n   json.dump(runs, sys.stdout,\
+    \ indent=2)\n   ```\n\n   **Before running:** install the provider SDK (`pip install\
+    \ openai` / `anthropic` / `google-genai`) and ensure the API key is set as an\
+    \ environment variable in your shell. If you cannot access the API, stop and tell\
+    \ the user what is needed.\n\n4. Verify the runs file:\n   ```bash\n   python3\
+    \ -c \"import json; runs=json.load(open('runs.json')); print(f'{len(runs)} runs');\
+    \ print(json.dumps(runs[0], indent=2))\"\n   ```\n   Each run must have `example_id`\
+    \ and `output`. Optional fields: `evaluations`, `metadata`.\n5. Create the experiment:\n\
+    \   ```bash\n   ax experiments create --name \"gpt-4o-baseline\" --dataset DATASET_NAME\
+    \ --space SPACE --file runs.json\n   ```\n6. Verify: `ax experiments get \"gpt-4o-baseline\"\
+    \ --dataset DATASET_NAME --space SPACE`\n\n### Compare two experiments\n\n1. Export\
+    \ both experiments:\n   ```bash\n   ax experiments export \"experiment-a\" --dataset\
+    \ DATASET_NAME --space SPACE --stdout > a.json\n   ax experiments export \"experiment-b\"\
+    \ --dataset DATASET_NAME --space SPACE --stdout > b.json\n   ```\n2. Compare evaluation\
+    \ scores by `example_id`:\n   ```bash\n   # Average correctness score for experiment\
+    \ A\n   jq '[.[] | .evaluations.correctness.score] | add / length' a.json\n\n\
+    \   # Same for experiment B\n   jq '[.[] | .evaluations.correctness.score] | add\
+    \ / length' b.json\n   ```\n3. Find examples where results differ:\n   ```bash\n\
+    \   jq -s '.[0] as $a | .[1][] | . as $run |\n     {\n       example_id: $run.example_id,\n\
+    \       b_score: $run.evaluations.correctness.score,\n       a_score: ($a[] |\
+    \ select(.example_id == $run.example_id) | .evaluations.correctness.score)\n \
+    \    }' a.json b.json\n   ```\n4. Score distribution per evaluator (pass/fail/partial\
+    \ counts):\n   ```bash\n   # Count by label for experiment A\n   jq '[.[] | .evaluations.correctness.label]\
+    \ | group_by(.) | map({label: .[0], count: length})' a.json\n   ```\n5. Find regressions\
+    \ (examples that passed in A but fail in B):\n   ```bash\n   jq -s '\n     [.[0][]\
+    \ | select(.evaluations.correctness.label == \"correct\")] as $passed_a |\n  \
+    \   [.[1][] | select(.evaluations.correctness.label != \"correct\") |\n      \
+    \ select(.example_id as $id | $passed_a | any(.example_id == $id))\n     ]\n \
+    \  ' a.json b.json\n   ```\n\n**Statistical significance note:** Score comparisons\
+    \ are most reliable with \u2265 30 examples per evaluator. With fewer examples,\
+    \ treat the delta as directional only \u2014 a 5% difference on n=10 may be noise.\
+    \ Report sample size alongside scores: `jq 'length' a.json`.\n\n### Download experiment\
+    \ results for analysis\n\n1. `ax experiments list --dataset DATASET_NAME --space\
+    \ SPACE` -- find experiments\n2. `ax experiments export EXPERIMENT_NAME --dataset\
+    \ DATASET_NAME --space SPACE` -- download to file\n3. Parse: `jq '.[] | {example_id,\
+    \ score: .evaluations.correctness.score}' experiment_*/runs.json`\n\n### Pipe\
+    \ export to other tools\n\n```bash\n# Count runs\nax experiments export EXPERIMENT_NAME\
+    \ --dataset DATASET_NAME --space SPACE --stdout | jq 'length'\n\n# Extract all\
+    \ outputs\nax experiments export EXPERIMENT_NAME --dataset DATASET_NAME --space\
+    \ SPACE --stdout | jq '.[].output'\n\n# Get runs with low scores\nax experiments\
+    \ export EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE --stdout | jq '[.[]\
+    \ | select(.evaluations.correctness.score < 0.5)]'\n\n# Convert to CSV\nax experiments\
+    \ export EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE --stdout | jq -r\
+    \ '.[] | [.example_id, .output, .evaluations.correctness.score] | @csv'\n```\n\
+    \n## Related Skills\n\n- **arize-dataset**: Create or export the dataset this\
+    \ experiment runs against \u2192 use `arize-dataset` first\n- **arize-prompt-optimization**:\
+    \ Use experiment results to improve prompts \u2192 next step is `arize-prompt-optimization`\n\
+    - **arize-trace**: Inspect individual span traces for failing experiment runs\
+    \ \u2192 use `arize-trace`\n- **arize-link**: Generate clickable UI links to traces\
+    \ from experiment runs \u2192 use `arize-link`\n\n## Troubleshooting\n\n| Problem\
+    \ | Solution |\n|---------|----------|\n| `ax: command not found` | See references/ax-setup.md\
+    \ |\n| `401 Unauthorized` | API key is wrong, expired, or doesn't have access\
+    \ to this space. Fix the profile using references/ax-profiles.md. |\n| `No profile\
+    \ found` | No profile is configured. See references/ax-profiles.md to create one.\
+    \ |\n| `Experiment not found` | Verify experiment name with `ax experiments list\
+    \ --space SPACE` |\n| `Invalid runs file` | Each run must have `example_id` and\
+    \ `output` fields |\n| `example_id mismatch` | Ensure `example_id` values match\
+    \ IDs from the dataset (export dataset to verify) |\n| `No runs found` | Export\
+    \ returned empty -- verify experiment has runs via `ax experiments get` |\n| `Dataset\
+    \ not found` | The linked dataset may have been deleted; check with `ax datasets\
+    \ list` |\n\n## Save Credentials for Future Use\n\nSee references/ax-profiles.md\
+    \ \xA7 Save Credentials for Future Use."

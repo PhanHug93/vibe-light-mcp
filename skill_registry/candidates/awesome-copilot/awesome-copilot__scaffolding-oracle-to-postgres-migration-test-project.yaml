@@ -1,0 +1,63 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__scaffolding-oracle-to-postgres-migration-test-project
+name: scaffolding-oracle-to-postgres-migration-test-project
+description: Scaffolds an xUnit integration test project for validating Oracle-to-PostgreSQL
+  database migration behavior in .NET solutions. Creates the test project, transaction-rollback
+  base class, and seed data manager. Use when setting up test infrastructure before
+  writing migration integration tests, or when a test project is needed for Oracle-to-PostgreSQL
+  validation.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/scaffolding-oracle-to-postgres-migration-test-project/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+- testing
+languages: []
+platforms: []
+aliases:
+- scaffolding-oracle-to-postgres-migration-test-project
+content:
+  kind: skill_markdown
+  sha256: 2c2ca06aab11f662541be5a5ceda500323ce639feb64117afdc2bdd080901a39
+  char_count: 2526
+  text: "# Scaffolding an Integration Test Project for Oracle-to-PostgreSQL Migration\n\
+    \nCreates a compilable, empty xUnit test project with transaction management and\
+    \ seed data infrastructure for a single target project. Run once per project before\
+    \ writing tests.\n\n## Workflow\n\n```\nProgress:\n- [ ] Step 1: Inspect the target\
+    \ project\n- [ ] Step 2: Create the xUnit test project\n- [ ] Step 3: Implement\
+    \ transaction-rollback base class\n- [ ] Step 4: Implement seed data manager\n\
+    - [ ] Step 5: Verify the project compiles\n```\n\n**Step 1: Inspect the target\
+    \ project**\n\nRead the target project's `.csproj` to determine the .NET version\
+    \ and existing package references. Match these versions exactly \u2014 do not\
+    \ upgrade.\n\n**Step 2: Create the xUnit test project**\n\n- Target the same .NET\
+    \ version as the application under test.\n- Add NuGet packages for Oracle database\
+    \ connectivity and xUnit.\n- Add a project reference to the target project only\
+    \ \u2014 no other application projects.\n- Add an `appsettings.json` configured\
+    \ for Oracle database connectivity.\n\n**Step 3: Implement transaction-rollback\
+    \ base class**\n\n- Create a base test class that opens a transaction before each\
+    \ test and rolls it back after.\n- Catch and handle all exceptions to guarantee\
+    \ rollback.\n- Make the pattern inheritable by all downstream test classes.\n\n\
+    **Step 4: Implement seed data manager**\n\n- Create a global seed manager for\
+    \ loading test data within the transaction scope.\n- Do not commit seed data \u2014\
+    \ transactions roll back after each test.\n- Do not use `TRUNCATE TABLE` \u2014\
+    \ preserve existing database data.\n- Reuse existing seed files if available.\n\
+    - Establish a naming convention for seed file location that downstream test creation\
+    \ will follow.\n\n**Step 5: Verify the project compiles**\n\nBuild the test project\
+    \ and confirm it compiles with zero errors before finishing.\n\n## Key Constraints\n\
+    \n- Oracle is the golden behavior source \u2014 scaffold for Oracle first.\n-\
+    \ Keep to existing .NET and C# versions; do not introduce newer language or runtime\
+    \ features.\n- Output is an empty test project with infrastructure only \u2014\
+    \ no test cases."

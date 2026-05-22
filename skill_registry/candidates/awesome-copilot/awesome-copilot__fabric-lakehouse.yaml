@@ -1,0 +1,108 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__fabric-lakehouse
+name: fabric-lakehouse
+description: Use this skill to get context about Fabric Lakehouse and its features
+  for software systems and AI-powered functions. It offers descriptions of Lakehouse
+  data components, organization with schemas and shortcuts, access control, and code
+  examples. This skill supports users in designing, building, and optimizing Lakehouse
+  solutions using best practices.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/fabric-lakehouse/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- fabric-lakehouse
+content:
+  kind: skill_markdown
+  sha256: 987b1c1e29a6d52c6e982a046f626ff3444ad44000a046cfdb3e3983cbb5bdc4
+  char_count: 6099
+  text: "# When to Use This Skill\n\nUse this skill when you need to:\n- Generate\
+    \ a document or explanation that includes definition and context about Fabric\
+    \ Lakehouse and its capabilities.\n- Design, build, and optimize Lakehouse solutions\
+    \ using best practices.\n- Understand the core concepts and components of a Lakehouse\
+    \ in Microsoft Fabric.\n- Learn how to manage tabular and non-tabular data within\
+    \ a Lakehouse.\n\n# Fabric Lakehouse\n\n## Core Concepts\n\n### What is a Lakehouse?\n\
+    \nLakehouse in Microsoft Fabric is an item that gives users a place to store their\
+    \ tabular data (like tables) and non-tabular data (like files). It combines the\
+    \ flexibility of a data lake with the management capabilities of a data warehouse.\
+    \ It provides:\n\n- **Unified storage** in OneLake for structured and unstructured\
+    \ data\n- **Delta Lake format** for ACID transactions, versioning, and time travel\n\
+    - **SQL analytics endpoint** for T-SQL queries\n- **Semantic model** for Power\
+    \ BI integration\n- Support for other table formats like CSV, Parquet\n- Support\
+    \ for any file formats\n- Tools for table optimization and data management\n\n\
+    ### Key Components\n\n- **Delta Tables**: Managed tables with ACID compliance\
+    \ and schema enforcement\n- **Files**: Unstructured/semi-structured data in the\
+    \ Files section\n- **SQL Endpoint**: Auto-generated read-only SQL interface for\
+    \ querying\n- **Shortcuts**: Virtual links to external/internal data without copying\n\
+    - **Fabric Materialized Views**: Pre-computed tables for fast query performance\n\
+    \n### Tabular data in a Lakehouse\n\nTabular data in a form of tables are stored\
+    \ under \"Tables\" folder. Main format for tables in Lakehouse is Delta. Lakehouse\
+    \ can store tabular data in other formats like CSV or Parquet, these formats are\
+    \ only available for Spark querying.\nTables can be internal, when data is stored\
+    \ under \"Tables\" folder, or external, when only reference to a table is stored\
+    \ under \"Tables\" folder but the data itself is stored in a referenced location.\
+    \ Tables are referenced through Shortcuts, which can be internal (pointing to\
+    \ another location in Fabric) or external (pointing to data stored outside of\
+    \ Fabric).\n\n### Schemas for tables in a Lakehouse\n\nWhen creating a lakehouse,\
+    \ users can choose to enable schemas. Schemas are used to organize Lakehouse tables.\
+    \ Schemas are implemented as folders under the \"Tables\" folder and store tables\
+    \ inside of those folders. The default schema is \"dbo\" and it can't be deleted\
+    \ or renamed. All other schemas are optional and can be created, renamed, or deleted.\
+    \ Users can reference a schema located in another lakehouse using a Schema Shortcut,\
+    \ thereby referencing all tables in the destination schema with a single shortcut.\n\
+    \n### Files in a Lakehouse\n\nFiles are stored under \"Files\" folder. Users can\
+    \ create folders and subfolders to organize their files. Any file format can be\
+    \ stored in Lakehouse.\n\n### Fabric Materialized Views\n\nSet of pre-computed\
+    \ tables that are automatically updated based on a schedule. They provide fast\
+    \ query performance for complex aggregations and joins. Materialized views are\
+    \ defined using PySpark or Spark SQL and stored in an associated Notebook.\n\n\
+    ### Spark Views\n\nLogical tables defined by a SQL query. They do not store data\
+    \ but provide a virtual layer for querying. Views are defined using Spark SQL\
+    \ and stored in Lakehouse next to Tables.\n\n## Security\n\n### Item access or\
+    \ control plane security\n\nUsers can have workspace roles (Admin, Member, Contributor,\
+    \ Viewer) that provide different levels of access to Lakehouse and its contents.\
+    \ Users can also get access permission using sharing capabilities of Lakehouse.\n\
+    \n### Data access or OneLake Security\n\nFor data access use OneLake security\
+    \ model, which is based on Microsoft Entra ID (formerly Azure Active Directory)\
+    \ and role-based access control (RBAC). Lakehouse data is stored in OneLake, so\
+    \ access to data is controlled through OneLake permissions. In addition to object-level\
+    \ permissions, Lakehouse also supports column-level and row-level security for\
+    \ tables, allowing fine-grained control over who can see specific columns or rows\
+    \ in a table.\n\n\n## Lakehouse Shortcuts\n\nShortcuts create virtual links to\
+    \ data without copying:\n\n### Types of Shortcuts\n\n- **Internal**: Link to other\
+    \ Fabric Lakehouses/tables, cross-workspace data sharing \n- **ADLS Gen2**: Link\
+    \ to ADLS Gen2 containers in Azure\n- **Amazon S3**: AWS S3 buckets, cross-cloud\
+    \ data access\n- **Dataverse**: Microsoft Dataverse, business application data\n\
+    - **Google Cloud Storage**: GCS buckets, cross-cloud data access\n\n## Performance\
+    \ Optimization\n\n### V-Order Optimization\n\nFor faster data read with semantic\
+    \ model enable V-Order optimization on Delta tables. This presorts data in a way\
+    \ that improves query performance for common access patterns.\n\n### Table Optimization\n\
+    \nTables can also be optimized using the OPTIMIZE command, which compacts small\
+    \ files into larger ones and can also apply Z-ordering to improve query performance\
+    \ on specific columns. Regular optimization helps maintain performance as data\
+    \ is ingested and updated over time. The Vacuum command can be used to clean up\
+    \ old files and free up storage space, especially after updates and deletes.\n\
+    \n## Lineage\n\nThe Lakehouse item supports lineage, which allows users to track\
+    \ the origin and transformations of data. Lineage information is automatically\
+    \ captured for tables and files in Lakehouse, showing how data flows from source\
+    \ to destination. This helps with debugging, auditing, and understanding data\
+    \ dependencies.\n\n## PySpark Code Examples\n\nSee [PySpark code](references/pyspark.md)\
+    \ for details.\n\n## Getting data into Lakehouse\n\nSee [Get data](references/getdata.md)\
+    \ for details."

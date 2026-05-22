@@ -1,0 +1,259 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__swift-mcp-server-generator
+name: swift-mcp-server-generator
+description: Generate a complete Model Context Protocol server project in Swift using
+  the official MCP Swift SDK package.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/swift-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- swift-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: ca0b454b3f2125d370397c69509fc6ac739180c07385c239bb36323bda03cf69
+  char_count: 17496
+  text: "# Swift MCP Server Generator\n\nGenerate a complete, production-ready MCP\
+    \ server in Swift using the official Swift SDK package.\n\n## Project Generation\n\
+    \nWhen asked to create a Swift MCP server, generate a complete project with this\
+    \ structure:\n\n```\nmy-mcp-server/\n\u251C\u2500\u2500 Package.swift\n\u251C\u2500\
+    \u2500 Sources/\n\u2502   \u2514\u2500\u2500 MyMCPServer/\n\u2502       \u251C\
+    \u2500\u2500 main.swift\n\u2502       \u251C\u2500\u2500 Server.swift\n\u2502\
+    \       \u251C\u2500\u2500 Tools/\n\u2502       \u2502   \u251C\u2500\u2500 ToolDefinitions.swift\n\
+    \u2502       \u2502   \u2514\u2500\u2500 ToolHandlers.swift\n\u2502       \u251C\
+    \u2500\u2500 Resources/\n\u2502       \u2502   \u251C\u2500\u2500 ResourceDefinitions.swift\n\
+    \u2502       \u2502   \u2514\u2500\u2500 ResourceHandlers.swift\n\u2502      \
+    \ \u2514\u2500\u2500 Prompts/\n\u2502           \u251C\u2500\u2500 PromptDefinitions.swift\n\
+    \u2502           \u2514\u2500\u2500 PromptHandlers.swift\n\u251C\u2500\u2500 Tests/\n\
+    \u2502   \u2514\u2500\u2500 MyMCPServerTests/\n\u2502       \u2514\u2500\u2500\
+    \ ServerTests.swift\n\u2514\u2500\u2500 README.md\n```\n\n## Package.swift Template\n\
+    \n```swift\n// swift-tools-version: 6.0\nimport PackageDescription\n\nlet package\
+    \ = Package(\n    name: \"MyMCPServer\",\n    platforms: [\n        .macOS(.v13),\n\
+    \        .iOS(.v16),\n        .watchOS(.v9),\n        .tvOS(.v16),\n        .visionOS(.v1)\n\
+    \    ],\n    dependencies: [\n        .package(\n            url: \"https://github.com/modelcontextprotocol/swift-sdk.git\"\
+    ,\n            from: \"0.10.0\"\n        ),\n        .package(\n            url:\
+    \ \"https://github.com/apple/swift-log.git\",\n            from: \"1.5.0\"\n \
+    \       ),\n        .package(\n            url: \"https://github.com/swift-server/swift-service-lifecycle.git\"\
+    ,\n            from: \"2.0.0\"\n        )\n    ],\n    targets: [\n        .executableTarget(\n\
+    \            name: \"MyMCPServer\",\n            dependencies: [\n           \
+    \     .product(name: \"MCP\", package: \"swift-sdk\"),\n                .product(name:\
+    \ \"Logging\", package: \"swift-log\"),\n                .product(name: \"ServiceLifecycle\"\
+    , package: \"swift-service-lifecycle\")\n            ]\n        ),\n        .testTarget(\n\
+    \            name: \"MyMCPServerTests\",\n            dependencies: [\"MyMCPServer\"\
+    ]\n        )\n    ]\n)\n```\n\n## main.swift Template\n\n```swift\nimport MCP\n\
+    import Logging\nimport ServiceLifecycle\n\nstruct MCPService: Service {\n    let\
+    \ server: Server\n    let transport: Transport\n    \n    func run() async throws\
+    \ {\n        try await server.start(transport: transport) { clientInfo, capabilities\
+    \ in\n            logger.info(\"Client connected\", metadata: [\n            \
+    \    \"name\": .string(clientInfo.name),\n                \"version\": .string(clientInfo.version)\n\
+    \            ])\n        }\n        \n        // Keep service running\n      \
+    \  try await Task.sleep(for: .days(365 * 100))\n    }\n    \n    func shutdown()\
+    \ async throws {\n        logger.info(\"Shutting down MCP server\")\n        await\
+    \ server.stop()\n    }\n}\n\nvar logger = Logger(label: \"com.example.mcp-server\"\
+    )\nlogger.logLevel = .info\n\ndo {\n    let server = await createServer()\n  \
+    \  let transport = StdioTransport(logger: logger)\n    let service = MCPService(server:\
+    \ server, transport: transport)\n    \n    let serviceGroup = ServiceGroup(\n\
+    \        services: [service],\n        configuration: .init(\n            gracefulShutdownSignals:\
+    \ [.sigterm, .sigint]\n        ),\n        logger: logger\n    )\n    \n    try\
+    \ await serviceGroup.run()\n} catch {\n    logger.error(\"Fatal error\", metadata:\
+    \ [\"error\": .string(\"\\(error)\")])\n    throw error\n}\n```\n\n## Server.swift\
+    \ Template\n\n```swift\nimport MCP\nimport Logging\n\nfunc createServer() async\
+    \ -> Server {\n    let server = Server(\n        name: \"MyMCPServer\",\n    \
+    \    version: \"1.0.0\",\n        capabilities: .init(\n            prompts: .init(listChanged:\
+    \ true),\n            resources: .init(subscribe: true, listChanged: true),\n\
+    \            tools: .init(listChanged: true)\n        )\n    )\n    \n    // Register\
+    \ tool handlers\n    await registerToolHandlers(server: server)\n    \n    //\
+    \ Register resource handlers\n    await registerResourceHandlers(server: server)\n\
+    \    \n    // Register prompt handlers\n    await registerPromptHandlers(server:\
+    \ server)\n    \n    return server\n}\n```\n\n## ToolDefinitions.swift Template\n\
+    \n```swift\nimport MCP\n\nfunc getToolDefinitions() -> [Tool] {\n    [\n     \
+    \   Tool(\n            name: \"greet\",\n            description: \"Generate a\
+    \ greeting message\",\n            inputSchema: .object([\n                \"\
+    type\": .string(\"object\"),\n                \"properties\": .object([\n    \
+    \                \"name\": .object([\n                        \"type\": .string(\"\
+    string\"),\n                        \"description\": .string(\"Name to greet\"\
+    )\n                    ])\n                ]),\n                \"required\":\
+    \ .array([.string(\"name\")])\n            ])\n        ),\n        Tool(\n   \
+    \         name: \"calculate\",\n            description: \"Perform mathematical\
+    \ calculations\",\n            inputSchema: .object([\n                \"type\"\
+    : .string(\"object\"),\n                \"properties\": .object([\n          \
+    \          \"operation\": .object([\n                        \"type\": .string(\"\
+    string\"),\n                        \"enum\": .array([\n                     \
+    \       .string(\"add\"),\n                            .string(\"subtract\"),\n\
+    \                            .string(\"multiply\"),\n                        \
+    \    .string(\"divide\")\n                        ]),\n                      \
+    \  \"description\": .string(\"Operation to perform\")\n                    ]),\n\
+    \                    \"a\": .object([\n                        \"type\": .string(\"\
+    number\"),\n                        \"description\": .string(\"First operand\"\
+    )\n                    ]),\n                    \"b\": .object([\n           \
+    \             \"type\": .string(\"number\"),\n                        \"description\"\
+    : .string(\"Second operand\")\n                    ])\n                ]),\n \
+    \               \"required\": .array([\n                    .string(\"operation\"\
+    ),\n                    .string(\"a\"),\n                    .string(\"b\")\n\
+    \                ])\n            ])\n        )\n    ]\n}\n```\n\n## ToolHandlers.swift\
+    \ Template\n\n```swift\nimport MCP\nimport Logging\n\nprivate let logger = Logger(label:\
+    \ \"com.example.mcp-server.tools\")\n\nfunc registerToolHandlers(server: Server)\
+    \ async {\n    await server.withMethodHandler(ListTools.self) { _ in\n       \
+    \ logger.debug(\"Listing available tools\")\n        return .init(tools: getToolDefinitions())\n\
+    \    }\n    \n    await server.withMethodHandler(CallTool.self) { params in\n\
+    \        logger.info(\"Tool called\", metadata: [\"name\": .string(params.name)])\n\
+    \        \n        switch params.name {\n        case \"greet\":\n           \
+    \ return handleGreet(params: params)\n            \n        case \"calculate\"\
+    :\n            return handleCalculate(params: params)\n            \n        default:\n\
+    \            logger.warning(\"Unknown tool requested\", metadata: [\"name\": .string(params.name)])\n\
+    \            return .init(\n                content: [.text(\"Unknown tool: \\\
+    (params.name)\")],\n                isError: true\n            )\n        }\n\
+    \    }\n}\n\nprivate func handleGreet(params: CallTool.Params) -> CallTool.Result\
+    \ {\n    guard let name = params.arguments?[\"name\"]?.stringValue else {\n  \
+    \      return .init(\n            content: [.text(\"Missing 'name' parameter\"\
+    )],\n            isError: true\n        )\n    }\n    \n    let greeting = \"\
+    Hello, \\(name)! Welcome to MCP.\"\n    logger.debug(\"Generated greeting\", metadata:\
+    \ [\"name\": .string(name)])\n    \n    return .init(\n        content: [.text(greeting)],\n\
+    \        isError: false\n    )\n}\n\nprivate func handleCalculate(params: CallTool.Params)\
+    \ -> CallTool.Result {\n    guard let operation = params.arguments?[\"operation\"\
+    ]?.stringValue,\n          let a = params.arguments?[\"a\"]?.doubleValue,\n  \
+    \        let b = params.arguments?[\"b\"]?.doubleValue else {\n        return\
+    \ .init(\n            content: [.text(\"Missing or invalid parameters\")],\n \
+    \           isError: true\n        )\n    }\n    \n    let result: Double\n  \
+    \  switch operation {\n    case \"add\":\n        result = a + b\n    case \"\
+    subtract\":\n        result = a - b\n    case \"multiply\":\n        result =\
+    \ a * b\n    case \"divide\":\n        guard b != 0 else {\n            return\
+    \ .init(\n                content: [.text(\"Division by zero\")],\n          \
+    \      isError: true\n            )\n        }\n        result = a / b\n    default:\n\
+    \        return .init(\n            content: [.text(\"Unknown operation: \\(operation)\"\
+    )],\n            isError: true\n        )\n    }\n    \n    logger.debug(\"Calculation\
+    \ performed\", metadata: [\n        \"operation\": .string(operation),\n     \
+    \   \"result\": .string(\"\\(result)\")\n    ])\n    \n    return .init(\n   \
+    \     content: [.text(\"Result: \\(result)\")],\n        isError: false\n    )\n\
+    }\n```\n\n## ResourceDefinitions.swift Template\n\n```swift\nimport MCP\n\nfunc\
+    \ getResourceDefinitions() -> [Resource] {\n    [\n        Resource(\n       \
+    \     name: \"Example Data\",\n            uri: \"resource://data/example\",\n\
+    \            description: \"Example resource data\",\n            mimeType: \"\
+    application/json\"\n        ),\n        Resource(\n            name: \"Configuration\"\
+    ,\n            uri: \"resource://config\",\n            description: \"Server\
+    \ configuration\",\n            mimeType: \"application/json\"\n        )\n  \
+    \  ]\n}\n```\n\n## ResourceHandlers.swift Template\n\n```swift\nimport MCP\nimport\
+    \ Logging\nimport Foundation\n\nprivate let logger = Logger(label: \"com.example.mcp-server.resources\"\
+    )\n\nactor ResourceState {\n    private var subscriptions: Set<String> = []\n\
+    \    \n    func addSubscription(_ uri: String) {\n        subscriptions.insert(uri)\n\
+    \    }\n    \n    func removeSubscription(_ uri: String) {\n        subscriptions.remove(uri)\n\
+    \    }\n    \n    func isSubscribed(_ uri: String) -> Bool {\n        subscriptions.contains(uri)\n\
+    \    }\n}\n\nprivate let state = ResourceState()\n\nfunc registerResourceHandlers(server:\
+    \ Server) async {\n    await server.withMethodHandler(ListResources.self) { params\
+    \ in\n        logger.debug(\"Listing available resources\")\n        return .init(resources:\
+    \ getResourceDefinitions(), nextCursor: nil)\n    }\n    \n    await server.withMethodHandler(ReadResource.self)\
+    \ { params in\n        logger.info(\"Reading resource\", metadata: [\"uri\": .string(params.uri)])\n\
+    \        \n        switch params.uri {\n        case \"resource://data/example\"\
+    :\n            let jsonData = \"\"\"\n            {\n                \"message\"\
+    : \"Example resource data\",\n                \"timestamp\": \"\\(Date())\"\n\
+    \            }\n            \"\"\"\n            return .init(contents: [\n   \
+    \             .text(jsonData, uri: params.uri, mimeType: \"application/json\"\
+    )\n            ])\n            \n        case \"resource://config\":\n       \
+    \     let config = \"\"\"\n            {\n                \"serverName\": \"MyMCPServer\"\
+    ,\n                \"version\": \"1.0.0\"\n            }\n            \"\"\"\n\
+    \            return .init(contents: [\n                .text(config, uri: params.uri,\
+    \ mimeType: \"application/json\")\n            ])\n            \n        default:\n\
+    \            logger.warning(\"Unknown resource requested\", metadata: [\"uri\"\
+    : .string(params.uri)])\n            throw MCPError.invalidParams(\"Unknown resource\
+    \ URI: \\(params.uri)\")\n        }\n    }\n    \n    await server.withMethodHandler(ResourceSubscribe.self)\
+    \ { params in\n        logger.info(\"Client subscribed to resource\", metadata:\
+    \ [\"uri\": .string(params.uri)])\n        await state.addSubscription(params.uri)\n\
+    \        return .init()\n    }\n    \n    await server.withMethodHandler(ResourceUnsubscribe.self)\
+    \ { params in\n        logger.info(\"Client unsubscribed from resource\", metadata:\
+    \ [\"uri\": .string(params.uri)])\n        await state.removeSubscription(params.uri)\n\
+    \        return .init()\n    }\n}\n```\n\n## PromptDefinitions.swift Template\n\
+    \n```swift\nimport MCP\n\nfunc getPromptDefinitions() -> [Prompt] {\n    [\n \
+    \       Prompt(\n            name: \"code-review\",\n            description:\
+    \ \"Generate a code review prompt\",\n            arguments: [\n             \
+    \   .init(name: \"language\", description: \"Programming language\", required:\
+    \ true),\n                .init(name: \"focus\", description: \"Review focus area\"\
+    , required: false)\n            ]\n        )\n    ]\n}\n```\n\n## PromptHandlers.swift\
+    \ Template\n\n```swift\nimport MCP\nimport Logging\n\nprivate let logger = Logger(label:\
+    \ \"com.example.mcp-server.prompts\")\n\nfunc registerPromptHandlers(server: Server)\
+    \ async {\n    await server.withMethodHandler(ListPrompts.self) { params in\n\
+    \        logger.debug(\"Listing available prompts\")\n        return .init(prompts:\
+    \ getPromptDefinitions(), nextCursor: nil)\n    }\n    \n    await server.withMethodHandler(GetPrompt.self)\
+    \ { params in\n        logger.info(\"Getting prompt\", metadata: [\"name\": .string(params.name)])\n\
+    \        \n        switch params.name {\n        case \"code-review\":\n     \
+    \       return handleCodeReviewPrompt(params: params)\n            \n        default:\n\
+    \            logger.warning(\"Unknown prompt requested\", metadata: [\"name\"\
+    : .string(params.name)])\n            throw MCPError.invalidParams(\"Unknown prompt:\
+    \ \\(params.name)\")\n        }\n    }\n}\n\nprivate func handleCodeReviewPrompt(params:\
+    \ GetPrompt.Params) -> GetPrompt.Result {\n    guard let language = params.arguments?[\"\
+    language\"]?.stringValue else {\n        return .init(\n            description:\
+    \ \"Missing language parameter\",\n            messages: []\n        )\n    }\n\
+    \    \n    let focus = params.arguments?[\"focus\"]?.stringValue ?? \"general\
+    \ quality\"\n    \n    let description = \"Code review for \\(language) with focus\
+    \ on \\(focus)\"\n    let messages: [Prompt.Message] = [\n        .user(\"Please\
+    \ review this \\(language) code with focus on \\(focus).\"),\n        .assistant(\"\
+    I'll review the code focusing on \\(focus). Please share the code.\"),\n     \
+    \   .user(\"Here's the code to review: [paste code here]\")\n    ]\n    \n   \
+    \ logger.debug(\"Generated code review prompt\", metadata: [\n        \"language\"\
+    : .string(language),\n        \"focus\": .string(focus)\n    ])\n    \n    return\
+    \ .init(description: description, messages: messages)\n}\n```\n\n## ServerTests.swift\
+    \ Template\n\n```swift\nimport XCTest\n@testable import MyMCPServer\n\nfinal class\
+    \ ServerTests: XCTestCase {\n    func testGreetTool() async throws {\n       \
+    \ let params = CallTool.Params(\n            name: \"greet\",\n            arguments:\
+    \ [\"name\": .string(\"Swift\")]\n        )\n        \n        let result = handleGreet(params:\
+    \ params)\n        \n        XCTAssertFalse(result.isError ?? true)\n        XCTAssertEqual(result.content.count,\
+    \ 1)\n        \n        if case .text(let message) = result.content[0] {\n   \
+    \         XCTAssertTrue(message.contains(\"Swift\"))\n        } else {\n     \
+    \       XCTFail(\"Expected text content\")\n        }\n    }\n    \n    func testCalculateTool()\
+    \ async throws {\n        let params = CallTool.Params(\n            name: \"\
+    calculate\",\n            arguments: [\n                \"operation\": .string(\"\
+    add\"),\n                \"a\": .number(5),\n                \"b\": .number(3)\n\
+    \            ]\n        )\n        \n        let result = handleCalculate(params:\
+    \ params)\n        \n        XCTAssertFalse(result.isError ?? true)\n        XCTAssertEqual(result.content.count,\
+    \ 1)\n        \n        if case .text(let message) = result.content[0] {\n   \
+    \         XCTAssertTrue(message.contains(\"8\"))\n        } else {\n         \
+    \   XCTFail(\"Expected text content\")\n        }\n    }\n    \n    func testDivideByZero()\
+    \ async throws {\n        let params = CallTool.Params(\n            name: \"\
+    calculate\",\n            arguments: [\n                \"operation\": .string(\"\
+    divide\"),\n                \"a\": .number(10),\n                \"b\": .number(0)\n\
+    \            ]\n        )\n        \n        let result = handleCalculate(params:\
+    \ params)\n        \n        XCTAssertTrue(result.isError ?? false)\n    }\n}\n\
+    ```\n\n## README.md Template\n\n```markdown\n# MyMCPServer\n\nA Model Context\
+    \ Protocol server built with Swift.\n\n## Features\n\n- \u2705 Tools: greet, calculate\n\
+    - \u2705 Resources: example data, configuration\n- \u2705 Prompts: code-review\n\
+    - \u2705 Graceful shutdown with ServiceLifecycle\n- \u2705 Structured logging\
+    \ with swift-log\n- \u2705 Full test coverage\n\n## Requirements\n\n- Swift 6.0+\n\
+    - macOS 13+, iOS 16+, or Linux\n\n## Installation\n\n```bash\nswift build -c release\n\
+    ```\n\n## Usage\n\nRun the server:\n\n```bash\nswift run\n```\n\nOr with logging:\n\
+    \n```bash\nLOG_LEVEL=debug swift run\n```\n\n## Testing\n\n```bash\nswift test\n\
+    ```\n\n## Development\n\nThe server uses:\n- [MCP Swift SDK](https://github.com/modelcontextprotocol/swift-sdk)\
+    \ - MCP protocol implementation\n- [swift-log](https://github.com/apple/swift-log)\
+    \ - Structured logging\n- [swift-service-lifecycle](https://github.com/swift-server/swift-service-lifecycle)\
+    \ - Graceful shutdown\n\n## Project Structure\n\n- `Sources/MyMCPServer/main.swift`\
+    \ - Entry point with ServiceLifecycle\n- `Sources/MyMCPServer/Server.swift` -\
+    \ Server configuration\n- `Sources/MyMCPServer/Tools/` - Tool definitions and\
+    \ handlers\n- `Sources/MyMCPServer/Resources/` - Resource definitions and handlers\n\
+    - `Sources/MyMCPServer/Prompts/` - Prompt definitions and handlers\n- `Tests/`\
+    \ - Unit tests\n\n## License\n\nMIT\n```\n\n## Generation Instructions\n\n1. **Ask\
+    \ for project name and description**\n2. **Generate all files** with proper naming\n\
+    3. **Use actor-based state** for thread safety\n4. **Include comprehensive logging**\
+    \ with swift-log\n5. **Implement graceful shutdown** with ServiceLifecycle\n6.\
+    \ **Add tests** for all handlers\n7. **Use modern Swift concurrency** (async/await)\n\
+    8. **Follow Swift naming conventions** (camelCase, PascalCase)\n9. **Include error\
+    \ handling** with proper MCPError usage\n10. **Document public APIs** with doc\
+    \ comments\n\n## Build and Run\n\n```bash\n# Build\nswift build\n\n# Run\nswift\
+    \ run\n\n# Test\nswift test\n\n# Release build\nswift build -c release\n\n# Install\n\
+    swift build -c release\ncp .build/release/MyMCPServer /usr/local/bin/\n```\n\n\
+    ## Integration with Claude Desktop\n\nAdd to `claude_desktop_config.json`:\n\n\
+    ```json\n{\n  \"mcpServers\": {\n    \"my-mcp-server\": {\n      \"command\":\
+    \ \"/path/to/MyMCPServer\"\n    }\n  }\n}\n```"

@@ -32,7 +32,7 @@ import asyncio
 import sys
 
 
-async def test_sse(url: str) -> bool:
+async def probe_sse(url: str) -> bool:
     """Test SSE endpoint: connect, read first event (endpoint discovery)."""
     try:
         import httpx
@@ -67,7 +67,7 @@ async def test_sse(url: str) -> bool:
     return False
 
 
-async def test_http(url: str) -> bool:
+async def probe_http(url: str) -> bool:
     """Test Streamable HTTP endpoint with MCP initialize."""
     try:
         import httpx
@@ -134,9 +134,9 @@ def main() -> None:
     async def _run_all() -> dict[str, bool]:
         results: dict[str, bool] = {}
         if args.mode in ("sse", "both"):
-            results["SSE"] = await test_sse(args.url)
+            results["SSE"] = await probe_sse(args.url)
         if args.mode in ("http", "both"):
-            results["HTTP"] = await test_http(args.url)
+            results["HTTP"] = await probe_http(args.url)
         return results
 
     results = asyncio.run(_run_all())

@@ -1,0 +1,205 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__codeql
+name: codeql
+description: Comprehensive guide for setting up and configuring CodeQL code scanning
+  via GitHub Actions workflows and the CodeQL CLI. This skill should be used when
+  users need help with code scanning configuration, CodeQL workflow files, CodeQL
+  CLI commands, SARIF output, security analysis setup, or troubleshooting CodeQL analysis.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/codeql/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+- security
+languages: []
+platforms: []
+aliases:
+- codeql
+content:
+  kind: skill_markdown
+  sha256: 81503394c7c0595756d18a47e0b626dfd1dc6cf4673d40e9be23349a66fa5d27
+  char_count: 13417
+  text: "# CodeQL Code Scanning\n\nThis skill provides procedural guidance for configuring\
+    \ and running CodeQL code scanning \u2014 both through GitHub Actions workflows\
+    \ and the standalone CodeQL CLI.\n\n## When to Use This Skill\n\nUse this skill\
+    \ when the request involves:\n\n- Creating or customizing a `codeql.yml` GitHub\
+    \ Actions workflow\n- Choosing between default setup and advanced setup for code\
+    \ scanning\n- Configuring CodeQL language matrix, build modes, or query suites\n\
+    - Running CodeQL CLI locally (`codeql database create`, `database analyze`, `github\
+    \ upload-results`)\n- Understanding or interpreting SARIF output from CodeQL\n\
+    - Troubleshooting CodeQL analysis failures (build modes, compiled languages, runner\
+    \ requirements)\n- Setting up CodeQL for monorepos with per-component scanning\n\
+    - Configuring dependency caching, custom query packs, or model packs\n\n## Supported\
+    \ Languages\n\nCodeQL supports the following language identifiers:\n\n| Language\
+    \ | Identifier | Alternatives |\n|---|---|---|\n| C/C++ | `c-cpp` | `c`, `cpp`\
+    \ |\n| C# | `csharp` | \u2014 |\n| Go | `go` | \u2014 |\n| Java/Kotlin | `java-kotlin`\
+    \ | `java`, `kotlin` |\n| JavaScript/TypeScript | `javascript-typescript` | `javascript`,\
+    \ `typescript` |\n| Python | `python` | \u2014 |\n| Ruby | `ruby` | \u2014 |\n\
+    | Rust | `rust` | \u2014 |\n| Swift | `swift` | \u2014 |\n| GitHub Actions | `actions`\
+    \ | \u2014 |\n\n> Alternative identifiers are equivalent to the standard identifier\
+    \ (e.g., `javascript` does not exclude TypeScript analysis).\n\n## Core Workflow\
+    \ \u2014 GitHub Actions\n\n### Step 1: Choose Setup Type\n\n- **Default setup**\
+    \ \u2014 Enable from repository Settings \u2192 Advanced Security \u2192 CodeQL\
+    \ analysis. Best for getting started quickly. Uses `none` build mode for most\
+    \ languages.\n- **Advanced setup** \u2014 Create a `.github/workflows/codeql.yml`\
+    \ file for full control over triggers, build modes, query suites, and matrix strategies.\n\
+    \nTo switch from default to advanced: disable default setup first, then commit\
+    \ the workflow file.\n\n### Step 2: Configure Workflow Triggers\n\nDefine when\
+    \ scanning runs:\n\n```yaml\non:\n  push:\n    branches: [main, protected]\n \
+    \ pull_request:\n    branches: [main]\n  schedule:\n    - cron: '30 6 * * 1' \
+    \ # Weekly Monday 6:30 UTC\n```\n\n- `push` \u2014 scans on every push to specified\
+    \ branches; results appear in Security tab\n- `pull_request` \u2014 scans PR merge\
+    \ commits; results appear as PR check annotations\n- `schedule` \u2014 periodic\
+    \ scans of the default branch (cron must exist on default branch)\n- `merge_group`\
+    \ \u2014 add if repository uses merge queues\n\nTo skip scans for documentation-only\
+    \ PRs:\n\n```yaml\non:\n  pull_request:\n    paths-ignore:\n      - '**/*.md'\n\
+    \      - '**/*.txt'\n```\n\n> `paths-ignore` controls whether the workflow runs,\
+    \ not which files are analyzed.\n\n### Step 3: Configure Permissions\n\nSet least-privilege\
+    \ permissions:\n\n```yaml\npermissions:\n  security-events: write   # Required\
+    \ to upload SARIF results\n  contents: read            # Required to checkout\
+    \ code\n  actions: read             # Required for private repos using codeql-action\n\
+    ```\n\n### Step 4: Configure Language Matrix\n\nUse a matrix strategy to analyze\
+    \ each language in parallel:\n\n```yaml\njobs:\n  analyze:\n    name: Analyze\
+    \ (${{ matrix.language }})\n    runs-on: ubuntu-latest\n    strategy:\n      fail-fast:\
+    \ false\n      matrix:\n        include:\n          - language: javascript-typescript\n\
+    \            build-mode: none\n          - language: python\n            build-mode:\
+    \ none\n```\n\nFor compiled languages, set the appropriate `build-mode`:\n- `none`\
+    \ \u2014 no build required (supported for C/C++, C#, Java, Rust)\n- `autobuild`\
+    \ \u2014 automatic build detection\n- `manual` \u2014 custom build commands (advanced\
+    \ setup only)\n\n> For detailed per-language autobuild behavior and runner requirements,\
+    \ search `references/compiled-languages.md`.\n\n### Step 5: Configure CodeQL Init\
+    \ and Analysis\n\n```yaml\nsteps:\n  - name: Checkout repository\n    uses: actions/checkout@v4\n\
+    \n  - name: Initialize CodeQL\n    uses: github/codeql-action/init@v4\n    with:\n\
+    \      languages: ${{ matrix.language }}\n      build-mode: ${{ matrix.build-mode\
+    \ }}\n      queries: security-extended\n      dependency-caching: true\n\n  -\
+    \ name: Perform CodeQL Analysis\n    uses: github/codeql-action/analyze@v4\n \
+    \   with:\n      category: \"/language:${{ matrix.language }}\"\n```\n\n**Query\
+    \ suite options:**\n- `security-extended` \u2014 default security queries plus\
+    \ additional coverage\n- `security-and-quality` \u2014 security plus code quality\
+    \ queries\n- Custom query packs via `packs:` input (e.g., `codeql/javascript-queries:AlertSuppression.ql`)\n\
+    \n**Dependency caching:** Set `dependency-caching: true` on the `init` action\
+    \ to cache restored dependencies across runs.\n\n**Analysis category:** Use `category`\
+    \ to distinguish SARIF results in monorepos (e.g., per-language, per-component).\n\
+    \n### Step 6: Monorepo Configuration\n\nFor monorepos with multiple components,\
+    \ use the `category` parameter to separate SARIF results:\n\n```yaml\ncategory:\
+    \ \"/language:${{ matrix.language }}/component:frontend\"\n```\n\nTo restrict\
+    \ analysis to specific directories, use a CodeQL configuration file (`.github/codeql/codeql-config.yml`):\n\
+    \n```yaml\npaths:\n  - apps/\n  - services/\npaths-ignore:\n  - node_modules/\n\
+    \  - '**/test/**'\n```\n\nReference it in the workflow:\n\n```yaml\n- uses: github/codeql-action/init@v4\n\
+    \  with:\n    config-file: .github/codeql/codeql-config.yml\n```\n\n### Step 7:\
+    \ Manual Build Steps (Compiled Languages)\n\nIf `autobuild` fails or custom build\
+    \ commands are needed:\n\n```yaml\n- language: c-cpp\n  build-mode: manual\n```\n\
+    \nThen add explicit build steps between `init` and `analyze`:\n\n```yaml\n- if:\
+    \ matrix.build-mode == 'manual'\n  name: Build\n  run: |\n    make bootstrap\n\
+    \    make release\n```\n\n## Core Workflow \u2014 CodeQL CLI\n\n### Step 1: Install\
+    \ the CodeQL CLI\n\nDownload the CodeQL bundle (includes CLI + precompiled queries):\n\
+    \n```bash\n# Download from https://github.com/github/codeql-action/releases\n\
+    # Extract and add to PATH\nexport PATH=\"$HOME/codeql:$PATH\"\n\n# Verify installation\n\
+    codeql resolve packs\ncodeql resolve languages\n```\n\n> Always use the CodeQL\
+    \ bundle, not a standalone CLI download. The bundle ensures query compatibility\
+    \ and provides precompiled queries for better performance.\n\n### Step 2: Create\
+    \ a CodeQL Database\n\n```bash\n# Single language\ncodeql database create codeql-db\
+    \ \\\n  --language=javascript-typescript \\\n  --source-root=src\n\n# Multiple\
+    \ languages (cluster mode)\ncodeql database create codeql-dbs \\\n  --db-cluster\
+    \ \\\n  --language=java,python \\\n  --command=./build.sh \\\n  --source-root=src\n\
+    ```\n\nFor compiled languages, provide the build command via `--command`.\n\n\
+    ### Step 3: Analyze the Database\n\n```bash\ncodeql database analyze codeql-db\
+    \ \\\n  javascript-code-scanning.qls \\\n  --format=sarif-latest \\\n  --sarif-category=javascript\
+    \ \\\n  --output=results.sarif\n```\n\nCommon query suites: `<language>-code-scanning.qls`,\
+    \ `<language>-security-extended.qls`, `<language>-security-and-quality.qls`.\n\
+    \n### Step 4: Upload Results to GitHub\n\n```bash\ncodeql github upload-results\
+    \ \\\n  --repository=owner/repo \\\n  --ref=refs/heads/main \\\n  --commit=<commit-sha>\
+    \ \\\n  --sarif=results.sarif\n```\n\nRequires `GITHUB_TOKEN` environment variable\
+    \ with `security-events: write` permission.\n\n### CLI Server Mode\n\nTo avoid\
+    \ repeated JVM initialization when running multiple commands:\n\n```bash\ncodeql\
+    \ execute cli-server\n```\n\n> For detailed CLI command reference, search `references/cli-commands.md`.\n\
+    \n## Alert Management\n\n### Severity Levels\n\nAlerts have two severity dimensions:\n\
+    - **Standard severity:** `Error`, `Warning`, `Note`\n- **Security severity:**\
+    \ `Critical`, `High`, `Medium`, `Low` (derived from CVSS scores; takes display\
+    \ precedence)\n\n### Copilot Autofix\n\nGitHub Copilot Autofix generates fix suggestions\
+    \ for CodeQL alerts in pull requests automatically \u2014 no Copilot subscription\
+    \ required. Review suggestions carefully before committing.\n\n### Alert Triage\
+    \ in PRs\n\n- Alerts appear as check annotations on changed lines\n- Check fails\
+    \ by default for `error`/`critical`/`high` severity alerts\n- Configure merge\
+    \ protection rulesets to customize the threshold\n- Dismiss false positives with\
+    \ a documented reason for audit trail\n\n> For detailed alert management guidance,\
+    \ search `references/alert-management.md`.\n\n## Custom Queries and Packs\n\n\
+    ### Using Custom Query Packs\n\n```yaml\n- uses: github/codeql-action/init@v4\n\
+    \  with:\n    packs: |\n      my-org/my-security-queries@1.0.0\n      codeql/javascript-queries:AlertSuppression.ql\n\
+    ```\n\n### Creating Custom Query Packs\n\nUse the CodeQL CLI to create and publish\
+    \ packs:\n\n```bash\n# Initialize a new pack\ncodeql pack init my-org/my-queries\n\
+    \n# Install dependencies\ncodeql pack install\n\n# Publish to GitHub Container\
+    \ Registry\ncodeql pack publish\n```\n\n### CodeQL Configuration File\n\nFor advanced\
+    \ query and path configuration, create `.github/codeql/codeql-config.yml`:\n\n\
+    ```yaml\npaths:\n  - apps/\n  - services/\npaths-ignore:\n  - '**/test/**'\n \
+    \ - node_modules/\nqueries:\n  - uses: security-extended\npacks:\n  javascript-typescript:\n\
+    \    - my-org/my-custom-queries\n```\n\n## Code Scanning Logs\n\n### Summary Metrics\n\
+    \nWorkflow logs include key metrics:\n- **Lines of code in codebase** \u2014 baseline\
+    \ before extraction\n- **Lines extracted** \u2014 including external libraries\
+    \ and auto-generated files\n- **Extraction errors/warnings** \u2014 files that\
+    \ failed or produced warnings during extraction\n\n### Debug Logging\n\nTo enable\
+    \ detailed diagnostics:\n- **GitHub Actions:** re-run the workflow with \"Enable\
+    \ debug logging\" checked\n- **CodeQL CLI:** use `--verbosity=progress++` and\
+    \ `--logdir=codeql-logs`\n\n## Troubleshooting\n\n### Common Issues\n\n| Problem\
+    \ | Solution |\n|---|---|\n| Workflow not triggering | Verify `on:` triggers match\
+    \ event; check `paths`/`branches` filters; ensure workflow exists on target branch\
+    \ |\n| `Resource not accessible` error | Add `security-events: write` and `contents:\
+    \ read` permissions |\n| Autobuild failure | Switch to `build-mode: manual` and\
+    \ add explicit build commands |\n| No source code seen | Verify `--source-root`,\
+    \ build command, and language identifier |\n| C# compiler failure | Check for\
+    \ `/p:EmitCompilerGeneratedFiles=true` conflicts with `.sqlproj` or legacy projects\
+    \ |\n| Fewer lines scanned than expected | Switch from `none` to `autobuild`/`manual`;\
+    \ verify build compiles all source |\n| Kotlin in no-build mode | Disable and\
+    \ re-enable default setup to switch to `autobuild` |\n| Cache miss every run |\
+    \ Verify `dependency-caching: true` on `init` action |\n| Out of disk/memory |\
+    \ Use larger runners; reduce analysis scope via `paths` config; use `build-mode:\
+    \ none` |\n| SARIF upload fails | Ensure token has `security-events: write`; check\
+    \ 10 MB file size limit |\n| SARIF results exceed limits | Split across multiple\
+    \ uploads with different `--sarif-category`; reduce query scope |\n| Two CodeQL\
+    \ workflows | Disable default setup if using advanced setup, or remove old workflow\
+    \ file |\n| Slow analysis | Enable dependency caching; use `--threads=0`; reduce\
+    \ query suite scope |\n\n> For comprehensive troubleshooting with detailed solutions,\
+    \ search `references/troubleshooting.md`.\n\n### Hardware Requirements (Self-Hosted\
+    \ Runners)\n\n| Codebase Size | RAM | CPU |\n|---|---|---|\n| Small (<100K LOC)\
+    \ | 8 GB+ | 2 cores |\n| Medium (100K\u20131M LOC) | 16 GB+ | 4\u20138 cores |\n\
+    | Large (>1M LOC) | 64 GB+ | 8 cores |\n\nAll sizes: SSD with \u226514 GB free\
+    \ disk space.\n\n### Action Versioning\n\nPin CodeQL actions to a specific major\
+    \ version:\n\n```yaml\nuses: github/codeql-action/init@v4      # Recommended\n\
+    uses: github/codeql-action/autobuild@v4\nuses: github/codeql-action/analyze@v4\n\
+    ```\n\nFor maximum security, pin to a full commit SHA instead of a version tag.\n\
+    \n## Reference Files\n\nFor detailed documentation, load the following reference\
+    \ files as needed:\n\n- `references/workflow-configuration.md` \u2014 Full workflow\
+    \ trigger, runner, and configuration options\n  - Search patterns: `trigger`,\
+    \ `schedule`, `paths-ignore`, `db-location`, `model packs`, `alert severity`,\
+    \ `merge protection`, `concurrency`, `config file`\n- `references/cli-commands.md`\
+    \ \u2014 Complete CodeQL CLI command reference\n  - Search patterns: `database\
+    \ create`, `database analyze`, `upload-results`, `resolve packs`, `cli-server`,\
+    \ `installation`, `CI integration`\n- `references/sarif-output.md` \u2014 SARIF\
+    \ v2.1.0 object model, upload limits, and third-party support\n  - Search patterns:\
+    \ `sarifLog`, `result`, `location`, `region`, `codeFlow`, `fingerprint`, `suppression`,\
+    \ `upload limits`, `third-party`, `precision`, `security-severity`\n- `references/compiled-languages.md`\
+    \ \u2014 Build modes and autobuild behavior per language\n  - Search patterns:\
+    \ `C/C++`, `C#`, `Java`, `Go`, `Rust`, `Swift`, `autobuild`, `build-mode`, `hardware`,\
+    \ `dependency caching`\n- `references/troubleshooting.md` \u2014 Comprehensive\
+    \ error diagnosis and resolution\n  - Search patterns: `no source code`, `out\
+    \ of disk`, `out of memory`, `403`, `C# compiler`, `analysis too long`, `fewer\
+    \ lines`, `Kotlin`, `extraction errors`, `debug logging`, `SARIF upload`, `SARIF\
+    \ limits`\n- `references/alert-management.md` \u2014 Alert severity, triage, Copilot\
+    \ Autofix, and dismissal\n  - Search patterns: `severity`, `security severity`,\
+    \ `CVSS`, `Copilot Autofix`, `dismiss`, `triage`, `PR alerts`, `data flow`, `merge\
+    \ protection`, `REST API`"

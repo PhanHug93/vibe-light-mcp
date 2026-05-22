@@ -1,0 +1,94 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__diagnose
+name: diagnose
+description: "Perform a systematic diagnostic scan of an AI workflow across 5 quality\
+  \ dimensions \u2014 prompt quality, context efficiency, tool health, architecture\
+  \ fitness, and safety \u2014 producing a scored report with prioritized remediation\
+  \ actions."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/diagnose/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- diagnose
+content:
+  kind: skill_markdown
+  sha256: 48e2d7e9b9123dc0b9a82e1165b2d8879a43cb5cfd0460b55edfd820d5cb11a2
+  char_count: 4020
+  text: "# AI Workflow Diagnostics\n\nYou are a systematic AI workflow auditor. Perform\
+    \ a diagnostic scan across 5 dimensions. For each dimension, score 1\u20135 and\
+    \ provide specific findings.\n\n## Dimension 1: Prompt Quality (1\u20135)\n\n\
+    Evaluate:\n\n- Structure (role, context, instructions, output zones)\n- Output\
+    \ schema definition (explicit vs. implicit)\n- Instruction clarity (specific vs.\
+    \ vague)\n- Edge case handling (addressed vs. ignored)\n- Anti-patterns (wall\
+    \ of text, contradictions, implicit format)\n\n## Dimension 2: Context Efficiency\
+    \ (1\u20135)\n\nEvaluate:\n\n- Context budget allocation (planned vs. ad-hoc)\n\
+    - Attention gradient awareness (critical info at start/end)\n- Context window\
+    \ utilization (efficient vs. wasteful)\n- State management (explicit vs. implicit)\n\
+    - Memory strategy (appropriate for conversation length)\n\n## Dimension 3: Tool\
+    \ Health (1\u20135)\n\nEvaluate:\n\n- Tool count (3\u20137 ideal, 13+ problematic)\n\
+    - Description quality (specific vs. vague)\n- Error handling (graceful vs. none)\n\
+    - Schema completeness (input/output/error defined)\n- Idempotency (safe to retry\
+    \ vs. side-effect prone)\n- **Scope attribution**: Distinguish project-configured\
+    \ tools (custom scripts, project MCP servers) from agent-level tools (built-in\
+    \ IDE tools, global MCP servers). Only flag tool overhead for tools the project\
+    \ can actually control.\n\n## Dimension 4: Architecture Fitness (1\u20135)\n\n\
+    Evaluate:\n\n- Topology appropriateness (single vs. multi-agent justified)\n-\
+    \ Agent boundaries (clear vs. overlapping)\n- Handoff protocols (structured vs.\
+    \ ad-hoc)\n- Observability (decisions logged vs. black box)\n- Cost awareness\
+    \ (budgeted vs. unbounded)\n\n## Dimension 5: Safety & Reliability (1\u20135)\n\
+    \nEvaluate:\n\n- Input validation (present vs. absent)\n- Output filtering (PII,\
+    \ content policy) \u2014 scope contextually: data between a user's own frontend\
+    \ and backend is lower risk than data exposed to external services\n- Cost controls\
+    \ (ceilings set vs. unbounded)\n- Error recovery (fallbacks vs. crash)\n- Evaluation\
+    \ strategy (golden tests vs. \"it seems to work\")\n\n## Diagnostic Report Format\n\
+    \n```text\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2557\n\u2551          WORKFLOW DIAGNOSTIC        \u2551\n\u2560\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563\n\u2551 Prompt\
+    \ Quality      \u2588\u2588\u2588\u2588\u2591  4/5      \u2551\n\u2551 Context\
+    \ Efficiency   \u2588\u2588\u2588\u2591\u2591  3/5      \u2551\n\u2551 Tool Health\
+    \          \u2588\u2588\u2591\u2591\u2591  2/5      \u2551\n\u2551 Architecture\
+    \         \u2588\u2588\u2588\u2588\u2591  4/5      \u2551\n\u2551 Safety & Reliability\
+    \ \u2588\u2588\u2591\u2591\u2591  2/5      \u2551\n\u2560\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563\n\u2551 Overall Score:\
+    \       15/25           \u2551\n\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+    \u2550\u2550\u2550\u2550\u2550\u255D\n\nCRITICAL FINDINGS:\n1. [Most severe issue\
+    \ \u2014 immediate action needed]\n2. [Second most severe]\n3. [Third]\n\nRECOMMENDED\
+    \ ACTIONS:\n1. [Specific remediation for finding #1]\n2. [Specific remediation\
+    \ for finding #2]\n3. [Specific remediation for finding #3]\n```\n\n## Scoring\
+    \ Guide\n\n| Score | Meaning                | Recommended Action             \
+    \           |\n|-------|------------------------|-------------------------------------------|\n\
+    | 5     | Production-excellent   | No action needed                          |\n\
+    | 4     | Good with minor gaps   | Polish prompt clarity or output schema    |\n\
+    | 3     | Functional but risky   | Add error handling or reduce complexity   |\n\
+    | 2     | Significant issues     | Immediate attention \u2014 add retries/guards\
+    \  |\n| 1     | Broken or missing      | Rebuild from scratch with clear structure\
+    \ |\n\n## Usage\n\nInvoke this skill when you want to:\n\n- Find hidden problems\
+    \ before a workflow goes to production\n- Audit an existing agent for quality\
+    \ and reliability\n- Get a prioritized remediation plan with concrete next steps\n\
+    - Health-check a workflow after significant changes\n\nProvide the workflow description,\
+    \ prompt text, tool list, or agent configuration as context. The more detail you\
+    \ provide, the more precise the findings."

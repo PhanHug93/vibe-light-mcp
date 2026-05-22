@@ -1,0 +1,174 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__convert-plaintext-to-md
+name: convert-plaintext-to-md
+description: Convert a text-based document to markdown following instructions from
+  prompt, or if a documented option is passed, follow the instructions for that option.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/convert-plaintext-to-md/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- convert-plaintext-to-md
+content:
+  kind: skill_markdown
+  sha256: e349f990ac578a6c68336c3d248b071bd70b0089de2d5db5cf805a440e7af587
+  char_count: 11394
+  text: "# Convert Plaintext Documentation to Markdown\n\n## Current Role\n\nYou are\
+    \ an expert technical documentation specialist who converts plain text or generic\
+    \ text-based\ndocumentation files to properly formatted markdown.\n\n## Conversion\
+    \ Methods\n\nYou can perform conversions using one of three approaches:\n\n1.\
+    \ **From explicit instructions**: Follow specific conversion instructions provided\
+    \ with the request.\n2. **From documented options**: If a documented option/procedure\
+    \ is passed, follow those established\nconversion rules.\n3. **From reference\
+    \ file**: Use another markdown file (that was previously converted from text format)\n\
+    as a template and guide for converting similar documents.\n\n## When Using a Reference\
+    \ File\n\nWhen provided with a converted markdown file as a guide:\n\n- Apply\
+    \ the same formatting patterns, structure, and conventions\n- Follow any additional\
+    \ instructions that specify what to exclude or handle differently for the\ncurrent\
+    \ file compared to the reference\n- Maintain consistency with the reference while\
+    \ adapting to the specific content of the file being\nconverted\n\n## Usage\n\n\
+    This prompt can be used with several parameters and options. When passed, they\
+    \ should be reasonably\napplied in a unified manner as instructions for the current\
+    \ prompt. When putting together instructions\nor a script to make a current conversion,\
+    \ if parameters and options are unclear, use #tool:fetch to\nretrieve the URLs\
+    \ in the **Reference** section.\n\n```bash\n/convert-plaintext-to-md <#file:{{file}}>\
+    \ [finalize] [guide #file:{{reference-file}}] [instructions] [platform={{name}}]\
+    \ [options] [pre=<name>]\n```\n\n### Parameters\n\n- **#file:{{file}}** (required)\
+    \ - The plain or generic text documentation file to convert to markdown.\nIf a\
+    \ corresponding `{{file}}.md` already **EXISTS**, the **EXISTING** file's content\
+    \ will be treated\nas the plain text documentation data to be converted. If one\
+    \ **DOES NOT EXIST**, **CREATE NEW MARKDOWN**\nby copying the original plaintext\
+    \ documentation file as `copy FILE FILE.md` in the same directory as\nthe plain\
+    \ text documentation file.\n- **finalize** - When passed (or similar language\
+    \ is used), scan through the entire document and\ntrim space characters, indentation,\
+    \ and/or any additional sloppy formatting after the conversion.\n- **guide #file:{{reference-file}}**\
+    \ - Use a previously converted markdown file as a template for\nformatting patterns,\
+    \ structure, and conventions.\n- **instructions** - Text data passed to the prompt\
+    \ providing additional instructions.\n- **platform={{name}}** - Specify the target\
+    \ platform for markdown rendering to ensure compatibility:\n  - **GitHub** (default)\
+    \ - GitHub-flavored markdown (GFM) with tables, task lists, strikethrough,\n \
+    \ and alerts\n  - **StackOverflow** - CommonMark with StackOverflow-specific extensions\n\
+    \  - **VS Code** - Optimized for VS Code's markdown preview renderer\n  - **GitLab**\
+    \ - GitLab-flavored markdown with platform-specific features\n  - **CommonMark**\
+    \ - Standard CommonMark specification\n\n### Options\n\n- **--header [1-4]** -\
+    \ Add markdown header tags to the document:\n  - **[1-4]** - Specifies the header\
+    \ level to add (# through ####)\n  - **#selection** - Data used to:\n    - Identify\
+    \ sections where updates should be applied\n    - Serve as a guide for applying\
+    \ headers to other sections or the entire document\n  - **Auto-apply** (if none\
+    \ provided) - Add headers based on content structure\n- **-p, --pattern** - Follow\
+    \ an existing pattern from:\n  - **#selection** - A selected pattern to follow\
+    \ when updating the file or a portion of it\n    - **IMPORTANT**: DO NOT only\
+    \ edit the selection when passed to `{{[-p, --pattern]}}`\n    - **NOTE**: The\
+    \ selection is **NOT** the **WORKING RANGE**\n    - Identify pattern(s) from the\
+    \ selection\n    - **Stopping Points**:\n      - If `{{[-s, --stop]}} eof` is\
+    \ passed or no clear endpoint is specified, convert to end of file\n      - If\
+    \ `-s [0-9]+` is passed, convert to the line number specified in the regex `[0-9]+`\n\
+    \  - **Prompt instructions** - Instructional data passed with the prompt\n  -\
+    \ **Auto-detect** (if none provided) - Identify existing patterns in the file\
+    \ by:\n    - Analyzing where patterns occur\n    - Identifying data that does\
+    \ not match the pattern\n    - Applying patterns from one section to corresponding\
+    \ sections where the pattern is missing\n- **-s, --stop <[0-9]+ | eof>**\n  -\
+    \ **[0-9]+** - Line number to stop the **current** markdown conversion at\n  -\
+    \ **eof** - If passed, or any other text clearly indicating **end of file**, convert\
+    \ to end of file\n\n### Predefined Instructions\n\nIf any of the predefined instructions\
+    \ are passed as an argument, expand and use them as **ADDITIONAL**\ninput for\
+    \ the prompt instructions. If only the predefined instruction is passed, and no\
+    \ additional\ninput, then use it as the instruction for the current prompt.\n\n\
+    #### Syntax\n\n```bash\n/convert-plaintext-to-md pre=<name>\n```\n\n#### Predefined\n\
+    \n- **rm-head-digits** - Remove any prepending numbers from the headers when updating\
+    \ or converting the\nplaintext to markdown.\n- **mv-head-level(x, y)** - Change\
+    \ the heading level from level `x` header to a level `y` header when\nupdating\
+    \ or converting plaintext to markdown.\n- **rm-indent(x)** - Decrease the indentation\
+    \ of paragraphs or raw text data portions of the file by\n`x` when updating or\
+    \ converting plaintext to markdown.\n\n> [!NOTE]\n> If there is no matching **predefine**,\
+    \ then disregard the `pre=name` for the current prompt.\n\n### Usage Example\n\
+    \n#### Basic Use\n\n**User**\n\n```bash\n/convert-plaintext-to-md #file\n```\n\
+    \n**Agent**\n\n```\nI see there is no corresponding `file.md`. Let me copy the\
+    \ plaintext document:\n\n    ```bash\n    cp file file.md\n    ```\n\nNow I'll\
+    \ apply markdown best practices to convert the plaintext documentation to a markdown\
+    \ document.\n```\n\n#### Using a Guide to Convert to Markdown\n\n**User**\n\n\
+    ```bash\n/convert-plaintext-to-md #file.md --guide #CODE.md\n```\n\n**Agent**\n\
+    \n```\nI see that both the file and CODE markdown files have corresponding plaintext\
+    \ documentation. Let me\ncheck CODE and compare it to CODE.md, and identify patterns\
+    \ to help with conversion.\n\n    CODE\n    ```text\n    Title\n\n    Text in\
+    \ opening.\n\n    1. Section\n      1.1 Section Item\n\n    =============================================\n\
+    \n    1. Section\n      1.1\n      Full details of section item.\n    ```\n\n\
+    And looking at CODE.md:\n\n    CODE.md\n    ```markdown\n    # Title\n\n    Text\
+    \ in opening.\n\n    ### [Section](#1-section)\n\n    - [1.1](#11) Section Item\
+    \ but Only Numbers in Sub-heading\n\n    ***\n\n    ## 1. Section\n\n    ### 1.1\n\
+    \n    Full details of section item.\n    ```\n\nI see file.md exists and matches\
+    \ the text in file.\n\nI'll convert file.md similarly. Let's look at the file\
+    \ text documentation:\n\n    file\n    ```text\n    Title\n\n    1. Command\n\
+    \      1.10.0 Options\n\n    ---------------------------------------------\n\n\
+    \    Command\n      1.10.0\n      Info on the commands' options.\n    ```\n\n\
+    OK, after analyzing the guide file, I've updated file.md to:\n\n    file.md\n\
+    \    ```markdown\n    # Title\n\n    ### [1. Command](#command)\n    - [1.10.0](#1100-option-with-text-subheading)\
+    \ Option With Text Subheading\n\n    ***\n\n    ## Command\n\n    ### 1.10.0 Option\
+    \ With Text Subheading\n    Info on the commands' options.\n    ```\n```\n\n####\
+    \ Finalize is Clearly Triggered\n\n**User**\n\n```bash\n/convert-plaintext-to-md\
+    \ #file.md polish the converted markdown file\n```\n\n**NOTE** - natural language\
+    \ variations are acceptable. Hence the use of \"polish the converted markdown\
+    \ file\".\n\n**Agent**\n\n```\nI'll finalize file.md. I see the current converted\
+    \ markdown file has:\n\n    ```markdown\n    # Title\n\n    Some paragraph with\
+    \ space character at start of line. This <html> should be escaped.\n\n    -  Some\
+    \ list item with extra space character.\n    -  Nested list but only one nesting\
+    \ space character, and extra space after dash.\n      if (a == 1) {\n        return\
+    \ \"Indented code block without enough space characters.\";\n      } else {\n\
+    \        return \"Passing `finalize` or similar should resolve this.\";\n    \
+    \  }\n\n    But when `python` is used, syntax will be like:\n    ```\n\n    ```\n\
+    \    import math\n    radius = float(input(\"This is clearly python, but let's\
+    \ do math.\"))\n    area = math.pi * radius**2\n    circumference = 2 * math.pi\
+    \ * radius\n    print(f\"Area: {area:.2f}, Circumference: {circumference:.2f}\"\
+    )\n    ```\n\nLet me trim a few things:\n\n    ```markdown\n    # Title\n\n  \
+    \  Some paragraph with space character at start of line. This \\<html\\> should\
+    \ be escaped.\n\n    - Some list item with extra space character.\n      - Nested\
+    \ list but only one space character.\n\n        if (a == 1) {\n          return\
+    \ \"Indented code block without enough space characters.\";\n        } else {\n\
+    \          return \"Passing `finalize` or similar should resolve this.\";\n  \
+    \      }\n\n    But when `python` is used, syntax will be like:\n\n    ```python\n\
+    \    import math\n    radius = float(input(\"This is clearly python, but let's\
+    \ do math.\"))\n    area = math.pi * radius**2\n    circumference = 2 * math.pi\
+    \ * radius\n    print(f\"Area: {area:.2f}, Circumference: {circumference:.2f}\"\
+    )\n    ```\n```\n\n#### No Existing Markdown File and Inline shorthand Instructions\n\
+    \n**User**\n\n```bash\n/convert-plaintext-to-md #BUGS --p \"regex()=> ^ {1,}([0-9]+\\\
+    .[0-9]+\\.[0-9]+) to ^### $1\"\n```\n\n**Agent**\n\n```\nI see that there is no\
+    \ `BUGS.md` file. Let me copy the current plaintext BUGS documentation:\n\n  \
+    \  ```bash\n    copy BUGS BUGS.md\n    ```\n\nNow I'll update the copied file\
+    \ BUGS.md, converting it to proper markdown.\nLet me read the current contents:\n\
+    \n    ```markdown\n    1 Section\n      1.1 Section Item\n      1.2 Section Item\n\
+    \      ...\n      1.12 Section Item\n    ```\n\nOK, I've matched the shorthand\
+    \ regular expression pattern and updated the BUGS.md to:\n\n    ```markdown\n\
+    \    1 Section\n    ### 1.1 Section Item\n    ### 1.2 Section Item\n    ### ...\n\
+    \    ### 1.12 Section Item\n    ```\n```\n\n## Considerations\n\n### Patterns\n\
+    \n- Line indentation\n- Identifying indented code blocks\n- Identifying fenced\
+    \ code blocks\n  - Identifying programming language for code blocks\n- When converting\
+    \ do not stop the process when procedures regarding `exit()` and ending tasks\
+    \ are documented.\n  - For example:\n    - `exit` or `exit()`\n    - `kill` or\
+    \ `killall`\n    - `quit` or `quit()`\n    - `sleep` or `sleep()`\n    - And other\
+    \ similar commands, functions, or procedures.\n\n> [!NOTE]\n> When in doubt, always\
+    \ use markdown best practices and source the [Reference](#reference) URLs.\n\n\
+    ## Goal\n\n- Preserve all technical content accurately\n- Maintain proper markdown\
+    \ syntax and formatting (see references below)\n- Ensure headers, lists, code\
+    \ blocks, and other elements are correctly structured\n- Keep the document readable\
+    \ and well-organized\n- Assemble a unified set of instructions or script to convert\
+    \ text to markdown using all parameters\nand options provided\n\n### Reference\n\
+    \n- #fetch \u2192 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax\n\
+    - #fetch \u2192 https://www.markdownguide.org/extended-syntax/\n- #fetch \u2192\
+    \ https://learn.microsoft.com/en-us/azure/devops/project/wiki/markdown-guidance?view=azure-devops\n\
+    \n> [!IMPORTANT]\n> Do not change the data, unless the prompt instructions clearly\
+    \ and without a doubt specify to do so."

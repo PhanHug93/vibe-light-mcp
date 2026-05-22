@@ -1,0 +1,112 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__terraform-azurerm-set-diff-analyzer
+name: terraform-azurerm-set-diff-analyzer
+description: Analyze Terraform plan JSON output for AzureRM Provider to distinguish
+  between false-positive diffs (order-only changes in Set-type attributes) and actual
+  resource changes. Use when reviewing terraform plan output for Azure resources like
+  Application Gateway, Load Balancer, Firewall, Front Door, NSG, and other resources
+  with Set-type attributes that cause spurious diffs due to internal ordering changes.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/terraform-azurerm-set-diff-analyzer/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - has_scripts_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- terraform-azurerm-set-diff-analyzer
+content:
+  kind: skill_markdown
+  sha256: b7efae1dd84de6f644daeac4e6f2f6a7f281b5edf68bb864fb79bb36cd3c4195
+  char_count: 2187
+  text: '# Terraform AzureRM Set Diff Analyzer
+
+
+    A skill to identify "false-positive diffs" in Terraform plans caused by AzureRM
+    Provider''s Set-type attributes and distinguish them from actual changes.
+
+
+    ## When to Use
+
+
+    - `terraform plan` shows many changes, but you only added/removed a single element
+
+    - Application Gateway, Load Balancer, NSG, etc. show "all elements changed"
+
+    - You want to automatically filter false-positive diffs in CI/CD
+
+
+    ## Background
+
+
+    Terraform''s Set type compares by position rather than by key, so when adding
+    or removing elements, all elements appear as "changed". This is a general Terraform
+    issue, but it''s particularly noticeable with AzureRM resources that heavily use
+    Set-type attributes like Application Gateway, Load Balancer, and NSG.
+
+
+    These "false-positive diffs" don''t actually affect the resources, but they make
+    reviewing terraform plan output difficult.
+
+
+    ## Prerequisites
+
+
+    - Python 3.8+
+
+
+    If Python is unavailable, install via your package manager (e.g., `apt install
+    python3`, `brew install python3`) or from [python.org](https://www.python.org/downloads/).
+
+
+    ## Basic Usage
+
+
+    ```bash
+
+    # 1. Generate plan JSON output
+
+    terraform plan -out=plan.tfplan
+
+    terraform show -json plan.tfplan > plan.json
+
+
+    # 2. Analyze
+
+    python scripts/analyze_plan.py plan.json
+
+    ```
+
+
+    ## Troubleshooting
+
+
+    - **`python: command not found`**: Use `python3` instead, or install Python
+
+    - **`ModuleNotFoundError`**: Script uses only standard library; ensure Python
+    3.8+
+
+
+    ## Detailed Documentation
+
+
+    - [scripts/README.md](scripts/README.md) - All options, output formats, exit codes,
+    CI/CD examples
+
+    - [references/azurerm_set_attributes.md](references/azurerm_set_attributes.md)
+    - Supported resources and attributes'

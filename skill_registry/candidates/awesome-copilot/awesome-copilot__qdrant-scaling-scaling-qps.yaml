@@ -1,0 +1,68 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-scaling-scaling-qps
+name: qdrant-scaling-qps
+description: Guides Qdrant query throughput (QPS) scaling. Use when someone asks 'how
+  to increase QPS', 'need more throughput', 'queries per second too low', 'batch search',
+  'read replicas', or 'how to handle more concurrent queries'.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-scaling/scaling-qps/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- qdrant-scaling-qps
+content:
+  kind: skill_markdown
+  sha256: fe26245826d3e4be330bcb61bf38df5d48d0dc31cc2ffa512997903f91e91dfa
+  char_count: 3608
+  text: "# Scaling for Query Throughput (QPS)\n\nThroughput scaling means handling\
+    \ more parallel queries per second. \nThis is different from latency - throughput\
+    \ and latency are opposite tuning directions and cannot be optimized simultaneously\
+    \ on the same node.\n\nHigh throughput favors fewer, larger segments so each query\
+    \ touches less overhead.\n\n\n## Performance Tuning for Higher RPS\n\n- Use fewer,\
+    \ larger segments (`default_segment_number: 2`) [Maximizing throughput](https://search.qdrant.tech/md/documentation/operations/optimize/?s=maximizing-throughput)\n\
+    - Enable quantization with `always_ram=true` to reduce disk IO [Quantization](https://search.qdrant.tech/md/documentation/manage-data/quantization/)\n\
+    - Use batch search API to amortize overhead [Batch search](https://search.qdrant.tech/md/documentation/search/search/?s=batch-search-api)\n\
+    \n## Minimize impact of Update Workloads\n\n- Configure update throughput control\
+    \ (v1.17+) to prevent unoptimized searches degrading reads [Low latency search](https://search.qdrant.tech/md/documentation/search/low-latency-search/)\n\
+    - Set `optimizer_cpu_budget` to limit indexing CPUs (e.g. `2` on an 8-CPU node\
+    \ reserves 6 for queries)\n- Configure delayed read fan-out (v1.17+) for tail\
+    \ latency [Delayed fan-outs](https://search.qdrant.tech/md/documentation/search/low-latency-search/?s=use-delayed-fan-outs)\n\
+    \n\n\n## Horizontal Scaling for Throughput\n\nIf a single node is saturated on\
+    \ CPU after applying the tuning above, scale horizontally with read replicas.\n\
+    \n- Shard replicas serve queries from replicated shards, distributing read load\
+    \ across nodes\n- Each replica adds independent query capacity without re-sharding\n\
+    - Use `replication_factor: 2+` and route reads to replicas [Distributed deployment](https://search.qdrant.tech/md/documentation/operations/distributed_deployment/?s=replication)\n\
+    \nSee also [Horizontal Scaling](../scaling-data-volume/horizontal-scaling/SKILL.md)\
+    \ for general horizontal scaling guidance.\n\n\n## Disk I/O Bottlenecks\n\nIf\
+    \ it is not possible to keep all vectors in RAM, disk I/O can become the bottleneck\
+    \ for throughput. \nIn this case:\n\n- Upgrade to provisioned IOPS or local NVMe\
+    \ first. See impact of disk performance to vector search in [Disk performance\
+    \ article](https://qdrant.tech/articles/memory-consumption/)\n- Use `io_uring`\
+    \ on Linux (kernel 5.11+) [io_uring article](https://qdrant.tech/articles/io_uring/)\n\
+    - In case of quantized vectors, prefer global rescoring over per-segment rescoring\
+    \ to reduce disk reads. Example in the [tutorial](https://search.qdrant.tech/md/documentation/tutorials-operations/large-scale-search/?s=search-query)\n\
+    - Configure higher number of search threads to parallelize disk reads. Default\
+    \ is `cpu_count - 1`, which is optimal for RAM-based search but may be too low\
+    \ for disk-based search. See [configuration reference](https://search.qdrant.tech/md/documentation/operations/configuration/?s=configuration-options)\n\
+    - If still saturated, scale out horizontally (each node adds independent IOPS)\n\
+    \n\n## What NOT to Do\n\n- Do not expect to optimize throughput and latency simultaneously\
+    \ on the same node\n- Do not use many small segments for throughput workloads\
+    \ (increases per-query overhead)\n- Do not scale horizontally when IOPS-bound\
+    \ without also upgrading disk tier\n- Do not run at >90% RAM (OS cache eviction\
+    \ = severe performance degradation)"

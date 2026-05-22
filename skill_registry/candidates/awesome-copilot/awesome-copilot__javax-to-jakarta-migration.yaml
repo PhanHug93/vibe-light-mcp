@@ -1,0 +1,60 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__javax-to-jakarta-migration
+name: javax-to-jakarta-migration
+description: Migrate Java code from javax.* to jakarta.* namespace. Use when upgrading
+  to Tomcat 11, Jakarta EE 10, or when javax imports are detected in the codebase.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/javax-to-jakarta-migration/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- javax-to-jakarta-migration
+content:
+  kind: skill_markdown
+  sha256: f93b85539e4f58f0254f935c053fb8a1923b1482ff17062046d884b6ed910c79
+  char_count: 2504
+  text: "# javax \u2192 jakarta Migration Skill\n\n## When to Use\n- Upgrading to\
+    \ Tomcat 11 / Jakarta EE 10+\n- Code review detects `javax.*` imports\n- Migrating\
+    \ an existing project to the jakarta namespace\n\n## Procedure\n\n### Step 1 \u2014\
+    \ Scan for javax Usage\nSearch the codebase for all `javax.*` imports that need\
+    \ migration:\n```\njavax.servlet.*      \u2192 jakarta.servlet.*\njavax.persistence.*\
+    \  \u2192 jakarta.persistence.*\njavax.validation.*   \u2192 jakarta.validation.*\n\
+    javax.annotation.*   \u2192 jakarta.annotation.*\njavax.inject.*       \u2192\
+    \ jakarta.inject.*\njavax.enterprise.*   \u2192 jakarta.enterprise.*\njavax.faces.*\
+    \        \u2192 jakarta.faces.*\njavax.ws.rs.*        \u2192 jakarta.ws.rs.*\n\
+    javax.el.*           \u2192 jakarta.el.*\njavax.json.*         \u2192 jakarta.json.*\n\
+    javax.mail.*         \u2192 jakarta.mail.*\njavax.websocket.*    \u2192 jakarta.websocket.*\n\
+    ```\n\n**Do NOT migrate** these (they remain in `javax.*`):\n- `javax.sql.*` \u2014\
+    \ part of JDK\n- `javax.naming.*` \u2014 part of JDK (JNDI)\n- `javax.crypto.*`\
+    \ \u2014 part of JDK\n- `javax.net.*` \u2014 part of JDK\n- `javax.security.auth.*`\
+    \ \u2014 part of JDK\n- `javax.swing.*`, `javax.xml.parsers.*` \u2014 JDK packages\n\
+    \n### Step 2 \u2014 Update pom.xml\nReplace dependency coordinates:\n\n| Old |\
+    \ New |\n|-----|-----|\n| `javax.servlet:javax.servlet-api` | `jakarta.servlet:jakarta.servlet-api:6.0.0`\
+    \ |\n| `javax.persistence:javax.persistence-api` | `jakarta.persistence:jakarta.persistence-api:3.1.0`\
+    \ |\n| `javax.validation:validation-api` | `jakarta.validation:jakarta.validation-api:3.0.2`\
+    \ |\n| `javax.annotation:javax.annotation-api` | `jakarta.annotation:jakarta.annotation-api:2.1.1`\
+    \ |\n\n### Step 3 \u2014 Update web.xml (if present)\n```xml\n<!-- Old namespace\
+    \ -->\n<web-app xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\" version=\"4.0\">\n\
+    \n<!-- New namespace -->\n<web-app xmlns=\"https://jakarta.ee/xml/ns/jakartaee\"\
+    \ version=\"6.0\">\n```\n\n### Step 4 \u2014 Update Java Source Files\nReplace\
+    \ all `javax.` imports with `jakarta.` equivalents in `.java` files.\n\n### Step\
+    \ 5 \u2014 Verify\n1. Run `mvn clean compile` or `gradlew build` \u2014 fix any\
+    \ compilation errors\n2. Run `mvn test` or `gradlew test` \u2014 ensure all tests\
+    \ pass\n3. Search for any remaining `javax.*` imports (excluding JDK packages)\n\
+    \n### Output\nProvide a migration summary listing all files changed, imports replaced,\
+    \ and any manual steps required."

@@ -1,0 +1,69 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__reviewing-oracle-to-postgres-migration
+name: reviewing-oracle-to-postgres-migration
+description: Identifies Oracle-to-PostgreSQL migration risks by cross-referencing
+  code against known behavioral differences (empty strings, refcursors, type coercion,
+  sorting, timestamps, concurrent transactions, etc.). Use when planning a database
+  migration, reviewing migration artifacts, or validating that integration tests cover
+  Oracle/PostgreSQL differences.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/reviewing-oracle-to-postgres-migration/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- testing
+languages: []
+platforms: []
+aliases:
+- reviewing-oracle-to-postgres-migration
+content:
+  kind: skill_markdown
+  sha256: 669a24631a66f2745d5d9a81f50b6c18f32f8be3453e6a17cf0fecfa446ad34a
+  char_count: 3045
+  text: "# Oracle-to-PostgreSQL Database Migration\n\nSurfaces migration risks and\
+    \ validates migration work against known Oracle/PostgreSQL behavioral differences\
+    \ documented in the `references/` folder.\n\n## When to use\n\n1. **Planning**\
+    \ \u2014 Before starting migration work on a procedure, trigger, query, or refcursor\
+    \ client. Identify which reference insights apply so risks are addressed up front.\n\
+    2. **Validating** \u2014 After migration work is done, confirm every applicable\
+    \ insight was addressed and integration tests cover the new PostgreSQL semantics.\n\
+    \n## Workflow\n\nDetermine the task type:\n\n**Planning a migration?** Follow\
+    \ the risk assessment workflow.\n**Validating completed work?** Follow the validation\
+    \ workflow.\n\n### Risk assessment workflow (planning)\n\n```\nRisk Assessment:\n\
+    - [ ] Step 1: Identify the migration scope\n- [ ] Step 2: Screen each insight\
+    \ for applicability\n- [ ] Step 3: Document risks and recommended actions\n```\n\
+    \n**Step 1: Identify the migration scope**\n\nList the affected database objects\
+    \ (procedures, triggers, queries, views) and the application code that calls them.\n\
+    \n**Step 2: Screen each insight for applicability**\n\nReview the reference index\
+    \ in [references/REFERENCE.md](references/REFERENCE.md). For each entry, determine\
+    \ whether the migration scope contains patterns affected by that insight. Read\
+    \ the full reference file only when the insight is potentially relevant.\n\n**Step\
+    \ 3: Document risks and recommended actions**\n\nFor each applicable insight,\
+    \ note the specific risk and the recommended fix pattern from the reference file.\
+    \ Flag any insight that requires a design decision (e.g., whether to preserve\
+    \ Oracle empty-string-as-NULL semantics or adopt PostgreSQL behavior).\n\n###\
+    \ Validation workflow (post-migration)\n\n```\nValidation:\n- [ ] Step 1: Map\
+    \ the migration artifact\n- [ ] Step 2: Cross-check applicable insights\n- [ ]\
+    \ Step 3: Verify integration test coverage\n- [ ] Step 4: Gate the result\n```\n\
+    \n**Step 1: Map the migration artifact**\n\nIdentify the migrated object and summarize\
+    \ the change set.\n\n**Step 2: Cross-check applicable insights**\n\nFor each reference\
+    \ in [references/REFERENCE.md](references/REFERENCE.md), confirm the behavior\
+    \ or test requirement is acknowledged and addressed in the migration work.\n\n\
+    **Step 3: Verify integration test coverage**\n\nConfirm tests exercise both the\
+    \ happy path and the failure scenarios highlighted in applicable insights (exceptions,\
+    \ sorting, refcursor consumption, concurrent transactions, timestamps, etc.).\n\
+    \n**Step 4: Gate the result**\n\nReturn a checklist asserting each applicable\
+    \ insight was addressed, migration scripts run, and integration tests pass."

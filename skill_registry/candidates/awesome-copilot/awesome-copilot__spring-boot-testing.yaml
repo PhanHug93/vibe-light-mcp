@@ -1,0 +1,110 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__spring-boot-testing
+name: spring-boot-testing
+description: Expert Spring Boot 4 testing specialist that selects the best Spring
+  Boot testing techniques for your situation with Junit 6 and AssertJ.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/spring-boot-testing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- testing
+languages: []
+platforms: []
+aliases:
+- spring-boot-testing
+content:
+  kind: skill_markdown
+  sha256: 8161940340dc52766242ab30589369623b31089b41ebd7baa19a27f411648550
+  char_count: 6656
+  text: "# Spring Boot Testing\n\nThis skill provides expert guide for testing Spring\
+    \ Boot 4 applications with modern patterns and best practices.\n\n## Core Principles\n\
+    \n1. **Test Pyramid**: Unit (fast) > Slice (focused) > Integration (complete)\n\
+    2. **Right Tool**: Use the narrowest slice that gives you confidence\n3. **AssertJ\
+    \ Style**: Fluent, readable assertions over verbose matchers\n4. **Modern APIs**:\
+    \ Prefer MockMvcTester and RestTestClient over legacy alternatives\n\n## Which\
+    \ Test Slice?\n\n| Scenario | Annotation | Reference |\n|----------|------------|-----------|\n\
+    | Controller + HTTP semantics | `@WebMvcTest` | [references/webmvctest.md](references/webmvctest.md)\
+    \ |\n| Repository + JPA queries | `@DataJpaTest` | [references/datajpatest.md](references/datajpatest.md)\
+    \ |\n| REST client + external APIs | `@RestClientTest` | [references/restclienttest.md](references/restclienttest.md)\
+    \ |\n| JSON (de)serialization | `@JsonTest` | [references/test-slices-overview.md](references/test-slices-overview.md)\
+    \ |\n| Full application | `@SpringBootTest` | [references/test-slices-overview.md](references/test-slices-overview.md)\
+    \ |\n\n## Test Slices Reference\n\n- [references/test-slices-overview.md](references/test-slices-overview.md)\
+    \ - Decision matrix and comparison\n- [references/webmvctest.md](references/webmvctest.md)\
+    \ - Web layer with MockMvc\n- [references/datajpatest.md](references/datajpatest.md)\
+    \ - Data layer with Testcontainers\n- [references/restclienttest.md](references/restclienttest.md)\
+    \ - REST client testing\n\n## Testing Tools Reference\n\n- [references/mockmvc-tester.md](references/mockmvc-tester.md)\
+    \ - AssertJ-style MockMvc (3.2+)\n- [references/mockmvc-classic.md](references/mockmvc-classic.md)\
+    \ - Traditional MockMvc (pre-3.2)\n- [references/resttestclient.md](references/resttestclient.md)\
+    \ - Spring Boot 4+ REST client\n- [references/mockitobean.md](references/mockitobean.md)\
+    \ - Mocking dependencies\n\n## Assertion Libraries\n\n- [references/assertj-basics.md](references/assertj-basics.md)\
+    \ - Scalars, strings, booleans, dates\n- [references/assertj-collections.md](references/assertj-collections.md)\
+    \ - Lists, Sets, Maps, arrays\n\n## Testcontainers\n\n- [references/testcontainers-jdbc.md](references/testcontainers-jdbc.md)\
+    \ - PostgreSQL, MySQL, etc.\n\n## Test Data Generation\n\n- [references/instancio.md](references/instancio.md)\
+    \ - Generate complex test objects (3+ properties)\n\n## Performance & Migration\n\
+    \n- [references/context-caching.md](references/context-caching.md) - Speed up\
+    \ test suites\n- [references/sb4-migration.md](references/sb4-migration.md) -\
+    \ Spring Boot 4.0 changes\n\n## Quick Decision Tree\n\n```\nTesting a controller\
+    \ endpoint?\n  Yes \u2192 @WebMvcTest with MockMvcTester\n\nTesting repository\
+    \ queries?\n  Yes \u2192 @DataJpaTest with Testcontainers (real DB)\n\nTesting\
+    \ business logic in service?\n  Yes \u2192 Plain JUnit + Mockito (no Spring context)\n\
+    \nTesting external API client?\n  Yes \u2192 @RestClientTest with MockRestServiceServer\n\
+    \nTesting JSON mapping?\n  Yes \u2192 @JsonTest\n\nNeed full integration test?\n\
+    \  Yes \u2192 @SpringBootTest with minimal context config\n```\n\n## Spring Boot\
+    \ 4 Highlights\n\n- **RestTestClient**: Modern alternative to TestRestTemplate\n\
+    - **@MockitoBean**: Replaces @MockBean (deprecated)\n- **MockMvcTester**: AssertJ-style\
+    \ assertions for web tests\n- **Modular starters**: Technology-specific test starters\n\
+    - **Context pausing**: Automatic pausing of cached contexts (Spring Framework\
+    \ 7)\n\n## Testing Best Practices\n\n### Code Complexity Assessment\n\nWhen a\
+    \ method or class is too complex to test effectively:\n\n1. **Analyze complexity**\
+    \ - If you need more than 5-7 test cases to cover a single method, it's likely\
+    \ too complex\n2. **Recommend refactoring** - Suggest breaking the code into smaller,\
+    \ focused functions\n3. **User decision** - If the user agrees to refactor, help\
+    \ identify extraction points\n4. **Proceed if needed** - If the user decides to\
+    \ continue with the complex code, implement tests despite the difficulty\n\n**Example\
+    \ of refactoring recommendation:**\n```java\n// Before: Complex method hard to\
+    \ test\npublic Order processOrder(OrderRequest request) {\n  // Validation, discount\
+    \ calculation, payment, inventory, notification...\n  // 50+ lines of mixed concerns\n\
+    }\n\n// After: Refactored into testable units\npublic Order processOrder(OrderRequest\
+    \ request) {\n  validateOrder(request);\n  var order = createOrder(request);\n\
+    \  applyDiscount(order);\n  processPayment(order);\n  updateInventory(order);\n\
+    \  sendNotification(order);\n  return order;\n}\n```\n\n### Avoid Code Redundancy\n\
+    \nCreate helper methods for commonly used objects and mock setup to enhance readability\
+    \ and maintainability.\n\n### Test Organization with @DisplayName\n\nUse descriptive\
+    \ display names to clarify test intent:\n\n```java\n@Test\n@DisplayName(\"Should\
+    \ calculate discount for VIP customer\")\nvoid shouldCalculateDiscountForVip()\
+    \ { }\n\n@Test\n@DisplayName(\"Should reject order when customer has insufficient\
+    \ credit\")\nvoid shouldRejectOrderForInsufficientCredit() { }\n```\n\n### Test\
+    \ Coverage Order\n\nAlways structure tests in this order:\n\n1. **Main scenario**\
+    \ - The happy path, most common use case\n2. **Other paths** - Alternative valid\
+    \ scenarios, edge cases\n3. **Exceptions/Errors** - Invalid inputs, error conditions,\
+    \ failure modes\n\n### Test Production Scenarios\n\nWrite tests with real production\
+    \ scenarios in mind. This makes tests more relatable and helps understand code\
+    \ behavior in actual production cases.\n\n### Test Coverage Goals\n\nAim for 80%\
+    \ code coverage as a practical balance between quality and effort. Higher coverage\
+    \ is beneficial but not the only goal.\n\nUse Jacoco maven plugin for coverage\
+    \ reporting and tracking.\n\n\n**Coverage Rules:**\n- 80+% coverage minimum\n\
+    - Focus on meaningful assertions, not just execution\n\n**What to Prioritize:**\n\
+    1. Business-critical paths (payment processing, order validation)\n2. Complex\
+    \ algorithms (pricing, discount calculations)\n3. Error handling (exceptions,\
+    \ edge cases)\n4. Integration points (external APIs, databases)\n\n## Dependencies\
+    \ (Spring Boot 4)\n\n```xml\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n\
+    \  <artifactId>spring-boot-starter-test</artifactId>\n  <scope>test</scope>\n\
+    </dependency>\n\n<!-- For WebMvc tests -->\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n\
+    \  <artifactId>spring-boot-starter-webmvc-test</artifactId>\n  <scope>test</scope>\n\
+    </dependency>\n\n<!-- For Testcontainers -->\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n\
+    \  <artifactId>spring-boot-testcontainers</artifactId>\n  <scope>test</scope>\n\
+    </dependency>\n```"

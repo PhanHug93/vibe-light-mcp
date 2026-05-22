@@ -1,0 +1,136 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__foundry-agent-sync
+name: foundry-agent-sync
+description: "Create and synchronize prompt-based AI agents directly within Azure\
+  \ AI Foundry via REST API, from a local JSON manifest. Unlike scaffolding skills\
+  \ that only generate local code, this skill registers agents in the Foundry service\
+  \ itself \u2014 making them immediately available for invocation. Use when the user\
+  \ asks to create agents in Foundry, sync, deploy, register, or push agents to Foundry,\
+  \ update agent instructions, or scaffold the manifest and sync script for a new\
+  \ repository. Triggers: 'create agent in foundry', 'sync foundry agents', 'deploy\
+  \ agents to foundry', 'register agents in foundry', 'push agents', 'create foundry\
+  \ agent manifest', 'scaffold agent sync'."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/foundry-agent-sync/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- foundry-agent-sync
+content:
+  kind: skill_markdown
+  sha256: 462c67ae7d4a389f9efb3ad9c25bb6b329277ce6001059cd3a4b32af8e377af2
+  char_count: 8400
+  text: "# Foundry Agent Sync\n\n## Overview\n\nCreate and synchronize prompt-based\
+    \ AI agents directly within Azure AI Foundry via the Agent Service REST API. This\
+    \ skill registers agents in the Foundry service itself \u2014 making them immediately\
+    \ available for invocation, evaluation, and management through the Foundry portal\
+    \ or API. Each agent is created or updated idempotently via a named POST call,\
+    \ using definitions from a local JSON manifest file.\n\n> **Key distinction:**\
+    \ This skill creates agents inside AI Foundry (server-side). It does not scaffold\
+    \ local agent code or container images \u2014 for that, use the `microsoft-foundry`\
+    \ skill's `create` sub-skill.\n\n## Prerequisites\n\nThe user must have:\n\n1.\
+    \ An Azure AI Foundry project with a deployed model (e.g. `gpt-5-4`)\n2. Azure\
+    \ CLI (`az`) authenticated with access to the Foundry project\n3. The **Azure\
+    \ AI User** role (or higher) on the Foundry project resource\n\nCollect these\
+    \ values before proceeding:\n\n| Value | How to get it |\n|---|---|\n| **Foundry\
+    \ project endpoint** | Azure Portal \u2192 AI Foundry project \u2192 Overview\
+    \ \u2192 Endpoint, or `az resource show` |\n| **Subscription ID** | `az account\
+    \ show --query id -o tsv` |\n| **Model deployment name** | The model name deployed\
+    \ in the Foundry project (e.g. `gpt-5-4`) |\n\n## Manifest Format\n\nThe manifest\
+    \ is a JSON array where each entry defines one agent. Look for it at common paths:\
+    \ `infra/foundry-agents.json`, `foundry-agents.json`, or `.foundry/agents.json`.\
+    \ If none exists, scaffold one.\n\n```json\n[\n  {\n    \"useCaseId\": \"alert-triage\"\
+    ,\n    \"description\": \"Short description of what this agent does.\",\n    \"\
+    baseInstruction\": \"You are an assistant that... <system prompt for the agent>\"\
+    \n  }\n]\n```\n\n### Field Reference\n\n| Field | Required | Description |\n|---|---|---|\n\
+    | `useCaseId` | Yes | Kebab-case identifier; used to build the agent name (`{prefix}-{useCaseId}`)\
+    \ |\n| `description` | Yes | Human-readable description stored as agent metadata\
+    \ |\n| `baseInstruction` | Yes | System prompt / base instructions for the agent\
+    \ |\n\n## Sync Script\n\n### PowerShell (interactive / CI)\n\nCreate or locate\
+    \ the sync script. The canonical path is `infra/scripts/sync-foundry-agents.ps1`\
+    \ but adapt to the repo layout.\n\n```powershell\nparam(\n  [Parameter(Mandatory)]\n\
+    \  [string]$SubscriptionId,\n\n  [Parameter(Mandatory)]\n  [string]$ProjectEndpoint,\n\
+    \n  [string]$ManifestPath = (Join-Path $PSScriptRoot '..\\foundry-agents.json'),\n\
+    \  [string]$ModelName = 'gpt-5-4',\n  [string]$AgentNamePrefix = 'myproject',\n\
+    \  [string]$ApiVersion = '2025-11-15-preview'\n)\n\n$ErrorActionPreference = 'Stop'\n\
+    \n# Optional: append a common instruction suffix to every agent\n$commonSuffix\
+    \ = ''\n\naz account set --subscription $SubscriptionId | Out-Null\n$accessToken\
+    \ = az account get-access-token --resource https://ai.azure.com/ --query accessToken\
+    \ -o tsv\nif (-not $accessToken) { throw 'Failed to acquire Foundry access token.'\
+    \ }\n\n$definitions = Get-Content -Raw -Path $ManifestPath | ConvertFrom-Json\n\
+    $headers = @{ Authorization = \"Bearer $accessToken\" }\n$results = @()\n\nforeach\
+    \ ($def in $definitions) {\n  $agentName = \"$AgentNamePrefix-$($def.useCaseId)\"\
+    \n  $instructions = if ($commonSuffix) { \"$($def.baseInstruction)`n`n$commonSuffix\"\
+    \ } else { $def.baseInstruction }\n  $body = @{\n    definition  = @{ kind = 'prompt';\
+    \ model = $ModelName; instructions = $instructions }\n    description = $def.description\n\
+    \    metadata    = @{ useCaseId = $def.useCaseId; managedBy = 'foundry-agent-sync'\
+    \ }\n  } | ConvertTo-Json -Depth 8\n\n  $uri = \"$($ProjectEndpoint.TrimEnd('/'))/agents/$agentName`?api-version=$ApiVersion\"\
+    \n  $resp = Invoke-RestMethod -Method Post -Uri $uri -Headers $headers -ContentType\
+    \ 'application/json' -Body $body\n  $version = $resp.version ?? $resp.latest_version\
+    \ ?? $resp.id ?? 'unknown'\n  Write-Host \"Synced $agentName ($version)\"\n  $results\
+    \ += [pscustomobject]@{ name = $agentName; version = $version }\n}\n\n$results\
+    \ | Format-Table -AutoSize\n```\n\n### Bash (Bicep deployment script / CI)\n\n\
+    For automated deployment via `Microsoft.Resources/deploymentScripts`, use a bash\
+    \ script that:\n\n1. Authenticates with a managed identity: `az login --identity\
+    \ --username \"$CLIENT_ID\"`\n2. Acquires a Foundry token: `az account get-access-token\
+    \ --resource https://ai.azure.com/`\n3. Iterates definitions from the `FOUNDRY_AGENT_DEFINITIONS`\
+    \ environment variable (JSON string)\n4. POSTs each agent to `{endpoint}/agents/{name}?api-version=2025-11-15-preview`\n\
+    \n## Bicep Integration (optional)\n\nTo run the sync automatically during infrastructure\
+    \ deployment:\n\n1. **Load the manifest** at compile time:\n   ```bicep\n   var\
+    \ agentDefinitions = loadJsonContent('foundry-agents.json')\n   ```\n\n2. **Create\
+    \ a User-Assigned Managed Identity** with the **Azure AI User** role on the Foundry\
+    \ project.\n\n3. **Create a `Microsoft.Resources/deploymentScripts`** resource\
+    \ (kind `AzureCLI`) that:\n   - Uses the managed identity\n   - Loads the bash\
+    \ sync script via `loadTextContent`\n   - Passes the project endpoint, definitions,\
+    \ and model as environment variables\n\nGate behind a `deployFoundryAgents` parameter\
+    \ so teams can opt in/out.\n\n## Workflow\n\n### Step 1 \u2014 Locate or scaffold\
+    \ the manifest\n\nSearch the repo for `foundry-agents.json`. If it doesn't exist,\
+    \ ask the user what agents they need and create the manifest.\n\n### Step 2 \u2014\
+    \ Locate or scaffold the sync script\n\nSearch for `sync-foundry-agents.ps1` or\
+    \ `foundry-agent-sync.sh`. If missing, create the PowerShell script using the\
+    \ template above, adapting:\n- `$AgentNamePrefix` to match the project name\n\
+    - `$ModelName` to the user's deployed model\n- `$ManifestPath` to the actual manifest\
+    \ location\n\n### Step 3 \u2014 Collect parameters\n\nAsk the user for:\n- Foundry\
+    \ project endpoint\n- Subscription ID\n- Model deployment name (default: `gpt-5-4`)\n\
+    - Agent name prefix (default: repo name in kebab-case)\n\n### Step 4 \u2014 Run\
+    \ the sync\n\nExecute the PowerShell script with the collected parameters:\n\n\
+    ```powershell\n.\\infra\\scripts\\sync-foundry-agents.ps1 `\n  -SubscriptionId\
+    \ '<sub-id>' `\n  -ProjectEndpoint '<endpoint>' `\n  -ModelName '<model>' `\n\
+    \  -AgentNamePrefix '<prefix>'\n```\n\n### Step 5 \u2014 Verify\n\nConfirm synced\
+    \ agents by listing them:\n\n```powershell\n$token = az account get-access-token\
+    \ --resource https://ai.azure.com/ --query accessToken -o tsv\n$endpoint = '<project-endpoint>'\n\
+    Invoke-RestMethod -Uri \"$endpoint/agents?api-version=2025-11-15-preview\" `\n\
+    \  -Headers @{ Authorization = \"Bearer $token\" }\n```\n\n## REST API Reference\n\
+    \n| Operation | Method | URL |\n|---|---|---|\n| Create/update agent | POST |\
+    \ `{projectEndpoint}/agents/{agentName}?api-version=2025-11-15-preview` |\n| List\
+    \ agents | GET | `{projectEndpoint}/agents?api-version=2025-11-15-preview` |\n\
+    | Get agent | GET | `{projectEndpoint}/agents/{agentName}?api-version=2025-11-15-preview`\
+    \ |\n| Delete agent | DELETE | `{projectEndpoint}/agents/{agentName}?api-version=2025-11-15-preview`\
+    \ |\n\n### Create/Update Payload\n\n```json\n{\n  \"definition\": {\n    \"kind\"\
+    : \"prompt\",\n    \"model\": \"<deployed-model-name>\",\n    \"instructions\"\
+    : \"<system prompt>\"\n  },\n  \"description\": \"<agent description>\",\n  \"\
+    metadata\": {\n    \"useCaseId\": \"<use-case-id>\",\n    \"managedBy\": \"foundry-agent-sync\"\
+    \n  }\n}\n```\n\n## Troubleshooting\n\n| Symptom | Cause | Fix |\n|---|---|---|\n\
+    | `401 Unauthorized` | Token expired or wrong audience | Re-run `az account get-access-token\
+    \ --resource https://ai.azure.com/` |\n| `403 Forbidden` | Missing Azure AI User\
+    \ role | Assign the role on the Foundry project scope |\n| `404 Not Found` | Wrong\
+    \ project endpoint | Verify endpoint includes `/api/projects/{projectName}` |\n\
+    | Model not found | Model not deployed in project | Deploy the model in AI Foundry\
+    \ portal first |\n| Empty definitions | Manifest path wrong | Check `-ManifestPath`\
+    \ points to the JSON file |"

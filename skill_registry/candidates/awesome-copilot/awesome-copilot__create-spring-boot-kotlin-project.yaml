@@ -1,0 +1,79 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-spring-boot-kotlin-project
+name: create-spring-boot-kotlin-project
+description: Create Spring Boot Kotlin Project Skeleton
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-spring-boot-kotlin-project/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- create-spring-boot-kotlin-project
+content:
+  kind: skill_markdown
+  sha256: 75722e39c0294d6fc3eb5b368ec890376707127c944426ed91ad7644621e2f83
+  char_count: 4180
+  text: "# Create Spring Boot Kotlin project prompt\n\n- Please make sure you have\
+    \ the following software installed on your system:\n\n  - Java 21\n  - Docker\n\
+    \  - Docker Compose\n\n- If you need to custom the project name, please change\
+    \ the `artifactId` and the `packageName` in [download-spring-boot-project-template](#download-spring-boot-project-template)\n\
+    \n- If you need to update the Spring Boot version, please change the `bootVersion`\
+    \ in [download-spring-boot-project-template](#download-spring-boot-project-template)\n\
+    \n## Check Java version\n\n- Run following command in terminal and check the version\
+    \ of Java\n\n```shell\njava -version\n```\n\n## Download Spring Boot project template\n\
+    \n- Run following command in terminal to download a Spring Boot project template\n\
+    \n```shell\ncurl https://start.spring.io/starter.zip \\\n  -d artifactId=${input:projectName:demo-kotlin}\
+    \ \\\n  -d bootVersion=3.4.5 \\\n  -d dependencies=configuration-processor,webflux,data-r2dbc,postgresql,data-redis-reactive,data-mongodb-reactive,validation,cache,testcontainers\
+    \ \\\n  -d javaVersion=21 \\\n  -d language=kotlin \\\n  -d packageName=com.example\
+    \ \\\n  -d packaging=jar \\\n  -d type=gradle-project-kotlin \\\n  -o starter.zip\n\
+    ```\n\n## Unzip the downloaded file\n\n- Run following command in terminal to\
+    \ unzip the downloaded file\n\n```shell\nunzip starter.zip -d ./${input:projectName:demo-kotlin}\n\
+    ```\n\n## Remove the downloaded zip file\n\n- Run following command in terminal\
+    \ to delete the downloaded zip file\n\n```shell\nrm -f starter.zip\n```\n\n##\
+    \ Unzip the downloaded file\n\n- Run following command in terminal to unzip the\
+    \ downloaded file\n\n```shell\nunzip starter.zip -d ./${input:projectName:demo-kotlin}\n\
+    ```\n\n## Add additional dependencies\n\n- Insert `springdoc-openapi-starter-webmvc-ui`\
+    \ and `archunit-junit5` dependency into `build.gradle.kts` file\n\n```gradle.kts\n\
+    dependencies {\n  implementation(\"org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6\"\
+    )\n  testImplementation(\"com.tngtech.archunit:archunit-junit5:1.2.1\")\n}\n```\n\
+    \n- Insert SpringDoc configurations into `application.properties` file\n\n```properties\n\
+    # SpringDoc configurations\nspringdoc.swagger-ui.doc-expansion=none\nspringdoc.swagger-ui.operations-sorter=alpha\n\
+    springdoc.swagger-ui.tags-sorter=alpha\n```\n\n- Insert Redis configurations into\
+    \ `application.properties` file\n\n```properties\n# Redis configurations\nspring.data.redis.host=localhost\n\
+    spring.data.redis.port=6379\nspring.data.redis.password=rootroot\n```\n\n- Insert\
+    \ R2DBC configurations into `application.properties` file\n\n```properties\n#\
+    \ R2DBC configurations\nspring.r2dbc.url=r2dbc:postgresql://localhost:5432/postgres\n\
+    spring.r2dbc.username=postgres\nspring.r2dbc.password=rootroot\n\nspring.sql.init.mode=always\n\
+    spring.sql.init.platform=postgres\nspring.sql.init.continue-on-error=true\n```\n\
+    \n- Insert MongoDB configurations into `application.properties` file\n\n```properties\n\
+    # MongoDB configurations\nspring.data.mongodb.host=localhost\nspring.data.mongodb.port=27017\n\
+    spring.data.mongodb.authentication-database=admin\nspring.data.mongodb.username=root\n\
+    spring.data.mongodb.password=rootroot\nspring.data.mongodb.database=test\n```\n\
+    \n- Create `docker-compose.yaml` at project root and add following services: `redis:6`,\
+    \ `postgresql:17` and `mongo:8`.\n\n  - redis service should have\n    - password\
+    \ `rootroot`\n    - mapping port 6379 to 6379\n    - mounting volume `./redis_data`\
+    \ to `/data`\n  - postgresql service should have\n    - password `rootroot`\n\
+    \    - mapping port 5432 to 5432\n    - mounting volume `./postgres_data` to `/var/lib/postgresql/data`\n\
+    \  - mongo service should have\n    - initdb root username `root`\n    - initdb\
+    \ root password `rootroot`\n    - mapping port 27017 to 27017\n    - mounting\
+    \ volume `./mongo_data` to `/data/db`\n\n- Insert `redis_data`, `postgres_data`\
+    \ and `mongo_data` directories in `.gitignore` file\n\n- Run gradle clean test\
+    \ command to check if the project is working\n\n```shell\n./gradlew clean test\n\
+    ```\n\n- (Optional) `docker-compose up -d` to start the services, `./gradlew spring-boot:run`\
+    \ to run the Spring Boot project, `docker-compose rm -sf` to stop the services.\n\
+    \nLet's do this step by step."

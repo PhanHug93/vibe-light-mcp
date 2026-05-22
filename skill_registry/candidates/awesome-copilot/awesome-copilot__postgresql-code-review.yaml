@@ -1,0 +1,125 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__postgresql-code-review
+name: postgresql-code-review
+description: PostgreSQL-specific code review assistant focusing on PostgreSQL best
+  practices, anti-patterns, and unique quality standards. Covers JSONB operations,
+  array usage, custom types, schema design, function optimization, and PostgreSQL-exclusive
+  security features like Row Level Security (RLS).
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/postgresql-code-review/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- security
+languages: []
+platforms: []
+aliases:
+- postgresql-code-review
+content:
+  kind: skill_markdown
+  sha256: 5c2f68120440692ae4b030b17e2a3553c1204d63ee871d6d994c6925b1f874cb
+  char_count: 7381
+  text: "# PostgreSQL Code Review Assistant\n\nExpert PostgreSQL code review for ${selection}\
+    \ (or entire project if no selection). Focus on PostgreSQL-specific best practices,\
+    \ anti-patterns, and quality standards that are unique to PostgreSQL.\n\n## \U0001F3AF\
+    \ PostgreSQL-Specific Review Areas\n\n### JSONB Best Practices\n```sql\n-- \u274C\
+    \ BAD: Inefficient JSONB usage\nSELECT * FROM orders WHERE data->>'status' = 'shipped';\
+    \  -- No index support\n\n-- \u2705 GOOD: Indexable JSONB queries\nCREATE INDEX\
+    \ idx_orders_status ON orders USING gin((data->'status'));\nSELECT * FROM orders\
+    \ WHERE data @> '{\"status\": \"shipped\"}';\n\n-- \u274C BAD: Deep nesting without\
+    \ consideration\nUPDATE orders SET data = data || '{\"shipping\":{\"tracking\"\
+    :{\"number\":\"123\"}}}';\n\n-- \u2705 GOOD: Structured JSONB with validation\n\
+    ALTER TABLE orders ADD CONSTRAINT valid_status \nCHECK (data->>'status' IN ('pending',\
+    \ 'shipped', 'delivered'));\n```\n\n### Array Operations Review\n```sql\n-- \u274C\
+    \ BAD: Inefficient array operations\nSELECT * FROM products WHERE 'electronics'\
+    \ = ANY(categories);  -- No index\n\n-- \u2705 GOOD: GIN indexed array queries\n\
+    CREATE INDEX idx_products_categories ON products USING gin(categories);\nSELECT\
+    \ * FROM products WHERE categories @> ARRAY['electronics'];\n\n-- \u274C BAD:\
+    \ Array concatenation in loops\n-- This would be inefficient in a function/procedure\n\
+    \n-- \u2705 GOOD: Bulk array operations\nUPDATE products SET categories = categories\
+    \ || ARRAY['new_category']\nWHERE id IN (SELECT id FROM products WHERE condition);\n\
+    ```\n\n### PostgreSQL Schema Design Review\n```sql\n-- \u274C BAD: Not using PostgreSQL\
+    \ features\nCREATE TABLE users (\n    id INTEGER,\n    email VARCHAR(255),\n \
+    \   created_at TIMESTAMP\n);\n\n-- \u2705 GOOD: PostgreSQL-optimized schema\n\
+    CREATE TABLE users (\n    id BIGSERIAL PRIMARY KEY,\n    email CITEXT UNIQUE NOT\
+    \ NULL,  -- Case-insensitive email\n    created_at TIMESTAMPTZ DEFAULT NOW(),\n\
+    \    metadata JSONB DEFAULT '{}',\n    CONSTRAINT valid_email CHECK (email ~*\
+    \ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')\n);\n\n-- Add JSONB GIN\
+    \ index for metadata queries\nCREATE INDEX idx_users_metadata ON users USING gin(metadata);\n\
+    ```\n\n### Custom Types and Domains\n```sql\n-- \u274C BAD: Using generic types\
+    \ for specific data\nCREATE TABLE transactions (\n    amount DECIMAL(10,2),\n\
+    \    currency VARCHAR(3),\n    status VARCHAR(20)\n);\n\n-- \u2705 GOOD: PostgreSQL\
+    \ custom types\nCREATE TYPE currency_code AS ENUM ('USD', 'EUR', 'GBP', 'JPY');\n\
+    CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed', 'cancelled');\n\
+    CREATE DOMAIN positive_amount AS DECIMAL(10,2) CHECK (VALUE > 0);\n\nCREATE TABLE\
+    \ transactions (\n    amount positive_amount NOT NULL,\n    currency currency_code\
+    \ NOT NULL,\n    status transaction_status DEFAULT 'pending'\n);\n```\n\n## \U0001F50D\
+    \ PostgreSQL-Specific Anti-Patterns\n\n### Performance Anti-Patterns\n- **Avoiding\
+    \ PostgreSQL-specific indexes**: Not using GIN/GiST for appropriate data types\n\
+    - **Misusing JSONB**: Treating JSONB like a simple string field\n- **Ignoring\
+    \ array operators**: Using inefficient array operations\n- **Poor partition key\
+    \ selection**: Not leveraging PostgreSQL partitioning effectively\n\n### Schema\
+    \ Design Issues\n- **Not using ENUM types**: Using VARCHAR for limited value sets\n\
+    - **Ignoring constraints**: Missing CHECK constraints for data validation\n- **Wrong\
+    \ data types**: Using VARCHAR instead of TEXT or CITEXT\n- **Missing JSONB structure**:\
+    \ Unstructured JSONB without validation\n\n### Function and Trigger Issues\n```sql\n\
+    -- \u274C BAD: Inefficient trigger function\nCREATE OR REPLACE FUNCTION update_modified_time()\n\
+    RETURNS TRIGGER AS $$\nBEGIN\n    NEW.updated_at = NOW();  -- Should use TIMESTAMPTZ\n\
+    \    RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;\n\n-- \u2705 GOOD: Optimized trigger\
+    \ function\nCREATE OR REPLACE FUNCTION update_modified_time()\nRETURNS TRIGGER\
+    \ AS $$\nBEGIN\n    NEW.updated_at = CURRENT_TIMESTAMP;\n    RETURN NEW;\nEND;\n\
+    $$ LANGUAGE plpgsql;\n\n-- Set trigger to fire only when needed\nCREATE TRIGGER\
+    \ update_modified_time_trigger\n    BEFORE UPDATE ON table_name\n    FOR EACH\
+    \ ROW\n    WHEN (OLD.* IS DISTINCT FROM NEW.*)\n    EXECUTE FUNCTION update_modified_time();\n\
+    ```\n\n## \U0001F4CA PostgreSQL Extension Usage Review\n\n### Extension Best Practices\n\
+    ```sql\n-- \u2705 Check if extension exists before creating\nCREATE EXTENSION\
+    \ IF NOT EXISTS \"uuid-ossp\";\nCREATE EXTENSION IF NOT EXISTS \"pgcrypto\";\n\
+    CREATE EXTENSION IF NOT EXISTS \"pg_trgm\";\n\n-- \u2705 Use extensions appropriately\n\
+    -- UUID generation\nSELECT uuid_generate_v4();\n\n-- Password hashing\nSELECT\
+    \ crypt('password', gen_salt('bf'));\n\n-- Fuzzy text matching\nSELECT word_similarity('postgres',\
+    \ 'postgre');\n```\n\n## \U0001F6E1\uFE0F PostgreSQL Security Review\n\n### Row\
+    \ Level Security (RLS)\n```sql\n-- \u2705 GOOD: Implementing RLS\nALTER TABLE\
+    \ sensitive_data ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY user_data_policy\
+    \ ON sensitive_data\n    FOR ALL TO application_role\n    USING (user_id = current_setting('app.current_user_id')::INTEGER);\n\
+    ```\n\n### Privilege Management\n```sql\n-- \u274C BAD: Overly broad permissions\n\
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;\n\n-- \u2705\
+    \ GOOD: Granular permissions\nGRANT SELECT, INSERT, UPDATE ON specific_table TO\
+    \ app_user;\nGRANT USAGE ON SEQUENCE specific_table_id_seq TO app_user;\n```\n\
+    \n## \U0001F3AF PostgreSQL Code Quality Checklist\n\n### Schema Design\n- [ ]\
+    \ Using appropriate PostgreSQL data types (CITEXT, JSONB, arrays)\n- [ ] Leveraging\
+    \ ENUM types for constrained values\n- [ ] Implementing proper CHECK constraints\n\
+    - [ ] Using TIMESTAMPTZ instead of TIMESTAMP\n- [ ] Defining custom domains for\
+    \ reusable constraints\n\n### Performance Considerations\n- [ ] Appropriate index\
+    \ types (GIN for JSONB/arrays, GiST for ranges)\n- [ ] JSONB queries using containment\
+    \ operators (@>, ?)\n- [ ] Array operations using PostgreSQL-specific operators\n\
+    - [ ] Proper use of window functions and CTEs\n- [ ] Efficient use of PostgreSQL-specific\
+    \ functions\n\n### PostgreSQL Features Utilization\n- [ ] Using extensions where\
+    \ appropriate\n- [ ] Implementing stored procedures in PL/pgSQL when beneficial\n\
+    - [ ] Leveraging PostgreSQL's advanced SQL features\n- [ ] Using PostgreSQL-specific\
+    \ optimization techniques\n- [ ] Implementing proper error handling in functions\n\
+    \n### Security and Compliance\n- [ ] Row Level Security (RLS) implementation where\
+    \ needed\n- [ ] Proper role and privilege management\n- [ ] Using PostgreSQL's\
+    \ built-in encryption functions\n- [ ] Implementing audit trails with PostgreSQL\
+    \ features\n\n## \U0001F4DD PostgreSQL-Specific Review Guidelines\n\n1. **Data\
+    \ Type Optimization**: Ensure PostgreSQL-specific types are used appropriately\n\
+    2. **Index Strategy**: Review index types and ensure PostgreSQL-specific indexes\
+    \ are utilized\n3. **JSONB Structure**: Validate JSONB schema design and query\
+    \ patterns\n4. **Function Quality**: Review PL/pgSQL functions for efficiency\
+    \ and best practices\n5. **Extension Usage**: Verify appropriate use of PostgreSQL\
+    \ extensions\n6. **Performance Features**: Check utilization of PostgreSQL's advanced\
+    \ features\n7. **Security Implementation**: Review PostgreSQL-specific security\
+    \ features\n\nFocus on PostgreSQL's unique capabilities and ensure the code leverages\
+    \ what makes PostgreSQL special rather than treating it as a generic SQL database."

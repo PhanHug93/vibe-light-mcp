@@ -1,0 +1,95 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__transloadit-media-processing
+name: transloadit-media-processing
+description: Process media files (video, audio, images, documents) using Transloadit.
+  Use when asked to encode video to HLS/MP4, generate thumbnails, resize or watermark
+  images, extract audio, concatenate clips, add subtitles, OCR documents, or run any
+  media processing pipeline. Covers 86+ processing robots for file transformation
+  at scale.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/transloadit-media-processing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- transloadit-media-processing
+content:
+  kind: skill_markdown
+  sha256: ac5dc3cdaec786c94d6f876c2038d7ea35919ba134d022248c18b629cd8d516f
+  char_count: 5122
+  text: "# Transloadit Media Processing\n\nProcess, transform, and encode media files\
+    \ using Transloadit's cloud infrastructure.\nSupports video, audio, images, and\
+    \ documents with 86+ specialized processing robots.\n\n## When to Use This Skill\n\
+    \nUse this skill when you need to:\n\n- Encode video to HLS, MP4, WebM, or other\
+    \ formats\n- Generate thumbnails or animated GIFs from video\n- Resize, crop,\
+    \ watermark, or optimize images\n- Convert between image formats (JPEG, PNG, WebP,\
+    \ AVIF, HEIF)\n- Extract or transcode audio (MP3, AAC, FLAC, WAV)\n- Concatenate\
+    \ video or audio clips\n- Add subtitles or overlay text on video\n- OCR documents\
+    \ (PDF, scanned images)\n- Run speech-to-text or text-to-speech\n- Apply AI-based\
+    \ content moderation or object detection\n- Build multi-step media pipelines that\
+    \ chain operations together\n\n## Setup\n\n### Option A: MCP Server (recommended\
+    \ for Copilot)\n\nAdd the Transloadit MCP server to your IDE config. This gives\
+    \ the agent direct access\nto Transloadit tools (`create_template`, `create_assembly`,\
+    \ `list_assembly_notifications`, etc.).\n\n**VS Code / GitHub Copilot** (`.vscode/mcp.json`\
+    \ or user settings):\n\n```json\n{\n  \"servers\": {\n    \"transloadit\": {\n\
+    \      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@transloadit/mcp-server\"\
+    , \"stdio\"],\n      \"env\": {\n        \"TRANSLOADIT_KEY\": \"YOUR_AUTH_KEY\"\
+    ,\n        \"TRANSLOADIT_SECRET\": \"YOUR_AUTH_SECRET\"\n      }\n    }\n  }\n\
+    }\n```\n\nGet your API credentials at https://transloadit.com/c/-/api-credentials\n\
+    \n### Option B: CLI\n\nIf you prefer running commands directly:\n\n```bash\nnpx\
+    \ -y @transloadit/node assemblies create \\\n  --steps '{\"encoded\": {\"robot\"\
+    : \"/video/encode\", \"use\": \":original\", \"preset\": \"hls-1080p\"}}' \\\n\
+    \  --wait \\\n  --input ./my-video.mp4\n```\n\n## Core Workflows\n\n### Encode\
+    \ Video to HLS (Adaptive Streaming)\n\n```json\n{\n  \"steps\": {\n    \"encoded\"\
+    : {\n      \"robot\": \"/video/encode\",\n      \"use\": \":original\",\n    \
+    \  \"preset\": \"hls-1080p\"\n    }\n  }\n}\n```\n\n### Generate Thumbnails from\
+    \ Video\n\n```json\n{\n  \"steps\": {\n    \"thumbnails\": {\n      \"robot\"\
+    : \"/video/thumbs\",\n      \"use\": \":original\",\n      \"count\": 8,\n   \
+    \   \"width\": 320,\n      \"height\": 240\n    }\n  }\n}\n```\n\n### Resize and\
+    \ Watermark Images\n\n```json\n{\n  \"steps\": {\n    \"resized\": {\n      \"\
+    robot\": \"/image/resize\",\n      \"use\": \":original\",\n      \"width\": 1200,\n\
+    \      \"height\": 800,\n      \"resize_strategy\": \"fit\"\n    },\n    \"watermarked\"\
+    : {\n      \"robot\": \"/image/resize\",\n      \"use\": \"resized\",\n      \"\
+    watermark_url\": \"https://example.com/logo.png\",\n      \"watermark_position\"\
+    : \"bottom-right\",\n      \"watermark_size\": \"15%\"\n    }\n  }\n}\n```\n\n\
+    ### OCR a Document\n\n```json\n{\n  \"steps\": {\n    \"recognized\": {\n    \
+    \  \"robot\": \"/document/ocr\",\n      \"use\": \":original\",\n      \"provider\"\
+    : \"aws\",\n      \"format\": \"text\"\n    }\n  }\n}\n```\n\n### Concatenate\
+    \ Audio Clips\n\n```json\n{\n  \"steps\": {\n    \"imported\": {\n      \"robot\"\
+    : \"/http/import\",\n      \"url\": [\"https://example.com/clip1.mp3\", \"https://example.com/clip2.mp3\"\
+    ]\n    },\n    \"concatenated\": {\n      \"robot\": \"/audio/concat\",\n    \
+    \  \"use\": \"imported\",\n      \"preset\": \"mp3\"\n    }\n  }\n}\n```\n\n##\
+    \ Multi-Step Pipelines\n\nSteps can be chained using the `\"use\"` field. Each\
+    \ step references a previous step's output:\n\n```json\n{\n  \"steps\": {\n  \
+    \  \"resized\": {\n      \"robot\": \"/image/resize\",\n      \"use\": \":original\"\
+    ,\n      \"width\": 1920\n    },\n    \"optimized\": {\n      \"robot\": \"/image/optimize\"\
+    ,\n      \"use\": \"resized\"\n    },\n    \"exported\": {\n      \"robot\": \"\
+    /s3/store\",\n      \"use\": \"optimized\",\n      \"bucket\": \"my-bucket\",\n\
+    \      \"path\": \"processed/${file.name}\"\n    }\n  }\n}\n```\n\n## Key Concepts\n\
+    \n- **Assembly**: A single processing job. Created via `create_assembly` (MCP)\
+    \ or `assemblies create` (CLI).\n- **Template**: A reusable set of steps stored\
+    \ on Transloadit. Created via `create_template` (MCP) or `templates create` (CLI).\n\
+    - **Robot**: A processing unit (e.g., `/video/encode`, `/image/resize`). See full\
+    \ list at https://transloadit.com/docs/transcoding/\n- **Steps**: JSON object\
+    \ defining the pipeline. Each key is a step name, each value configures a robot.\n\
+    - **`:original`**: Refers to the uploaded input file.\n\n## Tips\n\n- Use `--wait`\
+    \ with the CLI to block until processing completes.\n- Use `preset` values (e.g.,\
+    \ `\"hls-1080p\"`, `\"mp3\"`, `\"webp\"`) for common format targets instead of\
+    \ specifying every parameter.\n- Chain `\"use\": \"step_name\"` to build multi-step\
+    \ pipelines without intermediate downloads.\n- For batch processing, use `/http/import`\
+    \ to pull files from URLs, S3, GCS, Azure, FTP, or Dropbox.\n- Templates can include\
+    \ `${variables}` for dynamic values passed at assembly creation time."

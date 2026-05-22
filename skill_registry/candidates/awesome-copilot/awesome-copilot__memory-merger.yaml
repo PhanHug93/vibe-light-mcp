@@ -1,0 +1,77 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__memory-merger
+name: memory-merger
+description: 'Merges mature lessons from a domain memory file into its instruction
+  file. Syntax: `/memory-merger >domain [scope]` where scope is `global` (default),
+  `user`, `workspace`, or `ws`.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/memory-merger/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- memory-merger
+content:
+  kind: skill_markdown
+  sha256: a98f9bbd157755bfcaa8914095990d13a8d614afa18c882f3892f81e257e221c
+  char_count: 3885
+  text: "# Memory Merger\n\nYou consolidate mature learnings from a domain's memory\
+    \ file into its instruction file, ensuring knowledge preservation with minimal\
+    \ redundancy.\n\n**Use the todo list** to track your progress through the process\
+    \ steps and keep the user informed.\n\n## Scopes\n\nMemory instructions can be\
+    \ stored in two scopes:\n\n- **Global** (`global` or `user`) - Stored in `<global-prompts>`\
+    \ (`vscode-userdata:/User/prompts/`) and apply to all VS Code projects\n- **Workspace**\
+    \ (`workspace` or `ws`) - Stored in `<workspace-instructions>` (`<workspace-root>/.github/instructions/`)\
+    \ and apply only to the current project\n\nDefault scope is **global**.\n\nThroughout\
+    \ this prompt, `<global-prompts>` and `<workspace-instructions>` refer to these\
+    \ directories.\n\n## Syntax\n\n```\n/memory-merger >domain-name [scope]\n```\n\
+    \n- `>domain-name` - Required. The domain to merge (e.g., `>clojure`, `>git-workflow`,\
+    \ `>prompt-engineering`)\n- `[scope]` - Optional. One of: `global`, `user` (both\
+    \ mean global), `workspace`, or `ws`. Defaults to `global`\n\n**Examples:**\n\
+    - `/memory-merger >prompt-engineering` - merges global prompt engineering memories\n\
+    - `/memory-merger >clojure workspace` - merges workspace clojure memories\n- `/memory-merger\
+    \ >git-workflow ws` - merges workspace git-workflow memories\n\n## Process\n\n\
+    ### 1. Parse Input and Read Files\n\n- **Extract** domain and scope from user\
+    \ input\n- **Determine** file paths:\n  - Global: `<global-prompts>/{domain}-memory.instructions.md`\
+    \ \u2192 `<global-prompts>/{domain}.instructions.md`\n  - Workspace: `<workspace-instructions>/{domain}-memory.instructions.md`\
+    \ \u2192 `<workspace-instructions>/{domain}.instructions.md`\n- The user can have\
+    \ mistyped the domain, if you don't find the memory file, glob the directory and\
+    \ determine if there may be a match there. Ask the user for input if in doubt.\n\
+    - **Read** both files (memory file must exist; instruction file may not)\n\n###\
+    \ 2. Analyze and Propose\n\nReview all memory sections and present them for merger\
+    \ consideration:\n\n```\n## Proposed Memories for Merger\n\n### Memory: [Headline]\n\
+    **Content:** [Key points]\n**Location:** [Where it fits in instructions]\n\n[More\
+    \ memories]...\n```\n\nSay: \"Please review these memories. Approve all with 'go'\
+    \ or specify which to skip.\"\n\n**STOP and wait for user input.**\n\n### 3. Define\
+    \ Quality Bar\n\nEstablish 10/10 criteria for what constitutes awesome merged\
+    \ resulting instructions:\n1. **Zero knowledge loss** - Every detail, example,\
+    \ and nuance preserved\n2. **Minimal redundancy** - Overlapping guidance consolidated\n\
+    3. **Maximum scannability** - Clear hierarchy, parallel structure, strategic bold,\
+    \ logical grouping\n\n### 4. Merge and Iterate\n\nDevelop the final merged instructions\
+    \ **without updating files yet**:\n\n1. Draft the merged instructions incorporating\
+    \ approved memories\n2. Evaluate against quality bar\n3. Refine structure, wording,\
+    \ organization\n4. Repeat until the merged instructions meet 10/10 criteria\n\n\
+    ### 5. Update Files\n\nOnce the final merged instructions meet 10/10 criteria:\n\
+    \n- **Create or update** the instruction file with the final merged content\n\
+    \  - Include proper frontmatter if creating new file\n  - **Merge `applyTo` patterns**\
+    \ from both memory and instruction files if both exist, ensuring comprehensive\
+    \ coverage without duplication\n- **Remove** merged sections from the memory file\n\
+    \n## Example\n\n```\nUser: \"/memory-merger >clojure\"\n\nAgent:\n1. Reads clojure-memory.instructions.md\
+    \ and clojure.instructions.md\n2. Proposes 3 memories for merger\n3. [STOPS]\n\
+    \nUser: \"go\"\n\nAgent:\n4. Defines quality bar for 10/10\n5. Merges new instructions\
+    \ candidate, iterates to 10/10\n6. Updates clojure.instructions.md\n7. Cleans\
+    \ clojure-memory.instructions.md\n```"

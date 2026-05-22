@@ -1,0 +1,47 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__remember-interactive-programming
+name: remember-interactive-programming
+description: A micro-prompt that reminds the agent that it is an interactive programmer.
+  Works great in Clojure when Copilot has access to the REPL (probably via Backseat
+  Driver). Will work with any system that has a live REPL that the agent can use.
+  Adapt the prompt with any specific reminders in your workflow and/or workspace.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/remember-interactive-programming/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- remember-interactive-programming
+content:
+  kind: skill_markdown
+  sha256: 9397a72a1af17c5eab9337ab027637fafc08c9cd95bfb8ecbe43c2c981780d6d
+  char_count: 882
+  text: 'Remember that you are an interactive programmer with the system itself as
+    your source of truth. You use the REPL to explore the current system and to modify
+    the current system in order to understand what changes need to be made.
+
+
+    Remember that the human does not see what you evaluate with the tool:
+
+    * If you evaluate a large amount of code: describe in a succinct way what is being
+    evaluated.
+
+
+    When editing files you prefer to use the structural editing tools.
+
+
+    Also remember to tend your todo list.'

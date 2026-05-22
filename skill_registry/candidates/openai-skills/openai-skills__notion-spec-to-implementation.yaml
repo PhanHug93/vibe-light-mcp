@@ -1,0 +1,71 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__notion-spec-to-implementation
+name: notion-spec-to-implementation
+description: Turn Notion specs into implementation plans, tasks, and progress tracking;
+  use when implementing PRDs/feature specs and creating Notion plans + tasks from
+  them.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/notion-spec-to-implementation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: skills/.curated/notion-spec-to-implementation/LICENSE.txt
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- notion-spec-to-implementation
+content:
+  kind: skill_markdown
+  sha256: 6e22c4c6df441e849fa6b4b825371b579c9bb4896f97bedca5f8536020427a81
+  char_count: 3499
+  text: "# Spec to Implementation\n\nConvert a Notion spec into linked implementation\
+    \ plans, tasks, and ongoing status updates.\n\n## Quick start\n1) Locate the spec\
+    \ with `Notion:notion-search`, then fetch it with `Notion:notion-fetch`.\n2) Parse\
+    \ requirements and ambiguities using `reference/spec-parsing.md`.\n3) Create a\
+    \ plan page with `Notion:notion-create-pages` (pick a template: quick vs. full).\n\
+    4) Find the task database, confirm schema, then create tasks with `Notion:notion-create-pages`.\n\
+    5) Link spec \u2194 plan \u2194 tasks; keep status current with `Notion:notion-update-page`.\n\
+    \n## Workflow\n\n### 0) If any MCP call fails because Notion MCP is not connected,\
+    \ pause and set it up:\n1. Add the Notion MCP:\n   - `codex mcp add notion --url\
+    \ https://mcp.notion.com/mcp`\n2. Enable remote MCP client:\n   - Set `[features].rmcp_client\
+    \ = true` in `config.toml` **or** run `codex --enable rmcp_client`\n3. Log in\
+    \ with OAuth:\n   - `codex mcp login notion`\n\nAfter successful login, the user\
+    \ will have to restart codex. You should finish your answer and tell them so when\
+    \ they try again they can continue with Step 1.\n\n### 1) Locate and read the\
+    \ spec\n- Search first (`Notion:notion-search`); if multiple hits, ask the user\
+    \ which to use.\n- Fetch the page (`Notion:notion-fetch`) and scan for requirements,\
+    \ acceptance criteria, constraints, and priorities. See `reference/spec-parsing.md`\
+    \ for extraction patterns.\n- Capture gaps/assumptions in a clarifications block\
+    \ before proceeding.\n\n### 2) Choose plan depth\n- Simple change \u2192 use `reference/quick-implementation-plan.md`.\n\
+    - Multi-phase feature/migration \u2192 use `reference/standard-implementation-plan.md`.\n\
+    - Create the plan via `Notion:notion-create-pages`, include: overview, linked\
+    \ spec, requirements summary, phases, dependencies/risks, and success criteria.\
+    \ Link back to the spec.\n\n### 3) Create tasks\n- Find the task database (`Notion:notion-search`\
+    \ \u2192 `Notion:notion-fetch` to confirm the data source and required properties).\
+    \ Patterns in `reference/task-creation.md`.\n- Size tasks to 1\u20132 days. Use\
+    \ `reference/task-creation-template.md` for content (context, objective, acceptance\
+    \ criteria, dependencies, resources).\n- Set properties: title/action verb, status,\
+    \ priority, relations to spec + plan, due date/story points/assignee if provided.\n\
+    - Create pages with `Notion:notion-create-pages` using the database\u2019s `data_source_id`.\n\
+    \n### 4) Link artifacts\n- Plan links to spec; tasks link to both plan and spec.\n\
+    - Optionally update the spec with a short \u201CImplementation\u201D section pointing\
+    \ to the plan and tasks using `Notion:notion-update-page`.\n\n### 5) Track progress\n\
+    - Use the cadence in `reference/progress-tracking.md`.\n- Post updates with `reference/progress-update-template.md`;\
+    \ close phases with `reference/milestone-summary-template.md`.\n- Keep checklists\
+    \ and status fields in plan/tasks in sync; note blockers and decisions.\n\n##\
+    \ References and examples\n- `reference/` \u2014 parsing patterns, plan/task templates,\
+    \ progress cadence (e.g., `spec-parsing.md`, `standard-implementation-plan.md`,\
+    \ `task-creation.md`, `progress-tracking.md`).\n- `examples/` \u2014 end-to-end\
+    \ walkthroughs (e.g., `ui-component.md`, `api-feature.md`, `database-migration.md`)."

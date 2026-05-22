@@ -1,0 +1,63 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__pdf
+name: pdf
+description: Use when tasks involve reading, creating, or reviewing PDF files where
+  rendering and layout matter; prefer visual checks by rendering pages (Poppler) and
+  use Python tools such as `reportlab`, `pdfplumber`, and `pypdf` for generation and
+  extraction.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/pdf/SKILL.md
+license:
+  status: accepted
+  kind: Apache-2.0
+  file: skills/.curated/pdf/LICENSE.txt
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+facets:
+- python
+languages: []
+platforms: []
+aliases:
+- pdf
+content:
+  kind: skill_markdown
+  sha256: d108cf2b36355ab37eb5962933f4d09785ec002f3105c506129320209306b9d2
+  char_count: 2517
+  text: "# PDF Skill\n\n## When to use\n- Read or review PDF content where layout\
+    \ and visuals matter.\n- Create PDFs programmatically with reliable formatting.\n\
+    - Validate final rendering before delivery.\n\n## Workflow\n1. Prefer visual review:\
+    \ render PDF pages to PNGs and inspect them.\n   - Use `pdftoppm` if available.\n\
+    \   - If unavailable, install Poppler or ask the user to review the output locally.\n\
+    2. Use `reportlab` to generate PDFs when creating new documents.\n3. Use `pdfplumber`\
+    \ (or `pypdf`) for text extraction and quick checks; do not rely on it for layout\
+    \ fidelity.\n4. After each meaningful update, re-render pages and verify alignment,\
+    \ spacing, and legibility.\n\n## Temp and output conventions\n- Use `tmp/pdfs/`\
+    \ for intermediate files; delete when done.\n- Write final artifacts under `output/pdf/`\
+    \ when working in this repo.\n- Keep filenames stable and descriptive.\n\n## Dependencies\
+    \ (install if missing)\nPrefer `uv` for dependency management.\n\nPython packages:\n\
+    ```\nuv pip install reportlab pdfplumber pypdf\n```\nIf `uv` is unavailable:\n\
+    ```\npython3 -m pip install reportlab pdfplumber pypdf\n```\nSystem tools (for\
+    \ rendering):\n```\n# macOS (Homebrew)\nbrew install poppler\n\n# Ubuntu/Debian\n\
+    sudo apt-get install -y poppler-utils\n```\n\nIf installation isn't possible in\
+    \ this environment, tell the user which dependency is missing and how to install\
+    \ it locally.\n\n## Environment\nNo required environment variables.\n\n## Rendering\
+    \ command\n```\npdftoppm -png $INPUT_PDF $OUTPUT_PREFIX\n```\n\n## Quality expectations\n\
+    - Maintain polished visual design: consistent typography, spacing, margins, and\
+    \ section hierarchy.\n- Avoid rendering issues: clipped text, overlapping elements,\
+    \ broken tables, black squares, or unreadable glyphs.\n- Charts, tables, and images\
+    \ must be sharp, aligned, and clearly labeled.\n- Use ASCII hyphens only. Avoid\
+    \ U+2011 (non-breaking hyphen) and other Unicode dashes.\n- Citations and references\
+    \ must be human-readable; never leave tool tokens or placeholder strings.\n\n\
+    ## Final checks\n- Do not deliver until the latest PNG inspection shows zero visual\
+    \ or formatting defects.\n- Confirm headers/footers, page numbering, and section\
+    \ transitions look polished.\n- Keep intermediate files organized or remove them\
+    \ after final approval."

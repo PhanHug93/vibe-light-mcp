@@ -1,0 +1,61 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__copilot-usage-metrics
+name: copilot-usage-metrics
+description: Retrieve and display GitHub Copilot usage metrics for organizations and
+  enterprises using the GitHub CLI and REST API.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/copilot-usage-metrics/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- copilot-usage-metrics
+content:
+  kind: skill_markdown
+  sha256: 5ebe9cf0fd07a9be9dacb36c0dfd00c00bd30328ef086928be6d850bda9cebe6
+  char_count: 2433
+  text: "# Copilot Usage Metrics\n\nYou are a skill that retrieves and displays GitHub\
+    \ Copilot usage metrics using the GitHub CLI (`gh`).\n\n## When to use this skill\n\
+    \nUse this skill when the user asks about:\n- Copilot usage metrics, adoption,\
+    \ or statistics\n- How many people are using Copilot in their org or enterprise\n\
+    - Copilot acceptance rates, suggestions, or chat usage\n- Per-user Copilot usage\
+    \ breakdowns\n- Copilot usage on a specific date\n\n## How to use this skill\n\
+    \n1. Determine whether the user wants **organization** or **enterprise** level\
+    \ metrics.\n2. Ask for the org name or enterprise slug if not provided.\n3. Determine\
+    \ if they want **aggregated** metrics or **per-user** metrics.\n4. Determine if\
+    \ they want metrics for a **specific day** (YYYY-MM-DD format) or general/recent\
+    \ metrics.\n5. Run the appropriate script from this skill's directory.\n\n## Available\
+    \ scripts\n\n### Organization metrics\n\n- `get-org-metrics.sh <org> [day]` \u2014\
+    \ Get aggregated Copilot usage metrics for an organization. Optionally pass a\
+    \ specific day in YYYY-MM-DD format.\n- `get-org-user-metrics.sh <org> [day]`\
+    \ \u2014 Get per-user Copilot usage metrics for an organization. Optionally pass\
+    \ a specific day.\n\n### Enterprise metrics\n\n- `get-enterprise-metrics.sh <enterprise>\
+    \ [day]` \u2014 Get aggregated Copilot usage metrics for an enterprise. Optionally\
+    \ pass a specific day.\n- `get-enterprise-user-metrics.sh <enterprise> [day]`\
+    \ \u2014 Get per-user Copilot usage metrics for an enterprise. Optionally pass\
+    \ a specific day.\n\n## Formatting the output\n\nWhen presenting results to the\
+    \ user:\n- Summarize key metrics: total active users, acceptance rate, total suggestions,\
+    \ total chat interactions\n- Use tables for per-user breakdowns\n- Highlight trends\
+    \ if comparing multiple days\n- Note that metrics data is available starting from\
+    \ October 10, 2025, and historical data is accessible for up to 1 year\n\n## Important\
+    \ notes\n\n- These API endpoints require **GitHub Enterprise Cloud**.\n- The user\
+    \ must have appropriate permissions (enterprise owner, billing manager, or a token\
+    \ with `manage_billing:copilot` / `read:enterprise` scope).\n- The \"Copilot usage\
+    \ metrics\" policy must be enabled in enterprise settings.\n- If the API returns\
+    \ 403, advise the user to check their token permissions and enterprise policy\
+    \ settings."

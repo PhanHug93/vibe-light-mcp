@@ -1,0 +1,57 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__planning-oracle-to-postgres-migration-integration-testing
+name: planning-oracle-to-postgres-migration-integration-testing
+description: Creates an integration testing plan for .NET data access artifacts during
+  Oracle-to-PostgreSQL database migrations. Analyzes a single project to identify
+  repositories, DAOs, and service layers that interact with the database, then produces
+  a structured testing plan. Use when planning integration test coverage for a migrated
+  project, identifying which data access methods need tests, or preparing for Oracle-to-PostgreSQL
+  migration validation.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/planning-oracle-to-postgres-migration-integration-testing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- testing
+languages: []
+platforms: []
+aliases:
+- planning-oracle-to-postgres-migration-integration-testing
+content:
+  kind: skill_markdown
+  sha256: 5b5bd61ee92cb67fd6a06f28c208385a55ca110fc17d9d15dc8ab126be287820
+  char_count: 2188
+  text: "# Planning Integration Testing for Oracle-to-PostgreSQL Migration\n\nAnalyze\
+    \ a single target project to identify data access artifacts that require integration\
+    \ testing, then produce a structured, actionable testing plan.\n\n## Workflow\n\
+    \n```\nProgress:\n- [ ] Step 1: Identify data access artifacts\n- [ ] Step 2:\
+    \ Classify testing priorities\n- [ ] Step 3: Write the testing plan\n```\n\n**Step\
+    \ 1: Identify data access artifacts**\n\nScope to the target project only. Find\
+    \ classes and methods that interact directly with the database \u2014 repositories,\
+    \ DAOs, stored procedure callers, service layers performing CRUD operations.\n\
+    \n**Step 2: Classify testing priorities**\n\nRank artifacts by migration risk.\
+    \ Prioritize methods that use Oracle-specific features (refcursors, `TO_CHAR`,\
+    \ implicit type coercion, `NO_DATA_FOUND`) over simple CRUD.\n\n**Step 3: Write\
+    \ the testing plan**\n\nWrite a markdown plan covering:\n- List of testable artifacts\
+    \ with method signatures\n- Recommended test cases per artifact\n- Seed data requirements\n\
+    - Known Oracle\u2192PostgreSQL behavioral differences to validate\n\n## Output\n\
+    \nWrite the plan to: `.github/oracle-to-postgres-migration/Reports/{TARGET_PROJECT}\
+    \ Integration Testing Plan.md`\n\n## Key Constraints\n\n- **Single project scope**\
+    \ \u2014 only plan tests for artifacts within the target project.\n- **Database\
+    \ interactions only** \u2014 skip business logic that does not touch the database.\n\
+    - **Oracle is the golden source** \u2014 tests should capture Oracle's expected\
+    \ behavior for comparison against PostgreSQL.\n- **No multi-connection harnessing**\
+    \ \u2014 migrated applications are copied and renamed (e.g., `MyApp.Postgres`),\
+    \ so each instance targets one database."

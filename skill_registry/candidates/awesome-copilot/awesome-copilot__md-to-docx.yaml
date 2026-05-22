@@ -1,0 +1,67 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__md-to-docx
+name: md-to-docx
+description: "Convert Markdown files to professionally formatted Word (.docx) documents\
+  \ with embedded PNG images \u2014 pure JavaScript, no external tools required"
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/md-to-docx/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets:
+- frontend
+- typescript
+languages: []
+platforms: []
+aliases:
+- md-to-docx
+content:
+  kind: skill_markdown
+  sha256: 2f47a261fac808051f10f023f258c4b34a89ee909f82f280ad14a6e9fcf22f06
+  char_count: 2749
+  text: "# Markdown to Word (.docx) Skill\n\nConvert Markdown (`.md`) files into professionally\
+    \ formatted Word (`.docx`) documents with embedded PNG images. Uses **pure JavaScript**\
+    \ via the `docx` and `marked` npm packages \u2014 no Pandoc, LibreOffice, or any\
+    \ native binary required.\n\n## How to Convert\n\n```bash\n# Install dependencies\
+    \ (one-time, from the scripts folder)\ncd skills/md-to-docx/scripts && npm install\n\
+    \n# Convert (run from workspace root)\nnode skills/md-to-docx/scripts/md-to-docx.mjs\
+    \ <input.md> [output.docx]\n```\n\nIf `output.docx` is omitted, it defaults to\
+    \ `<input-basename>.docx` in the current directory.\n\n## Skill Folder Contents\n\
+    \n| File | Purpose |\n|------|---------|\n| `SKILL.md` | This instruction file\
+    \ |\n| `scripts/md-to-docx.mjs` | Node.js Markdown-to-Word converter |\n| `scripts/package.json`\
+    \ | Dependencies (`docx`, `marked`) |\n\n## Prerequisites\n\n| Requirement | Version\
+    \ | Notes |\n|-------------|---------|-------|\n| **Node.js** | 18+ | Required\
+    \ runtime |\n| **`docx`** | 9+ | Pure JS Word document generator |\n| **`marked`**\
+    \ | 15+ | Markdown parser |\n\nNo native binaries. No system-level installs. Works\
+    \ on Windows, macOS, and Linux.\n\n## Features\n\nThe converter:\n\n- **Extracts\
+    \ YAML front-matter** \u2014 uses `title`, `date`, `version`, `audience` for the\
+    \ title page\n- **Generates a title page** \u2014 with project name, subtitle,\
+    \ date, version, and audience\n- **Generates a table of contents** \u2014 built\
+    \ from H1-H3 headings\n- **Embeds PNG images** \u2014 resolves `![alt](path)`\
+    \ references relative to the input `.md` file, reads the PNG, and embeds it inline\
+    \ in the Word document\n- **Styled output** \u2014 Calibri font, colored headings\
+    \ (`#1F3864`), styled tables with alternating row colors, code blocks in Consolas\n\
+    - **Handles all Markdown elements** \u2014 headings, paragraphs, tables, code\
+    \ blocks, lists, images, links, horizontal rules\n\n## Image Embedding\n\nThe\
+    \ converter automatically embeds PNG images referenced in the Markdown:\n\n```markdown\n\
+    ![High-Level Architecture](diagrams/high-level-architecture.drawio.png)\n```\n\
+    \nThe image path is resolved **relative to the input Markdown file**. The PNG\
+    \ is read, dimensions are extracted from the PNG header, and the image is scaled\
+    \ to fit within 6 inches width while preserving aspect ratio.\n\nIf an image file\
+    \ is not found, a placeholder `[Image not found: <path>]` is inserted.\n\n## Front-Matter\
+    \ Format\n\n```yaml\n---\ntitle: Project Name \u2014 Project Summary\ndate: 2025-01-15\n\
+    version: 1.0\naudience: Engineering Team, Architects, Stakeholders\n---\n```\n\
+    \nThe title is split on `\u2014` or `\u2013` into main title and subtitle for\
+    \ the title page."

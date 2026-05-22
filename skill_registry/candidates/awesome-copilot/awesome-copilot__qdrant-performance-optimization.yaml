@@ -1,0 +1,50 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-performance-optimization
+name: qdrant-performance-optimization
+description: Different techniques to optimize the performance of Qdrant, including
+  indexing strategies, query optimization, and hardware considerations. Use when you
+  want to improve the speed and efficiency of your Qdrant deployment.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-performance-optimization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- qdrant-performance-optimization
+content:
+  kind: skill_markdown
+  sha256: 5323301ea670baa98623e53f8c363845f6edde59a2f0f88e0c6e948d61438a3f
+  char_count: 1842
+  text: "# Qdrant Performance Optimization\n\nThere are different aspects of Qdrant\
+    \ performance, this document serves as a navigation hub for different aspects\
+    \ of performance optimization in Qdrant.\n\n\n## Search Speed Optimization\n\n\
+    There are two different criteria for search speed: latency and throughput. \n\
+    Latency is the time it takes to get a response for a single query, while throughput\
+    \ is the number of queries that can be processed in a given time frame.\nDepending\
+    \ on your use case, you may want to optimize for one or both of these metrics.\n\
+    \nMore on search speed optimization can be found in the [Search Speed Optimization](search-speed-optimization/SKILL.md)\
+    \ skill.\n\n\n## Indexing Performance Optimization\n\nQdrant needs to build a\
+    \ vector index to perform efficient similarity search. The time it takes to build\
+    \ the index can vary depending on the size of your dataset, hardware, and configuration.\n\
+    \nMore on indexing performance optimization can be found in the [Indexing Performance\
+    \ Optimization](indexing-performance-optimization/SKILL.md) skill.\n\n\n## Memory\
+    \ Usage Optimization\n\nVector search can be memory intensive, especially when\
+    \ dealing with large datasets.\nQdrant has a flexible memory management system,\
+    \ which allows you to precisely control which parts of storage are kept in memory\
+    \ and which are stored on disk. This can help you optimize memory usage without\
+    \ sacrificing performance.\n\nMore on memory usage optimization can be found in\
+    \ the [Memory Usage Optimization](memory-usage-optimization/SKILL.md) skill."

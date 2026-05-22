@@ -1,0 +1,235 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__phoenix-cli
+name: phoenix-cli
+description: "Debug LLM applications using the Phoenix CLI. Fetch traces, analyze\
+  \ errors, structure trace review with open coding and axial coding, inspect datasets,\
+  \ review experiments, query annotation configs, and use the GraphQL API. Use whenever\
+  \ the user is analyzing traces or spans, investigating LLM/agent failures, deciding\
+  \ what to do after instrumenting an app, building failure taxonomies, choosing what\
+  \ evals to write, or asking \"what's going wrong\", \"what kinds of mistakes\",\
+  \ or \"where do I focus\" \u2014 even without naming a technique."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/phoenix-cli/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- phoenix-cli
+content:
+  kind: skill_markdown
+  sha256: dde98a935bea2f498567860dbb1577a3064b06a27178ee8ebbb76b48e79d26e1
+  char_count: 16200
+  text: "# Phoenix CLI\n\n## Invocation\n\n```bash\npx <resource> <action>       \
+    \                   # if installed globally\nnpx @arizeai/phoenix-cli <resource>\
+    \ <action>    # no install required\n```\n\nThe CLI uses singular resource commands\
+    \ with subcommands like `list` and `get`:\n\n```bash\npx trace list\npx trace\
+    \ get <trace-id>\npx trace annotate <trace-id>\npx trace add-note <trace-id>\n\
+    px trace-annotations delete\npx span list\npx span annotate <span-id>\npx span\
+    \ add-note <span-id>\npx span-annotations delete\npx session list\npx session\
+    \ get <session-id>\npx session annotate <session-id>\npx session add-note <session-id>\n\
+    px session-annotations delete\npx dataset list\npx dataset get <name>\npx project\
+    \ list\npx project get <name>\npx annotation-config list\npx auth status\npx profile\
+    \ list\npx profile show [name]\npx profile create <name>\npx profile use <name>\n\
+    px profile edit <name>\npx profile delete <name>\n```\n\n## Setup\n\n```bash\n\
+    export PHOENIX_HOST=http://localhost:6006\nexport PHOENIX_PROJECT=my-project\n\
+    export PHOENIX_API_KEY=your-api-key  # if auth is enabled\n```\n\nAlways use `--format\
+    \ raw --no-progress` when piping to `jq`.\n\n## Quick Reference\n\n| Task | Files\
+    \ |\n| ---- | ----- |\n| Look at sampled traces, spans, or sessions and write\
+    \ specific notes about what went wrong (no taxonomy yet) | [references/open-coding](references/open-coding.md)\
+    \ |\n| Group those notes into a structured failure taxonomy and quantify what\
+    \ matters | [references/axial-coding](references/axial-coding.md) |\n\nBoth stages\
+    \ tag every artifact with one shared **coding annotation identifier** (descriptive\
+    \ shape, e.g. `coding-run:chatbot-context-loss-2026-05-06`) so the run is queryable,\
+    \ reversible, and viewable as a unit. Pass `--identifier <value>` explicitly on\
+    \ every `px` call \u2014 shell inheritance is unreliable across agent harnesses.\
+    \ Open coding writes notes via `px ... add-note` and records a small local JSONL\
+    \ sidecar at `.px/coding/<sanitized-identifier>.jsonl`; axial coding reads that\
+    \ sidecar as the deterministic handoff and records labels in `.px/coding/<sanitized-identifier>-axial.jsonl`.\
+    \ Pick the identifier once per run (see [references/open-coding.md](references/open-coding.md#coding-annotation-identifier-pick-this-first)),\
+    \ then share the Phoenix UI link from the wrap-up section. Revert is opt-in and\
+    \ runs three identifier-bound DELETEs only after explicit user confirmation.\n\
+    \n> **Workflow term vs. server annotation name.** The skill prose calls this value\
+    \ the **coding annotation identifier** (shell-variable hint: `CODING_ANNOTATION_IDENTIFIER`).\
+    \ The server-side annotation NAME used for the UI filter is unchanged \u2014 `coding_session_id`\
+    \ \u2014 for data compatibility with rows already written by previous runs. Don't\
+    \ try to rename the server-side annotation; treat the asymmetry as load-bearing.\n\
+    \n## Workflows\n\n**\"What do I do after instrumenting?\" / \"Where do I focus?\"\
+    \ / \"What's going wrong?\"**\n[open-coding](references/open-coding.md) \u2192\
+    \ [axial-coding](references/axial-coding.md) \u2192 build evals for the top categories.\n\
+    \n## Reference Categories\n\n| Prefix | Description |\n| ------ | -----------\
+    \ |\n| `references/open-coding` | Free-form notes against sampled traces, spans,\
+    \ or sessions \u2014 reach for it whenever the user wants to make sense of LLM\
+    \ traffic but has no failure categories yet. Includes a unit-of-analysis diagnostic\
+    \ so the workflow runs at the level the failure modes actually live at (trace\
+    \ for stateless single-shot calls, session for multi-turn agents, span for mechanical/in-isolation\
+    \ failures). |\n| `references/axial-coding` | Inductive grouping of notes into\
+    \ a MECE taxonomy with counts \u2014 reach for it whenever the user has observations\
+    \ and needs categories or eval targets |\n\n## Auth\n\n```bash\npx auth status\
+    \                                # check connection and authentication\npx auth\
+    \ status --endpoint http://other:6006   # check a specific endpoint\npx auth status\
+    \ --profile staging              # check a named profile's connection\n```\n\n\
+    ## Profiles\n\nNamed profiles let you switch between multiple Phoenix instances\
+    \ (local, staging, cloud) without juggling environment variables. Profiles are\
+    \ stored in `~/.px/settings.json` (or `$XDG_CONFIG_HOME/px/settings.json`).\n\n\
+    Configuration priority (highest to lowest): CLI flags > env vars > active profile\
+    \ > built-in defaults.\n\n```bash\npx profile list                           \
+    \   # list all profiles (shows active profile)\npx profile show              \
+    \                # show the active profile's settings\npx profile show staging\
+    \                      # show a named profile's settings\npx profile create prod\
+    \ --endpoint https://app.phoenix.arize.com --api-key <key> --activate\npx profile\
+    \ create local --endpoint http://localhost:6006 --project my-app\npx profile use\
+    \ prod                          # switch the active profile\npx profile edit prod\
+    \                         # open profile JSON in $EDITOR (validates on save)\n\
+    px profile delete prod --yes                 # delete a profile (--yes skips confirmation)\n\
+    ```\n\nUse `--profile <name>` on any command to target a specific profile without\
+    \ changing the active one:\n\n```bash\npx trace list --profile staging --limit\
+    \ 10 --format raw --no-progress | jq .\npx auth status --profile prod\n```\n\n\
+    `px profile create` options: `--endpoint <url>`, `--project <name>`, `--api-key\
+    \ <key>`, `--header <key=value>` (repeatable), `--activate`.\n\n## Projects\n\n\
+    ```bash\npx project list                                            # list all\
+    \ projects (table view)\npx project list --format raw --no-progress | jq '.[].name'\
+    \ # project names as JSON\npx project get my-project --format raw --no-progress\
+    \       # single record by exact name\npx project get my-project --format raw\
+    \ --no-progress | jq -r '.id'  # extract project id\n```\n\n`project get` exits\
+    \ with `ExitCode.FAILURE` (1) on a name miss and writes a `StructuredError` `{error,\
+    \ code: \"FAILURE\", hint}` to stderr in `--format json|raw`.\n\n## Traces\n\n\
+    ```bash\npx trace list --limit 20 --format raw --no-progress | jq .\npx trace\
+    \ list --last-n-minutes 60 --limit 20 --format raw --no-progress | jq '.[] | select(.status\
+    \ == \"ERROR\")'\npx trace list --since 2025-01-15T00:00:00Z --limit 50 --format\
+    \ raw --no-progress | jq .\npx trace list --format raw --no-progress | jq 'sort_by(-.duration)\
+    \ | .[0:5]'\npx trace list --include-notes --format raw --no-progress | jq '.[].notes'\n\
+    px trace get <trace-id> --format raw | jq .\npx trace get <trace-id> --format\
+    \ raw | jq '.spans[] | select(.status_code != \"OK\")'\npx trace get <trace-id>\
+    \ --include-notes --format raw | jq '.notes'\npx trace annotate <trace-id> --name\
+    \ reviewer --label pass\npx trace annotate <trace-id> --name reviewer --score\
+    \ 0.9 --format raw --no-progress\npx trace annotate <trace-id> --name reviewer\
+    \ --label pass --identifier \"<coding-annotation-id>\"  # tag with a coding annotation\
+    \ identifier\npx trace add-note <trace-id> --text \"needs follow-up\"\npx trace\
+    \ add-note <trace-id> --text \"needs follow-up\" --identifier \"<coding-annotation-id>\"\
+    \  # tag + upsert on identifier\npx trace-annotations delete --identifier \"<coding-annotation-id>\"\
+    \ --all -y            # nuke every annotation tied to this coding annotation identifier\n\
+    ```\n\n`px <entity>-annotations delete` requires `--all` or both `--start-time`\
+    \ and `--end-time` and emits `{deleted: true, target, filter}` on success.\n\n\
+    ### Trace JSON shape\n\n```\nTrace\n  traceId, status (\"OK\"|\"ERROR\"), duration\
+    \ (ms), startTime, endTime\n  annotations[] (with --include-annotations, excludes\
+    \ note)\n    name, result { score, label, explanation }\n  notes[] (with --include-notes)\n\
+    \    name=\"note\", result { explanation }\n  rootSpan  \u2014 top-level span\
+    \ (parent_id: null)\n  spans[]\n    name, span_kind (\"LLM\"|\"CHAIN\"|\"TOOL\"\
+    |\"RETRIEVER\"|\"EMBEDDING\"|\"AGENT\"|\"RERANKER\"|\"GUARDRAIL\"|\"EVALUATOR\"\
+    |\"UNKNOWN\")\n    status_code (\"OK\"|\"ERROR\"|\"UNSET\"), parent_id, context.span_id\n\
+    \    notes[] (with --include-notes)\n      name=\"note\", result { explanation\
+    \ }\n    attributes\n      input.value, output.value          \u2014 raw input/output\n\
+    \      llm.model_name, llm.provider\n      llm.token_count.prompt/completion/total\n\
+    \      llm.token_count.prompt_details.cache_read\n      llm.token_count.completion_details.reasoning\n\
+    \      llm.input_messages.{N}.message.role/content\n      llm.output_messages.{N}.message.role/content\n\
+    \      llm.invocation_parameters          \u2014 JSON string (temperature, etc.)\n\
+    \      exception.message                  \u2014 set if span errored\n```\n\n\
+    ## Spans\n\n```bash\npx span list --limit 20                                 \
+    \   # recent spans (table view)\npx span list --last-n-minutes 60 --limit 50 \
+    \               # spans from last hour\npx span list --since 2025-01-15T00:00:00Z\
+    \ --limit 50       # spans since a timestamp\npx span list --span-kind LLM --limit\
+    \ 10                    # only LLM spans\npx span list --status-code ERROR --limit\
+    \ 20                # only errored spans\npx span list --name chat_completion\
+    \ --limit 10             # filter by span name\npx span list --trace-id <id> --format\
+    \ raw --no-progress | jq .   # all spans for a trace\npx span list --parent-id\
+    \ null --limit 10                   # only root spans\npx span list --parent-id\
+    \ <span-id> --limit 10              # only children of a span\npx span list --include-annotations\
+    \ --limit 10              # include annotation scores\npx span list --include-notes\
+    \ --limit 10                    # include span notes\npx span list --attribute\
+    \ llm.model_name:gpt-4 --limit 10  # filter by string attribute\npx span list\
+    \ --attribute llm.token_count.total:500 --limit 10  # filter by numeric attribute\n\
+    px span list --attribute 'user.id:\"12345\"' --limit 10     # force string match\
+    \ for numeric-looking value\npx span list --attribute session.id:sess:abc:123\
+    \ --limit 20  # colon in value OK (split on first colon only)\npx span list --attribute\
+    \ llm.model_name:gpt-4 --attribute session.id:abc --limit 10  # AND multiple filters\n\
+    px span list output.json --limit 100                       # save to JSON file\n\
+    px span list --format raw --no-progress | jq '.[] | select(.status_code == \"\
+    ERROR\")'\npx span annotate <span-id> --name reviewer --label pass\npx span annotate\
+    \ <span-id> --name checker --score 1 --annotator-kind CODE\npx span annotate <span-id>\
+    \ --name reviewer --label pass --identifier \"<coding-annotation-id>\"  # tag\
+    \ with a coding annotation identifier\npx span add-note <span-id> --text \"verified\
+    \ by agent\"\npx span add-note <span-id> --text \"verified by agent\" --identifier\
+    \ \"<coding-annotation-id>\"  # tag + upsert on identifier\npx span-annotations\
+    \ delete --identifier \"<coding-annotation-id>\" --all -y           # nuke every\
+    \ annotation tied to this coding annotation identifier\n```\n\n### Span JSON shape\n\
+    \n```\nSpan\n  name, span_kind (\"LLM\"|\"CHAIN\"|\"TOOL\"|\"RETRIEVER\"|\"EMBEDDING\"\
+    |\"AGENT\"|\"RERANKER\"|\"GUARDRAIL\"|\"EVALUATOR\"|\"UNKNOWN\")\n  status_code\
+    \ (\"OK\"|\"ERROR\"|\"UNSET\"), status_message\n  context.span_id, context.trace_id,\
+    \ parent_id\n  start_time, end_time\n  attributes\n    input.value, output.value\
+    \          \u2014 raw input/output\n    llm.model_name, llm.provider\n    llm.token_count.prompt/completion/total\n\
+    \    llm.input_messages.{N}.message.role/content\n    llm.output_messages.{N}.message.role/content\n\
+    \    llm.invocation_parameters          \u2014 JSON string (temperature, etc.)\n\
+    \    exception.message                  \u2014 set if span errored\n  annotations[]\
+    \ (with --include-annotations, excludes note)\n    name, result { score, label,\
+    \ explanation }\n  notes[] (with --include-notes)\n    name=\"note\", result {\
+    \ explanation }\n```\n\n## Sessions\n\n```bash\npx session list --limit 10 --format\
+    \ raw --no-progress | jq .\npx session list --order asc --format raw --no-progress\
+    \ | jq '.[].session_id'\npx session list --include-annotations --include-notes\
+    \ --format raw --no-progress | jq '.[].notes'\npx session get <session-id> --format\
+    \ raw | jq .\npx session get <session-id> --include-annotations --format raw |\
+    \ jq '.session.annotations'\npx session get <session-id> --include-notes --format\
+    \ raw | jq '.session.notes'\npx session annotate <session-id> --name reviewer\
+    \ --label pass\npx session annotate <session-id> --name reviewer --score 0.9 --format\
+    \ raw --no-progress\npx session annotate <session-id> --name reviewer --label\
+    \ pass --identifier \"<coding-annotation-id>\"  # tag with a coding annotation\
+    \ identifier\npx session add-note <session-id> --text \"verified by agent\"\n\
+    px session add-note <session-id> --text \"verified by agent\" --identifier \"\
+    <coding-annotation-id>\"  # tag + upsert on identifier\npx session-annotations\
+    \ delete --identifier \"<coding-annotation-id>\" --all -y              # nuke\
+    \ every annotation tied to this coding annotation identifier\n```\n\n### Session\
+    \ JSON shape\n\n```\nSessionData\n  id, session_id, project_id\n  start_time,\
+    \ end_time\n  token_count_prompt, token_count_completion, token_count_total  \u2014\
+    \ cumulative across all LLM spans in the session (int, default 0)\n  annotations[]\
+    \ (with --include-annotations, excludes note)\n    name, result { score, label,\
+    \ explanation }\n  notes[] (with --include-notes)\n    name=\"note\", result {\
+    \ explanation }\n  traces[]\n    id, trace_id, start_time, end_time\n```\n\n##\
+    \ Datasets / Experiments / Prompts\n\n```bash\npx dataset list --format raw --no-progress\
+    \ | jq '.[].name'\npx dataset get <name> --format raw | jq '.examples[] | {input,\
+    \ output: .expected_output}'\npx dataset get <name> --split train --format raw\
+    \ | jq .    # filter by split\npx dataset get <name> --version <version-id> --format\
+    \ raw | jq .\npx experiment list --dataset <name> --format raw --no-progress |\
+    \ jq '.[] | {id, name, failed_run_count}'\npx experiment get <id> --format raw\
+    \ --no-progress | jq '.[] | select(.error != null) | {input, error}'\npx prompt\
+    \ list --format raw --no-progress | jq '.[].name'\npx prompt get <name> --format\
+    \ text --no-progress   # plain text, ideal for piping to AI\n```\n\n## Annotation\
+    \ Configs\n\n```bash\npx annotation-config list                              \
+    \             # list all configs (table view)\npx annotation-config list --format\
+    \ raw --no-progress | jq '.[].name' # config names as JSON\n```\n\n## GraphQL\n\
+    \nFor ad-hoc queries not covered by the commands above. Output is `{\"data\":\
+    \ {...}}`.\n\n```bash\npx api graphql '{ projectCount datasetCount promptCount\
+    \ evaluatorCount }'\npx api graphql '{ projects { edges { node { name traceCount\
+    \ tokenCountTotal } } } }' | jq '.data.projects.edges[].node'\npx api graphql\
+    \ '{ datasets { edges { node { name exampleCount experimentCount } } } }' | jq\
+    \ '.data.datasets.edges[].node'\npx api graphql '{ evaluators { edges { node {\
+    \ name kind } } } }' | jq '.data.evaluators.edges[].node'\n\n# Introspect any\
+    \ type\npx api graphql '{ __type(name: \"Project\") { fields { name type { name\
+    \ } } } }' | jq '.data.__type.fields[]'\n```\n\nKey root fields: `projects`, `datasets`,\
+    \ `prompts`, `evaluators`, `projectCount`, `datasetCount`, `promptCount`, `evaluatorCount`,\
+    \ `viewer`.\n\n## Docs\n\nDownload Phoenix documentation markdown for local use\
+    \ by coding agents.\n\n```bash\npx docs fetch                                #\
+    \ fetch default workflow docs to .px/docs\npx docs fetch --workflow tracing  \
+    \           # fetch only tracing docs\npx docs fetch --workflow tracing --workflow\
+    \ evaluation\npx docs fetch --dry-run                      # preview what would\
+    \ be downloaded\npx docs fetch --refresh                      # clear .px/docs\
+    \ and re-download\npx docs fetch --output-dir ./my-docs         # custom output\
+    \ directory\n```\n\nKey options: `--workflow` (repeatable, values: `tracing`,\
+    \ `evaluation`, `datasets`, `prompts`, `integrations`, `sdk`, `self-hosting`,\
+    \ `all`), `--dry-run`, `--refresh`, `--output-dir` (default `.px/docs`), `--workers`\
+    \ (default 10)."

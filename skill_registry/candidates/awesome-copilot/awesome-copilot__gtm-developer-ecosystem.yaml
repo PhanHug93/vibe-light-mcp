@@ -1,0 +1,149 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-developer-ecosystem
+name: gtm-developer-ecosystem
+description: Build and scale developer-led adoption through ecosystem programs. Use
+  when deciding open vs curated ecosystems, building developer programs, scaling platform
+  adoption, or designing student program pipelines.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-developer-ecosystem/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gtm-developer-ecosystem
+content:
+  kind: skill_markdown
+  sha256: 52dfe739ae185d89c19639876e0cb884d5fd2851ea986b7b1ca4fa44b362907b
+  char_count: 9239
+  text: "# Developer Ecosystem\n\nBuild and scale developer-led adoption through ecosystem\
+    \ programs, community, and partnerships. Focus on what actually drives adoption,\
+    \ not vanity metrics.\n\n## When to Use\n\n**Triggers:**\n- \"How do we build\
+    \ a developer ecosystem?\"\n- \"Should we curate quality or go open?\"\n- \"Developer\
+    \ community isn't growing\"\n- \"Nobody's building on our API\"\n- \"How do we\
+    \ compete with larger platforms?\"\n\n**Context:**\n- API platforms and developer\
+    \ tools\n- Products with extensibility (plugins, integrations)\n- Developer-first\
+    \ GTM motion\n- Platform business models\n\n---\n\n## Core Frameworks\n\n### 1.\
+    \ Open vs Curated Ecosystem (The Marketplace Decision)\n\n**The Pattern:**\n\n\
+    Running ecosystem at a developer platform. Leadership debate: Open the marketplace\
+    \ to anyone, or curate for quality?\n\n**Quality control camp:** \"We need gatekeeping.\
+    \ Otherwise we'll get SEO spam, low-quality integrations, brand damage.\"\n\n\
+    **Open camp:** \"Developers route around gatekeepers. Network effects matter more\
+    \ than quality control.\"\n\n**The decision:** Went open. Quality concerns were\
+    \ real, but we made a bet: control comes from discovery and trust layers, not\
+    \ submission gatekeeping.\n\n**What We Built Instead of Gatekeeping:**\n\n1. **Search\
+    \ and discovery** \u2014 Surface high-quality integrations through algorithms,\
+    \ not human curation\n2. **Trust signals** \u2014 Verified badges, usage stats,\
+    \ health scores\n3. **Community curation** \u2014 User ratings, collections, recommendations\n\
+    4. **Moderation** \u2014 Remove spam after publication, not block before\n\n**Result:**\
+    \ Network effects won. Thousands of integrations published. Quality surfaced through\
+    \ usage, not through us deciding upfront.\n\n**Decision Framework:**\n- **Curated**\
+    \ works when: Brand risk high, dozens of partners, can scale human review\n- **Open**\
+    \ works when: Hundreds/thousands of potential partners, network effects matter\
+    \ more than quality control\n\n**Common Mistake:**\n\nDefaulting to curated because\
+    \ \"we need quality control.\" This works when you have 10 partners. At 100+,\
+    \ you become the bottleneck. Build discovery and trust systems instead.\n\n---\n\
+    \n### 2. The Three-Year Student Program Arc\n\n**The Pattern:**\n\nMost developer\
+    \ programs optimize for quick wins. Better approach: Build long-term talent pipeline.\n\
+    \n**Year 1: University Partnerships**\n- Partner with CS departments\n- Curriculum\
+    \ integration (hackathons, coursework)\n- Student licenses (free or heavily discounted)\n\
+    - Metrics: # universities, # students activated\n\n**Year 2: Student Community\
+    \ & Certification**\n- Student expert certification program\n- Student-led workshops\
+    \ and events\n- Campus ambassadors\n- Metrics: # certified, # student-led events\n\
+    \n**Year 3: Career Bridge**\n- Job board connecting students \u2192 companies\n\
+    - Enterprise partnerships (hire certified students)\n- Alumni network\n- Metrics:\
+    \ # hired, company partnerships\n\n**Why This Works:**\n\nStudents become enterprise\
+    \ buyers 5-10 years later. You're building brand loyalty before they have purchasing\
+    \ power.\n\n**Common Mistake:**\n\nTreating students as immediate revenue. They're\
+    \ not. They're future enterprise decision-makers.\n\n---\n\n### 3. Developer Journey\
+    \ (Awareness \u2192 Integration \u2192 Advocacy)\n\n**Stage 1: Awareness**\n-\
+    \ How do they discover you?\n- Content, search, word-of-mouth, events\n\n**Stage\
+    \ 2: Onboarding**\n- First API call in <10 minutes\n- Quick-start guides\n- Sample\
+    \ code in popular languages\n\n**Stage 3: Integration**\n- Building real use cases\n\
+    - Integration guides\n- Support when stuck\n\n**Stage 4: Production**\n- Deployed\
+    \ and generating value\n- Monitoring usage\n- Enterprise upgrade path\n\n**Stage\
+    \ 5: Advocacy**\n- Sharing publicly\n- Recommending to others\n- Contributing\
+    \ back (docs, code, community)\n\n**Metrics That Matter:**\n- Time to first API\
+    \ call (onboarding)\n- % reaching production (integration success)\n- Monthly\
+    \ active developers (engagement)\n- Developer NPS (advocacy)\n\n**Common Mistake:**\n\
+    \nMeasuring vanity metrics (sign-ups, downloads) instead of real engagement (API\
+    \ calls, production deployments).\n\n---\n\n### 4. Documentation Hierarchy\n\n\
+    **Tier 1: Quick Starts (Get to Value Fast)**\n- \"Hello World\" in 5 minutes\n\
+    - Common use case examples\n- Copy-paste code that works\n\n**Tier 2: Guides (Solve\
+    \ Real Problems)**\n- Use case-specific tutorials\n- Integration patterns\n- Best\
+    \ practices\n\n**Tier 3: Reference (Complete API Docs)**\n- Every endpoint documented\n\
+    - Request/response examples\n- Error codes and handling\n\n**Tier 4: Conceptual\
+    \ (Understand the System)**\n- Architecture overviews\n- Design philosophy\n-\
+    \ Advanced patterns\n\n**Most developers need:** Tier 1 first, then Tier 2. Very\
+    \ few read Tier 4.\n\n**Common Mistake:**\n\nStarting with Tier 3 (comprehensive\
+    \ API reference). Developers want quick wins first.\n\n---\n\n### 5. Community\
+    \ vs Support (When to Use Which)\n\n**Community (Async, Scalable):**\n- Slack/Discord\
+    \ for real-time help\n- Forum for searchable Q&A\n- GitHub discussions for feature\
+    \ requests\n- Best for: Common questions, peer-to-peer help\n\n**Support (Sync,\
+    \ Expensive):**\n- Email support for enterprise\n- Dedicated Slack channels for\
+    \ partners\n- Video calls for complex integrations\n- Best for: Paying customers,\
+    \ strategic partners\n\n**How to Route:**\n\n**Community first:**\n- Developer\
+    \ asks question\n- Community member answers\n- You validate and upvote\n- Searchable\
+    \ for future developers\n\n**Escalate to support when:**\n- No community answer\
+    \ in 24 hours\n- Enterprise/paying customer\n- Security or compliance issue\n\
+    - Complex integration requiring custom work\n\n**Common Mistake:**\n\nProviding\
+    \ white-glove support to everyone. Doesn't scale. Build community that helps itself.\n\
+    \n---\n\n### 6. Partner Tiering for Developer Ecosystems\n\n**Tier 1: Integration\
+    \ Partners (Self-Serve)**\n- Build with public API\n- You provide: docs, Slack\
+    \ channel, office hours\n- They drive their own marketing\n- Best for: Ambitious\
+    \ partners with resources\n\n**Tier 2: Strategic Partners (Co-Development)**\n\
+    - Co-developed integration\n- You provide: dedicated channel, co-marketing\n-\
+    \ Joint case studies\n- Best for: High-impact integrations\n\n**Don't over-tier.**\
+    \ 2 tiers is enough. More creates confusion.\n\n---\n\n## Decision Trees\n\n###\
+    \ Open or Curated Ecosystem?\n\n```\nIs brand damage risk high if low-quality\
+    \ partners join?\n\u251C\u2500 Yes (regulated, security) \u2192 Curated\n\u2514\
+    \u2500 No \u2192 Continue...\n    \u2502\n    Can you scale human review?\n  \
+    \  \u251C\u2500 No (hundreds/thousands) \u2192 Open + discovery systems\n    \u2514\
+    \u2500 Yes (dozens) \u2192 Curated\n```\n\n### Community or Support?\n\n```\n\
+    Is this a common question?\n\u251C\u2500 Yes \u2192 Community (forum, Slack, docs)\n\
+    \u2514\u2500 No \u2192 Continue...\n    \u2502\n    Is requester paying customer?\n\
+    \    \u251C\u2500 Yes \u2192 Support (email, dedicated)\n    \u2514\u2500 No \u2192\
+    \ Community (with escalation path)\n```\n\n---\n\n## Common Mistakes\n\n**1. Building\
+    \ ecosystem before product-market fit**\n   - Fix core product first, then build\
+    \ ecosystem\n\n**2. No developer success team**\n   - Developers need help to\
+    \ succeed beyond docs\n\n**3. Poor documentation**\n   - Foundation of ecosystem,\
+    \ non-negotiable\n\n**4. Treating all developers equally**\n   - Tier support\
+    \ by strategic value (paying > free, partners > hobbyists)\n\n**5. No integration\
+    \ quality standards**\n   - Low-quality integrations hurt your brand\n\n**6. Measuring\
+    \ only vanity metrics**\n   - Track activation and production usage, not just\
+    \ sign-ups\n\n**7. Developer advocates with no technical depth**\n   - Hire developers\
+    \ who can code and teach\n\n---\n\n## Quick Reference\n\n**Open ecosystem checklist:**\n\
+    - [ ] Search and discovery (surface quality algorithmically)\n- [ ] Trust signals\
+    \ (verified badges, usage stats, ratings)\n- [ ] Community curation (user recommendations,\
+    \ collections)\n- [ ] Moderation (remove spam after publication)\n\n**Developer\
+    \ journey metrics:**\n- Awareness: Traffic, sign-ups\n- Onboarding: Time to first\
+    \ API call (<10 min target)\n- Integration: % reaching production deployment\n\
+    - Advocacy: Developer NPS, public sharing\n\n**Documentation hierarchy:**\n1.\
+    \ Quick starts (5-min \"Hello World\")\n2. Use case guides (solve real problems)\n\
+    3. API reference (complete documentation)\n4. Conceptual (architecture, philosophy)\n\
+    \n**Partner tiers:**\n- Tier 1: Self-serve (public API, docs, community)\n- Tier\
+    \ 2: Strategic (co-development, co-marketing)\n\n**Student program timeline:**\n\
+    - Year 1: University partnerships, activation\n- Year 2: Certification, student\
+    \ community\n- Year 3: Job board, enterprise hiring bridge\n\n---\n\n## Related\
+    \ Skills\n\n- **partnership-architecture**: Partner deal structures and co-marketing\n\
+    - **product-led-growth**: Self-serve activation funnels for developer products\n\
+    - **0-to-1-launch**: Launching developer products\n\n---\n\n*Based on building\
+    \ developer ecosystems at multiple platform companies, including the open vs curated\
+    \ marketplace decision, student program development (3-year arc building talent\
+    \ pipeline), and partner ecosystem growth. Not theory \u2014 patterns from building\
+    \ developer ecosystems that actually drove platform adoption and multi-year brand\
+    \ loyalty.*"

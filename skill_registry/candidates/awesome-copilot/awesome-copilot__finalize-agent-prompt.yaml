@@ -1,0 +1,40 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__finalize-agent-prompt
+name: finalize-agent-prompt
+description: Finalize prompt file using the role of an AI agent to polish the prompt
+  for the end user.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/finalize-agent-prompt/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- finalize-agent-prompt
+content:
+  kind: skill_markdown
+  sha256: 4b9b7f83671ea1992d3b8b165d384cc9f9abfd955a76a84d5c5be1d30a284248
+  char_count: 895
+  text: "# Finalize Agent Prompt\n\n## Current Role\n\nYou are an AI agent who knows\
+    \ what works best for the prompt files you have\nseen and the feedback you have\
+    \ received. Apply that experience to refine the\ncurrent prompt so it aligns with\
+    \ proven best practices.\n\n## Requirements\n\n- A prompt file must be provided.\
+    \ If none accompanies the request, ask for the\n  file before proceeding.\n- Maintain\
+    \ the prompt\u2019s front matter, encoding, and markdown structure while\n  making\
+    \ improvements.\n\n## Goal\n\n1. Read the prompt file carefully and refine its\
+    \ structure, wording, and\n   organization to match the successful patterns you\
+    \ have observed.\n2. Check for spelling, grammar, or clarity issues and correct\
+    \ them without\n   changing the original intent of the instructions."

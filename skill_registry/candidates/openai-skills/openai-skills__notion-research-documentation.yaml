@@ -1,0 +1,72 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__notion-research-documentation
+name: notion-research-documentation
+description: Research across Notion and synthesize into structured documentation;
+  use when gathering info from multiple Notion sources to produce briefs, comparisons,
+  or reports with citations.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/notion-research-documentation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: skills/.curated/notion-research-documentation/LICENSE.txt
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- notion-research-documentation
+content:
+  kind: skill_markdown
+  sha256: e88a46da978cf6f088a788fa92ee736df699a355a72f41f14bdc258bf3ef57e7
+  char_count: 3392
+  text: "# Research & Documentation\n\nPull relevant Notion pages, synthesize findings,\
+    \ and publish clear briefs or reports (with citations and links to sources).\n\
+    \n## Quick start\n1) Find sources with `Notion:notion-search` using targeted queries;\
+    \ confirm scope with the user.\n2) Fetch pages via `Notion:notion-fetch`; note\
+    \ key sections and capture citations (`reference/citations.md`).\n3) Choose output\
+    \ format (brief, summary, comparison, comprehensive report) using `reference/format-selection-guide.md`.\n\
+    4) Draft in Notion with `Notion:notion-create-pages` using the matching template\
+    \ (quick, summary, comparison, comprehensive).\n5) Link sources and add a references/citations\
+    \ section; update as new info arrives with `Notion:notion-update-page`.\n\n##\
+    \ Workflow\n### 0) If any MCP call fails because Notion MCP is not connected,\
+    \ pause and set it up:\n1. Add the Notion MCP:\n   - `codex mcp add notion --url\
+    \ https://mcp.notion.com/mcp`\n2. Enable remote MCP client:\n   - Set `[features].rmcp_client\
+    \ = true` in `config.toml` **or** run `codex --enable rmcp_client`\n3. Log in\
+    \ with OAuth:\n   - `codex mcp login notion`\n\nAfter successful login, the user\
+    \ will have to restart codex. You should finish your answer and tell them so when\
+    \ they try again they can continue with Step 1.\n\n### 1) Gather sources\n- Search\
+    \ first (`Notion:notion-search`); refine queries, and ask the user to confirm\
+    \ if multiple results appear.\n- Fetch relevant pages (`Notion:notion-fetch`),\
+    \ skim for facts, metrics, claims, constraints, and dates.\n- Track each source\
+    \ URL/ID for later citation; prefer direct quotes for critical facts.\n\n### 2)\
+    \ Select the format\n- Quick readout \u2192 quick brief.\n- Single-topic dive\
+    \ \u2192 research summary.\n- Option tradeoffs \u2192 comparison.\n- Deep dive\
+    \ / exec-ready \u2192 comprehensive report.\n- See `reference/format-selection-guide.md`\
+    \ for when to pick each.\n\n### 3) Synthesize\n- Outline before writing; group\
+    \ findings by themes/questions.\n- Note evidence with source IDs; flag gaps or\
+    \ contradictions.\n- Keep user goal in view (decision, summary, plan, recommendation).\n\
+    \n### 4) Create the doc\n- Pick the matching template in `reference/` (brief,\
+    \ summary, comparison, comprehensive) and adapt it.\n- Create the page with `Notion:notion-create-pages`;\
+    \ include title, summary, key findings, supporting evidence, and recommendations/next\
+    \ steps when relevant.\n- Add citations inline and a references section; link\
+    \ back to source pages.\n\n### 5) Finalize & handoff\n- Add highlights, risks,\
+    \ and open questions.\n- If the user needs follow-ups, create tasks or a checklist\
+    \ in the page; link any task database entries if applicable.\n- Share a short\
+    \ changelog or status using `Notion:notion-update-page` when updating.\n\n## References\
+    \ and examples\n- `reference/` \u2014 search tactics, format selection, templates,\
+    \ and citation rules (e.g., `advanced-search.md`, `format-selection-guide.md`,\
+    \ `research-summary-template.md`, `comparison-template.md`, `citations.md`).\n\
+    - `examples/` \u2014 end-to-end walkthroughs (e.g., `competitor-analysis.md`,\
+    \ `technical-investigation.md`, `market-research.md`, `trip-planning.md`)."

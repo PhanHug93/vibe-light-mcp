@@ -1,0 +1,69 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__creating-oracle-to-postgres-migration-integration-tests
+name: creating-oracle-to-postgres-migration-integration-tests
+description: Creates integration test cases for .NET data access artifacts during
+  Oracle-to-PostgreSQL database migrations. Generates DB-agnostic xUnit tests with
+  deterministic seed data that validate behavior consistency across both database
+  systems. Use when creating integration tests for a migrated project, generating
+  test coverage for data access layers, or writing Oracle-to-PostgreSQL migration
+  validation tests.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/creating-oracle-to-postgres-migration-integration-tests/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+- testing
+languages: []
+platforms: []
+aliases:
+- creating-oracle-to-postgres-migration-integration-tests
+content:
+  kind: skill_markdown
+  sha256: 60eef0db1f730fe869fe682a829f5d9ec06f08d5029f05f135cd17d9e4b18a0f
+  char_count: 3039
+  text: "# Creating Integration Tests for Oracle-to-PostgreSQL Migration\n\nGenerates\
+    \ integration test cases for data access artifacts in a single target project.\
+    \ Tests validate behavior consistency when running against Oracle or PostgreSQL.\n\
+    \n## Prerequisites\n\n- The test project must already exist and compile (scaffolded\
+    \ separately).\n- Read the existing base test class and seed manager conventions\
+    \ before writing tests.\n\n## Workflow\n\n```\nTest Creation:\n- [ ] Step 1: Discover\
+    \ the test project conventions\n- [ ] Step 2: Identify testable data access artifacts\n\
+    - [ ] Step 3: Create seed data\n- [ ] Step 4: Write test cases\n- [ ] Step 5:\
+    \ Review determinism\n```\n\n**Step 1: Discover the test project conventions**\n\
+    \nRead the base test class, seed manager, and project file to understand inheritance\
+    \ patterns, transaction management, and seed file conventions.\n\n**Step 2: Identify\
+    \ testable data access artifacts**\n\nScope to the target project only. List data\
+    \ access methods that interact with the database \u2014 repositories, DAOs, stored\
+    \ procedure callers, query builders.\n\n**Step 3: Create seed data**\n\n- Follow\
+    \ seed file location and naming conventions from the existing project.\n- Reuse\
+    \ existing seed files when possible.\n- Avoid `TRUNCATE TABLE` \u2014 keep existing\
+    \ database data intact.\n- Do not commit seed data; tests run in transactions\
+    \ that roll back.\n- Ensure seed data does not conflict with other tests.\n- Load\
+    \ and verify seed data before assertions depend on it.\n\n**Step 4: Write test\
+    \ cases**\n\n- Inherit from the base test class to get automatic transaction create/rollback.\n\
+    - Assert logical outputs (rows, columns, counts, error types), not platform-specific\
+    \ messages.\n- Assert specific expected values \u2014 never assert that a value\
+    \ is merely non-null or non-empty when a concrete value is available from seed\
+    \ data.\n- Avoid testing code paths that do not exist or asserting behavior that\
+    \ cannot occur.\n- Avoid redundant assertions across tests targeting the same\
+    \ method.\n\n**Step 5: Review determinism**\n\nRe-examine every assertion against\
+    \ non-null values. Confirm each is deterministic against the seeded data. Fix\
+    \ any assertion that depends on database state outside the test's control.\n\n\
+    ## Key Constraints\n\n- **Oracle is the golden source** \u2014 tests capture Oracle's\
+    \ expected behavior.\n- **DB-agnostic assertions** \u2014 no platform-specific\
+    \ error messages or syntax in assertions.\n- **Seed only against Oracle** \u2014\
+    \ test project will be migrated to PostgreSQL later.\n- **Scoped to one project**\
+    \ \u2014 do not create tests for artifacts outside the target project."

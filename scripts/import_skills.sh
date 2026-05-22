@@ -59,7 +59,7 @@ trap cleanup EXIT
 echo -e "${BOLD}${CYAN}"
 echo "╔══════════════════════════════════════════════════════════╗"
 echo "║       🧠 MCP Skill Importer — ChromaDB L2 Seeder       ║"
-echo "║                    v1.0.14                              ║"
+echo "║                    v1.0.16                              ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 

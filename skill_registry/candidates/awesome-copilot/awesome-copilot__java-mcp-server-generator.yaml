@@ -1,0 +1,314 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__java-mcp-server-generator
+name: java-mcp-server-generator
+description: Generate a complete Model Context Protocol server project in Java using
+  the official MCP Java SDK with reactive streams and optional Spring Boot integration.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/java-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- java-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: d4e55dbfac0c7d0bcc778543c8760abf93e365952a0b22549ce3374414504a1a
+  char_count: 22021
+  text: "# Java MCP Server Generator\n\nGenerate a complete, production-ready MCP\
+    \ server in Java using the official Java SDK with Maven or Gradle.\n\n## Project\
+    \ Generation\n\nWhen asked to create a Java MCP server, generate a complete project\
+    \ with this structure:\n\n```\nmy-mcp-server/\n\u251C\u2500\u2500 pom.xml (or\
+    \ build.gradle.kts)\n\u251C\u2500\u2500 src/\n\u2502   \u251C\u2500\u2500 main/\n\
+    \u2502   \u2502   \u251C\u2500\u2500 java/\n\u2502   \u2502   \u2502   \u2514\u2500\
+    \u2500 com/example/mcp/\n\u2502   \u2502   \u2502       \u251C\u2500\u2500 McpServerApplication.java\n\
+    \u2502   \u2502   \u2502       \u251C\u2500\u2500 config/\n\u2502   \u2502   \u2502\
+    \       \u2502   \u2514\u2500\u2500 ServerConfiguration.java\n\u2502   \u2502\
+    \   \u2502       \u251C\u2500\u2500 tools/\n\u2502   \u2502   \u2502       \u2502\
+    \   \u251C\u2500\u2500 ToolDefinitions.java\n\u2502   \u2502   \u2502       \u2502\
+    \   \u2514\u2500\u2500 ToolHandlers.java\n\u2502   \u2502   \u2502       \u251C\
+    \u2500\u2500 resources/\n\u2502   \u2502   \u2502       \u2502   \u251C\u2500\u2500\
+    \ ResourceDefinitions.java\n\u2502   \u2502   \u2502       \u2502   \u2514\u2500\
+    \u2500 ResourceHandlers.java\n\u2502   \u2502   \u2502       \u2514\u2500\u2500\
+    \ prompts/\n\u2502   \u2502   \u2502           \u251C\u2500\u2500 PromptDefinitions.java\n\
+    \u2502   \u2502   \u2502           \u2514\u2500\u2500 PromptHandlers.java\n\u2502\
+    \   \u2502   \u2514\u2500\u2500 resources/\n\u2502   \u2502       \u2514\u2500\
+    \u2500 application.properties (if using Spring)\n\u2502   \u2514\u2500\u2500 test/\n\
+    \u2502       \u2514\u2500\u2500 java/\n\u2502           \u2514\u2500\u2500 com/example/mcp/\n\
+    \u2502               \u2514\u2500\u2500 McpServerTest.java\n\u2514\u2500\u2500\
+    \ README.md\n```\n\n## Maven pom.xml Template\n\n```xml\n<?xml version=\"1.0\"\
+    \ encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n\
+    \         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n         xsi:schemaLocation=\"\
+    http://maven.apache.org/POM/4.0.0\n         http://maven.apache.org/xsd/maven-4.0.0.xsd\"\
+    >\n    <modelVersion>4.0.0</modelVersion>\n\n    <groupId>com.example</groupId>\n\
+    \    <artifactId>my-mcp-server</artifactId>\n    <version>1.0.0</version>\n  \
+    \  <packaging>jar</packaging>\n\n    <name>My MCP Server</name>\n    <description>Model\
+    \ Context Protocol server implementation</description>\n\n    <properties>\n \
+    \       <java.version>17</java.version>\n        <maven.compiler.source>17</maven.compiler.source>\n\
+    \        <maven.compiler.target>17</maven.compiler.target>\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n\
+    \        <mcp.version>0.14.1</mcp.version>\n        <slf4j.version>2.0.9</slf4j.version>\n\
+    \        <logback.version>1.4.11</logback.version>\n        <junit.version>5.10.0</junit.version>\n\
+    \    </properties>\n\n    <dependencies>\n        <!-- MCP Java SDK -->\n    \
+    \    <dependency>\n            <groupId>io.modelcontextprotocol.sdk</groupId>\n\
+    \            <artifactId>mcp</artifactId>\n            <version>${mcp.version}</version>\n\
+    \        </dependency>\n\n        <!-- Logging -->\n        <dependency>\n   \
+    \         <groupId>org.slf4j</groupId>\n            <artifactId>slf4j-api</artifactId>\n\
+    \            <version>${slf4j.version}</version>\n        </dependency>\n    \
+    \    <dependency>\n            <groupId>ch.qos.logback</groupId>\n           \
+    \ <artifactId>logback-classic</artifactId>\n            <version>${logback.version}</version>\n\
+    \        </dependency>\n\n        <!-- Testing -->\n        <dependency>\n   \
+    \         <groupId>org.junit.jupiter</groupId>\n            <artifactId>junit-jupiter</artifactId>\n\
+    \            <version>${junit.version}</version>\n            <scope>test</scope>\n\
+    \        </dependency>\n        <dependency>\n            <groupId>io.projectreactor</groupId>\n\
+    \            <artifactId>reactor-test</artifactId>\n            <scope>test</scope>\n\
+    \        </dependency>\n    </dependencies>\n\n    <build>\n        <plugins>\n\
+    \            <plugin>\n                <groupId>org.apache.maven.plugins</groupId>\n\
+    \                <artifactId>maven-compiler-plugin</artifactId>\n            \
+    \    <version>3.11.0</version>\n            </plugin>\n            <plugin>\n\
+    \                <groupId>org.apache.maven.plugins</groupId>\n               \
+    \ <artifactId>maven-surefire-plugin</artifactId>\n                <version>3.1.2</version>\n\
+    \            </plugin>\n            <plugin>\n                <groupId>org.apache.maven.plugins</groupId>\n\
+    \                <artifactId>maven-shade-plugin</artifactId>\n               \
+    \ <version>3.5.0</version>\n                <executions>\n                   \
+    \ <execution>\n                        <phase>package</phase>\n              \
+    \          <goals>\n                            <goal>shade</goal>\n         \
+    \               </goals>\n                        <configuration>\n          \
+    \                  <transformers>\n                                <transformer\
+    \ implementation=\"org.apache.maven.plugins.shade.resource.ManifestResourceTransformer\"\
+    >\n                                    <mainClass>com.example.mcp.McpServerApplication</mainClass>\n\
+    \                                </transformer>\n                            </transformers>\n\
+    \                        </configuration>\n                    </execution>\n\
+    \                </executions>\n            </plugin>\n        </plugins>\n  \
+    \  </build>\n</project>\n```\n\n## Gradle build.gradle.kts Template\n\n```kotlin\n\
+    plugins {\n    id(\"java\")\n    id(\"application\")\n}\n\ngroup = \"com.example\"\
+    \nversion = \"1.0.0\"\n\njava {\n    sourceCompatibility = JavaVersion.VERSION_17\n\
+    \    targetCompatibility = JavaVersion.VERSION_17\n}\n\nrepositories {\n    mavenCentral()\n\
+    }\n\ndependencies {\n    // MCP Java SDK\n    implementation(\"io.modelcontextprotocol.sdk:mcp:0.14.1\"\
+    )\n    \n    // Logging\n    implementation(\"org.slf4j:slf4j-api:2.0.9\")\n \
+    \   implementation(\"ch.qos.logback:logback-classic:1.4.11\")\n    \n    // Testing\n\
+    \    testImplementation(\"org.junit.jupiter:junit-jupiter:5.10.0\")\n    testImplementation(\"\
+    io.projectreactor:reactor-test:3.5.0\")\n}\n\napplication {\n    mainClass.set(\"\
+    com.example.mcp.McpServerApplication\")\n}\n\ntasks.test {\n    useJUnitPlatform()\n\
+    }\n```\n\n## McpServerApplication.java Template\n\n```java\npackage com.example.mcp;\n\
+    \nimport com.example.mcp.tools.ToolHandlers;\nimport com.example.mcp.resources.ResourceHandlers;\n\
+    import com.example.mcp.prompts.PromptHandlers;\nimport io.mcp.server.McpServer;\n\
+    import io.mcp.server.McpServerBuilder;\nimport io.mcp.server.transport.StdioServerTransport;\n\
+    import org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport reactor.core.Disposable;\n\
+    \npublic class McpServerApplication {\n    \n    private static final Logger log\
+    \ = LoggerFactory.getLogger(McpServerApplication.class);\n    \n    public static\
+    \ void main(String[] args) {\n        log.info(\"Starting MCP Server...\");\n\
+    \        \n        try {\n            McpServer server = createServer();\n   \
+    \         StdioServerTransport transport = new StdioServerTransport();\n     \
+    \       \n            // Start server\n            Disposable serverDisposable\
+    \ = server.start(transport).subscribe();\n            \n            // Graceful\
+    \ shutdown\n            Runtime.getRuntime().addShutdownHook(new Thread(() ->\
+    \ {\n                log.info(\"Shutting down MCP server\");\n               \
+    \ serverDisposable.dispose();\n                server.stop().block();\n      \
+    \      }));\n            \n            log.info(\"MCP Server started successfully\"\
+    );\n            \n            // Keep running\n            Thread.currentThread().join();\n\
+    \            \n        } catch (Exception e) {\n            log.error(\"Failed\
+    \ to start MCP server\", e);\n            System.exit(1);\n        }\n    }\n\
+    \    \n    private static McpServer createServer() {\n        McpServer server\
+    \ = McpServerBuilder.builder()\n            .serverInfo(\"my-mcp-server\", \"\
+    1.0.0\")\n            .capabilities(capabilities -> capabilities\n           \
+    \     .tools(true)\n                .resources(true)\n                .prompts(true))\n\
+    \            .build();\n        \n        // Register handlers\n        ToolHandlers.register(server);\n\
+    \        ResourceHandlers.register(server);\n        PromptHandlers.register(server);\n\
+    \        \n        return server;\n    }\n}\n```\n\n## ToolDefinitions.java Template\n\
+    \n```java\npackage com.example.mcp.tools;\n\nimport io.mcp.json.JsonSchema;\n\
+    import io.mcp.server.tool.Tool;\n\nimport java.util.List;\n\npublic class ToolDefinitions\
+    \ {\n    \n    public static List<Tool> getTools() {\n        return List.of(\n\
+    \            createGreetTool(),\n            createCalculateTool()\n        );\n\
+    \    }\n    \n    private static Tool createGreetTool() {\n        return Tool.builder()\n\
+    \            .name(\"greet\")\n            .description(\"Generate a greeting\
+    \ message\")\n            .inputSchema(JsonSchema.object()\n                .property(\"\
+    name\", JsonSchema.string()\n                    .description(\"Name to greet\"\
+    )\n                    .required(true)))\n            .build();\n    }\n    \n\
+    \    private static Tool createCalculateTool() {\n        return Tool.builder()\n\
+    \            .name(\"calculate\")\n            .description(\"Perform mathematical\
+    \ calculations\")\n            .inputSchema(JsonSchema.object()\n            \
+    \    .property(\"operation\", JsonSchema.string()\n                    .description(\"\
+    Operation to perform\")\n                    .enumValues(List.of(\"add\", \"subtract\"\
+    , \"multiply\", \"divide\"))\n                    .required(true))\n         \
+    \       .property(\"a\", JsonSchema.number()\n                    .description(\"\
+    First operand\")\n                    .required(true))\n                .property(\"\
+    b\", JsonSchema.number()\n                    .description(\"Second operand\"\
+    )\n                    .required(true)))\n            .build();\n    }\n}\n```\n\
+    \n## ToolHandlers.java Template\n\n```java\npackage com.example.mcp.tools;\n\n\
+    import com.fasterxml.jackson.databind.JsonNode;\nimport io.mcp.server.McpServer;\n\
+    import io.mcp.server.tool.ToolResponse;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\
+    import reactor.core.publisher.Mono;\n\npublic class ToolHandlers {\n    \n   \
+    \ private static final Logger log = LoggerFactory.getLogger(ToolHandlers.class);\n\
+    \    \n    public static void register(McpServer server) {\n        // Register\
+    \ tool list handler\n        server.addToolListHandler(() -> {\n            log.debug(\"\
+    Listing available tools\");\n            return Mono.just(ToolDefinitions.getTools());\n\
+    \        });\n        \n        // Register greet handler\n        server.addToolHandler(\"\
+    greet\", ToolHandlers::handleGreet);\n        \n        // Register calculate\
+    \ handler\n        server.addToolHandler(\"calculate\", ToolHandlers::handleCalculate);\n\
+    \    }\n    \n    private static Mono<ToolResponse> handleGreet(JsonNode arguments)\
+    \ {\n        log.info(\"Greet tool called\");\n        \n        if (!arguments.has(\"\
+    name\")) {\n            return Mono.just(ToolResponse.error()\n              \
+    \  .message(\"Missing 'name' parameter\")\n                .build());\n      \
+    \  }\n        \n        String name = arguments.get(\"name\").asText();\n    \
+    \    String greeting = \"Hello, \" + name + \"! Welcome to MCP.\";\n        \n\
+    \        log.debug(\"Generated greeting for: {}\", name);\n        \n        return\
+    \ Mono.just(ToolResponse.success()\n            .addTextContent(greeting)\n  \
+    \          .build());\n    }\n    \n    private static Mono<ToolResponse> handleCalculate(JsonNode\
+    \ arguments) {\n        log.info(\"Calculate tool called\");\n        \n     \
+    \   if (!arguments.has(\"operation\") || !arguments.has(\"a\") || !arguments.has(\"\
+    b\")) {\n            return Mono.just(ToolResponse.error()\n                .message(\"\
+    Missing required parameters\")\n                .build());\n        }\n      \
+    \  \n        String operation = arguments.get(\"operation\").asText();\n     \
+    \   double a = arguments.get(\"a\").asDouble();\n        double b = arguments.get(\"\
+    b\").asDouble();\n        \n        double result;\n        switch (operation)\
+    \ {\n            case \"add\":\n                result = a + b;\n            \
+    \    break;\n            case \"subtract\":\n                result = a - b;\n\
+    \                break;\n            case \"multiply\":\n                result\
+    \ = a * b;\n                break;\n            case \"divide\":\n           \
+    \     if (b == 0) {\n                    return Mono.just(ToolResponse.error()\n\
+    \                        .message(\"Division by zero\")\n                    \
+    \    .build());\n                }\n                result = a / b;\n        \
+    \        break;\n            default:\n                return Mono.just(ToolResponse.error()\n\
+    \                    .message(\"Unknown operation: \" + operation)\n         \
+    \           .build());\n        }\n        \n        log.debug(\"Calculation:\
+    \ {} {} {} = {}\", a, operation, b, result);\n        \n        return Mono.just(ToolResponse.success()\n\
+    \            .addTextContent(\"Result: \" + result)\n            .build());\n\
+    \    }\n}\n```\n\n## ResourceDefinitions.java Template\n\n```java\npackage com.example.mcp.resources;\n\
+    \nimport io.mcp.server.resource.Resource;\n\nimport java.util.List;\n\npublic\
+    \ class ResourceDefinitions {\n    \n    public static List<Resource> getResources()\
+    \ {\n        return List.of(\n            Resource.builder()\n               \
+    \ .name(\"Example Data\")\n                .uri(\"resource://data/example\")\n\
+    \                .description(\"Example resource data\")\n                .mimeType(\"\
+    application/json\")\n                .build(),\n            Resource.builder()\n\
+    \                .name(\"Configuration\")\n                .uri(\"resource://config\"\
+    )\n                .description(\"Server configuration\")\n                .mimeType(\"\
+    application/json\")\n                .build()\n        );\n    }\n}\n```\n\n##\
+    \ ResourceHandlers.java Template\n\n```java\npackage com.example.mcp.resources;\n\
+    \nimport io.mcp.server.McpServer;\nimport io.mcp.server.resource.ResourceContent;\n\
+    import org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport reactor.core.publisher.Mono;\n\
+    \nimport java.time.Instant;\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\n\
+    \npublic class ResourceHandlers {\n    \n    private static final Logger log =\
+    \ LoggerFactory.getLogger(ResourceHandlers.class);\n    private static final Map<String,\
+    \ Boolean> subscriptions = new ConcurrentHashMap<>();\n    \n    public static\
+    \ void register(McpServer server) {\n        // Register resource list handler\n\
+    \        server.addResourceListHandler(() -> {\n            log.debug(\"Listing\
+    \ available resources\");\n            return Mono.just(ResourceDefinitions.getResources());\n\
+    \        });\n        \n        // Register resource read handler\n        server.addResourceReadHandler(ResourceHandlers::handleRead);\n\
+    \        \n        // Register resource subscribe handler\n        server.addResourceSubscribeHandler(ResourceHandlers::handleSubscribe);\n\
+    \        \n        // Register resource unsubscribe handler\n        server.addResourceUnsubscribeHandler(ResourceHandlers::handleUnsubscribe);\n\
+    \    }\n    \n    private static Mono<ResourceContent> handleRead(String uri)\
+    \ {\n        log.info(\"Reading resource: {}\", uri);\n        \n        switch\
+    \ (uri) {\n            case \"resource://data/example\":\n                String\
+    \ jsonData = String.format(\n                    \"{\\\"message\\\":\\\"Example\
+    \ resource data\\\",\\\"timestamp\\\":\\\"%s\\\"}\",\n                    Instant.now()\n\
+    \                );\n                return Mono.just(ResourceContent.text(jsonData,\
+    \ uri, \"application/json\"));\n                \n            case \"resource://config\"\
+    :\n                String config = \"{\\\"serverName\\\":\\\"my-mcp-server\\\"\
+    ,\\\"version\\\":\\\"1.0.0\\\"}\";\n                return Mono.just(ResourceContent.text(config,\
+    \ uri, \"application/json\"));\n                \n            default:\n     \
+    \           log.warn(\"Unknown resource requested: {}\", uri);\n             \
+    \   return Mono.error(new IllegalArgumentException(\"Unknown resource URI: \"\
+    \ + uri));\n        }\n    }\n    \n    private static Mono<Void> handleSubscribe(String\
+    \ uri) {\n        log.info(\"Client subscribed to resource: {}\", uri);\n    \
+    \    subscriptions.put(uri, true);\n        return Mono.empty();\n    }\n    \n\
+    \    private static Mono<Void> handleUnsubscribe(String uri) {\n        log.info(\"\
+    Client unsubscribed from resource: {}\", uri);\n        subscriptions.remove(uri);\n\
+    \        return Mono.empty();\n    }\n}\n```\n\n## PromptDefinitions.java Template\n\
+    \n```java\npackage com.example.mcp.prompts;\n\nimport io.mcp.server.prompt.Prompt;\n\
+    import io.mcp.server.prompt.PromptArgument;\n\nimport java.util.List;\n\npublic\
+    \ class PromptDefinitions {\n    \n    public static List<Prompt> getPrompts()\
+    \ {\n        return List.of(\n            Prompt.builder()\n                .name(\"\
+    code-review\")\n                .description(\"Generate a code review prompt\"\
+    )\n                .argument(PromptArgument.builder()\n                    .name(\"\
+    language\")\n                    .description(\"Programming language\")\n    \
+    \                .required(true)\n                    .build())\n            \
+    \    .argument(PromptArgument.builder()\n                    .name(\"focus\")\n\
+    \                    .description(\"Review focus area\")\n                   \
+    \ .required(false)\n                    .build())\n                .build()\n\
+    \        );\n    }\n}\n```\n\n## PromptHandlers.java Template\n\n```java\npackage\
+    \ com.example.mcp.prompts;\n\nimport io.mcp.server.McpServer;\nimport io.mcp.server.prompt.PromptMessage;\n\
+    import io.mcp.server.prompt.PromptResult;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\
+    import reactor.core.publisher.Mono;\n\nimport java.util.List;\nimport java.util.Map;\n\
+    \npublic class PromptHandlers {\n    \n    private static final Logger log = LoggerFactory.getLogger(PromptHandlers.class);\n\
+    \    \n    public static void register(McpServer server) {\n        // Register\
+    \ prompt list handler\n        server.addPromptListHandler(() -> {\n         \
+    \   log.debug(\"Listing available prompts\");\n            return Mono.just(PromptDefinitions.getPrompts());\n\
+    \        });\n        \n        // Register prompt get handler\n        server.addPromptGetHandler(PromptHandlers::handleCodeReview);\n\
+    \    }\n    \n    private static Mono<PromptResult> handleCodeReview(String name,\
+    \ Map<String, String> arguments) {\n        log.info(\"Getting prompt: {}\", name);\n\
+    \        \n        if (!name.equals(\"code-review\")) {\n            return Mono.error(new\
+    \ IllegalArgumentException(\"Unknown prompt: \" + name));\n        }\n       \
+    \ \n        String language = arguments.getOrDefault(\"language\", \"Java\");\n\
+    \        String focus = arguments.getOrDefault(\"focus\", \"general quality\"\
+    );\n        \n        String description = \"Code review for \" + language + \"\
+    \ with focus on \" + focus;\n        \n        List<PromptMessage> messages =\
+    \ List.of(\n            PromptMessage.user(\"Please review this \" + language\
+    \ + \" code with focus on \" + focus + \".\"),\n            PromptMessage.assistant(\"\
+    I'll review the code focusing on \" + focus + \". Please share the code.\"),\n\
+    \            PromptMessage.user(\"Here's the code to review: [paste code here]\"\
+    )\n        );\n        \n        log.debug(\"Generated code review prompt for\
+    \ {} ({})\", language, focus);\n        \n        return Mono.just(PromptResult.builder()\n\
+    \            .description(description)\n            .messages(messages)\n    \
+    \        .build());\n    }\n}\n```\n\n## McpServerTest.java Template\n\n```java\n\
+    package com.example.mcp;\n\nimport com.fasterxml.jackson.databind.ObjectMapper;\n\
+    import com.fasterxml.jackson.databind.node.ObjectNode;\nimport io.mcp.server.McpServer;\n\
+    import io.mcp.server.McpSyncServer;\nimport io.mcp.server.tool.ToolResponse;\n\
+    import org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.Test;\n\
+    \nimport static org.junit.jupiter.api.Assertions.*;\n\nclass McpServerTest {\n\
+    \    \n    private McpSyncServer syncServer;\n    private ObjectMapper objectMapper;\n\
+    \    \n    @BeforeEach\n    void setUp() {\n        McpServer server = createTestServer();\n\
+    \        syncServer = server.toSyncServer();\n        objectMapper = new ObjectMapper();\n\
+    \    }\n    \n    private McpServer createTestServer() {\n        // Same setup\
+    \ as main application\n        McpServer server = McpServerBuilder.builder()\n\
+    \            .serverInfo(\"test-server\", \"1.0.0\")\n            .capabilities(cap\
+    \ -> cap.tools(true))\n            .build();\n        \n        // Register handlers\n\
+    \        ToolHandlers.register(server);\n        \n        return server;\n  \
+    \  }\n    \n    @Test\n    void testGreetTool() {\n        ObjectNode args = objectMapper.createObjectNode();\n\
+    \        args.put(\"name\", \"Java\");\n        \n        ToolResponse response\
+    \ = syncServer.callTool(\"greet\", args);\n        \n        assertFalse(response.isError());\n\
+    \        assertEquals(1, response.getContent().size());\n        assertTrue(response.getContent().get(0).getText().contains(\"\
+    Java\"));\n    }\n    \n    @Test\n    void testCalculateTool() {\n        ObjectNode\
+    \ args = objectMapper.createObjectNode();\n        args.put(\"operation\", \"\
+    add\");\n        args.put(\"a\", 5);\n        args.put(\"b\", 3);\n        \n\
+    \        ToolResponse response = syncServer.callTool(\"calculate\", args);\n \
+    \       \n        assertFalse(response.isError());\n        assertTrue(response.getContent().get(0).getText().contains(\"\
+    8\"));\n    }\n    \n    @Test\n    void testDivideByZero() {\n        ObjectNode\
+    \ args = objectMapper.createObjectNode();\n        args.put(\"operation\", \"\
+    divide\");\n        args.put(\"a\", 10);\n        args.put(\"b\", 0);\n      \
+    \  \n        ToolResponse response = syncServer.callTool(\"calculate\", args);\n\
+    \        \n        assertTrue(response.isError());\n    }\n}\n```\n\n## README.md\
+    \ Template\n\n```markdown\n# My MCP Server\n\nA Model Context Protocol server\
+    \ built with Java and the official MCP Java SDK.\n\n## Features\n\n- \u2705 Tools:\
+    \ greet, calculate\n- \u2705 Resources: example data, configuration\n- \u2705\
+    \ Prompts: code-review\n- \u2705 Reactive Streams with Project Reactor\n- \u2705\
+    \ Structured logging with SLF4J\n- \u2705 Full test coverage\n\n## Requirements\n\
+    \n- Java 17 or later\n- Maven 3.6+ or Gradle 7+\n\n## Build\n\n### Maven\n```bash\n\
+    mvn clean package\n```\n\n### Gradle\n```bash\n./gradlew build\n```\n\n## Run\n\
+    \n### Maven\n```bash\njava -jar target/my-mcp-server-1.0.0.jar\n```\n\n### Gradle\n\
+    ```bash\n./gradlew run\n```\n\n## Testing\n\n### Maven\n```bash\nmvn test\n```\n\
+    \n### Gradle\n```bash\n./gradlew test\n```\n\n## Integration with Claude Desktop\n\
+    \nAdd to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n  \
+    \  \"my-mcp-server\": {\n      \"command\": \"java\",\n      \"args\": [\"-jar\"\
+    , \"/path/to/my-mcp-server-1.0.0.jar\"]\n    }\n  }\n}\n```\n\n## License\n\n\
+    MIT\n```\n\n## Generation Instructions\n\n1. **Ask for project name and package**\n\
+    2. **Choose build tool** (Maven or Gradle)\n3. **Generate all files** with proper\
+    \ package structure\n4. **Use Reactive Streams** for async handlers\n5. **Include\
+    \ comprehensive logging** with SLF4J\n6. **Add tests** for all handlers\n7. **Follow\
+    \ Java conventions** (camelCase, PascalCase)\n8. **Include error handling** with\
+    \ proper responses\n9. **Document public APIs** with Javadoc\n10. **Provide both\
+    \ sync and async** examples"

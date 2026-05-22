@@ -1,0 +1,120 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__salesforce-flow-design
+name: salesforce-flow-design
+description: Salesforce Flow architecture decisions, flow type selection, bulk safety
+  validation, and fault handling standards. Use this skill when designing or reviewing
+  Record-Triggered, Screen, Autolaunched, Scheduled, or Platform Event flows to ensure
+  correct type selection, no DML/Get Records in loops, proper fault connectors on
+  all data-changing elements, and appropriate automation density checks before deployment.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/salesforce-flow-design/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- salesforce-flow-design
+content:
+  kind: skill_markdown
+  sha256: 588eccf48f0ec2c826ea7aea2e75c49a57e93cbfd2395b4181c0e4672b977300
+  char_count: 6957
+  text: "# Salesforce Flow Design and Validation\n\nApply these checks to every Flow\
+    \ you design, build, or review.\n\n## Step 1 \u2014 Confirm Flow Is the Right\
+    \ Tool\n\nBefore designing a Flow, verify that a lighter-weight declarative option\
+    \ cannot solve the problem:\n\n| Requirement | Best tool |\n|---|---|\n| Calculate\
+    \ a field value with no side effects | Formula field |\n| Prevent a bad record\
+    \ save with a user message | Validation rule |\n| Sum or count child records on\
+    \ a parent | Roll-up Summary field |\n| Complex multi-object logic, callouts,\
+    \ or high volume | Apex (Queueable / Batch) \u2014 not Flow |\n| Everything else\
+    \ | Flow \u2713 |\n\nIf you are building a Flow that could be replaced by a formula\
+    \ field or validation rule, ask the user to confirm the requirement is genuinely\
+    \ more complex.\n\n## Step 2 \u2014 Select the Correct Flow Type\n\n| Use case\
+    \ | Flow type | Key constraint |\n|---|---|---|\n| Update a field on the same\
+    \ record before it is saved | Before-save Record-Triggered | Cannot send emails,\
+    \ make callouts, or change related records |\n| Create/update related records,\
+    \ emails, callouts | After-save Record-Triggered | Runs after commit \u2014 avoid\
+    \ recursion traps |\n| Guide a user through a multi-step UI process | Screen Flow\
+    \ | Cannot be triggered by a record event automatically |\n| Reusable background\
+    \ logic called from another Flow | Autolaunched (Subflow) | Input/output variables\
+    \ define the contract |\n| Logic invoked from Apex `@InvocableMethod` | Autolaunched\
+    \ (Invocable) | Must declare input/output variables |\n| Time-based batch processing\
+    \ | Scheduled Flow | Runs in batch context \u2014 respect governor limits |\n\
+    | Respond to events (Platform Events / CDC) | Platform Event\u2013Triggered |\
+    \ Runs asynchronously \u2014 eventual consistency |\n\n**Decision rule**: choose\
+    \ before-save when you only need to change the triggering record's own fields.\
+    \ Move to after-save the moment you need to touch related records, send emails,\
+    \ or make callouts.\n\n## Step 3 \u2014 Bulk Safety Checklist\n\nThese patterns\
+    \ are governor limit failures at scale. Check for all of them before the Flow\
+    \ is activated.\n\n### DML in Loops \u2014 Automatic Fail\n\n```\nLoop element\n\
+    \  \u2514\u2500\u2500 Create Records / Update Records / Delete Records  \u2190\
+    \ \u274C DML inside loop\n```\n\nFix: collect records inside the loop into a collection\
+    \ variable, then run the DML element **outside** the loop.\n\n### Get Records\
+    \ in Loops \u2014 Automatic Fail\n\n```\nLoop element\n  \u2514\u2500\u2500 Get\
+    \ Records  \u2190 \u274C SOQL inside loop\n```\n\nFix: perform the Get Records\
+    \ query **before** the loop, then loop over the collection variable.\n\n### Correct\
+    \ Bulk Pattern\n\n```\nGet Records \u2014 collect all records in one query\n\u2514\
+    \u2500\u2500 Loop over the collection variable\n    \u2514\u2500\u2500 Decision\
+    \ / Assignment (no DML, no Get Records)\n\u2514\u2500\u2500 After the loop: Create/Update/Delete\
+    \ Records \u2014 one DML operation\n```\n\n### Transform vs Loop\nWhen the goal\
+    \ is reshaping a collection (e.g. mapping field values from one object to another),\
+    \ use the **Transform** element instead of a Loop + Assignment pattern. Transform\
+    \ is bulk-safe by design and produces cleaner Flow graphs.\n\n## Step 4 \u2014\
+    \ Fault Path Requirements\n\nEvery element that can fail at runtime must have\
+    \ a fault connector. Flows without fault paths surface raw system errors to users.\n\
+    \n### Elements That Require Fault Connectors\n- Create Records\n- Update Records\n\
+    - Delete Records\n- Get Records (when accessing a required record that might not\
+    \ exist)\n- Send Email\n- HTTP Callout / External Service action\n- Apex action\
+    \ (invocable)\n- Subflow (if the subflow can throw a fault)\n\n### Fault Handler\
+    \ Pattern\n```\nFault connector \u2192 Log Error (Create Records on a logging\
+    \ object or fire a Platform Event)\n               \u2192 Screen element with\
+    \ user-friendly message (Screen Flows)\n               \u2192 Stop / End element\
+    \ (Record-Triggered Flows)\n```\n\nNever connect a fault path back to the same\
+    \ element that faulted \u2014 this creates an infinite loop.\n\n## Step 5 \u2014\
+    \ Automation Density Check\n\nBefore deploying, verify there are no overlapping\
+    \ automations on the same object and trigger event:\n\n- Other active Record-Triggered\
+    \ Flows on the same `Object` + `When to Run` combination\n- Legacy Process Builder\
+    \ rules still active on the same object\n- Workflow Rules that fire on the same\
+    \ field changes\n- Apex triggers that also run on the same `before insert` / `after\
+    \ update` context\n\nOverlapping automations can cause unexpected ordering, recursion,\
+    \ and governor limit failures. Document the automation inventory for the object\
+    \ before activating.\n\n## Step 6 \u2014 Screen Flow UX Guidelines\n\n- Every\
+    \ path through a Screen Flow must reach an **End** element \u2014 no orphan branches.\n\
+    - Provide a **Back** navigation option on multi-step flows unless back-navigation\
+    \ would corrupt data.\n- Use `lightning-input` and SLDS-compliant components for\
+    \ all user inputs \u2014 do not use HTML form elements.\n- Validate required inputs\
+    \ on the screen before the user can advance \u2014 use Flow validation rules on\
+    \ the screen.\n- Handle the **Pause** element if the flow may need to await user\
+    \ action across sessions.\n\n## Step 7 \u2014 Deployment Safety\n\n```\nDeploy\
+    \ as Draft    \u2192   Test with 1 record   \u2192   Test with 200+ records  \
+    \ \u2192   Activate\n```\n\n- Always deploy as **Draft** first and test thoroughly\
+    \ before activation.\n- For Record-Triggered Flows: test with the exact entry\
+    \ conditions (e.g. `ISCHANGED(Status)` \u2014 ensure the test data actually triggers\
+    \ the condition).\n- For Scheduled Flows: test with a small batch in a sandbox\
+    \ before enabling in production.\n- Check the Automation Density score for the\
+    \ object \u2014 more than 3 active automations on a single object increases order-of-execution\
+    \ risk.\n\n## Quick Reference \u2014 Flow Anti-Patterns Summary\n\n| Anti-pattern\
+    \ | Risk | Fix |\n|---|---|---|\n| DML element inside a Loop | Governor limit\
+    \ exception | Move DML outside the loop |\n| Get Records inside a Loop | SOQL\
+    \ governor limit exception | Query before the loop |\n| No fault connector on\
+    \ DML/email/callout element | Unhandled exception surfaced to user | Add fault\
+    \ path to every such element |\n| Updating the triggering record in an after-save\
+    \ flow with no recursion guard | Infinite trigger loops | Add an entry condition\
+    \ or recursion guard variable |\n| Looping directly on `$Record` collection |\
+    \ Incorrect behaviour at scale | Assign to a collection variable first, then loop\
+    \ |\n| Process Builder still active alongside a new Flow | Double-execution, unexpected\
+    \ ordering | Deactivate Process Builder before activating the Flow |\n| Screen\
+    \ Flow with no End element on all branches | Runtime error or stuck user | Ensure\
+    \ every branch resolves to an End element |"

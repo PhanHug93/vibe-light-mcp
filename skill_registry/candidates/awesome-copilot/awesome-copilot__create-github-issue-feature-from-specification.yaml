@@ -1,0 +1,68 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-github-issue-feature-from-specification
+name: create-github-issue-feature-from-specification
+description: Create GitHub Issue for feature request from specification file using
+  feature_request.yml template.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-github-issue-feature-from-specification/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- create-github-issue-feature-from-specification
+content:
+  kind: skill_markdown
+  sha256: 8398e075cb4a89daccef2bb003779eeeb199b24b8e319e11571e488fa0da8132
+  char_count: 912
+  text: '# Create GitHub Issue from Specification
+
+
+    Create GitHub Issue for the specification at `${file}`.
+
+
+    ## Process
+
+
+    1. Analyze specification file to extract requirements
+
+    2. Check existing issues using `search_issues`
+
+    3. Create new issue using `create_issue` or update existing with `update_issue`
+
+    4. Use `feature_request.yml` template (fallback to default)
+
+
+    ## Requirements
+
+
+    - Single issue for the complete specification
+
+    - Clear title identifying the specification
+
+    - Include only changes required by the specification
+
+    - Verify against existing issues before creation
+
+
+    ## Issue Content
+
+
+    - Title: Feature name from specification
+
+    - Description: Problem statement, proposed solution, and context
+
+    - Labels: feature, enhancement (as appropriate)'

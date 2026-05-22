@@ -1,0 +1,256 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__batch-files
+name: batch-files
+description: Expert-level Windows batch file (.bat/.cmd) skill for writing, debugging,
+  and maintaining CMD scripts. Use when asked to "create a batch file", "write a .bat
+  script", "automate a Windows task", "CMD scripting", "batch automation", "scheduled
+  task script", "Windows shell script", or when working with .bat/.cmd files in the
+  workspace. Covers cmd.exe syntax, environment variables, control flow, string processing,
+  error handling, and integration with system tools.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/batch-files/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+  - has_references_directory
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- batch-files
+content:
+  kind: skill_markdown
+  sha256: 64915b51fab7af2111809a3c787fcf572d3944dcc1310d2478e97e3f9df5ee3c
+  char_count: 17240
+  text: "# Batch Files\n\nA comprehensive skill for creating, editing, debugging,\
+    \ and maintaining Windows batch files (.bat/.cmd) using cmd.exe. Applies to CLI\
+    \ tool development, system administration automation, scheduled tasks, file operations\
+    \ scripting, and PATH-based executable scripts.\n\n## When to Use This Skill\n\
+    \n- Creating or editing `.bat` or `.cmd` files\n- Automating Windows tasks (file\
+    \ operations, deployments, backups)\n- Building CLI tools intended for a `bin/`\
+    \ folder on PATH\n- Writing scheduled task scripts (SCHTASKS, Task Scheduler)\n\
+    - Debugging batch script issues (variable expansion, error levels, quoting)\n\
+    - Integrating batch scripts with external tools (curl, git, Node.js, Python)\n\
+    - Scaffolding new batch-based projects with structured templates\n\n## Prerequisites\n\
+    \n- Windows NT-based OS (Windows 7 or later)\n- cmd.exe (built-in)\n- Optional:\
+    \ a `bin/` directory on PATH for distributing scripts as commands\n- Optional:\
+    \ PATHEXT configured to include `.BAT;.CMD` (default on Windows)\n\n## Command\
+    \ Interpretation\n\ncmd.exe processes each line through four stages in order:\n\
+    \n1. **Variable substitution** \u2014 `%VAR%` tokens are replaced with environment\
+    \ variable values. `%0`\u2013`%9` reference batch arguments. `%*` expands to all\
+    \ arguments.\n2. **Quoting and escaping** \u2014 Caret `^` escapes special characters\
+    \ (`& | < > ^`). Quotation marks prevent interpretation of enclosed special characters.\
+    \ In batch files, `%%` yields a literal `%`.\n3. **Syntax parsing** \u2014 Lines\
+    \ are split into pipelines (`|`), compound commands (`&`, `&&`, `||`), and parenthesized\
+    \ groups `( )`.\n4. **Redirection** \u2014 `>` overwrites, `>>` appends, `<` reads\
+    \ input, `2>` redirects stderr, `2>&1` merges stderr into stdout, `>NUL` discards\
+    \ output.\n\n## Variables\n\n### Environment Variables\n\n```bat\nset _MY_VAR=Hello\
+    \ World\necho %_MY_VAR%\nset _MY_VAR=\n```\n\n- `set` with no arguments lists\
+    \ all variables\n- `set _PREFIX` lists variables starting with `_PREFIX`\n- No\
+    \ spaces around `=` \u2014 `set name = val` sets variable `\"name \"` to `\" val\"\
+    `\n\n### Special Variables\n\n| Variable | Value |\n|----------|-------|\n| `%CD%`\
+    \ | Current directory |\n| `%DATE%` | System date (locale-dependent) |\n| `%TIME%`\
+    \ | System time HH:MM:SS.mm |\n| `%RANDOM%` | Pseudorandom number 0\u201332767\
+    \ |\n| `%ERRORLEVEL%` | Exit code of last command |\n| `%USERNAME%` | Current\
+    \ user name |\n| `%USERPROFILE%` | Current user profile path |\n| `%TEMP%` / `%TMP%`\
+    \ | Temporary file directory |\n| `%PATHEXT%` | Executable extensions list |\n\
+    | `%COMSPEC%` | Path to cmd.exe |\n\n### Scoping with SETLOCAL / ENDLOCAL\n\n\
+    ```bat\nsetlocal\nset _LOCAL_VAR=scoped value\nendlocal\nREM _LOCAL_VAR is no\
+    \ longer defined here\n```\n\nTo return a value from a scoped block:\n\n```bat\n\
+    endlocal & set _RESULT=%_LOCAL_VAR%\n```\n\n### Delayed Expansion\n\nVariables\
+    \ inside parenthesized blocks are expanded at parse time. Use delayed expansion\
+    \ for runtime evaluation:\n\n```bat\nsetlocal EnableDelayedExpansion\nset _COUNT=0\n\
+    for /l %%i in (1,1,5) do (\n    set /a _COUNT+=1\n    echo !_COUNT!\n)\nendlocal\n\
+    ```\n\n- `!VAR!` expands at execution time (delayed)\n- `%VAR%` expands at parse\
+    \ time (immediate)\n\n## Control Flow\n\n### Conditional Execution\n\n```bat\n\
+    if exist \"output.txt\" echo File found\nif not defined _MY_VAR echo Variable\
+    \ not set\nif \"%_STATUS%\"==\"ready\" (echo Go) else (echo Wait)\nif %ERRORLEVEL%\
+    \ neq 0 echo Command failed\n```\n\nComparison operators: `equ`, `neq`, `lss`,\
+    \ `leq`, `gtr`, `geq`. Use `/i` for case-insensitive string comparison.\n\n###\
+    \ Compound Commands\n\n```bat\ncommand1 & command2        & REM Always run both\n\
+    command1 && command2       & REM Run command2 only if command1 succeeds\ncommand1\
+    \ || command2       & REM Run command2 only if command1 fails\n```\n\n### FOR\
+    \ Loops\n\n```bat\nREM Iterate over a set of values\nfor %%i in (alpha beta gamma)\
+    \ do echo %%i\n\nREM Numeric range: start, step, end\nfor /l %%i in (1,1,10) do\
+    \ echo %%i\n\nREM Files in a directory\nfor %%f in (*.txt) do echo %%f\n\nREM\
+    \ Recursive file search\nfor /r %%f in (*.log) do echo %%f\n\nREM Directories\
+    \ only\nfor /d %%d in (*) do echo %%d\n\nREM Parse command output\nfor /f \"tokens=1,2\
+    \ delims=:\" %%a in ('ipconfig ^| findstr \"IPv4\"') do echo %%b\n\nREM Parse\
+    \ file lines\nfor /f \"usebackq tokens=*\" %%a in (\"data.txt\") do echo %%a\n\
+    ```\n\n### GOTO and Labels\n\n```bat\ngoto :main_logic\n:usage\necho Usage: %~nx0\
+    \ [options]\nexit /b 1\n\n:main_logic\necho Running main logic...\ngoto :eof\n\
+    ```\n\n`goto :eof` exits the current batch or subroutine. Labels start with `:`.\n\
+    \n## Command-Line Arguments\n\n| Syntax | Value |\n|--------|-------|\n| `%0`\
+    \ | Script name as invoked |\n| `%1`\u2013`%9` | Positional arguments |\n| `%*`\
+    \ | All arguments (unaffected by SHIFT) |\n| `%~1` | Argument 1 with enclosing\
+    \ quotes removed |\n| `%~f1` | Full path of argument 1 |\n| `%~d1` | Drive letter\
+    \ of argument 1 |\n| `%~p1` | Path (without drive) of argument 1 |\n| `%~n1` |\
+    \ File name (no extension) of argument 1 |\n| `%~x1` | Extension of argument 1\
+    \ |\n| `%~dp0` | Drive and path of the batch file itself |\n| `%~nx0` | File name\
+    \ with extension of the batch file |\n| `%~z1` | File size of argument 1 |\n|\
+    \ `%~$PATH:1` | Search PATH for argument 1 |\n\n### Argument Parsing Pattern\n\
+    \n```bat\n:parse_args\nif \"%~1\"==\"\" goto :args_done\nif /i \"%~1\"==\"--help\"\
+    \ goto :usage\nif /i \"%~1\"==\"--output\" (\n    set \"_OUTPUT_DIR=%~2\"\n  \
+    \  shift\n)\nshift\ngoto :parse_args\n:args_done\n```\n\n## String Processing\n\
+    \n### Substrings\n\n```bat\nset _STR=Hello World\necho %_STR:~0,5%       & REM\
+    \ \"Hello\"\necho %_STR:~6%         & REM \"World\"\necho %_STR:~-5%        &\
+    \ REM \"World\"\necho %_STR:~0,-6%      & REM \"Hello\"\n```\n\n### Search and\
+    \ Replace\n\n```bat\nset _STR=Hello World\necho %_STR:World=Earth%       & REM\
+    \ \"Hello Earth\"\necho %_STR:Hello=%            & REM \" World\" (remove \"Hello\"\
+    )\n```\n\n### Substring Containment Test\n\n```bat\nif not \"%_STR:World=%\"==\"\
+    %_STR%\" echo Contains \"World\"\n```\n\n## Functions\n\nFunctions use labels,\
+    \ CALL, and SETLOCAL/ENDLOCAL:\n\n```bat\n@echo off\ncall :greet \"Jane Doe\"\n\
+    echo Result: %_GREETING%\nexit /b 0\n\n:greet\nsetlocal\nset \"_MSG=Hello, %~1\"\
+    \nendlocal & set \"_GREETING=%_MSG%\"\nexit /b 0\n```\n\n- `call :label args`\
+    \ invokes a function\n- `exit /b` returns from the function (not the script)\n\
+    - Use the `endlocal & set` trick to pass values out of a scoped block\n\n## Arithmetic\n\
+    \n`set /a` performs 32-bit signed integer arithmetic:\n\n```bat\nset /a _RESULT=10\
+    \ * 5 + 3\nset /a _COUNTER+=1\nset /a _REMAINDER=14 %% 3       & REM Use %% for\
+    \ modulo in batch files\nset /a _BITS=\"255 & 0x0F\"       & REM Bitwise AND\n\
+    ```\n\nSupported operators: `+ - * / %% ( )` and bitwise `& | ^ ~ << >>`.\n\n\
+    Hexadecimal (`0xFF`) and octal (`077`) literals are supported.\n\n## Error Handling\n\
+    \n### Error Level Conventions\n\n- `0` = success\n- Non-zero = failure (typically\
+    \ `1`)\n\n```bat\nmycommand.exe\nif %ERRORLEVEL% neq 0 (\n    echo ERROR: mycommand\
+    \ failed with code %ERRORLEVEL%\n    exit /b %ERRORLEVEL%\n)\n```\n\n### Fail-Fast\
+    \ Pattern\n\n```bat\ncommand1 || (echo command1 failed & exit /b 1)\ncommand2\
+    \ || (echo command2 failed & exit /b 1)\n```\n\n### Setting Exit Codes\n\n```bat\n\
+    exit /b 0        & REM Return success from a batch/function\nexit /b 1       \
+    \ & REM Return failure\ncmd /c \"exit /b 42\"   & REM Set ERRORLEVEL to 42 inline\n\
+    ```\n\n## Essential Commands Reference\n\n### File Operations\n\n| Command | Purpose\
+    \ |\n|---------|---------|\n| `DIR` | List directory contents |\n| `COPY` | Copy\
+    \ files |\n| `XCOPY` | Extended copy with subdirectories (legacy) |\n| `ROBOCOPY`\
+    \ | Robust copy with retry, mirror, logging |\n| `MOVE` | Move or rename files\
+    \ |\n| `DEL` | Delete files |\n| `REN` | Rename files |\n| `MD` / `MKDIR` | Create\
+    \ directories |\n| `RD` / `RMDIR` | Remove directories |\n| `MKLINK` | Create\
+    \ symbolic or hard links |\n| `ATTRIB` | View or set file attributes |\n| `TYPE`\
+    \ | Print file contents |\n| `MORE` | Paginated file display |\n| `TREE` | Display\
+    \ directory structure |\n| `REPLACE` | Replace files in destination with source\
+    \ |\n| `COMPACT` | Show or set NTFS compression |\n| `EXPAND` | Extract from .cab\
+    \ files |\n| `MAKECAB` | Create .cab archives |\n| `TAR` | Create or extract tar\
+    \ archives |\n\n### Text Search and Processing\n\n| Command | Purpose |\n|---------|---------|\n\
+    | `FIND` | Search for literal strings |\n| `FINDSTR` | Search with limited regular\
+    \ expressions |\n| `SORT` | Sort lines alphabetically |\n| `CLIP` | Copy piped\
+    \ input to clipboard |\n| `FC` | Compare two files |\n| `COMP` | Binary file comparison\
+    \ |\n| `CERTUTIL` | Encode/decode Base64, compute hashes |\n\n### System Information\n\
+    \n| Command | Purpose |\n|---------|---------|\n| `SYSTEMINFO` | Full system configuration\
+    \ |\n| `HOSTNAME` | Display computer name |\n| `VER` | Windows version |\n| `WHOAMI`\
+    \ | Current user and group info |\n| `TASKLIST` | List running processes |\n|\
+    \ `TASKKILL` | Terminate processes |\n| `WMIC` | WMI queries (drives, OS, memory)\
+    \ |\n| `SC` | Service control (query, start, stop) |\n| `DRIVERQUERY` | List installed\
+    \ drivers |\n| `REG` | Registry operations (query, add, delete) |\n| `SETX` |\
+    \ Set persistent environment variables |\n\n### Network\n\n| Command | Purpose\
+    \ |\n|---------|---------|\n| `PING` | Test network connectivity |\n| `IPCONFIG`\
+    \ | IP configuration |\n| `NSLOOKUP` | DNS lookup |\n| `NETSTAT` | Network connections\
+    \ and ports |\n| `TRACERT` | Trace route to host |\n| `NET USE` | Map/disconnect\
+    \ network drives |\n| `NET USER` | Manage user accounts |\n| `NETSH` | Network\
+    \ configuration utility |\n| `ARP` | ARP cache management |\n| `ROUTE` | Routing\
+    \ table management |\n| `CURL` | HTTP requests (Windows 10+) |\n| `SSH` | Secure\
+    \ shell (Windows 10+) |\n\n### Scheduling and Automation\n\n| Command | Purpose\
+    \ |\n|---------|---------|\n| `SCHTASKS` | Create and manage scheduled tasks |\n\
+    | `TIMEOUT` | Wait N seconds (Vista+) |\n| `START` | Launch programs asynchronously\
+    \ |\n| `RUNAS` | Run as different user |\n| `SHUTDOWN` | Shutdown or restart |\n\
+    | `FORFILES` | Find files by date and execute commands |\n\n### Shell Utilities\n\
+    \n| Command | Purpose |\n|---------|---------|\n| `WHERE` | Locate executables\
+    \ in PATH |\n| `DOSKEY` | Create command macros |\n| `CHOICE` | Prompt for single-key\
+    \ input |\n| `MODE` | Configure console size and ports |\n| `SUBST` | Map folder\
+    \ to drive letter |\n| `CHCP` | Get or set console code page |\n| `COLOR` | Set\
+    \ console colors |\n| `TITLE` | Set console window title |\n| `ASSOC` / `FTYPE`\
+    \ | File type associations |\n\n## Shell Syntax and Expressions\n\n### Parentheses\
+    \ for Grouping\n\nParentheses turn compound commands into a single unit for redirection\
+    \ or conditional execution:\n\n```bat\n(echo Line 1 & echo Line 2) > output.txt\n\
+    if exist \"data.csv\" (\n    echo Processing...\n    call :process \"data.csv\"\
+    \n) else (\n    echo No data found.\n)\n```\n\n### Escape Characters\n\nThe caret\
+    \ `^` escapes the next character:\n\n```bat\necho Total ^& Summary          &\
+    \ REM Outputs: Total & Summary\necho 100%% complete            & REM Outputs:\
+    \ 100% complete (in batch)\necho Line one^\nLine two                       & REM\
+    \ Caret escapes the newline\n```\n\nAfter a pipe, triple caret is needed: `echo\
+    \ x ^^^& y | findstr x`\n\n### Wildcards\n\n- `*` matches any sequence of characters\n\
+    - `?` matches a single character (or zero at end of period-free segment)\n\n```bat\n\
+    dir *.txt           & REM All .txt files\nren *.jpeg *.jpg    & REM Bulk rename\n\
+    ```\n\n### Redirection Summary\n\n```bat\ncommand > file.txt          & REM Overwrite\
+    \ stdout to file\ncommand >> file.txt         & REM Append stdout to file\ncommand\
+    \ 2> errors.log       & REM Redirect stderr\ncommand > all.log 2>&1      & REM\
+    \ Merge stderr into stdout\ncommand < input.txt         & REM Read stdin from\
+    \ file\ncommand > NUL 2>&1          & REM Discard all output\n```\n\n## Writing\
+    \ Production-Quality Batch Files\n\n### Standard Script Structure\n\n```bat\n\
+    @echo off\nsetlocal EnableDelayedExpansion\n\nREM ============================================================\n\
+    REM  Script: example.bat\nREM  Purpose: Describe what this script does\nREM ============================================================\n\
+    \ncall :main %*\nexit /b %ERRORLEVEL%\n\n:main\n    call :parse_args %*\n    if\
+    \ not defined _TARGET (\n        echo ERROR: --target is required. 1>&2\n    \
+    \    call :usage\n        exit /b 1\n    )\n    echo Processing: %_TARGET%\n \
+    \   exit /b 0\n\n:parse_args\n    if \"%~1\"==\"\" exit /b 0\n    if /i \"%~1\"\
+    ==\"--target\" set \"_TARGET=%~2\" & shift\n    if /i \"%~1\"==\"--help\"   call\
+    \ :usage & exit /b 0\n    shift\n    goto :parse_args\n\n:usage\n    echo Usage:\
+    \ %~nx0 --target ^<path^> [--help]\n    echo.\n    echo Options:\n    echo   --target\
+    \   Path to process (required)\n    echo   --help     Show this help message\n\
+    \    exit /b 0\n```\n\n### Best Practices\n\n1. **Always start with `@echo off`\
+    \ and `setlocal`** \u2014 Prevents noisy output and variable leakage to the caller.\n\
+    2. **Validate inputs before processing** \u2014 Check required arguments and file\
+    \ existence early. Use `if not defined` and `if not exist`.\n3. **Quote paths\
+    \ and variables** \u2014 Use `\"%~1\"` and `\"%_MY_PATH%\"` to handle spaces and\
+    \ special characters safely.\n4. **Use `exit /b` instead of `exit`** \u2014 Avoids\
+    \ closing the parent console window.\n5. **Return meaningful exit codes** \u2014\
+    \ `exit /b 0` for success, non-zero for specific failures.\n6. **Use `%~dp0` for\
+    \ script-relative paths** \u2014 Ensures the script works regardless of the caller's\
+    \ working directory.\n7. **Prefer `ROBOCOPY` over `XCOPY`** \u2014 More reliable,\
+    \ supports retry, mirroring, and logging.\n8. **Use `EnableDelayedExpansion` when\
+    \ modifying variables inside loops or parenthesized blocks.**\n9. **Write errors\
+    \ to stderr** \u2014 `echo ERROR: message 1>&2` keeps stdout clean for piping.\n\
+    10. **Use `REM` for comments** \u2014 `::` can cause issues inside `FOR` loop\
+    \ bodies.\n\n### Security Considerations\n\n- **Never store credentials in batch\
+    \ files** \u2014 Use environment variables, credential stores, or prompts.\n-\
+    \ **Validate user input** \u2014 Unquoted variables containing `&`, `|`, or `>`\
+    \ can inject commands. Always quote: `\"%_USER_INPUT%\"`.\n- **Use `SETLOCAL`**\
+    \ \u2014 Prevents variable values from leaking to parent processes.\n- **Sanitize\
+    \ file paths** \u2014 Validate paths before passing to `DEL`, `RD`, or `ROBOCOPY`\
+    \ to prevent unintended deletion.\n- **Avoid `SET /P` for sensitive input** \u2014\
+    \ Input is visible and stored in console history. Use a dedicated credential tool\
+    \ when possible.\n\n## Debugging and Troubleshooting\n\n| Technique | How |\n\
+    |-----------|-----|\n| Trace execution | Remove `@echo off` or use `@echo on`\
+    \ temporarily |\n| Step through | Add `PAUSE` between sections |\n| Check error\
+    \ level | `echo Exit code: %ERRORLEVEL%` after each command |\n| Inspect variables\
+    \ | `set _MY_` to list all variables starting with `_MY_` |\n| Delayed expansion\
+    \ issues | Variable inside `( )` block not updating? Enable `!VAR!` syntax |\n\
+    | FOR loop `%%` vs `%` | Use `%%i` in batch files, `%i` on the command line |\n\
+    | Spaces in SET | `set name=value` not `set name = value` |\n| Caret in pipes\
+    \ | After a pipe, use `^^^` to escape special chars |\n| Parentheses in SET /A\
+    \ | Escape with `^(` and `^)` inside `if` blocks, or use quotes |\n| Double percent\
+    \ for modulo | `set /a r=14 %% 3` in batch files |\n\n## Cross-Platform and Extended\
+    \ Tools\n\nWhen batch scripting reaches its limits, these tools extend cmd.exe\
+    \ capabilities:\n\n| Tool | Purpose |\n|------|---------|\n| **Cygwin** | Full\
+    \ POSIX environment on Windows (grep, sed, awk, ssh) |\n| **MSYS2** | Lightweight\
+    \ Unix tools and package manager (pacman) |\n| **WSL** | Windows Subsystem for\
+    \ Linux \u2014 run native Linux binaries |\n| **GnuWin32** | Individual GNU utilities\
+    \ as native Windows executables |\n| **PowerShell** | Modern Windows scripting\
+    \ with .NET integration |\n\nUse batch when you need: fast startup, simple file\
+    \ operations, PATH-based CLI tools, or Task Scheduler integration. Consider PowerShell\
+    \ or WSL for complex data processing, REST APIs, or object-oriented scripting.\n\
+    \n## CMD Keyboard Shortcuts\n\n| Shortcut | Action |\n|----------|--------|\n\
+    | `Tab` | Auto-complete file/folder names |\n| `Up` / `Down` | Navigate command\
+    \ history |\n| `F7` | Show command history popup |\n| `F3` | Repeat last command\
+    \ |\n| `Esc` | Clear current line |\n| `Ctrl+C` | Cancel running command |\n|\
+    \ `Alt+F7` | Clear command history |\n\n## Reference Files\n\nThe `references/`\
+    \ folder contains detailed documentation:\n\n| File | Contents |\n|------|----------|\n\
+    | `tools-and-resources.md` | Windows tools, utilities, package managers, terminals\
+    \ |\n| `batch-files-and-functions.md` | Example scripts, techniques, best practices\
+    \ links |\n| `windows-commands.md` | Comprehensive A-Z Windows command reference\
+    \ |\n| `cygwin.md` | Cygwin user guide and FAQ |\n| `msys2.md` | MSYS2 installation,\
+    \ packages, and environments |\n| `windows-subsystem-on-linux.md` | WSL setup,\
+    \ commands, and documentation |\n\n## Asset Templates\n\nThe `assets/` folder\
+    \ contains starter batch file template data, but as text files:\n\n| Template\
+    \ | Purpose |\n|----------|---------|\n| `executable.txt` | Standalone CLI tool\
+    \ with argument parsing |\n| `library.txt` | Reusable function library with CALL-able\
+    \ labels |\n| `task.txt` | Scheduled task / automation script |"

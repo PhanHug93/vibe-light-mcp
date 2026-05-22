@@ -1,0 +1,66 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-scaling-scaling-data-volume-horizontal-scaling
+name: qdrant-horizontal-scaling
+description: Diagnoses and guides Qdrant horizontal scaling decisions. Use when someone
+  asks 'vertical or horizontal?', 'how many nodes?', 'how many shards?', 'how to add
+  nodes', 'resharding', 'data doesn't fit', or 'need more capacity'. Also use when
+  data growth outpaces current deployment.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-scaling/scaling-data-volume/horizontal-scaling/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- typescript
+languages: []
+platforms: []
+aliases:
+- qdrant-horizontal-scaling
+content:
+  kind: skill_markdown
+  sha256: e768679bda54dd9f333a9b1861bfc239922d5c07725418b72df69dcd0fe020c4
+  char_count: 2995
+  text: "# What to Do When Qdrant Needs More Capacity\n\nVertical first: simpler operations,\
+    \ no network overhead, good up to ~100M vectors per node depending on dimensions\
+    \ and quantization. Horizontal when: data exceeds single node capacity, need fault\
+    \ tolerance, need to isolate tenants, or IOPS-bound (more nodes = more independent\
+    \ IOPS).\n\n## Most basic distributed configuration\n\n- 3 nodes, 3 shards with\
+    \ `replication_factor: 2` for zero-downtime scaling\n\nMinimum of 3 nodes is important\
+    \ for consensus and fault tolerance. With 3 nodes, you can lose 1 node without\
+    \ downtime. With 2 nodes, losing 1 node causes downtime for collection operations.\n\
+    Replication factor of 2 means each shard has 1 replica, so you have 2 copies of\
+    \ data. This allows for zero-downtime scaling and maintenance. With `replication_factor:\
+    \ 1`, zero-downtime is not guaranteed even for point-level operations, and cluster\
+    \ maintenance requires downtime.\n\n## Choosing number of shards\n\nShards are\
+    \ the unit of data distribution. \nMore shards allows more nodes and better distribution,\
+    \ but adds overhead. Fewer shards reduces overhead but limits horizontal scaling.\n\
+    \nFor cluster of 3-6 nodes the recommended shard count is 6-12. \nThis allows\
+    \ for 2-4 shards per node, which balances distribution and overhead. \n\n## Changing\
+    \ number of shards\n\nUse when: shard count isn't evenly divisible by node count,\
+    \ causing uneven distribution, or need to rebalance.\n\nResharding is expensive\
+    \ and time-consuming, it should be used as a last resort if regular data distribution\
+    \ is not possible.\nResharding is designed to be transparent for user operations,\
+    \ updates and searches should still work during resharding with some small performance\
+    \ impact.\n\nBut resharding operation itself is time-consuming and requires to\
+    \ move large amounts of data between nodes.\n\n- Available in Qdrant Cloud [Resharding](https://search.qdrant.tech/md/documentation/operations/distributed_deployment/?s=resharding)\n\
+    - Resharding is not available for self-hosted deployments.\n\nBetter alternatives:\
+    \ over-provision shards initially, or spin up new cluster with correct config\
+    \ and migrate data.\n\n\n## What NOT to Do\n\n- Do not jump to horizontal before\
+    \ exhausting vertical (adds complexity for no gain)\n- Do not set `shard_number`\
+    \ that isn't a multiple of node count (uneven distribution)\n- Do not use `replication_factor:\
+    \ 1` in production if you need fault tolerance\n- Do not add nodes without rebalancing\
+    \ shards (use shard move API to redistribute)\n- Do not scale down RAM without\
+    \ load testing (cache eviction causes days-long latency incidents)\n- Do not hit\
+    \ the collection limit by using one collection per tenant (use payload partitioning)"

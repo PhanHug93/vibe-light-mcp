@@ -1,0 +1,160 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mvvm-toolkit
+name: mvvm-toolkit
+description: 'CommunityToolkit.Mvvm (the MVVM Toolkit) core: source generators ([ObservableProperty],
+  [RelayCommand], [NotifyPropertyChangedFor], [NotifyCanExecuteChangedFor], [NotifyDataErrorInfo]),
+  base classes (ObservableObject / ObservableValidator / ObservableRecipient), commands
+  (RelayCommand / AsyncRelayCommand), and validation. Companion skills: mvvm-toolkit-messenger
+  for pub/sub, mvvm-toolkit-di for Microsoft.Extensions.DependencyInjection wiring.
+  Works across WPF, WinUI 3, MAUI, Uno, and Avalonia.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mvvm-toolkit/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- mvvm-toolkit
+content:
+  kind: skill_markdown
+  sha256: 25fc1d882a92163b96e2990272af75db0a70a329b9dd6b7cb49e1b058c8bff9d
+  char_count: 10781
+  text: "# CommunityToolkit.Mvvm (core)\n\nUse this skill when authoring or reviewing\
+    \ ViewModels, properties,\ncommands, or validation in apps that use `CommunityToolkit.Mvvm`\
+    \ 8.x.\n\n> **Companion skills.** Load **`mvvm-toolkit-messenger`** for `IMessenger`\n\
+    > pub/sub patterns. Load **`mvvm-toolkit-di`** for\n> `Microsoft.Extensions.DependencyInjection`\
+    \ integration.\n\n> **Quick recap.** `[ObservableProperty]` on private fields\
+    \ in `partial`\n> classes; `[RelayCommand]` on instance methods; inherit from\n\
+    > `ObservableObject` (or `ObservableValidator` for input forms,\n> `ObservableRecipient`\
+    \ when using `IMessenger`).\n\n---\n\n## Package & setup\n\n```xml\n<ItemGroup>\n\
+    \  <PackageReference Include=\"CommunityToolkit.Mvvm\" Version=\"8.*\" />\n</ItemGroup>\n\
+    ```\n\nTargets: `netstandard2.0`, `netstandard2.1`, `net6.0`+. Works on .NET,\
+    \ .NET\nFramework, Mono. Source generators ship in the same NuGet \u2014 no extra\n\
+    analyzer reference required.\n\nNamespaces:\n\n```csharp\nusing CommunityToolkit.Mvvm.ComponentModel;\
+    \   // ObservableObject, [ObservableProperty]\nusing CommunityToolkit.Mvvm.Input;\
+    \             // [RelayCommand], RelayCommand, AsyncRelayCommand\n```\n\n> **Universal\
+    \ rule.** Every type that uses `[ObservableProperty]` or\n> `[RelayCommand]` \u2014\
+    \ and every enclosing type, if nested \u2014 must be\n> declared `partial`. Without\
+    \ it, the generators emit\n> `MVVMTK0008` / `MVVMTK0042`.\n\n---\n\n## Source\
+    \ generators cheat sheet\n\n| Attribute | Applied to | Generates |\n|-----------|-----------|-----------|\n\
+    | `[ObservableProperty]` | private field | Public `INotifyPropertyChanged` property\
+    \ + `OnXxxChanging`/`OnXxxChanged` partial-method hooks |\n| `[NotifyPropertyChangedFor(nameof(Other))]`\
+    \ | observable field | Also raises `PropertyChanged` for the listed property |\n\
+    | `[NotifyCanExecuteChangedFor(nameof(MyCommand))]` | observable field | Calls\
+    \ `MyCommand.NotifyCanExecuteChanged()` on change |\n| `[NotifyDataErrorInfo]`\
+    \ | observable field on `ObservableValidator` | Calls `ValidateProperty(value)`\
+    \ from the setter |\n| `[NotifyPropertyChangedRecipients]` | observable field\
+    \ on `ObservableRecipient` | `Broadcast(old, new)` after the change |\n| `[RelayCommand]`\
+    \ | instance method | Lazy `RelayCommand` / `AsyncRelayCommand` exposed as `IRelayCommand`\
+    \ / `IAsyncRelayCommand` |\n| `[RelayCommand(CanExecute = nameof(CanX))]` | instance\
+    \ method | Wires `CanExecute` to a method or property |\n| `[RelayCommand(IncludeCancelCommand\
+    \ = true)]` | async method with `CancellationToken` | Also generates `XxxCancelCommand`\
+    \ |\n| `[RelayCommand(AllowConcurrentExecutions = true)]` | async method | Allows\
+    \ queued/parallel invocations (default disables while running) |\n| `[RelayCommand(FlowExceptionsToTaskScheduler\
+    \ = true)]` | async method | Surfaces exceptions via `ExecutionTask` instead of\
+    \ awaiting and rethrowing |\n| `[property: SomeAttr]` | observable field or `[RelayCommand]`\
+    \ method | Forwards `SomeAttr` onto the generated property (e.g., `[JsonIgnore]`)\
+    \ |\n\n**Naming.** Field `name` / `_name` / `m_name` \u2192 `Name`. Method `LoadAsync`\
+    \ \u2192\n`LoadCommand` (the `Async` suffix is stripped; a leading `On` is also\n\
+    stripped).\n\nSee [`references/source-generators.md`](references/source-generators.md)\
+    \ for\nthe full attribute reference with generated-code samples.\n\n---\n\n##\
+    \ ViewModel patterns\n\n### Simple observable property\n\n```csharp\npublic partial\
+    \ class ContactViewModel : ObservableObject\n{\n    [ObservableProperty]\n   \
+    \ private string? name;\n}\n```\n\n### Hooks: `OnXxxChanging` / `OnXxxChanged`\n\
+    \n```csharp\n[ObservableProperty]\nprivate string? name;\n\npartial void OnNameChanged(string?\
+    \ value) =>\n    Logger.LogInformation(\"Name changed to {Name}\", value);\n```\n\
+    \nBoth single-arg `(value)` and two-arg `(oldValue, newValue)` overloads\nare\
+    \ available. Implement only the ones you need; unimplemented hooks are\nelided\
+    \ by the compiler (zero runtime cost).\n\n### Dependent properties + dependent\
+    \ commands\n\n```csharp\n[ObservableProperty]\n[NotifyPropertyChangedFor(nameof(FullName))]\n\
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]\nprivate string? firstName;\n\
+    \n[ObservableProperty]\n[NotifyPropertyChangedFor(nameof(FullName))]\n[NotifyCanExecuteChangedFor(nameof(SaveCommand))]\n\
+    private string? lastName;\n\npublic string FullName => $\"{FirstName} {LastName}\"\
+    .Trim();\n```\n\n### Wrapping a non-observable model\n\n```csharp\npublic sealed\
+    \ class ObservableUser(User user) : ObservableObject\n{\n    public string Name\n\
+    \    {\n        get => user.Name;\n        set => SetProperty(user.Name, value,\
+    \ user, (u, n) => u.Name = n);\n    }\n}\n```\n\nPass a static lambda (no captured\
+    \ state) to keep the call allocation-free.\n\n---\n\n## Commands\n\n```csharp\n\
+    [RelayCommand]\nprivate void Refresh() => Items.Reset();\n\n[RelayCommand]\nprivate\
+    \ async Task LoadAsync()\n{\n    foreach (var item in await service.GetItemsAsync())\n\
+    \        Items.Add(item);\n}\n\n[RelayCommand(IncludeCancelCommand = true)]\n\
+    private async Task DownloadAsync(CancellationToken token)\n{\n    await using\
+    \ var stream = await http.GetStreamAsync(url, token);\n    // ...\n}\n\n[RelayCommand(CanExecute\
+    \ = nameof(CanSave))]\nprivate Task SaveAsync() => repo.SaveAsync(Name!);\n\n\
+    private bool CanSave() => !string.IsNullOrWhiteSpace(Name);\n```\n\nReach for\
+    \ manual `RelayCommand` / `AsyncRelayCommand` constructors only\nwhen you must\
+    \ own the command's lifetime explicitly or compose it from\nnon-trivial sources.\
+    \ The attribute style covers ~95% of cases.\n\nSee [`references/relaycommand-cookbook.md`](references/relaycommand-cookbook.md)\n\
+    for sync / async / cancellable / concurrency / error-surfacing recipes.\n\n---\n\
+    \n## Base class selection\n\n| Base class | Use when |\n|------------|---------|\n\
+    | `ObservableObject` | Default. `INotifyPropertyChanged` + `INotifyPropertyChanging`\
+    \ + `SetProperty` overloads + `SetPropertyAndNotifyOnCompletion` for `Task` properties\
+    \ |\n| `ObservableValidator` | The VM needs `INotifyDataErrorInfo` (forms, settings\
+    \ input) |\n| `ObservableRecipient` | The VM sends or receives `IMessenger` messages\
+    \ \u2014 see the **`mvvm-toolkit-messenger`** skill |\n\nC# is single-inheritance:\
+    \ `ObservableValidator` and `ObservableRecipient`\nboth extend `ObservableObject`,\
+    \ so combining them requires composition\n(e.g., inject `IMessenger` into an `ObservableValidator`).\n\
+    \n---\n\n## Validation\n\n```csharp\nusing System.ComponentModel.DataAnnotations;\n\
+    \npublic sealed partial class RegistrationViewModel : ObservableValidator\n{\n\
+    \    [ObservableProperty]\n    [NotifyDataErrorInfo]\n    [Required, MinLength(2),\
+    \ MaxLength(100)]\n    private string? name;\n\n    [ObservableProperty]\n   \
+    \ [NotifyDataErrorInfo]\n    [Required, EmailAddress]\n    private string? email;\n\
+    \n    [RelayCommand]\n    private void Submit()\n    {\n        ValidateAllProperties();\n\
+    \        if (HasErrors) return;\n        // submit...\n    }\n}\n```\n\nOther\
+    \ entry points: `TrySetProperty`, `ValidateProperty(value, name)`,\n`ClearAllErrors()`,\
+    \ `GetErrors(propertyName)`. Custom rules support\n`[CustomValidation]` methods\
+    \ and custom `ValidationAttribute` subclasses.\n\nSee [`references/validation.md`](references/validation.md)\
+    \ for the full\nvalidator surface area.\n\n---\n\n## Top pitfalls\n\n1. **Forgetting\
+    \ `partial`.** Class (and every enclosing type) must be\n   `partial`. Compile\
+    \ error `MVVMTK0008` / `MVVMTK0042`.\n2. **PascalCase field name.** `[ObservableProperty]\
+    \ private string Name;`\n   collides with the generated property. Use `name`,\
+    \ `_name`, or `m_name`.\n3. **`async void` on `[RelayCommand]`.** The generator\
+    \ only wraps\n   `Task`-returning methods as `IAsyncRelayCommand`. `async void`\
+    \ becomes\n   a sync `RelayCommand` and exceptions are unobserved. Always return\n\
+    \   `Task`.\n4. **Forgetting `[NotifyCanExecuteChangedFor]`.** The Save button\
+    \ stays\n   disabled even though `CanSave()` would now return `true`.\n5. **Mutating\
+    \ the same reference held by an `[ObservableProperty]`\n   field.** `EqualityComparer<T>.Default`\
+    \ returns `true`, no notification\n   fires. Replace the instance instead of mutating\
+    \ it.\n\nFor the full diagnostic table (`MVVMTK0xxx`) and more pitfalls, see\n\
+    [`references/troubleshooting.md`](references/troubleshooting.md).\n\n---\n\n##\
+    \ End-to-end mini walkthrough\n\nA two-pane Notes app demonstrating generators\
+    \ + commands +\n`[NotifyCanExecuteChangedFor]`:\n\n```csharp\npublic sealed partial\
+    \ class NoteViewModel(INotesService notes,\n    IMessenger messenger) : ObservableRecipient(messenger)\n\
+    {\n    [ObservableProperty]\n    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]\n\
+    \    [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]\n    private string?\
+    \ filename;\n\n    [ObservableProperty]\n    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]\n\
+    \    private string? text;\n\n    [RelayCommand(CanExecute = nameof(CanSave))]\n\
+    \    private Task SaveAsync()\n    {\n        Messenger.Send(new NoteSavedMessage(Filename!));\n\
+    \        return notes.SaveAsync(Filename!, Text!);\n    }\n\n    [RelayCommand(CanExecute\
+    \ = nameof(CanDelete))]\n    private Task DeleteAsync() => notes.DeleteAsync(Filename!);\n\
+    \n    private bool CanSave() =>\n        !string.IsNullOrWhiteSpace(Filename)\
+    \ && !string.IsNullOrEmpty(Text);\n    private bool CanDelete() => !string.IsNullOrWhiteSpace(Filename);\n\
+    }\n```\n\nFor the full sample (DI wiring, View code-behind, XAML, unit tests),\
+    \ see\n[`references/end-to-end-walkthrough.md`](references/end-to-end-walkthrough.md).\n\
+    \n---\n\n## References & companion skills\n\n| Topic | Where |\n|-------|-------|\n\
+    | Source generator attribute reference | [`references/source-generators.md`](references/source-generators.md)\
+    \ |\n| RelayCommand recipes | [`references/relaycommand-cookbook.md`](references/relaycommand-cookbook.md)\
+    \ |\n| Validation deep dive | [`references/validation.md`](references/validation.md)\
+    \ |\n| Full Notes-app walkthrough | [`references/end-to-end-walkthrough.md`](references/end-to-end-walkthrough.md)\
+    \ |\n| `MVVMTK0xxx` diagnostics & pitfalls | [`references/troubleshooting.md`](references/troubleshooting.md)\
+    \ |\n| **Messenger pub/sub** | Companion skill: **`mvvm-toolkit-messenger`** |\n\
+    | **`Microsoft.Extensions.DependencyInjection` wiring** | Companion skill: **`mvvm-toolkit-di`**\
+    \ |\n\nExternal sources:\n\n- Toolkit overview: <https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/>\n\
+    - WinUI MVVM Toolkit tutorial: <https://learn.microsoft.com/en-us/windows/apps/tutorials/winui-mvvm-toolkit/intro>\n\
+    - Source: <https://github.com/CommunityToolkit/dotnet>\n- Samples: <https://github.com/CommunityToolkit/MVVM-Samples>"

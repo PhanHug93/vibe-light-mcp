@@ -1,0 +1,56 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__creating-oracle-to-postgres-migration-bug-report
+name: creating-oracle-to-postgres-migration-bug-report
+description: Creates structured bug reports for defects found during Oracle-to-PostgreSQL
+  migration. Use when documenting behavioral differences between Oracle and PostgreSQL
+  as actionable bug reports with severity, root cause, and remediation steps.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/creating-oracle-to-postgres-migration-bug-report/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- creating-oracle-to-postgres-migration-bug-report
+content:
+  kind: skill_markdown
+  sha256: 4f7c01e3b82014701473a4b4a73caaa89bfffb66aa44e7df147cdc3f744a5878
+  char_count: 2267
+  text: "# Creating Bug Reports for Oracle-to-PostgreSQL Migration\n\n## When to Use\n\
+    \n- Documenting a defect caused by behavioral differences between Oracle and PostgreSQL\n\
+    - Writing or reviewing a bug report for an Oracle-to-PostgreSQL migration project\n\
+    \n## Bug Report Format\n\nUse the template in [references/BUG-REPORT-TEMPLATE.md](references/BUG-REPORT-TEMPLATE.md).\
+    \ Each report must include:\n\n- **Status**: \u2705 RESOLVED, \u26D4 UNRESOLVED,\
+    \ or \u23F3 IN PROGRESS\n- **Component**: Affected endpoint, repository, or stored\
+    \ procedure\n- **Test**: Related automated test names\n- **Severity**: Low / Medium\
+    \ / High / Critical \u2014 based on impact scope\n- **Problem**: Expected Oracle\
+    \ behavior vs. observed PostgreSQL behavior\n- **Scenario**: Ordered reproduction\
+    \ steps with seed data, operation, expected result, and actual result\n- **Root\
+    \ Cause**: The specific Oracle/PostgreSQL behavioral difference causing the defect\n\
+    - **Solution**: Changes made or required, with explicit file paths\n- **Validation**:\
+    \ Steps to confirm the fix on both databases\n\n## Oracle-to-PostgreSQL Guidance\n\
+    \n- **Oracle is the source of truth** \u2014 frame expected behavior from the\
+    \ Oracle baseline\n- Call out data layer nuances explicitly: empty string vs.\
+    \ NULL, type coercion strictness, collation, sequence values, time zones, padding,\
+    \ constraints\n- Client code changes should be avoided unless required for correct\
+    \ behavior; when proposed, document and justify them clearly\n\n## Writing Style\n\
+    \n- Plain language, short sentences, clear next actions\n- Present or past tense\
+    \ consistently\n- Bullets and numbered lists for steps and validations\n- Minimal\
+    \ SQL excerpts and logs as evidence; omit sensitive data and keep snippets reproducible\n\
+    - Stick to existing runtime/language versions; avoid speculative fixes\n\n## Filename\
+    \ Convention\n\nSave bug reports as `BUG_REPORT_<DescriptiveSlug>.md` where `<DescriptiveSlug>`\
+    \ is a short PascalCase identifier (e.g., `EmptyStringNullHandling`, `RefCursorUnwrapFailure`)."

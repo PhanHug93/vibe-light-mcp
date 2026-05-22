@@ -1,0 +1,136 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__msgraph-sdk
+name: msgraph-sdk
+description: "Integrate Microsoft Graph SDK into any project \u2014 .NET, TypeScript/JavaScript,\
+  \ or Python. Covers auth patterns (client credentials, OBO, managed identity), SDK\
+  \ setup, calling Graph APIs, batching, delta queries, change notifications, throttling,\
+  \ and permission scopes. Use when accessing Microsoft 365 data (users, mail, calendar,\
+  \ Teams, files, SharePoint) from any application type."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/msgraph-sdk/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- python
+- typescript
+languages: []
+platforms: []
+aliases:
+- msgraph-sdk
+content:
+  kind: skill_markdown
+  sha256: cafac367eb3fdc99e05aedc76d46ad77f49e6c3fbc549e3cc6ec86d657638d8b
+  char_count: 8216
+  text: "# Microsoft Graph SDK\n\nUse this skill when integrating Microsoft Graph\
+    \ into an application to access Microsoft 365 data and services.\n\nAlways ground\
+    \ implementation in the current Microsoft Graph SDK documentation and SDK version\
+    \ for the target language rather than relying on memory alone.\n\n## Determine\
+    \ the target language first\n\n1. Use the **.NET** workflow when the project contains\
+    \ `.cs`, `.csproj`, or `.sln` files, or when the user asks for C# guidance. Follow\
+    \ [references/dotnet.md](references/dotnet.md).\n2. Use the **TypeScript / JavaScript**\
+    \ workflow when the project contains `package.json`, `.ts`, or `.js` files, or\
+    \ when the user asks for Node.js / browser guidance. Follow [references/typescript.md](references/typescript.md).\n\
+    3. Use the **Python** workflow when the project contains `.py`, `pyproject.toml`,\
+    \ or `requirements.txt`, or when the user asks for Python guidance. Follow [references/python.md](references/python.md).\n\
+    4. If multiple languages are present, match the language of the files being edited\
+    \ or ask the user.\n\n## Always consult live documentation\n\n- Microsoft Graph\
+    \ overview: <https://learn.microsoft.com/graph/overview>\n- Graph Explorer (try\
+    \ calls live): <https://developer.microsoft.com/graph/graph-explorer>\n- Graph\
+    \ permissions reference: <https://learn.microsoft.com/graph/permissions-reference>\n\
+    - Use Microsoft Docs MCP tooling when available to fetch current API shapes and\
+    \ SDK samples.\n\n## Authentication \u2014 choose the right pattern\n\nSelecting\
+    \ the wrong auth flow is the most common Graph integration mistake. Apply this\
+    \ decision tree before writing any auth code:\n\n| Scenario | Flow to use |\n\
+    |---|---|\n| Background service / daemon with no user | **Client credentials**\
+    \ (app-only) |\n| Agent or API acting on behalf of a signed-in user | **On-Behalf-Of\
+    \ (OBO)** |\n| App running in Azure (Function, Container App, VM) | **Managed\
+    \ Identity** (preferred over secrets) |\n| CLI tool or local dev script | **Device\
+    \ code** or **interactive browser** |\n| Single-page app (browser only) | **Authorization\
+    \ code + PKCE** |\n\n- Never use client credentials when a user context is required\
+    \ \u2014 Graph enforces this at the permission level (application vs. delegated).\n\
+    - Prefer `DefaultAzureCredential` in Azure-hosted apps; it tries managed identity\
+    \ first and falls back gracefully for local dev.\n- Never hardcode secrets. Use\
+    \ environment variables, Azure Key Vault, or the Secret Manager.\n\n## Core SDK\
+    \ usage patterns\n\n### Building the client\n\nAlways construct `GraphServiceClient`\
+    \ once and reuse it (it manages token caching internally).\n\nPass a credential\
+    \ from the Azure Identity library \u2014 never build raw HTTP clients manually.\n\
+    \n### Making calls\n\n- Use the fluent builder API: `client.Users[userId].Messages.GetAsync(...)`.\n\
+    - Always `await` async calls.\n- Specify `$select` to limit returned fields \u2014\
+    \ Graph returns large default payloads.\n- Use `$filter` server-side rather than\
+    \ filtering returned collections in memory.\n- Use `$expand` to fetch related\
+    \ resources in a single call when relationships are small.\n\n### Pagination\n\
+    \nGraph paginates collections. Never assume all items arrive in one response:\n\
+    - Check for an `@odata.nextLink` on the response.\n- Use the SDK's `PageIterator`\
+    \ helper (available in all three SDKs) to walk pages automatically.\n- Set `$top`\
+    \ to control page size (max varies by resource, typically 999).\n\n## Advanced\
+    \ patterns\n\n### Batch requests\n\nCombine up to 20 independent Graph calls into\
+    \ a single HTTP request using the `$batch` endpoint. Use batching when:\n- Initializing\
+    \ data for a dashboard or agent that needs multiple resources upfront.\n- Reducing\
+    \ latency in high-call-count operations.\n\nBatch responses arrive out of order\
+    \ \u2014 match them by the `id` field you assigned each request.\n\n### Delta\
+    \ queries\n\nUse delta queries to sync changes incrementally instead of polling\
+    \ full collections:\n- First call: `GET /users/delta` returns all items + a `@odata.deltaLink`.\n\
+    - Subsequent calls: use the `deltaLink` to receive only what changed since the\
+    \ last sync.\n- Supported on: users, groups, messages, calendar events, Teams\
+    \ channels, and more.\n- Store the `deltaLink` durably (database, blob) between\
+    \ sync runs.\n\n### Change notifications (webhooks)\n\nSubscribe to resource changes\
+    \ with `POST /subscriptions`:\n- Graph delivers change events to your HTTPS notification\
+    \ URL.\n- Subscriptions expire \u2014 renew them before `expirationDateTime` (max\
+    \ varies by resource; typically 1\u20133 days for mail/calendar, up to 4230 minutes\
+    \ for users/groups).\n- Validate the subscription handshake: Graph sends a `validationToken`\
+    \ query parameter on creation \u2014 echo it back as plain text with HTTP 200.\n\
+    - Use lifecycle notifications (`notificationUrl` + `lifecycleNotificationUrl`)\
+    \ to handle missed events and reauthorization.\n- For high-volume scenarios prefer\
+    \ **change notifications with resource data** (requires additional encryption\
+    \ setup).\n\n### Throttling\n\nGraph throttles aggressively. Always handle HTTP\
+    \ 429:\n- Read the `Retry-After` header \u2014 it specifies exact seconds to wait,\
+    \ not a fixed backoff.\n- The SDK's built-in retry middleware handles 429 automatically\
+    \ when configured; enable it explicitly.\n- Avoid fan-out patterns that hit Graph\
+    \ with hundreds of parallel requests; use batching or queuing instead.\n\n## Permissions\n\
+    \nGet permissions right before writing auth code \u2014 wrong scopes result in\
+    \ 403 errors that are hard to debug later.\n\n- Application permissions run without\
+    \ a user (daemon / service). Require admin consent.\n- Delegated permissions run\
+    \ in the context of a signed-in user. Some require admin consent.\n- Request the\
+    \ **minimum permissions** needed. Graph's permission reference lists least-privilege\
+    \ options for every operation.\n- Use the Graph Explorer to test which permissions\
+    \ a call actually requires before coding.\n- In Azure app registrations: grant\
+    \ API permissions \u2192 Microsoft Graph \u2192 select type (Application or Delegated)\
+    \ \u2192 grant admin consent where required.\n\n## Common Graph resources \u2014\
+    \ quick reference\n\n| Goal | Resource path |\n|---|---|\n| Get signed-in user's\
+    \ profile | `GET /me` |\n| List user's mailbox messages | `GET /me/messages` |\n\
+    | Send an email | `POST /me/sendMail` |\n| List calendar events | `GET /me/events`\
+    \ |\n| Get user's OneDrive root | `GET /me/drive/root/children` |\n| List Teams\
+    \ the user is in | `GET /me/joinedTeams` |\n| Post a Teams channel message | `POST\
+    \ /teams/{id}/channels/{id}/messages` |\n| List SharePoint site lists | `GET /sites/{siteId}/lists`\
+    \ |\n| Search across M365 | `POST /search/query` |\n| List all users in tenant\
+    \ (app-only) | `GET /users` |\n| Get group members | `GET /groups/{id}/members`\
+    \ |\n\nIn similar fashion, use the SDK's fluent API to navigate to these resources\
+    \ in code.\n\n## Workflow\n\n1. Determine the target language and read the matching\
+    \ reference file.\n2. Identify the auth scenario and choose the correct flow from\
+    \ the table above.\n3. Fetch current SDK docs and Graph Explorer examples before\
+    \ making implementation choices.\n4. Apply least-privilege permissions \u2014\
+    \ confirm in the Graph permissions reference.\n5. Implement pagination from the\
+    \ start \u2014 don't assume single-page responses.\n6. Enable retry middleware\
+    \ for throttling from day one.\n7. For syncing scenarios, prefer delta queries\
+    \ over polling.\n8. Use the language-specific package names, auth provider setup,\
+    \ and code patterns from the chosen reference file.\n\n## Completion criteria\n\
+    \n- Auth flow matches the scenario (not defaulting to client credentials for user-context\
+    \ calls).\n- `GraphServiceClient` is constructed once and reused.\n- All collection\
+    \ reads handle pagination.\n- Throttling (429) is handled via retry middleware\
+    \ or explicit `Retry-After` logic.\n- Permissions are scoped to the minimum required.\n\
+    - No secrets or credentials are hardcoded.\n- Code matches current SDK version\
+    \ patterns for the selected language."

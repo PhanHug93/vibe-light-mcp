@@ -1,0 +1,116 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__image-manipulation-image-magick
+name: image-manipulation-image-magick
+description: Process and manipulate images using ImageMagick. Supports resizing, format
+  conversion, batch processing, and retrieving image metadata. Use when working with
+  images, creating thumbnails, resizing wallpapers, or performing batch image operations.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/image-manipulation-image-magick/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- image-manipulation-image-magick
+content:
+  kind: skill_markdown
+  sha256: fba25bd07b134f456f7f6d217fd4d385f67286957387f59115a8275c391769c4
+  char_count: 6963
+  text: "# Image Manipulation with ImageMagick\n\nThis skill enables image processing\
+    \ and manipulation tasks using ImageMagick\nacross Windows, Linux, and macOS systems.\n\
+    \n## When to Use This Skill\n\nUse this skill when you need to:\n\n- Resize images\
+    \ (single or batch)\n- Get image dimensions and metadata\n- Convert between image\
+    \ formats\n- Create thumbnails\n- Process wallpapers for different screen sizes\n\
+    - Batch process multiple images with specific criteria\n\n## Prerequisites\n\n\
+    - ImageMagick installed on the system\n- **Windows**: PowerShell with ImageMagick\
+    \ available as `magick` (or at `C:\\Program Files\\ImageMagick-*\\magick.exe`)\n\
+    - **Linux/macOS**: Bash with ImageMagick installed via package manager (`apt`,\
+    \ `brew`, etc.)\n\n## Core Capabilities\n\n### 1. Image Information\n\n- Get image\
+    \ dimensions (width x height)\n- Retrieve detailed metadata (format, color space,\
+    \ etc.)\n- Identify image format\n\n### 2. Image Resizing\n\n- Resize single images\n\
+    - Batch resize multiple images\n- Create thumbnails with specific dimensions\n\
+    - Maintain aspect ratios\n\n### 3. Batch Processing\n\n- Process images based\
+    \ on dimensions\n- Filter and process specific file types\n- Apply transformations\
+    \ to multiple files\n\n## Usage Examples\n\n### Example 0: Resolve `magick` executable\n\
+    \n**PowerShell (Windows):**\n```powershell\n# Prefer ImageMagick on PATH\n$magick\
+    \ = (Get-Command magick -ErrorAction SilentlyContinue)?.Source\n\n# Fallback:\
+    \ common install pattern under Program Files\nif (-not $magick) {\n    $magick\
+    \ = Get-ChildItem \"C:\\\\Program Files\\\\ImageMagick-*\\\\magick.exe\" -ErrorAction\
+    \ SilentlyContinue |\n        Select-Object -First 1 -ExpandProperty FullName\n\
+    }\n\nif (-not $magick) {\n    throw \"ImageMagick not found. Install it and/or\
+    \ add 'magick' to PATH.\"\n}\n```\n\n**Bash (Linux/macOS):**\n```bash\n# Check\
+    \ if magick is available on PATH\nif ! command -v magick &> /dev/null; then\n\
+    \    echo \"ImageMagick not found. Install it using your package manager:\"\n\
+    \    echo \"  Ubuntu/Debian: sudo apt install imagemagick\"\n    echo \"  macOS:\
+    \ brew install imagemagick\"\n    exit 1\nfi\n```\n\n### Example 1: Get Image\
+    \ Dimensions\n\n**PowerShell (Windows):**\n```powershell\n# For a single image\n\
+    & $magick identify -format \"%wx%h\" path/to/image.jpg\n\n# For multiple images\n\
+    Get-ChildItem \"path/to/images/*\" | ForEach-Object { \n    $dimensions = & $magick\
+    \ identify -format \"%f: %wx%h`n\" $_.FullName\n    Write-Host $dimensions \n\
+    }\n```\n\n**Bash (Linux/macOS):**\n```bash\n# For a single image\nmagick identify\
+    \ -format \"%wx%h\" path/to/image.jpg\n\n# For multiple images\nfor img in path/to/images/*;\
+    \ do\n    magick identify -format \"%f: %wx%h\\n\" \"$img\"\ndone\n```\n\n###\
+    \ Example 2: Resize Images\n\n**PowerShell (Windows):**\n```powershell\n# Resize\
+    \ a single image\n& $magick input.jpg -resize 427x240 output.jpg\n\n# Batch resize\
+    \ images\nGet-ChildItem \"path/to/images/*\" | ForEach-Object { \n    & $magick\
+    \ $_.FullName -resize 427x240 \"path/to/output/thumb_$($_.Name)\"\n}\n```\n\n\
+    **Bash (Linux/macOS):**\n```bash\n# Resize a single image\nmagick input.jpg -resize\
+    \ 427x240 output.jpg\n\n# Batch resize images\nfor img in path/to/images/*; do\n\
+    \    filename=$(basename \"$img\")\n    magick \"$img\" -resize 427x240 \"path/to/output/thumb_$filename\"\
+    \ndone\n```\n\n### Example 3: Get Detailed Image Information\n\n**PowerShell (Windows):**\n\
+    ```powershell\n# Get verbose information about an image\n& $magick identify -verbose\
+    \ path/to/image.jpg\n```\n\n**Bash (Linux/macOS):**\n```bash\n# Get verbose information\
+    \ about an image\nmagick identify -verbose path/to/image.jpg\n```\n\n### Example\
+    \ 4: Process Images Based on Dimensions\n\n**PowerShell (Windows):**\n```powershell\n\
+    Get-ChildItem \"path/to/images/*\" | ForEach-Object { \n    $dimensions = & $magick\
+    \ identify -format \"%w,%h\" $_.FullName\n    if ($dimensions) {\n        $width,$height\
+    \ = $dimensions -split ','\n        if ([int]$width -eq 2560 -or [int]$height\
+    \ -eq 1440) {\n            Write-Host \"Processing $($_.Name)\"\n            &\
+    \ $magick $_.FullName -resize 427x240 \"path/to/output/thumb_$($_.Name)\"\n  \
+    \      }\n    }\n}\n```\n\n**Bash (Linux/macOS):**\n```bash\nfor img in path/to/images/*;\
+    \ do\n    dimensions=$(magick identify -format \"%w,%h\" \"$img\")\n    if [[\
+    \ -n \"$dimensions\" ]]; then\n        width=$(echo \"$dimensions\" | cut -d','\
+    \ -f1)\n        height=$(echo \"$dimensions\" | cut -d',' -f2)\n        if [[\
+    \ \"$width\" -eq 2560 || \"$height\" -eq 1440 ]]; then\n            filename=$(basename\
+    \ \"$img\")\n            echo \"Processing $filename\"\n            magick \"\
+    $img\" -resize 427x240 \"path/to/output/thumb_$filename\"\n        fi\n    fi\n\
+    done\n```\n\n## Guidelines\n\n1. **Always quote file paths** - Use quotes around\
+    \ file paths that might contain spaces\n2. **Use the `&` operator (PowerShell)**\
+    \ - Invoke the magick executable using `&` in PowerShell\n3. **Store the path\
+    \ in a variable (PowerShell)** - Assign the ImageMagick path to `$magick` for\
+    \ cleaner code\n4. **Wrap in loops** - When processing multiple files, use `ForEach-Object`\
+    \ (PowerShell) or `for` loops (Bash)\n5. **Verify dimensions first** - Check image\
+    \ dimensions before processing to avoid unnecessary operations\n6. **Use appropriate\
+    \ resize flags** - Consider using `!` to force exact dimensions or `^` for minimum\
+    \ dimensions\n\n## Common Patterns\n\n### PowerShell Patterns\n\n#### Pattern:\
+    \ Store ImageMagick Path\n\n```powershell\n$magick = (Get-Command magick).Source\n\
+    ```\n\n#### Pattern: Get Dimensions as Variables\n\n```powershell\n$dimensions\
+    \ = & $magick identify -format \"%w,%h\" $_.FullName\n$width,$height = $dimensions\
+    \ -split ','\n```\n\n#### Pattern: Conditional Processing\n\n```powershell\nif\
+    \ ([int]$width -gt 1920) {\n    & $magick $_.FullName -resize 1920x1080 $outputPath\n\
+    }\n```\n\n#### Pattern: Create Thumbnails\n\n```powershell\n& $magick $_.FullName\
+    \ -resize 427x240 \"thumbnails/thumb_$($_.Name)\"\n```\n\n### Bash Patterns\n\n\
+    #### Pattern: Check ImageMagick Installation\n\n```bash\ncommand -v magick &>\
+    \ /dev/null || { echo \"ImageMagick required\"; exit 1; }\n```\n\n#### Pattern:\
+    \ Get Dimensions as Variables\n\n```bash\ndimensions=$(magick identify -format\
+    \ \"%w,%h\" \"$img\")\nwidth=$(echo \"$dimensions\" | cut -d',' -f1)\nheight=$(echo\
+    \ \"$dimensions\" | cut -d',' -f2)\n```\n\n#### Pattern: Conditional Processing\n\
+    \n```bash\nif [[ \"$width\" -gt 1920 ]]; then\n    magick \"$img\" -resize 1920x1080\
+    \ \"$outputPath\"\nfi\n```\n\n#### Pattern: Create Thumbnails\n\n```bash\nfilename=$(basename\
+    \ \"$img\")\nmagick \"$img\" -resize 427x240 \"thumbnails/thumb_$filename\"\n\
+    ```\n\n## Limitations\n\n- Large batch operations may be memory-intensive\n- Some\
+    \ complex operations may require additional ImageMagick delegates\n- On older\
+    \ Linux systems, use `convert` instead of `magick` (ImageMagick 6.x vs 7.x)"

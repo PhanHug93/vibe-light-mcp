@@ -1,0 +1,170 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__kotlin-mcp-server-generator
+name: kotlin-mcp-server-generator
+description: Generate a complete Kotlin MCP server project with proper structure,
+  dependencies, and implementation using the official io.modelcontextprotocol:kotlin-sdk
+  library.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/kotlin-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- kotlin-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: 4bedcbc52a3f47f831552d7e0e3599c6653e62918ae8bd0b535e2147b8ce1f1e
+  char_count: 10686
+  text: "# Kotlin MCP Server Project Generator\n\nGenerate a complete, production-ready\
+    \ Model Context Protocol (MCP) server project in Kotlin.\n\n## Project Requirements\n\
+    \nYou will create a Kotlin MCP server with:\n\n1. **Project Structure**: Gradle-based\
+    \ Kotlin project layout\n2. **Dependencies**: Official MCP SDK, Ktor, and kotlinx\
+    \ libraries\n3. **Server Setup**: Configured MCP server with transports\n4. **Tools**:\
+    \ At least 2-3 useful tools with typed inputs/outputs\n5. **Error Handling**:\
+    \ Proper exception handling and validation\n6. **Documentation**: README with\
+    \ setup and usage instructions\n7. **Testing**: Basic test structure with coroutines\n\
+    \n## Template Structure\n\n```\nmyserver/\n\u251C\u2500\u2500 build.gradle.kts\n\
+    \u251C\u2500\u2500 settings.gradle.kts\n\u251C\u2500\u2500 gradle.properties\n\
+    \u251C\u2500\u2500 src/\n\u2502   \u251C\u2500\u2500 main/\n\u2502   \u2502  \
+    \ \u2514\u2500\u2500 kotlin/\n\u2502   \u2502       \u2514\u2500\u2500 com/example/myserver/\n\
+    \u2502   \u2502           \u251C\u2500\u2500 Main.kt\n\u2502   \u2502        \
+    \   \u251C\u2500\u2500 Server.kt\n\u2502   \u2502           \u251C\u2500\u2500\
+    \ config/\n\u2502   \u2502           \u2502   \u2514\u2500\u2500 Config.kt\n\u2502\
+    \   \u2502           \u2514\u2500\u2500 tools/\n\u2502   \u2502              \
+    \ \u251C\u2500\u2500 Tool1.kt\n\u2502   \u2502               \u2514\u2500\u2500\
+    \ Tool2.kt\n\u2502   \u2514\u2500\u2500 test/\n\u2502       \u2514\u2500\u2500\
+    \ kotlin/\n\u2502           \u2514\u2500\u2500 com/example/myserver/\n\u2502 \
+    \              \u2514\u2500\u2500 ServerTest.kt\n\u2514\u2500\u2500 README.md\n\
+    ```\n\n## build.gradle.kts Template\n\n```kotlin\nplugins {\n    kotlin(\"jvm\"\
+    ) version \"2.1.0\"\n    kotlin(\"plugin.serialization\") version \"2.1.0\"\n\
+    \    application\n}\n\ngroup = \"com.example\"\nversion = \"1.0.0\"\n\nrepositories\
+    \ {\n    mavenCentral()\n}\n\ndependencies {\n    implementation(\"io.modelcontextprotocol:kotlin-sdk:0.7.2\"\
+    )\n    \n    // Ktor for transports\n    implementation(\"io.ktor:ktor-server-netty:3.0.0\"\
+    )\n    implementation(\"io.ktor:ktor-client-cio:3.0.0\")\n    \n    // Serialization\n\
+    \    implementation(\"org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3\"\
+    )\n    \n    // Coroutines\n    implementation(\"org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0\"\
+    )\n    \n    // Logging\n    implementation(\"io.github.oshai:kotlin-logging-jvm:7.0.0\"\
+    )\n    implementation(\"ch.qos.logback:logback-classic:1.5.12\")\n    \n    //\
+    \ Testing\n    testImplementation(kotlin(\"test\"))\n    testImplementation(\"\
+    org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0\")\n}\n\napplication {\n \
+    \   mainClass.set(\"com.example.myserver.MainKt\")\n}\n\ntasks.test {\n    useJUnitPlatform()\n\
+    }\n\nkotlin {\n    jvmToolchain(17)\n}\n```\n\n## settings.gradle.kts Template\n\
+    \n```kotlin\nrootProject.name = \"{{PROJECT_NAME}}\"\n```\n\n## Main.kt Template\n\
+    \n```kotlin\npackage com.example.myserver\n\nimport io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport\n\
+    import kotlinx.coroutines.runBlocking\nimport io.github.oshai.kotlinlogging.KotlinLogging\n\
+    \nprivate val logger = KotlinLogging.logger {}\n\nfun main() = runBlocking {\n\
+    \    logger.info { \"Starting MCP server...\" }\n    \n    val config = loadConfig()\n\
+    \    val server = createServer(config)\n    \n    // Use stdio transport\n   \
+    \ val transport = StdioServerTransport()\n    \n    logger.info { \"Server '${config.name}'\
+    \ v${config.version} ready\" }\n    server.connect(transport)\n}\n```\n\n## Server.kt\
+    \ Template\n\n```kotlin\npackage com.example.myserver\n\nimport io.modelcontextprotocol.kotlin.sdk.server.Server\n\
+    import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions\nimport io.modelcontextprotocol.kotlin.sdk.Implementation\n\
+    import io.modelcontextprotocol.kotlin.sdk.ServerCapabilities\nimport com.example.myserver.tools.registerTools\n\
+    \nfun createServer(config: Config): Server {\n    val server = Server(\n     \
+    \   serverInfo = Implementation(\n            name = config.name,\n          \
+    \  version = config.version\n        ),\n        options = ServerOptions(\n  \
+    \          capabilities = ServerCapabilities(\n                tools = ServerCapabilities.Tools(),\n\
+    \                resources = ServerCapabilities.Resources(\n                 \
+    \   subscribe = true,\n                    listChanged = true\n              \
+    \  ),\n                prompts = ServerCapabilities.Prompts(listChanged = true)\n\
+    \            )\n        )\n    ) {\n        config.description\n    }\n    \n\
+    \    // Register all tools\n    server.registerTools()\n    \n    return server\n\
+    }\n```\n\n## Config.kt Template\n\n```kotlin\npackage com.example.myserver.config\n\
+    \nimport kotlinx.serialization.Serializable\n\n@Serializable\ndata class Config(\n\
+    \    val name: String = \"{{PROJECT_NAME}}\",\n    val version: String = \"1.0.0\"\
+    ,\n    val description: String = \"{{PROJECT_DESCRIPTION}}\"\n)\n\nfun loadConfig():\
+    \ Config {\n    return Config(\n        name = System.getenv(\"SERVER_NAME\")\
+    \ ?: \"{{PROJECT_NAME}}\",\n        version = System.getenv(\"VERSION\") ?: \"\
+    1.0.0\",\n        description = System.getenv(\"DESCRIPTION\") ?: \"{{PROJECT_DESCRIPTION}}\"\
+    \n    )\n}\n```\n\n## Tool1.kt Template\n\n```kotlin\npackage com.example.myserver.tools\n\
+    \nimport io.modelcontextprotocol.kotlin.sdk.server.Server\nimport io.modelcontextprotocol.kotlin.sdk.CallToolRequest\n\
+    import io.modelcontextprotocol.kotlin.sdk.CallToolResult\nimport io.modelcontextprotocol.kotlin.sdk.TextContent\n\
+    import kotlinx.serialization.json.buildJsonObject\nimport kotlinx.serialization.json.put\n\
+    import kotlinx.serialization.json.putJsonObject\nimport kotlinx.serialization.json.putJsonArray\n\
+    \nfun Server.registerTool1() {\n    addTool(\n        name = \"tool1\",\n    \
+    \    description = \"Description of what tool1 does\",\n        inputSchema =\
+    \ buildJsonObject {\n            put(\"type\", \"object\")\n            putJsonObject(\"\
+    properties\") {\n                putJsonObject(\"param1\") {\n               \
+    \     put(\"type\", \"string\")\n                    put(\"description\", \"First\
+    \ parameter\")\n                }\n                putJsonObject(\"param2\") {\n\
+    \                    put(\"type\", \"integer\")\n                    put(\"description\"\
+    , \"Optional second parameter\")\n                }\n            }\n         \
+    \   putJsonArray(\"required\") {\n                add(\"param1\")\n          \
+    \  }\n        }\n    ) { request: CallToolRequest ->\n        // Extract and validate\
+    \ parameters\n        val param1 = request.params.arguments[\"param1\"] as? String\n\
+    \            ?: throw IllegalArgumentException(\"param1 is required\")\n     \
+    \   val param2 = (request.params.arguments[\"param2\"] as? Number)?.toInt() ?:\
+    \ 0\n        \n        // Perform tool logic\n        val result = performTool1Logic(param1,\
+    \ param2)\n        \n        CallToolResult(\n            content = listOf(\n\
+    \                TextContent(text = result)\n            )\n        )\n    }\n\
+    }\n\nprivate fun performTool1Logic(param1: String, param2: Int): String {\n  \
+    \  // Implement tool logic here\n    return \"Processed: $param1 with value $param2\"\
+    \n}\n```\n\n## tools/ToolRegistry.kt Template\n\n```kotlin\npackage com.example.myserver.tools\n\
+    \nimport io.modelcontextprotocol.kotlin.sdk.server.Server\n\nfun Server.registerTools()\
+    \ {\n    registerTool1()\n    registerTool2()\n    // Register additional tools\
+    \ here\n}\n```\n\n## ServerTest.kt Template\n\n```kotlin\npackage com.example.myserver\n\
+    \nimport kotlinx.coroutines.test.runTest\nimport kotlin.test.Test\nimport kotlin.test.assertEquals\n\
+    import kotlin.test.assertFalse\n\nclass ServerTest {\n    \n    @Test\n    fun\
+    \ `test server creation`() = runTest {\n        val config = Config(\n       \
+    \     name = \"test-server\",\n            version = \"1.0.0\",\n            description\
+    \ = \"Test server\"\n        )\n        \n        val server = createServer(config)\n\
+    \        \n        assertEquals(\"test-server\", server.serverInfo.name)\n   \
+    \     assertEquals(\"1.0.0\", server.serverInfo.version)\n    }\n    \n    @Test\n\
+    \    fun `test tool1 execution`() = runTest {\n        val config = Config()\n\
+    \        val server = createServer(config)\n        \n        // Test tool execution\n\
+    \        // Note: You'll need to implement proper testing utilities\n        //\
+    \ for calling tools in the server\n    }\n}\n```\n\n## README.md Template\n\n\
+    ```markdown\n# {{PROJECT_NAME}}\n\nA Model Context Protocol (MCP) server built\
+    \ with Kotlin.\n\n## Description\n\n{{PROJECT_DESCRIPTION}}\n\n## Requirements\n\
+    \n- Java 17 or higher\n- Kotlin 2.1.0\n\n## Installation\n\nBuild the project:\n\
+    \n\\`\\`\\`bash\n./gradlew build\n\\`\\`\\`\n\n## Usage\n\nRun the server with\
+    \ stdio transport:\n\n\\`\\`\\`bash\n./gradlew run\n\\`\\`\\`\n\nOr build and\
+    \ run the jar:\n\n\\`\\`\\`bash\n./gradlew installDist\n./build/install/{{PROJECT_NAME}}/bin/{{PROJECT_NAME}}\n\
+    \\`\\`\\`\n\n## Configuration\n\nConfigure via environment variables:\n\n- `SERVER_NAME`:\
+    \ Server name (default: \"{{PROJECT_NAME}}\")\n- `VERSION`: Server version (default:\
+    \ \"1.0.0\")\n- `DESCRIPTION`: Server description\n\n## Available Tools\n\n###\
+    \ tool1\n{{TOOL1_DESCRIPTION}}\n\n**Input:**\n- `param1` (string, required): First\
+    \ parameter\n- `param2` (integer, optional): Second parameter\n\n**Output:**\n\
+    - Text result of the operation\n\n## Development\n\nRun tests:\n\n\\`\\`\\`bash\n\
+    ./gradlew test\n\\`\\`\\`\n\nBuild:\n\n\\`\\`\\`bash\n./gradlew build\n\\`\\`\\\
+    `\n\nRun with auto-reload (development):\n\n\\`\\`\\`bash\n./gradlew run --continuous\n\
+    \\`\\`\\`\n\n## Multiplatform\n\nThis project uses Kotlin Multiplatform and can\
+    \ target JVM, Wasm, and iOS.\nSee `build.gradle.kts` for platform configuration.\n\
+    \n## License\n\nMIT\n```\n\n## Generation Instructions\n\nWhen generating a Kotlin\
+    \ MCP server:\n\n1. **Gradle Setup**: Create proper `build.gradle.kts` with all\
+    \ dependencies\n2. **Package Structure**: Follow Kotlin package conventions\n\
+    3. **Type Safety**: Use data classes and kotlinx.serialization\n4. **Coroutines**:\
+    \ All operations should be suspending functions\n5. **Error Handling**: Use Kotlin\
+    \ exceptions and validation\n6. **JSON Schemas**: Use `buildJsonObject` for tool\
+    \ schemas\n7. **Testing**: Include coroutine test utilities\n8. **Logging**: Use\
+    \ kotlin-logging for structured logging\n9. **Configuration**: Use data classes\
+    \ and environment variables\n10. **Documentation**: KDoc comments for public APIs\n\
+    \n## Best Practices\n\n- Use suspending functions for all async operations\n-\
+    \ Leverage Kotlin's null safety and type system\n- Use data classes for structured\
+    \ data\n- Apply kotlinx.serialization for JSON handling\n- Use sealed classes\
+    \ for result types\n- Implement proper error handling with Result/Either patterns\n\
+    - Write tests using kotlinx-coroutines-test\n- Use dependency injection for testability\n\
+    - Follow Kotlin coding conventions\n- Use meaningful names and KDoc comments\n\
+    \n## Transport Options\n\n### Stdio Transport\n```kotlin\nval transport = StdioServerTransport()\n\
+    server.connect(transport)\n```\n\n### SSE Transport (Ktor)\n```kotlin\nembeddedServer(Netty,\
+    \ port = 8080) {\n    mcp {\n        Server(/*...*/) { \"Description\" }\n   \
+    \ }\n}.start(wait = true)\n```\n\n## Multiplatform Configuration\n\nFor multiplatform\
+    \ projects, add to `build.gradle.kts`:\n\n```kotlin\nkotlin {\n    jvm()\n   \
+    \ js(IR) { nodejs() }\n    wasmJs()\n    \n    sourceSets {\n        commonMain.dependencies\
+    \ {\n            implementation(\"io.modelcontextprotocol:kotlin-sdk:0.7.2\")\n\
+    \        }\n    }\n}\n```"

@@ -1,0 +1,145 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__azure-pricing
+name: azure-pricing
+description: Fetches real-time Azure retail pricing using the Azure Retail Prices
+  API (prices.azure.com) and estimates Copilot Studio agent credit consumption. Use
+  when the user asks about the cost of any Azure service, wants to compare SKU prices,
+  needs pricing data for a cost estimate, mentions Azure pricing, Azure costs, Azure
+  billing, or asks about Copilot Studio pricing, Copilot Credits, or agent usage estimation.
+  Covers compute, storage, networking, databases, AI, Copilot Studio, and all other
+  Azure service families.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/azure-pricing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- azure-pricing
+content:
+  kind: skill_markdown
+  sha256: 905bd90f658435e9812dca1aa613675fce948ad878e29c9f1bbe19b237edc3ee
+  char_count: 9481
+  text: "# Azure Pricing Skill\n\nUse this skill to retrieve real-time Azure retail\
+    \ pricing data from the public Azure Retail Prices API. No authentication is required.\n\
+    \n## When to Use This Skill\n\n- User asks about the cost of an Azure service\
+    \ (e.g., \"How much does a D4s v5 VM cost?\")\n- User wants to compare pricing\
+    \ across regions or SKUs\n- User needs a cost estimate for a workload or architecture\n\
+    - User mentions Azure pricing, Azure costs, or Azure billing\n- User asks about\
+    \ reserved instance vs. pay-as-you-go pricing\n- User wants to know about savings\
+    \ plans or spot pricing\n\n## API Endpoint\n\n```\nGET https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview\n\
+    ```\n\nAppend `$filter` as a query parameter using OData filter syntax. Always\
+    \ use `api-version=2023-01-01-preview` to ensure savings plan data is included.\n\
+    \n## Step-by-step Instructions\n\nIf anything is unclear about the user's request,\
+    \ ask clarifying questions to identify the correct filter fields and values before\
+    \ calling the API.\n\n1. **Identify filter fields** from the user's request (service\
+    \ name, region, SKU, price type).\n2. **Resolve the region**: the API requires\
+    \ `armRegionName` values in lowercase with no spaces (e.g. \"East US\" \u2192\
+    \ `eastus`, \"West Europe\" \u2192 `westeurope`, \"Southeast Asia\" \u2192 `southeastasia`).\
+    \ See [references/REGIONS.md](references/REGIONS.md) for a complete list.\n3.\
+    \ **Build the filter string** using the fields below and fetch the URL.\n4. **Parse\
+    \ the `Items` array** from the JSON response. Each item contains price and metadata.\n\
+    5. **Follow pagination** via `NextPageLink` if you need more than the first 1000\
+    \ results (rarely needed).\n6. **Calculate cost estimates** using the formulas\
+    \ in [references/COST-ESTIMATOR.md](references/COST-ESTIMATOR.md) to produce monthly/annual\
+    \ estimates.\n7. **Present results** in a clear summary table with service, SKU,\
+    \ region, unit price, and monthly/annual estimates.\n\n## Filterable Fields\n\n\
+    | Field | Type | Example |\n|---|---|---|\n| `serviceName` | string (exact, case-sensitive)\
+    \ | `'Functions'`, `'Virtual Machines'`, `'Storage'` |\n| `serviceFamily` | string\
+    \ (exact, case-sensitive) | `'Compute'`, `'Storage'`, `'Databases'`, `'AI + Machine\
+    \ Learning'` |\n| `armRegionName` | string (exact, lowercase) | `'eastus'`, `'westeurope'`,\
+    \ `'southeastasia'` |\n| `armSkuName` | string (exact) | `'Standard_D4s_v5'`,\
+    \ `'Standard_LRS'` |\n| `skuName` | string (contains supported) | `'D4s v5'` |\n\
+    | `priceType` | string | `'Consumption'`, `'Reservation'`, `'DevTestConsumption'`\
+    \ |\n| `meterName` | string (contains supported) | `'Spot'` |\n\nUse `eq` for\
+    \ equality, `and` to combine, and `contains(field, 'value')` for partial matches.\n\
+    \n## Example Filter Strings\n\n```\n# All consumption prices for Functions in\
+    \ East US\nserviceName eq 'Functions' and armRegionName eq 'eastus' and priceType\
+    \ eq 'Consumption'\n\n# D4s v5 VMs in West Europe (consumption only)\narmSkuName\
+    \ eq 'Standard_D4s_v5' and armRegionName eq 'westeurope' and priceType eq 'Consumption'\n\
+    \n# All storage prices in a region\nserviceName eq 'Storage' and armRegionName\
+    \ eq 'eastus'\n\n# Spot pricing for a specific SKU\narmSkuName eq 'Standard_D4s_v5'\
+    \ and contains(meterName, 'Spot') and armRegionName eq 'eastus'\n\n# 1-year reservation\
+    \ pricing\nserviceName eq 'Virtual Machines' and priceType eq 'Reservation' and\
+    \ armRegionName eq 'eastus'\n\n# Azure AI / OpenAI pricing (now under Foundry\
+    \ Models)\nserviceName eq 'Foundry Models' and armRegionName eq 'eastus' and priceType\
+    \ eq 'Consumption'\n\n# Azure Cosmos DB pricing\nserviceName eq 'Azure Cosmos\
+    \ DB' and armRegionName eq 'eastus' and priceType eq 'Consumption'\n```\n\n##\
+    \ Full Example Fetch URL\n\n```\nhttps://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&$filter=serviceName\
+    \ eq 'Functions' and armRegionName eq 'eastus' and priceType eq 'Consumption'\n\
+    ```\n\nURL-encode spaces as `%20` and quotes as `%27` when constructing the URL.\n\
+    \n## Key Response Fields\n\n```json\n{\n  \"Items\": [\n    {\n      \"retailPrice\"\
+    : 0.000016,\n      \"unitPrice\": 0.000016,\n      \"currencyCode\": \"USD\",\n\
+    \      \"unitOfMeasure\": \"1 Execution\",\n      \"serviceName\": \"Functions\"\
+    ,\n      \"skuName\": \"Premium\",\n      \"armRegionName\": \"eastus\",\n   \
+    \   \"meterName\": \"vCPU Duration\",\n      \"productName\": \"Functions\",\n\
+    \      \"priceType\": \"Consumption\",\n      \"isPrimaryMeterRegion\": true,\n\
+    \      \"savingsPlan\": [\n        { \"unitPrice\": 0.000012, \"term\": \"1 Year\"\
+    \ },\n        { \"unitPrice\": 0.000010, \"term\": \"3 Years\" }\n      ]\n  \
+    \  }\n  ],\n  \"NextPageLink\": null,\n  \"Count\": 1\n}\n```\n\nOnly use items\
+    \ where `isPrimaryMeterRegion` is `true` unless the user specifically asks for\
+    \ non-primary meters.\n\n## Supported serviceFamily Values\n\n`Analytics`, `Compute`,\
+    \ `Containers`, `Data`, `Databases`, `Developer Tools`, `Integration`, `Internet\
+    \ of Things`, `Management and Governance`, `Networking`, `Security`, `Storage`,\
+    \ `Web`, `AI + Machine Learning`\n\n## Tips\n\n- `serviceName` values are case-sensitive.\
+    \ When unsure, filter by `serviceFamily` first to discover valid `serviceName`\
+    \ values in the results.\n- If results are empty, try broadening the filter (e.g.,\
+    \ remove `priceType` or region constraints first).\n- Prices are always in USD\
+    \ unless `currencyCode` is specified in the request.\n- For savings plan prices,\
+    \ look for the `savingsPlan` array on each item (only in `2023-01-01-preview`).\n\
+    - See [references/SERVICE-NAMES.md](references/SERVICE-NAMES.md) for a catalog\
+    \ of common service names and their correct casing.\n- See [references/COST-ESTIMATOR.md](references/COST-ESTIMATOR.md)\
+    \ for cost estimation formulas and patterns.\n- See [references/COPILOT-STUDIO-RATES.md](references/COPILOT-STUDIO-RATES.md)\
+    \ for Copilot Studio billing rates and estimation formulas.\n\n## Troubleshooting\n\
+    \n| Issue | Solution |\n|-------|----------|\n| Empty results | Broaden the filter\
+    \ \u2014 remove `priceType` or `armRegionName` first |\n| Wrong service name |\
+    \ Use `serviceFamily` filter to discover valid `serviceName` values |\n| Missing\
+    \ savings plan data | Ensure `api-version=2023-01-01-preview` is in the URL |\n\
+    | URL errors | Check URL encoding \u2014 spaces as `%20`, quotes as `%27` |\n\
+    | Too many results | Add more filter fields (region, SKU, priceType) to narrow\
+    \ down |\n\n---\n\n# Copilot Studio Agent Usage Estimation\n\nUse this section\
+    \ when the user asks about Copilot Studio pricing, Copilot Credits, or agent usage\
+    \ costs.\n\n## When to Use This Section\n\n- User asks about Copilot Studio pricing\
+    \ or costs\n- User asks about Copilot Credits or agent credit consumption\n- User\
+    \ wants to estimate monthly costs for a Copilot Studio agent\n- User mentions\
+    \ agent usage estimation or the Copilot Studio estimator\n- User asks how much\
+    \ an agent will cost to run\n\n## Key Facts\n\n- **1 Copilot Credit = $0.01 USD**\n\
+    - Credits are pooled across the entire tenant\n- Employee-facing agents with M365\
+    \ Copilot licensed users get classic answers, generative answers, and tenant graph\
+    \ grounding at zero cost\n- Overage enforcement triggers at 125% of prepaid capacity\n\
+    \n## Step-by-step Estimation\n\n1. **Gather inputs** from the user: agent type\
+    \ (employee/customer), number of users, interactions/month, knowledge %, tenant\
+    \ graph %, tool usage per session.\n2. **Fetch live billing rates** \u2014 use\
+    \ the built-in web fetch tool to download the latest rates from the source URLs\
+    \ listed below. This ensures the estimate always uses the most current Microsoft\
+    \ pricing.\n3. **Parse the fetched content** to extract the current billing rates\
+    \ table (credits per feature type).\n4. **Calculate the estimate** using the rates\
+    \ and formulas from the fetched content:\n   - `total_sessions = users \xD7 interactions_per_month`\n\
+    \   - Knowledge credits: apply tenant graph grounding rate, generative answer\
+    \ rate, and classic answer rate\n   - Agent tools credits: apply agent action\
+    \ rate per tool call\n   - Agent flow credits: apply flow rate per 100 actions\n\
+    \   - Prompt modifier credits: apply basic/standard/premium rates per 10 responses\n\
+    5. **Present results** in a clear table with breakdown by category, total credits,\
+    \ and estimated USD cost.\n\n## Source URLs to Fetch\n\nWhen answering Copilot\
+    \ Studio pricing questions, fetch the latest content from these URLs to use as\
+    \ context:\n\n| URL | Content |\n|---|---|\n| https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management\
+    \ | Billing rates table, billing examples, overage enforcement rules |\n| https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing\
+    \ | Licensing options, M365 Copilot inclusions, prepaid vs pay-as-you-go |\n\n\
+    Fetch at least the first URL (billing rates) before calculating. The second URL\
+    \ provides supplementary context for licensing questions.\n\nSee [references/COPILOT-STUDIO-RATES.md](references/COPILOT-STUDIO-RATES.md)\
+    \ for a cached snapshot of rates, formulas, and billing examples (use as fallback\
+    \ if web fetch is unavailable)."

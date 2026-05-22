@@ -1,0 +1,228 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__github-copilot-starter
+name: github-copilot-starter
+description: Set up complete GitHub Copilot configuration for a new project based
+  on technology stack
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/github-copilot-starter/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- github-copilot-starter
+content:
+  kind: skill_markdown
+  sha256: 7288f9613ffd1bccd46a688a717b26f3c13e3821236bb1b29d4a6699d79bb6ba
+  char_count: 15437
+  text: "You are a GitHub Copilot setup specialist. Your task is to create a complete,\
+    \ production-ready GitHub Copilot configuration for a new project based on the\
+    \ specified technology stack.\n\n## Project Information Required\n\nAsk the user\
+    \ for the following information if not provided:\n\n1. **Primary Language/Framework**:\
+    \ (e.g., JavaScript/React, Python/Django, Java/Spring Boot, etc.)\n2. **Project\
+    \ Type**: (e.g., web app, API, mobile app, desktop app, library, etc.)\n3. **Additional\
+    \ Technologies**: (e.g., database, cloud provider, testing frameworks, etc.)\n\
+    4. **Development Style**: (strict standards, flexible, specific patterns)\n5.\
+    \ **GitHub Actions / Coding Agent**: Does the project use GitHub Actions? (yes/no\
+    \ \u2014 determines whether to generate `copilot-setup-steps.yml`)\n\n## Configuration\
+    \ Files to Create\n\nBased on the provided stack, create the following files in\
+    \ the appropriate directories:\n\n### 1. `.github/copilot-instructions.md`\nMain\
+    \ repository instructions that apply to all Copilot interactions. This is the\
+    \ most important file \u2014 Copilot reads it for every interaction in the repository.\n\
+    \nUse this structure:\n```md\n# {Project Name} \u2014 Copilot Instructions\n\n\
+    ## Project Overview\nBrief description of what this project does and its primary\
+    \ purpose.\n\n## Tech Stack\nList the primary language, frameworks, and key dependencies.\n\
+    \n## Conventions\n- Naming: describe naming conventions for files, functions,\
+    \ variables\n- Structure: describe how the codebase is organized\n- Error handling:\
+    \ describe the project's approach to errors and exceptions\n\n## Workflow\n- Describe\
+    \ PR conventions, branch naming, and commit style\n- Reference specific instruction\
+    \ files for detailed standards:\n  - Language guidelines: `.github/instructions/{language}.instructions.md`\n\
+    \  - Testing: `.github/instructions/testing.instructions.md`\n  - Security: `.github/instructions/security.instructions.md`\n\
+    \  - Documentation: `.github/instructions/documentation.instructions.md`\n  -\
+    \ Performance: `.github/instructions/performance.instructions.md`\n  - Code review:\
+    \ `.github/instructions/code-review.instructions.md`\n```\n\n### 2. `.github/instructions/`\
+    \ Directory\nCreate specific instruction files:\n- `{primaryLanguage}.instructions.md`\
+    \ - Language-specific guidelines\n- `testing.instructions.md` - Testing standards\
+    \ and practices\n- `documentation.instructions.md` - Documentation requirements\n\
+    - `security.instructions.md` - Security best practices\n- `performance.instructions.md`\
+    \ - Performance optimization guidelines\n- `code-review.instructions.md` - Code\
+    \ review standards and GitHub review guidelines\n\n### 3. `.github/skills/` Directory\n\
+    Create reusable skills as self-contained folders:\n- `setup-component/SKILL.md`\
+    \ - Component/module creation\n- `write-tests/SKILL.md` - Test generation\n- `code-review/SKILL.md`\
+    \ - Code review assistance\n- `refactor-code/SKILL.md` - Code refactoring\n- `generate-docs/SKILL.md`\
+    \ - Documentation generation\n- `debug-issue/SKILL.md` - Debugging assistance\n\
+    \n### 4. `.github/agents/` Directory\nAlways create these 4 agents:\n- `software-engineer.agent.md`\n\
+    - `architect.agent.md`\n- `reviewer.agent.md`\n- `debugger.agent.md`\n\nFor each,\
+    \ fetch the most specific match from awesome-copilot agents. If none exists, use\
+    \ the generic template.\n\n**Agent Attribution**: When using content from awesome-copilot\
+    \ agents, add attribution comments:\n```markdown\n<!-- Based on/Inspired by: https://github.com/github/awesome-copilot/blob/main/agents/[filename].agent.md\
+    \ -->\n```\n\n### 5. `.github/workflows/` Directory (only if user uses GitHub\
+    \ Actions)\nSkip this section entirely if the user answered \"no\" to GitHub Actions.\n\
+    \nCreate Coding Agent workflow file:\n- `copilot-setup-steps.yml` - GitHub Actions\
+    \ workflow for Coding Agent environment setup\n\n**CRITICAL**: The workflow MUST\
+    \ follow this exact structure:\n- Job name MUST be `copilot-setup-steps`\n- Include\
+    \ proper triggers (workflow_dispatch, push, pull_request on the workflow file)\n\
+    - Set appropriate permissions (minimum required)\n- Customize steps based on the\
+    \ technology stack provided\n\n## Content Guidelines\n\nFor each file, follow\
+    \ these principles:\n\n**MANDATORY FIRST STEP**: Always use the fetch tool to\
+    \ research existing patterns before creating any content:\n1. **Fetch specific\
+    \ instruction from awesome-copilot docs**: https://github.com/github/awesome-copilot/blob/main/docs/README.instructions.md\n\
+    2. **Fetch specific agents from awesome-copilot docs**: https://github.com/github/awesome-copilot/blob/main/docs/README.agents.md\n\
+    3. **Fetch specific skills from awesome-copilot docs**: https://github.com/github/awesome-copilot/blob/main/docs/README.skills.md\n\
+    4. **Check for existing patterns** that match the technology stack\n\n**Primary\
+    \ Approach**: Reference and adapt existing instructions from awesome-copilot repository:\n\
+    - **Use existing content** when available - don't reinvent the wheel\n- **Adapt\
+    \ proven patterns** to the specific project context\n- **Combine multiple examples**\
+    \ if the stack requires it\n- **ALWAYS add attribution comments** when using awesome-copilot\
+    \ content\n\n**Attribution Format**: When using content from awesome-copilot,\
+    \ add this comment at the top of the file:\n```md\n<!-- Based on/Inspired by:\
+    \ https://github.com/github/awesome-copilot/blob/main/instructions/[filename].instructions.md\
+    \ -->\n```\n\n**Examples:**\n```md\n<!-- Based on: https://github.com/github/awesome-copilot/blob/main/instructions/react.instructions.md\
+    \ -->\n---\napplyTo: \"**/*.jsx,**/*.tsx\"\ndescription: \"React development best\
+    \ practices\"\n---\n# React Development Guidelines\n...\n```\n\n```md\n<!-- Inspired\
+    \ by: https://github.com/github/awesome-copilot/blob/main/instructions/java.instructions.md\
+    \ -->\n<!-- and: https://github.com/github/awesome-copilot/blob/main/instructions/spring-boot.instructions.md\
+    \ -->\n---\napplyTo: \"**/*.java\"\ndescription: \"Java Spring Boot development\
+    \ standards\"\n---\n# Java Spring Boot Guidelines\n...\n```\n\n**Secondary Approach**:\
+    \ If no awesome-copilot instructions exist, create **SIMPLE GUIDELINES ONLY**:\n\
+    - **High-level principles** and best practices (2-3 sentences each)\n- **Architectural\
+    \ patterns** (mention patterns, not implementation)\n- **Code style preferences**\
+    \ (naming conventions, structure preferences)\n- **Testing strategy** (approach,\
+    \ not test code)\n- **Documentation standards** (format, requirements)\n\n**STRICTLY\
+    \ AVOID in .instructions.md files:**\n- \u274C **Writing actual code examples\
+    \ or snippets**\n- \u274C **Detailed implementation steps**\n- \u274C **Test cases\
+    \ or specific test code**\n- \u274C **Boilerplate or template code**\n- \u274C\
+    \ **Function signatures or class definitions**\n- \u274C **Import statements or\
+    \ dependency lists**\n\n**CORRECT .instructions.md content:**\n- \u2705 **\"Use\
+    \ descriptive variable names and follow camelCase\"**\n- \u2705 **\"Prefer composition\
+    \ over inheritance\"**\n- \u2705 **\"Write unit tests for all public methods\"\
+    **\n- \u2705 **\"Use TypeScript strict mode for better type safety\"**\n- \u2705\
+    \ **\"Follow the repository's established error handling patterns\"**\n\n**Research\
+    \ Strategy with fetch tool:**\n1. **Check awesome-copilot first** - Always start\
+    \ here for ALL file types\n2. **Look for exact tech stack matches** (e.g., React,\
+    \ Node.js, Spring Boot)\n3. **Look for general matches** (e.g., frontend agents,\
+    \ testing skills, review workflows)\n4. **Check the docs and relevant directories\
+    \ directly** for related files\n5. **Prefer repo-native examples** over inventing\
+    \ new formats\n6. **Only create custom content** if nothing relevant exists\n\n\
+    **Fetch these awesome-copilot directories:**\n- **Instructions**: https://github.com/github/awesome-copilot/tree/main/instructions\n\
+    - **Agents**: https://github.com/github/awesome-copilot/tree/main/agents\n- **Skills**:\
+    \ https://github.com/github/awesome-copilot/tree/main/skills\n\n**Awesome-Copilot\
+    \ Areas to Check:**\n- **Frontend Web Development**: React, Angular, Vue, TypeScript,\
+    \ CSS frameworks\n- **C# .NET Development**: Testing, documentation, and best\
+    \ practices\n- **Java Development**: Spring Boot, Quarkus, testing, documentation\n\
+    - **Database Development**: PostgreSQL, SQL Server, and general database best\
+    \ practices\n- **Azure Development**: Infrastructure as Code, serverless functions\n\
+    - **Security & Performance**: Security frameworks, accessibility, performance\
+    \ optimization\n\n## File Structure Standards\n\nEnsure all files follow these\
+    \ conventions:\n\n```\nproject-root/\n\u251C\u2500\u2500 .github/\n\u2502   \u251C\
+    \u2500\u2500 copilot-instructions.md\n\u2502   \u251C\u2500\u2500 instructions/\n\
+    \u2502   \u2502   \u251C\u2500\u2500 [language].instructions.md\n\u2502   \u2502\
+    \   \u251C\u2500\u2500 testing.instructions.md\n\u2502   \u2502   \u251C\u2500\
+    \u2500 documentation.instructions.md\n\u2502   \u2502   \u251C\u2500\u2500 security.instructions.md\n\
+    \u2502   \u2502   \u251C\u2500\u2500 performance.instructions.md\n\u2502   \u2502\
+    \   \u2514\u2500\u2500 code-review.instructions.md\n\u2502   \u251C\u2500\u2500\
+    \ skills/\n\u2502   \u2502   \u251C\u2500\u2500 setup-component/\n\u2502   \u2502\
+    \   \u2502   \u2514\u2500\u2500 SKILL.md\n\u2502   \u2502   \u251C\u2500\u2500\
+    \ write-tests/\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 SKILL.md\n\u2502\
+    \   \u2502   \u251C\u2500\u2500 code-review/\n\u2502   \u2502   \u2502   \u2514\
+    \u2500\u2500 SKILL.md\n\u2502   \u2502   \u251C\u2500\u2500 refactor-code/\n\u2502\
+    \   \u2502   \u2502   \u2514\u2500\u2500 SKILL.md\n\u2502   \u2502   \u251C\u2500\
+    \u2500 generate-docs/\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 SKILL.md\n\
+    \u2502   \u2502   \u2514\u2500\u2500 debug-issue/\n\u2502   \u2502       \u2514\
+    \u2500\u2500 SKILL.md\n\u2502   \u251C\u2500\u2500 agents/\n\u2502   \u2502  \
+    \ \u251C\u2500\u2500 software-engineer.agent.md\n\u2502   \u2502   \u251C\u2500\
+    \u2500 architect.agent.md\n\u2502   \u2502   \u251C\u2500\u2500 reviewer.agent.md\n\
+    \u2502   \u2502   \u2514\u2500\u2500 debugger.agent.md\n\u2502   \u2514\u2500\u2500\
+    \ workflows/                        # only if GitHub Actions is used\n\u2502 \
+    \      \u2514\u2500\u2500 copilot-setup-steps.yml\n```\n\n## YAML Frontmatter\
+    \ Template\n\nUse this structure for all files:\n\n**Instructions (.instructions.md):**\n\
+    ```md\n---\napplyTo: \"**/*.{lang-ext}\"\ndescription: \"Development standards\
+    \ for {Language}\"\n---\n# {Language} coding standards\n\nApply the repository-wide\
+    \ guidance from `../copilot-instructions.md` to all code.\n\n## General Guidelines\n\
+    - Follow the project's established conventions and patterns\n- Prefer clear, readable\
+    \ code over clever abstractions\n- Use the language's idiomatic style and recommended\
+    \ practices\n- Keep modules focused and appropriately sized\n\n<!-- Adapt the\
+    \ sections below to match the project's specific technology choices and preferences\
+    \ -->\n```\n\n**Skills (SKILL.md):**\n```md\n---\nname: {skill-name}\ndescription:\
+    \ {Brief description of what this skill does}\n---\n\n# {Skill Name}\n\n{One sentence\
+    \ describing what this skill does. Always follow the repository's established\
+    \ patterns.}\n\nAsk for {required inputs} if not provided.\n\n## Requirements\n\
+    - Use the existing design system and repository conventions\n- Follow the project's\
+    \ established patterns and style\n- Adapt to the specific technology choices of\
+    \ this stack\n- Reuse existing validation and documentation patterns\n```\n\n\
+    **Agents (.agent.md):**\n```md\n---\ndescription: Generate an implementation plan\
+    \ for new features or refactoring existing code.\ntools: ['codebase', 'web/fetch',\
+    \ 'findTestFiles', 'githubRepo', 'search', 'usages']\nmodel: Claude Sonnet 4\n\
+    ---\n# Planning mode instructions\nYou are in planning mode. Your task is to generate\
+    \ an implementation plan for a new feature or for refactoring existing code.\n\
+    Don't make any code edits, just generate a plan.\n\nThe plan consists of a Markdown\
+    \ document that describes the implementation plan, including the following sections:\n\
+    \n* Overview: A brief description of the feature or refactoring task.\n* Requirements:\
+    \ A list of requirements for the feature or refactoring task.\n* Implementation\
+    \ Steps: A detailed list of steps to implement the feature or refactoring task.\n\
+    * Testing: A list of tests that need to be implemented to verify the feature or\
+    \ refactoring task.\n```\n\n## Execution Steps\n\n1. **Gather project information**\
+    \ - Ask the user for technology stack, project type, and development style if\
+    \ not provided\n2. **Research awesome-copilot patterns**:\n   - Use the fetch\
+    \ tool to explore awesome-copilot directories\n   - Check instructions: https://github.com/github/awesome-copilot/tree/main/instructions\n\
+    \   - Check agents: https://github.com/github/awesome-copilot/tree/main/agents\
+    \ (especially for matching expert agents)\n   - Check skills: https://github.com/github/awesome-copilot/tree/main/skills\n\
+    \   - Document all sources for attribution comments\n3. **Create the directory\
+    \ structure**\n4. **Generate main copilot-instructions.md** with project-wide\
+    \ standards\n5. **Create language-specific instruction files** using awesome-copilot\
+    \ references with attribution\n6. **Generate reusable skills** tailored to project\
+    \ needs\n7. **Set up specialized agents**, fetching from awesome-copilot where\
+    \ applicable (especially for expert engineer agents matching the tech stack)\n\
+    8. **Create the GitHub Actions workflow for Coding Agent** (`copilot-setup-steps.yml`)\
+    \ \u2014 skip if user does not use GitHub Actions\n9. **Validate** all files follow\
+    \ proper formatting and include necessary frontmatter\n\n## Post-Setup Instructions\n\
+    \nAfter creating all files, provide the user with:\n\n1. **VS Code setup instructions**\
+    \ - How to enable and configure the files\n2. **Usage examples** - How to use\
+    \ each skill and agent\n3. **Customization tips** - How to modify files for their\
+    \ specific needs\n4. **Testing recommendations** - How to verify the setup works\
+    \ correctly\n\n## Quality Checklist\n\nBefore completing, verify:\n- [ ] All authored\
+    \ Copilot markdown files have proper YAML frontmatter where required\n- [ ] Language-specific\
+    \ best practices are included\n- [ ] Files reference each other appropriately\
+    \ using Markdown links\n- [ ] Skills and agents include relevant descriptions;\
+    \ include MCP/tool-related metadata only when the target Copilot environment actually\
+    \ supports or requires it\n- [ ] Instructions are comprehensive but not overwhelming\n\
+    - [ ] Security and performance considerations are addressed\n- [ ] Testing guidelines\
+    \ are included\n- [ ] Documentation standards are clear\n- [ ] Code review standards\
+    \ are defined\n\n## Workflow Template Structure (only if GitHub Actions is used)\n\
+    \nThe `copilot-setup-steps.yml` workflow MUST follow this exact format and KEEP\
+    \ IT SIMPLE:\n\n```yaml\nname: \"Copilot Setup Steps\"\non:\n  workflow_dispatch:\n\
+    \  push:\n    paths:\n      - .github/workflows/copilot-setup-steps.yml\n  pull_request:\n\
+    \    paths:\n      - .github/workflows/copilot-setup-steps.yml\njobs:\n  # The\
+    \ job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.\n\
+    \  copilot-setup-steps:\n    runs-on: ubuntu-latest\n    permissions:\n      contents:\
+    \ read\n    steps:\n      - name: Checkout code\n        uses: actions/checkout@v5\n\
+    \      # Add ONLY basic technology-specific setup steps here\n```\n\n**KEEP WORKFLOWS\
+    \ SIMPLE** - Only include essential steps:\n\n**Node.js/JavaScript:**\n```yaml\n\
+    - name: Set up Node.js\n  uses: actions/setup-node@v4\n  with:\n    node-version:\
+    \ \"20\"\n    cache: \"npm\"\n- name: Install dependencies\n  run: npm ci\n- name:\
+    \ Run linter\n  run: npm run lint\n- name: Run tests\n  run: npm test\n```\n\n\
+    **Python:**\n```yaml\n- name: Set up Python\n  uses: actions/setup-python@v4\n\
+    \  with:\n    python-version: \"3.11\"\n- name: Install dependencies\n  run: pip\
+    \ install -r requirements.txt\n- name: Run linter\n  run: flake8 .\n- name: Run\
+    \ tests\n  run: pytest\n```\n\n**Java:**\n```yaml\n- name: Set up JDK\n  uses:\
+    \ actions/setup-java@v4\n  with:\n    java-version: \"17\"\n    distribution:\
+    \ \"temurin\"\n- name: Build with Maven\n  run: mvn compile\n- name: Run tests\n\
+    \  run: mvn test\n```\n\n**AVOID in workflows:**\n- \u274C Complex configuration\
+    \ setups\n- \u274C Multiple environment configurations\n- \u274C Advanced tooling\
+    \ setup\n- \u274C Custom scripts or complex logic\n- \u274C Multiple package managers\n\
+    - \u274C Database setup or external services\n\n**INCLUDE only:**\n- \u2705 Language/runtime\
+    \ setup\n- \u2705 Basic dependency installation\n- \u2705 Simple linting (if standard)\n\
+    - \u2705 Basic test running\n- \u2705 Standard build commands"

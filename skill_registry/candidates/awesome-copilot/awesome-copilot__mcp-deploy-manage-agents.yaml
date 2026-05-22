@@ -1,0 +1,154 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mcp-deploy-manage-agents
+name: mcp-deploy-manage-agents
+description: Skill converted from mcp-deploy-manage-agents.prompt.md
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mcp-deploy-manage-agents/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- mcp-deploy-manage-agents
+content:
+  kind: skill_markdown
+  sha256: 9da69b1360ab1e8cfa07e0d1900e0dbdd2ec3927136985d34ad17d0ad099f58d
+  char_count: 9883
+  text: "````prompt\n---\nmode: 'agent'\ntools: ['changes', 'search/codebase', 'edit/editFiles',\
+    \ 'problems']\ndescription: 'Deploy and manage MCP-based declarative agents in\
+    \ Microsoft 365 admin center with governance, assignments, and organizational\
+    \ distribution'\nmodel: 'gpt-4.1'\ntags: [mcp, m365-copilot, deployment, admin,\
+    \ agent-management, governance]\n---\n\n# Deploy and Manage MCP-Based Agents\n\
+    \nDeploy, manage, and govern MCP-based declarative agents in Microsoft 365 using\
+    \ the admin center for organizational distribution and control.\n\n## Agent Types\n\
+    \n### Published by Organization\n- Built with predefined instructions and actions\n\
+    - Follow structured logic for predictable tasks\n- Require admin approval and\
+    \ publishing process\n- Support compliance and governance requirements\n\n###\
+    \ Shared by Creator\n- Created in Microsoft 365 Copilot Studio or Agent Builder\n\
+    - Shared directly with specific users\n- Enhanced functionality with search, actions,\
+    \ connectors, APIs\n- Visible to admins in agent registry\n\n### Microsoft Agents\n\
+    - Developed and maintained by Microsoft\n- Integrated with Microsoft 365 services\n\
+    - Pre-approved and ready to use\n\n### External Partner Agents\n- Created by verified\
+    \ external developers/vendors\n- Subject to admin approval and control\n- Configurable\
+    \ availability and permissions\n\n### Frontier Agents\n- Experimental or advanced\
+    \ capabilities\n- May require limited rollout or additional oversight\n- Examples:\n\
+    \  - **App Builder agent**: Managed via M365 Copilot or Power Platform admin center\n\
+    \  - **Workflows agent**: Flow automation managed via Power Platform admin center\n\
+    \n## Admin Roles and Permissions\n\n### Required Roles\n- **AI Admin**: Full agent\
+    \ management capabilities\n- **Global Reader**: View-only access (no editing)\n\
+    \n### Best Practices\n- Use roles with fewest permissions\n- Limit Global Administrator\
+    \ to emergency scenarios\n- Follow principle of least privilege\n\n## Agent Management\
+    \ in Microsoft 365 Admin Center\n\n### Access Agent Management\n1. Go to [Microsoft\
+    \ 365 admin center](https://admin.microsoft.com/)\n2. Navigate to **Agents** page\n\
+    3. View available, deployed, or blocked agents\n\n### Available Actions\n\n**View\
+    \ Agents**\n- Filter by availability (available, deployed, blocked)\n- Search\
+    \ for specific agents\n- View agent details (name, creator, date, host products,\
+    \ status)\n\n**Deploy Agents**\nOptions for distribution:\n1. **Agent Store**:\
+    \ Submit to Partner Center for validation and public availability\n2. **Organization\
+    \ Deployment**: IT admin deploys to all or selected employees\n\n**Manage Agent\
+    \ Lifecycle**\n- **Publish**: Make agent available to organization\n- **Deploy**:\
+    \ Assign to specific users or groups\n- **Block**: Prevent agent from being used\n\
+    - **Remove**: Delete agent from organization\n\n**Configure Access**\n- Set availability\
+    \ for specific user groups\n- Manage permissions per agent\n- Control which agents\
+    \ appear in Copilot\n\n## Deployment Workflows\n\n### Publish to Organization\n\
+    \n**For Agent Developers:**\n1. Build agent with Microsoft 365 Agents Toolkit\n\
+    2. Test thoroughly in development\n3. Submit agent for approval\n4. Wait for admin\
+    \ review\n\n**For Admins:**\n1. Review submitted agent in admin center\n2. Validate\
+    \ compliance and security\n3. Approve for organizational use\n4. Configure deployment\
+    \ settings\n5. Publish to selected users or organization-wide\n\n### Deploy via\
+    \ Agent Store\n\n**Developer Steps:**\n1. Complete agent development and testing\n\
+    2. Package agent for submission\n3. Submit to Partner Center\n4. Await validation\
+    \ process\n5. Receive approval notification\n6. Agent appears in Copilot store\n\
+    \n**Admin Steps:**\n1. Discover agents in Copilot store\n2. Review agent details\
+    \ and permissions\n3. Assign to organization or user groups\n4. Monitor usage\
+    \ and feedback\n\n### Deploy Organizational Agent\n\n**Admin Deployment Options:**\n\
+    ```\nOrganization-wide:\n- All employees with Copilot license\n- Automatically\
+    \ available in Copilot\n\nGroup-based:\n- Specific departments or teams\n- Security\
+    \ group assignments\n- Role-based access control\n```\n\n**Configuration Steps:**\n\
+    1. Navigate to Agents page in admin center\n2. Select agent to deploy\n3. Choose\
+    \ deployment scope:\n   - All users\n   - Specific security groups\n   - Individual\
+    \ users\n4. Set availability status\n5. Configure permissions if applicable\n\
+    6. Deploy and monitor\n\n## User Experience\n\n### Agent Discovery\nUsers find\
+    \ agents in:\n- Microsoft 365 Copilot hub\n- Agent picker in Copilot interface\n\
+    - Organization's agent catalog\n\n### Agent Access Control\nUsers can:\n- Toggle\
+    \ agents on/off during interactions\n- Add/remove agents from their experience\n\
+    - Right-click agents to manage preferences\n- Only access admin-allowed agents\n\
+    \n### Agent Usage\n- Agents appear in Copilot sidebar\n- Users select agent for\
+    \ context\n- Queries routed through selected agent\n- Responses leverage agent's\
+    \ capabilities\n\n## Governance and Compliance\n\n### Security Considerations\n\
+    - **Data access**: Review what data agent can access\n- **API permissions**: Validate\
+    \ required scopes\n- **Authentication**: Ensure secure OAuth flows\n- **External\
+    \ connections**: Assess risk of external integrations\n\n### Compliance Requirements\n\
+    - **Data residency**: Verify data stays within boundaries\n- **Privacy policies**:\
+    \ Review agent privacy statement\n- **Terms of use**: Validate acceptable use\
+    \ policies\n- **Audit logs**: Monitor agent usage and activity\n\n### Monitoring\
+    \ and Reporting\nTrack:\n- Agent adoption rates\n- User feedback and satisfaction\n\
+    - Error rates and performance\n- Security incidents or violations\n\n## MCP-Specific\
+    \ Management\n\n### MCP Agent Characteristics\n- Connect to external systems via\
+    \ Model Context Protocol\n- Use tools exposed by MCP servers\n- Require OAuth\
+    \ 2.0 or SSO authentication\n- Support same governance as REST API agents\n\n\
+    ### MCP Agent Validation\nVerify:\n- MCP server URL is accessible\n- Authentication\
+    \ configuration is secure\n- Tools imported are appropriate\n- Response data doesn't\
+    \ expose sensitive info\n- Server follows security best practices\n\n### MCP Agent\
+    \ Deployment\nSame process as REST API agents:\n1. Review in admin center\n2.\
+    \ Validate MCP server compliance\n3. Test authentication flow\n4. Deploy to users/groups\n\
+    5. Monitor performance\n\n## Agent Settings and Configuration\n\n### Organizational\
+    \ Settings\nConfigure at tenant level:\n- Enable/disable agent creation\n- Set\
+    \ default permissions\n- Configure approval workflows\n- Define compliance policies\n\
+    \n### Per-Agent Settings\nConfigure for individual agents:\n- Availability (on/off)\n\
+    - User assignment (all/groups/individuals)\n- Permission scopes\n- Usage limits\
+    \ or quotas\n\n### Environment Routing\nFor Power Platform-based agents:\n- Configure\
+    \ default environment\n- Enable environment routing for Copilot Studio\n- Manage\
+    \ flows via Power Platform admin center\n\n## Shared Agent Management\n\n### View\
+    \ Shared Agents\nAdmins can see:\n- List of all shared agents\n- Creator information\n\
+    - Creation date\n- Host products\n- Availability status\n\n### Manage Shared Agents\n\
+    Admin actions:\n- Search for specific shared agents\n- View agent capabilities\n\
+    - Block unsafe or non-compliant agents\n- Monitor agent lifecycle\n\n### User\
+    \ Access to Shared Agents\nUsers access through:\n- Microsoft 365 Copilot on various\
+    \ surfaces\n- Agent-specific tasks and assistance\n- Creator-defined capabilities\n\
+    \n## Best Practices\n\n### Before Deployment\n- **Pilot test** with small user\
+    \ group\n- **Gather feedback** from early adopters\n- **Validate security** and\
+    \ compliance\n- **Document** agent capabilities and limitations\n- **Train users**\
+    \ on agent usage\n\n### During Deployment\n- **Phased rollout** to manage adoption\n\
+    - **Monitor performance** and errors\n- **Collect feedback** continuously\n- **Address\
+    \ issues** promptly\n- **Communicate** availability to users\n\n### Post-Deployment\n\
+    - **Track metrics**: Adoption, satisfaction, errors\n- **Iterate**: Improve based\
+    \ on feedback\n- **Update**: Keep agent current with new features\n- **Retire**:\
+    \ Remove obsolete or unused agents\n- **Review**: Regular security and compliance\
+    \ audits\n\n### Communication\n- Announce new agents to users\n- Provide documentation\
+    \ and examples\n- Share best practices and use cases\n- Highlight benefits and\
+    \ capabilities\n- Offer support channels\n\n## Troubleshooting\n\n### Agent Not\
+    \ Appearing\n- Check deployment status in admin center\n- Verify user is in assigned\
+    \ group\n- Confirm agent is not blocked\n- Check user has Copilot license\n- Refresh\
+    \ Copilot interface\n\n### Authentication Failures\n- Verify OAuth credentials\
+    \ are valid\n- Check user has necessary permissions\n- Confirm MCP server is accessible\n\
+    - Test authentication flow independently\n\n### Performance Issues\n- Monitor\
+    \ MCP server response times\n- Check network connectivity\n- Review error logs\
+    \ in admin center\n- Validate agent isn't rate-limited\n\n### Compliance Violations\n\
+    - Block agent immediately if unsafe\n- Review audit logs for violations\n- Investigate\
+    \ data access patterns\n- Update policies to prevent recurrence\n\n## Resources\n\
+    \n- [Microsoft 365 admin center](https://admin.microsoft.com/)\n- [Power Platform\
+    \ admin center](https://admin.powerplatform.microsoft.com/)\n- [Partner Center](https://partner.microsoft.com/)\
+    \ for agent submissions\n- [Microsoft Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)\n\
+    - [Agent Registry Documentation](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry)\n\
+    \n## Workflow\n\nAsk the user:\n1. Is this agent ready for deployment or still\
+    \ in development?\n2. Who should have access (all users, specific groups, individuals)?\n\
+    3. Are there compliance or security requirements to address?\n4. Should this be\
+    \ published to the organization or the public store?\n5. What monitoring and reporting\
+    \ is needed?\n\nThen provide:\n- Step-by-step deployment guide\n- Admin center\
+    \ configuration steps\n- User assignment recommendations\n- Governance and compliance\
+    \ checklist\n- Monitoring and reporting plan\n\n````"

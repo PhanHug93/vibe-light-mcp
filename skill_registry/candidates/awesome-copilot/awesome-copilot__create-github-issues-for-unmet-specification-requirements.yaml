@@ -1,0 +1,81 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-github-issues-for-unmet-specification-requirements
+name: create-github-issues-for-unmet-specification-requirements
+description: Create GitHub Issues for unimplemented requirements from specification
+  files using feature_request.yml template.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-github-issues-for-unmet-specification-requirements/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- create-github-issues-for-unmet-specification-requirements
+content:
+  kind: skill_markdown
+  sha256: 403939f1a02b5d08c571dc9f973bdb98a87b4f84b5e4fbe5b93284f78472b299
+  char_count: 1275
+  text: '# Create GitHub Issues for Unmet Specification Requirements
+
+
+    Create GitHub Issues for unimplemented requirements in the specification at `${file}`.
+
+
+    ## Process
+
+
+    1. Analyze specification file to extract all requirements
+
+    2. Check codebase implementation status for each requirement
+
+    3. Search existing issues using `search_issues` to avoid duplicates
+
+    4. Create new issue per unimplemented requirement using `create_issue`
+
+    5. Use `feature_request.yml` template (fallback to default)
+
+
+    ## Requirements
+
+
+    - One issue per unimplemented requirement from specification
+
+    - Clear requirement ID and description mapping
+
+    - Include implementation guidance and acceptance criteria
+
+    - Verify against existing issues before creation
+
+
+    ## Issue Content
+
+
+    - Title: Requirement ID and brief description
+
+    - Description: Detailed requirement, implementation method, and context
+
+    - Labels: feature, enhancement (as appropriate)
+
+
+    ## Implementation Check
+
+
+    - Search codebase for related code patterns
+
+    - Check related specification files in `/spec/` directory
+
+    - Verify requirement isn''t partially implemented'

@@ -1,0 +1,75 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__acreadiness-policy
+name: acreadiness-policy
+description: Help the user pick, write, or apply an AgentRC policy. Policies customise
+  readiness scoring by disabling irrelevant checks, overriding impact/level, setting
+  pass-rate thresholds, or chaining org baselines with team overrides. Use when the
+  user asks about strict mode, AI-only scoring, custom weights, CI gating, or wants
+  org-wide standardisation.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/acreadiness-policy/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- acreadiness-policy
+content:
+  kind: skill_markdown
+  sha256: e563c5e334e1dac21a7d6a43ae43abb96721395e7af7b97f49ef764ad8325550
+  char_count: 3758
+  text: "# /acreadiness-policy \u2014 AgentRC policies\n\nUse this skill when the\
+    \ user asks about **policies**, **strict mode**, **custom scoring**, **disabling\
+    \ checks**, **org standards**, or **CI gating** of readiness.\n\nA policy is a\
+    \ small JSON file with three optional sections \u2014 `criteria`, `extras`, `thresholds`\
+    \ \u2014 that customise how AgentRC scores readiness.\n\n## Built-in examples\n\
+    \nAgentRC ships with three example policies in `examples/policies/`:\n\n| Policy\
+    \ | What it does |\n|---|---|\n| `strict.json` | 100% pass rate, raises impact\
+    \ on key criteria |\n| `ai-only.json` | Disables all repo-health checks, focuses\
+    \ on AI tooling |\n| `repo-health-only.json` | Disables AI checks, focuses on\
+    \ traditional quality |\n\nRecommend these as starting points before writing a\
+    \ custom policy.\n\n## Policy schema\n\n```jsonc\n{\n  \"name\": \"my-policy\"\
+    ,\n  \"criteria\": {\n    \"disable\":  [\"env-example\", \"observability\", \"\
+    dependabot\"],\n    \"override\": {\n      \"readme\":      { \"impact\": \"high\"\
+    , \"level\": 2 },\n      \"lint-config\": { \"title\": \"Linter required\" }\n\
+    \    }\n  },\n  \"extras\": {\n    \"disable\": [\"pre-commit\"]\n  },\n  \"thresholds\"\
+    : {\n    \"passRate\": 0.9\n  }\n}\n```\n\n### Impact weights\n\n| Impact | Weight\
+    \ |\n|---|---|\n| critical | 5 |\n| high | 4 |\n| medium | 3 |\n| low | 2 |\n\
+    | info | 0 |\n\n`Score = 1 \u2212 (deductions / max possible weight)`. Grades:\
+    \ **A** \u2265 0.9, **B** \u2265 0.8, **C** \u2265 0.7, **D** \u2265 0.6, **F**\
+    \ < 0.6.\n\n## Sub-commands\n\n### `show`\nList policies currently in effect (from\
+    \ `agentrc.config.json` `policies` array, or none).\n\n### `new <name>`\nScaffold\
+    \ `policies/<name>.json` with sensible defaults. Walk the user through:\n1. **What\
+    \ to disable** \u2014 irrelevant pillars or extras for their stack (e.g. disable\
+    \ `observability` for a static site).\n2. **What to raise** \u2014 override `impact`\
+    \ to `high` or `critical` for must-haves (e.g. `readme`, `codeowners`).\n3. **Pass-rate\
+    \ threshold** \u2014 typical org baselines: `0.7` (lenient), `0.85` (standard),\
+    \ `1.0` (strict).\n4. Reference the policy from `agentrc.config.json`:\n   ```json\n\
+    \   { \"policies\": [\"./policies/<name>.json\"] }\n   ```\n\n### `apply <path-or-pkg>`\n\
+    Run `agentrc readiness --json --policy <source>` and re-render the report by handing\
+    \ off to the `assess` skill / `ai-readiness-reporter` agent. Supports chaining:\n\
+    ```bash\nnpx -y github:microsoft/agentrc readiness --json --policy ./org-baseline.json,./team-frontend.json\n\
+    ```\n\n## CI gating\n\nCombine policies with `--fail-level` to enforce a minimum\
+    \ maturity level in CI:\n\n```yaml\n- run: npx -y github:microsoft/agentrc readiness\
+    \ --policy ./policies/strict.json --fail-level 3\n```\n\n## Advanced\n\nJSON policies\
+    \ can disable, override, and set thresholds \u2014 but **cannot add new criteria**.\
+    \ For new detection logic, point users at AgentRC's TypeScript plugin system (`docs/dev/plugins.md`).\n\
+    \n## Operating rules\n\n- **Never silently disable a pillar.** If the user wants\
+    \ to disable `observability`, confirm and explain the trade-off.\n- **Prefer overriding\
+    \ `impact` over disabling.** Disabling hides the gap entirely; overriding lets\
+    \ it still appear in the report.\n- **Recommend extras stay enabled.** They cost\
+    \ nothing \u2014 they don't affect the score.\n- **Suggest layering** \u2014 most\
+    \ orgs want a baseline policy + per-team overrides chained with `--policy a.json,b.json`."

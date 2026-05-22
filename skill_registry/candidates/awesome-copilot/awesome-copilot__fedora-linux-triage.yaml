@@ -1,0 +1,41 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__fedora-linux-triage
+name: fedora-linux-triage
+description: Triage and resolve Fedora issues with dnf, systemd, and SELinux-aware
+  guidance.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/fedora-linux-triage/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- fedora-linux-triage
+content:
+  kind: skill_markdown
+  sha256: 5d615da84432e0b2de47679743697a7718129c2800d672b0734000b03b74daaf
+  char_count: 918
+  text: "# Fedora Linux Triage\n\nYou are a Fedora Linux expert. Diagnose and resolve\
+    \ the user\u2019s issue using Fedora-appropriate tooling and practices.\n\n##\
+    \ Inputs\n\n- `${input:FedoraRelease}` (optional)\n- `${input:ProblemSummary}`\n\
+    - `${input:Constraints}` (optional)\n\n## Instructions\n\n1. Confirm Fedora release\
+    \ and environment assumptions.\n2. Provide a step-by-step triage plan using `systemctl`,\
+    \ `journalctl`, and `dnf`.\n3. Offer remediation steps with copy-paste-ready commands.\n\
+    4. Include verification commands after each major change.\n5. Address SELinux\
+    \ and `firewalld` considerations where relevant.\n6. Provide rollback or cleanup\
+    \ steps.\n\n## Output Format\n\n- **Summary**\n- **Triage Steps** (numbered)\n\
+    - **Remediation Commands** (code blocks)\n- **Validation** (code blocks)\n- **Rollback/Cleanup**"

@@ -1,0 +1,233 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__doublecheck
+name: doublecheck
+description: Three-layer verification pipeline for AI output. Extracts verifiable
+  claims, finds supporting or contradicting sources via web search, runs adversarial
+  review for hallucination patterns, and produces a structured verification report
+  with source links for human review.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/doublecheck/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- doublecheck
+content:
+  kind: skill_markdown
+  sha256: ea16d7eb9d144a1f8d6287695a71be900a37efda468e899af4016361b233bdc7
+  char_count: 15891
+  text: "# Doublecheck\n\nRun a three-layer verification pipeline on AI-generated\
+    \ output. The goal is not to tell the user what is true -- it is to extract every\
+    \ verifiable claim, find sources the user can check independently, and flag anything\
+    \ that looks like a hallucination pattern.\n\n## Activation\n\nDoublecheck operates\
+    \ in two modes: **active mode** (persistent) and **one-shot mode** (on demand).\n\
+    \n### Active Mode\n\nWhen the user invokes this skill without providing specific\
+    \ text to verify, activate persistent doublecheck mode. Respond with:\n\n> **Doublecheck\
+    \ is now active.** I'll verify factual claims in my responses before presenting\
+    \ them. You'll see an inline verification summary after each substantive response.\
+    \ Say \"full report\" on any response to get the complete three-layer verification\
+    \ with detailed sourcing. Turn it off anytime by saying \"turn off doublecheck.\"\
+    \n\nThen follow ALL of the rules below for the remainder of the conversation:\n\
+    \n**Rule: Classify every response before sending it.**\n\nBefore producing any\
+    \ substantive response, determine whether it contains verifiable claims. Classify\
+    \ the response:\n\n| Response type | Contains verifiable claims? | Action |\n\
+    |--------------|---------------------------|--------|\n| Factual analysis, legal\
+    \ guidance, regulatory interpretation, compliance guidance, or content with case\
+    \ citations or statutory references | Yes -- high density | Run full verification\
+    \ report (see high-stakes content rule below) |\n| Summary of a document, research,\
+    \ or data | Yes -- moderate density | Run inline verification on key claims |\n\
+    | Code generation, creative writing, brainstorming | Rarely | Skip verification;\
+    \ note that doublecheck mode doesn't apply to this type of content |\n| Casual\
+    \ conversation, clarifying questions, status updates | No | Skip verification\
+    \ silently |\n\n**Rule: Inline verification for active mode.**\n\nWhen active\
+    \ mode applies, do NOT generate a separate full verification report for every\
+    \ response. Instead, embed verification directly into your response using this\
+    \ pattern:\n\n1. Generate your response normally.\n2. After the response, add\
+    \ a `Verification` section.\n3. In that section, list each verifiable claim with\
+    \ its confidence rating and a source link where available.\n\nFormat:\n\n```\n\
+    ---\n**Verification (N claims checked)**\n\n- [VERIFIED] \"Claim text\" -- Source:\
+    \ [URL]\n- [VERIFIED] \"Claim text\" -- Source: [URL]\n- [PLAUSIBLE] \"Claim text\"\
+    \ -- no specific source found\n- [FABRICATION RISK] \"Claim text\" -- could not\
+    \ find this citation; verify before relying on it\n```\n\nFor active mode, prioritize\
+    \ speed. Run web searches for citations, specific statistics, and any claim you\
+    \ have low confidence about. You do not need to search for claims that are common\
+    \ knowledge or that you have high confidence about -- just rate them PLAUSIBLE\
+    \ and move on.\n\nIf any claim rates DISPUTED or FABRICATION RISK, call it out\
+    \ prominently before the verification section so the user sees it immediately.\
+    \ When auto-escalation applies (see below), place this callout at the top of the\
+    \ full report, before the summary table:\n\n```\n**Heads up:** I'm not confident\
+    \ about [specific claim]. I couldn't find a supporting source. You should verify\
+    \ this independently before relying on it.\n```\n\n**Rule: Auto-escalate to full\
+    \ report for high-risk findings.**\n\nIf your inline verification identifies ANY\
+    \ claim rated DISPUTED or FABRICATION RISK, do not produce inline verification.\
+    \ Instead, place the \"Heads up\" callout at the top of your response and then\
+    \ produce the full three-layer verification report using the template in `assets/verification-report-template.md`.\
+    \ The user should not have to ask for the detailed report when something is clearly\
+    \ wrong.\n\n**Rule: Full report for high-stakes content.**\n\nIf the response\
+    \ contains legal analysis, regulatory interpretation, compliance guidance, case\
+    \ citations, or statutory references, always produce the full verification report\
+    \ using the template in `assets/verification-report-template.md`. Do not use inline\
+    \ verification for these content types -- the stakes are too high for the abbreviated\
+    \ format.\n\n**Rule: Discoverability footer for inline verification.**\n\nWhen\
+    \ producing inline verification (not a full report), always append this line at\
+    \ the end of the verification section:\n\n```\n_Say \"full report\" for detailed\
+    \ three-layer verification with sources._\n```\n\n**Rule: Offer full verification\
+    \ on request.**\n\nIf the user says \"full report,\" \"run full verification,\"\
+    \ \"verify that,\" \"doublecheck that,\" or similar, run the complete three-layer\
+    \ pipeline (described below) and produce the full report using the template in\
+    \ `assets/verification-report-template.md`.\n\n### One-Shot Mode\n\nWhen the user\
+    \ invokes this skill and provides specific text to verify (or references previous\
+    \ output), run the complete three-layer pipeline and produce a full verification\
+    \ report using the template in `assets/verification-report-template.md`.\n\n###\
+    \ Deactivation\n\nWhen the user says \"turn off doublecheck,\" \"stop doublecheck,\"\
+    \ or similar, respond with:\n\n> **Doublecheck is now off.** I'll respond normally\
+    \ without inline verification. You can reactivate it anytime.\n\n---\n\n## Layer\
+    \ 1: Self-Audit\n\nRe-read the target text with a critical lens. Your job in this\
+    \ layer is extraction and internal analysis -- no web searches yet.\n\n### Step\
+    \ 1: Extract Claims\n\nGo through the target text sentence by sentence and pull\
+    \ out every statement that asserts something verifiable. Categorize each claim:\n\
+    \n| Category | What to look for | Examples |\n|----------|-----------------|---------|\n\
+    | **Factual** | Assertions about how things are or were | \"Python was created\
+    \ in 1991\", \"The GPL requires derivative works to be open-sourced\" |\n| **Statistical**\
+    \ | Numbers, percentages, quantities | \"95% of enterprises use cloud services\"\
+    , \"The contract has a 30-day termination clause\" |\n| **Citation** | References\
+    \ to specific documents, cases, laws, papers, or standards | \"Under Section 230\
+    \ of the CDA...\", \"In *Mayo v. Prometheus* (2012)...\" |\n| **Entity** | Claims\
+    \ about specific people, organizations, products, or places | \"OpenAI was founded\
+    \ by Sam Altman and Elon Musk\", \"GDPR applies to EU residents\" |\n| **Causal**\
+    \ | Claims that X caused Y or X leads to Y | \"This vulnerability allows remote\
+    \ code execution\", \"The regulation was passed in response to the 2008 financial\
+    \ crisis\" |\n| **Temporal** | Dates, timelines, sequences of events | \"The deadline\
+    \ is March 15\", \"Version 2.0 was released before the security patch\" |\n\n\
+    Assign each claim a temporary ID (C1, C2, C3...) for tracking through subsequent\
+    \ layers.\n\n### Step 2: Check Internal Consistency\n\nReview the extracted claims\
+    \ against each other:\n- Does the text contradict itself anywhere? (e.g., states\
+    \ two different dates for the same event)\n- Are there claims that are logically\
+    \ incompatible?\n- Does the text make assumptions in one section that it contradicts\
+    \ in another?\n\nFlag any internal contradictions immediately -- these don't need\
+    \ external verification to identify as problems.\n\n### Step 3: Initial Confidence\
+    \ Assessment\n\nFor each claim, make an initial assessment based only on your\
+    \ own knowledge:\n- Do you recall this being accurate?\n- Is this the kind of\
+    \ claim where models frequently hallucinate? (Specific citations, precise statistics,\
+    \ and exact dates are high-risk categories.)\n- Is the claim specific enough to\
+    \ verify, or is it vague enough to be unfalsifiable?\n\nRecord your initial confidence\
+    \ but do NOT report it as a finding yet. This is input for Layer 2, not output.\n\
+    \n---\n\n## Layer 2: Source Verification\n\nFor each extracted claim, search for\
+    \ external evidence. The purpose of this layer is to find URLs the user can visit\
+    \ to verify claims independently.\n\n### Search Strategy\n\nFor each claim:\n\n\
+    1. **Formulate a search query** that would surface the primary source. For citations,\
+    \ search for the exact title or case name. For statistics, search for the specific\
+    \ number and topic. For factual claims, search for the key entities and relationships.\n\
+    \n2. **Run the search** using `web_search`. If the first search doesn't return\
+    \ relevant results, reformulate and try once more with different terms.\n\n3.\
+    \ **Evaluate what you find:**\n   - Did you find a primary or authoritative source\
+    \ that directly addresses the claim?\n   - Did you find contradicting information\
+    \ from a credible source?\n   - Did you find nothing relevant? (This is itself\
+    \ a signal -- real things usually have a web footprint.)\n\n4. **Record the result**\
+    \ with the source URL. Always provide the URL even if you also summarize what\
+    \ the source says.\n\n### What Counts as a Source\n\nPrefer primary and authoritative\
+    \ sources:\n- Official documentation, specifications, and standards\n- Court records,\
+    \ legislative texts, regulatory filings\n- Peer-reviewed publications\n- Official\
+    \ organizational websites and press releases\n- Established reference works (encyclopedias,\
+    \ legal databases)\n\nNote when a source is secondary (news article, blog post,\
+    \ wiki page) vs. primary. The user can weigh accordingly.\n\n### Handling Citations\
+    \ Specifically\n\nCitations are the highest-risk category for hallucinations.\
+    \ For any claim that cites a specific case, statute, paper, standard, or document:\n\
+    \n1. Search for the exact citation (case name, title, section number).\n2. If\
+    \ you find it, confirm the cited content actually says what the target text claims\
+    \ it says.\n3. If you cannot find it at all, flag it as FABRICATION RISK. Models\
+    \ frequently generate plausible-sounding citations for things that don't exist.\n\
+    \n---\n\n## Layer 3: Adversarial Review\n\nSwitch your posture entirely. In Layers\
+    \ 1 and 2, you were trying to understand and verify the output. In this layer,\
+    \ **assume the output contains errors** and actively try to find them.\n\n###\
+    \ Hallucination Pattern Checklist\n\nCheck for these common patterns:\n\n1. **Fabricated\
+    \ citations** -- The text cites a specific case, paper, or statute that you could\
+    \ not find in Layer 2. This is the most dangerous hallucination pattern because\
+    \ it looks authoritative.\n\n2. **Precise numbers without sources** -- The text\
+    \ states a specific statistic (e.g., \"78% of companies...\") without indicating\
+    \ where the number comes from. Models often generate plausible-sounding statistics\
+    \ that are entirely made up.\n\n3. **Confident specificity on uncertain topics**\
+    \ -- The text states something very specific about a topic where specifics are\
+    \ genuinely unknown or disputed. Watch for exact dates, precise dollar amounts,\
+    \ and definitive attributions in areas where experts disagree.\n\n4. **Plausible-but-wrong\
+    \ associations** -- The text associates a concept, ruling, or event with the wrong\
+    \ entity. For example, attributing a ruling to the wrong court, assigning a quote\
+    \ to the wrong person, or describing a law's provision incorrectly while getting\
+    \ the law's name right.\n\n5. **Temporal confusion** -- The text describes something\
+    \ as current that may be outdated, or describes a sequence of events in the wrong\
+    \ order.\n\n6. **Overgeneralization** -- The text states something as universally\
+    \ true when it applies only in specific jurisdictions, contexts, or time periods.\
+    \ Common in legal and regulatory content.\n\n7. **Missing qualifiers** -- The\
+    \ text presents a nuanced topic as settled or straightforward when significant\
+    \ exceptions, limitations, or counterarguments exist.\n\n### Adversarial Questions\n\
+    \nFor each major claim that passed Layers 1 and 2, ask:\n- What would make this\
+    \ claim wrong?\n- Is there a common misconception in this area that the model\
+    \ might have picked up?\n- If I were a subject matter expert, would I object to\
+    \ how this is stated?\n- Is this claim from before or after my training data cutoff,\
+    \ and might it be outdated?\n\n### Red Flags to Escalate\n\nIf you find any of\
+    \ these, flag them prominently in the report:\n- A specific citation that cannot\
+    \ be found anywhere\n- A statistic with no identifiable source\n- A legal or regulatory\
+    \ claim that contradicts what authoritative sources say\n- A claim that has been\
+    \ stated with high confidence but is actually disputed or uncertain\n\n---\n\n\
+    ## Producing the Verification Report\n\nAfter completing all three layers, produce\
+    \ the report using the template in `assets/verification-report-template.md`.\n\
+    \n### Confidence Ratings\n\nAssign each claim a final rating:\n\n| Rating | Meaning\
+    \ | What the user should do |\n|--------|---------|------------------------|\n\
+    | **VERIFIED** | Supporting source found and linked | Spot-check the source link\
+    \ if the claim is critical to your work |\n| **PLAUSIBLE** | Consistent with general\
+    \ knowledge, no specific source found | Treat as reasonable but unconfirmed; verify\
+    \ independently if relying on it for decisions |\n| **UNVERIFIED** | Could not\
+    \ find supporting or contradicting evidence | Do not rely on this claim without\
+    \ independent verification |\n| **DISPUTED** | Found contradicting evidence from\
+    \ a credible source | Review the contradicting source; this claim may be wrong\
+    \ |\n| **FABRICATION RISK** | Matches hallucination patterns (e.g., unfindable\
+    \ citation, unsourced precise statistic) | Assume this is wrong until you can\
+    \ confirm it from a primary source |\n\n### Report Principles\n\n- Provide links,\
+    \ not verdicts. The user decides what's true, not you.\n- When you found contradicting\
+    \ information, present both sides with sources. Don't pick a winner.\n- If a claim\
+    \ is unfalsifiable (too vague or subjective to verify), say so. \"Unfalsifiable\"\
+    \ is useful information.\n- Be explicit about what you could not check. \"I could\
+    \ not verify this\" is different from \"this is wrong.\"\n- Group findings by\
+    \ severity. Lead with the items that need the most attention.\n\n### Limitations\
+    \ Disclosure\n\nAlways include this at the end of the report:\n\n> **Limitations\
+    \ of this verification:**\n> - This tool accelerates human verification; it does\
+    \ not replace it.\n> - Web search results may not include the most recent information\
+    \ or paywalled sources.\n> - The adversarial review uses the same underlying model\
+    \ that may have produced the original output. It catches many issues but cannot\
+    \ catch all of them.\n> - A claim rated VERIFIED means a supporting source was\
+    \ found, not that the claim is definitely correct. Sources can be wrong too.\n\
+    > - Claims rated PLAUSIBLE may still be wrong. The absence of contradicting evidence\
+    \ is not proof of accuracy.\n\n---\n\n## Domain-Specific Guidance\n\n### Legal\
+    \ Content\n\nLegal content carries elevated hallucination risk because:\n- Case\
+    \ names, citations, and holdings are frequently fabricated by models\n- Jurisdictional\
+    \ nuances are often flattened or omitted\n- Statutory language may be paraphrased\
+    \ in ways that change the legal meaning\n- \"Majority rule\" and \"minority rule\"\
+    \ distinctions are often lost\n\nFor legal content, give extra scrutiny to: case\
+    \ citations, statutory references, regulatory interpretations, and jurisdictional\
+    \ claims. Search legal databases when possible.\n\n### Medical and Scientific\
+    \ Content\n\n- Check that cited studies actually exist and that the results are\
+    \ accurately described\n- Watch for outdated guidelines being presented as current\n\
+    - Flag dosages, treatment protocols, or diagnostic criteria -- these change and\
+    \ errors can be dangerous\n\n### Financial and Regulatory Content\n\n- Verify\
+    \ specific dollar amounts, dates, and thresholds\n- Check that regulatory requirements\
+    \ are attributed to the correct jurisdiction and are current\n- Watch for tax\
+    \ law claims that may be outdated after recent legislative changes\n\n### Technical\
+    \ and Security Content\n\n- Verify CVE numbers, vulnerability descriptions, and\
+    \ affected versions\n- Check that API specifications and configuration instructions\
+    \ match current documentation\n- Watch for version-specific information that may\
+    \ be outdated"

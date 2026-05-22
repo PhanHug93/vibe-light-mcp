@@ -1,0 +1,327 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__adobe-illustrator-scripting
+name: adobe-illustrator-scripting
+description: Write, debug, and optimize Adobe Illustrator automation scripts using
+  ExtendScript (JavaScript/JSX). Use when creating or modifying scripts that manipulate
+  documents, layers, paths, text frames, colors, symbols, artboards, or any Illustrator
+  DOM objects. Covers the complete JavaScript object model, coordinate system, measurement
+  units, export workflows, and scripting best practices.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/adobe-illustrator-scripting/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - has_scripts_directory
+facets:
+- typescript
+languages: []
+platforms: []
+aliases:
+- adobe-illustrator-scripting
+content:
+  kind: skill_markdown
+  sha256: 67935d62bdce75b1d1f32ffb3707e9556ea86fb01b22799ef2efe0165cd0b42e
+  char_count: 23176
+  text: "# Adobe Illustrator Scripting\n\nExpert guidance for automating Adobe Illustrator\
+    \ through ExtendScript (JavaScript/JSX). This skill covers the Illustrator scripting\
+    \ object model, all major API objects, code patterns, and best practices for writing\
+    \ production-quality `.jsx` scripts.\n\n## Bundled Assets\n\n- [`references/object-model-quick-reference.md`](references/object-model-quick-reference.md):\
+    \ Use this as a quick lookup for the Illustrator scripting object model, common\
+    \ document and page item types, and related DOM concepts while writing or debugging\
+    \ scripts.\n- `scripts/`: Contains example Illustrator automation scripts you\
+    \ can use as starting points or implementation patterns for common tasks such\
+    \ as document manipulation, exports, batch processing, and DOM usage. Review and\
+    \ adapt these examples when you need working JSX patterns or want to compare behavior\
+    \ while debugging.\n## When to Use This Skill\n\n- Writing new Illustrator automation\
+    \ scripts (`.jsx` or `.js` files)\n- Debugging or fixing existing Illustrator\
+    \ ExtendScript code\n- Manipulating documents, layers, page items, paths, text,\
+    \ or colors programmatically\n- Batch-processing Illustrator files or generating\
+    \ artwork from data\n- Exporting documents to various formats (PDF, SVG, PNG,\
+    \ EPS, etc.)\n- Working with the Illustrator DOM (Application, Document, Layer,\
+    \ PathItem, TextFrame, etc.)\n- Creating data-driven graphics using variables\
+    \ and datasets\n- Automating print workflows with scripted print options\n\n##\
+    \ Prerequisites\n\n- Adobe Illustrator CC or later installed\n- Basic JavaScript\
+    \ knowledge (ExtendScript is ES3-based with Adobe extensions)\n- Scripts are executed\
+    \ via File > Scripts > Other Scripts, the Scripts menu, or placed in the Startup\
+    \ Scripts folder\n- The ExtendScript Toolkit (ESTK) or any text editor can be\
+    \ used to write `.jsx` files\n\n## Scripting Environment\n\n### Language and File\
+    \ Extensions\n\n| Language | Extension | Platform |\n|---|---|---|\n| ExtendScript/JavaScript\
+    \ | `.jsx`, `.js` | Windows, macOS |\n| AppleScript | `.scpt` | macOS only |\n\
+    | VBScript | `.vbs` | Windows only |\n\n**This skill focuses on ExtendScript/JavaScript**\
+    \ as the cross-platform, most widely used option.\n\n### Executing Scripts\n\n\
+    - **Scripts menu**: File > Scripts lists scripts from the application scripts\
+    \ folder\n- **Other Scripts**: File > Scripts > Other Scripts to browse and run\
+    \ any `.jsx` file\n- **Startup Scripts**: Place scripts in the Startup Scripts\
+    \ folder to run automatically on launch\n- **Target directive**: Begin scripts\
+    \ with `#target illustrator` when running from ESTK or external tools\n- **`#targetengine`\
+    \ directive**: Use `#targetengine \"session\"` to persist variables across script\
+    \ executions\n\n### Naming Conventions (JavaScript)\n\n- Objects and properties\
+    \ use **camelCase**: `activeDocument`, `pathItems`, `textFrames`\n- The `app`\
+    \ global references the `Application` object\n- Collection indices are **zero-based**:\
+    \ `documents[0]` is the frontmost document\n- Use `typename` property to identify\
+    \ object types at runtime\n\n## Object Model Overview\n\nThe Illustrator DOM follows\
+    \ a strict containment hierarchy:\n\n```\nApplication (app)\n\u251C\u2500\u2500\
+    \ activeDocument / documents[]\n\u2502   \u251C\u2500\u2500 layers[]\n\u2502 \
+    \  \u2502   \u251C\u2500\u2500 pageItems[] (all artwork)\n\u2502   \u2502   \u251C\
+    \u2500\u2500 pathItems[]\n\u2502   \u2502   \u251C\u2500\u2500 compoundPathItems[]\n\
+    \u2502   \u2502   \u251C\u2500\u2500 textFrames[]\n\u2502   \u2502   \u251C\u2500\
+    \u2500 placedItems[]\n\u2502   \u2502   \u251C\u2500\u2500 rasterItems[]\n\u2502\
+    \   \u2502   \u251C\u2500\u2500 meshItems[]\n\u2502   \u2502   \u251C\u2500\u2500\
+    \ pluginItems[]\n\u2502   \u2502   \u251C\u2500\u2500 graphItems[]\n\u2502   \u2502\
+    \   \u251C\u2500\u2500 symbolItems[]\n\u2502   \u2502   \u251C\u2500\u2500 nonNativeItems[]\n\
+    \u2502   \u2502   \u251C\u2500\u2500 legacyTextItems[]\n\u2502   \u2502   \u2514\
+    \u2500\u2500 groupItems[]\n\u2502   \u251C\u2500\u2500 artboards[]\n\u2502   \u251C\
+    \u2500\u2500 views[]\n\u2502   \u251C\u2500\u2500 selection (array of selected\
+    \ items)\n\u2502   \u251C\u2500\u2500 swatches[], spots[], gradients[], patterns[]\n\
+    \u2502   \u251C\u2500\u2500 graphicStyles[], brushes[], symbols[]\n\u2502   \u251C\
+    \u2500\u2500 textFonts[] (via app.textFonts)\n\u2502   \u251C\u2500\u2500 stories[],\
+    \ characterStyles[], paragraphStyles[]\n\u2502   \u251C\u2500\u2500 variables[],\
+    \ datasets[]\n\u2502   \u2514\u2500\u2500 inkList[], printOptions\n\u251C\u2500\
+    \u2500 preferences\n\u251C\u2500\u2500 printerList[]\n\u2514\u2500\u2500 textFonts[]\n\
+    ```\n\n### Top-Level Objects\n\n- **Application** (`app`): The root object. Provides\
+    \ access to documents, preferences, fonts, and printers. Key properties: `activeDocument`,\
+    \ `documents`, `textFonts`, `printerList`, `userInteractionLevel`, `version`.\n\
+    - **Document**: Represents an open `.ai` file. Key properties: `layers`, `pageItems`,\
+    \ `selection`, `activeLayer`, `width`, `height`, `rulerOrigin`, `documentColorSpace`.\
+    \ Key methods: `saveAs()`, `exportFile()`, `close()`, `print()`.\n- **Layer**:\
+    \ A drawing layer. Key properties: `pageItems`, `pathItems`, `textFrames`, `visible`,\
+    \ `locked`, `opacity`, `name`, `zOrderPosition`, `color`.\n\n## Measurement Units\
+    \ and Coordinates\n\n### Units\n\nAll scripting API values use **points** (72\
+    \ points = 1 inch). Convert other units:\n\n| Unit | Conversion |\n|---|---|\n\
+    | Inches | multiply by 72 |\n| Centimeters | multiply by 28.346 |\n| Millimeters\
+    \ | multiply by 2.834645 |\n| Picas | multiply by 12 |\n\nKerning, tracking, and\
+    \ `aki` properties use **em units** (thousandths of an em, proportional to font\
+    \ size).\n\n### Coordinate System\n\n- For **scripted documents**, the origin\
+    \ `(0,0)` is at the **bottom-left** of the artboard\n- X increases left to right;\
+    \ Y increases bottom to top\n- The `position` property of a page item is the **top-left\
+    \ corner** of its bounding box as `[x, y]`\n- Maximum page item width/height:\
+    \ 16348 points\n\n### Art Item Bounds\n\nEvery page item has three bounding rectangles:\n\
+    \n- `geometricBounds`: Excludes stroke width `[left, top, right, bottom]`\n- `visibleBounds`:\
+    \ Includes stroke width\n- `controlBounds`: Includes control/direction points\n\
+    \n## Working with Documents\n\n### Creating and Opening\n\n```javascript\n// Create\
+    \ a new document\nvar doc = app.documents.add();\n\n// Create with a preset\n\
+    var preset = new DocumentPreset();\npreset.width = 612;  // 8.5 inches\npreset.height\
+    \ = 792; // 11 inches\npreset.colorMode = DocumentColorSpace.CMYK;\nvar doc =\
+    \ app.documents.addDocument(\"Print\", preset);\n\n// Open an existing file\n\
+    var fileRef = new File(\"/path/to/file.ai\");\nvar doc = app.open(fileRef);\n\
+    ```\n\n### Saving and Exporting\n\n```javascript\n// Save as Illustrator format\n\
+    var saveOpts = new IllustratorSaveOptions();\nsaveOpts.compatibility = Compatibility.ILLUSTRATOR17;\
+    \ // CC\ndoc.saveAs(new File(\"/path/to/output.ai\"), saveOpts);\n\n// Export\
+    \ as PDF\nvar pdfOpts = new PDFSaveOptions();\npdfOpts.compatibility = PDFCompatibility.ACROBAT7;\n\
+    pdfOpts.preserveEditability = false;\ndoc.saveAs(new File(\"/path/to/output.pdf\"\
+    ), pdfOpts);\n\n// Export as PNG\nvar pngOpts = new ExportOptionsPNG24();\npngOpts.horizontalScale\
+    \ = 300;\npngOpts.verticalScale = 300;\npngOpts.transparency = true;\ndoc.exportFile(new\
+    \ File(\"/path/to/output.png\"), ExportType.PNG24, pngOpts);\n\n// Export as SVG\n\
+    var svgOpts = new ExportOptionsSVG();\nsvgOpts.fontType = SVGFontType.OUTLINEFONT;\n\
+    doc.exportFile(new File(\"/path/to/output.svg\"), ExportType.SVG, svgOpts);\n\
+    ```\n\n## Working with Paths and Shapes\n\n### Built-in Shape Methods\n\nThe `pathItems`\
+    \ collection provides convenience methods for common shapes:\n\n```javascript\n\
+    var doc = app.activeDocument;\nvar layer = doc.activeLayer;\n\n// Rectangle: rectangle(top,\
+    \ left, width, height)\nvar rect = layer.pathItems.rectangle(500, 100, 200, 150);\n\
+    \n// Rounded rectangle: roundedRectangle(top, left, width, height, hRadius, vRadius)\n\
+    var rrect = layer.pathItems.roundedRectangle(500, 100, 200, 150, 20, 20);\n\n\
+    // Ellipse: ellipse(top, left, width, height)\nvar oval = layer.pathItems.ellipse(400,\
+    \ 200, 100, 100);\n\n// Polygon: polygon(centerX, centerY, radius, sides)\nvar\
+    \ hex = layer.pathItems.polygon(300, 300, 50, 6);\n\n// Star: star(centerX, centerY,\
+    \ radius, innerRadius, points)\nvar star = layer.pathItems.star(300, 300, 50,\
+    \ 25, 5);\n```\n\n### Freeform Paths Using Coordinate Arrays\n\n```javascript\n\
+    var doc = app.activeDocument;\nvar path = doc.pathItems.add();\npath.setEntirePath([[100,\
+    \ 100], [200, 200], [300, 100]]);\npath.closed = false;\npath.stroked = true;\n\
+    path.strokeWidth = 2;\n```\n\n### Freeform Paths Using PathPoint Objects\n\n```javascript\n\
+    var doc = app.activeDocument;\nvar path = doc.pathItems.add();\n\nvar point1 =\
+    \ path.pathPoints.add();\npoint1.anchor = [100, 100];\npoint1.leftDirection =\
+    \ [100, 100];\npoint1.rightDirection = [150, 150];\npoint1.pointType = PointType.SMOOTH;\n\
+    \nvar point2 = path.pathPoints.add();\npoint2.anchor = [300, 100];\npoint2.leftDirection\
+    \ = [250, 150];\npoint2.rightDirection = [300, 100];\npoint2.pointType = PointType.SMOOTH;\n\
+    \npath.closed = false;\n```\n\n### Path Properties\n\n```javascript\nvar item\
+    \ = doc.pathItems[0];\nitem.filled = true;\nitem.stroked = true;\nitem.strokeWidth\
+    \ = 1.5;\nitem.strokeCap = StrokeCap.ROUNDENDCAP;\nitem.strokeJoin = StrokeJoin.ROUNDENDJOIN;\n\
+    item.opacity = 80;\nitem.closed = true;\n```\n\n## Working with Colors\n\n###\
+    \ Color Objects\n\n```javascript\n// RGB Color (values 0-255)\nvar red = new RGBColor();\n\
+    red.red = 255;\nred.green = 0;\nred.blue = 0;\n\n// CMYK Color (values 0-100)\n\
+    var cyan = new CMYKColor();\ncyan.cyan = 100;\ncyan.magenta = 0;\ncyan.yellow\
+    \ = 0;\ncyan.black = 0;\n\n// Grayscale (0-100, 0 = black)\nvar gray = new GrayColor();\n\
+    gray.gray = 50;\n\n// Lab Color\nvar lab = new LabColor();\nlab.l = 50;\nlab.a\
+    \ = 20;\nlab.b = -30;\n\n// No color (transparent)\nvar none = new NoColor();\n\
+    ```\n\n### Applying Colors\n\n```javascript\nvar item = doc.pathItems[0];\nitem.fillColor\
+    \ = red;\nitem.strokeColor = cyan;\n\n// Gradient fill\nvar gradient = doc.gradients.add();\n\
+    gradient.type = GradientType.LINEAR;\ngradient.gradientStops[0].color = red;\n\
+    gradient.gradientStops[1].color = cyan;\n\nvar gradColor = new GradientColor();\n\
+    gradColor.gradient = gradient;\nitem.fillColor = gradColor;\n```\n\n### Spot Colors\
+    \ and Swatches\n\n```javascript\n// Create a spot color\nvar spot = doc.spots.add();\n\
+    spot.name = \"My Spot Color\";\nspot.color = red; // Base color definition\n\n\
+    var spotColor = new SpotColor();\nspotColor.spot = spot;\nspotColor.tint = 100;\n\
+    \nitem.fillColor = spotColor;\n\n// Access a swatch by name\nvar swatch = doc.swatches.getByName(\"\
+    PANTONE 185 C\");\nitem.fillColor = swatch.color;\n```\n\n## Working with Text\n\
+    \n### Text Frame Types\n\n```javascript\nvar doc = app.activeDocument;\n\n// Point\
+    \ text\nvar pointText = doc.textFrames.add();\npointText.contents = \"Hello World!\"\
+    ;\npointText.position = [100, 500];\n\n// Area text (text inside a path)\nvar\
+    \ rectPath = doc.pathItems.rectangle(500, 100, 200, 100);\nvar areaText = doc.textFrames.areaText(rectPath);\n\
+    areaText.contents = \"Text inside a rectangle shape.\";\n\n// Path text (text\
+    \ along a path)\nvar curvePath = doc.pathItems.add();\ncurvePath.setEntirePath([[50,\
+    \ 300], [150, 400], [250, 300]]);\nvar pathText = doc.textFrames.pathText(curvePath);\n\
+    pathText.contents = \"Text on a path\";\n```\n\n### Character and Paragraph Formatting\n\
+    \n```javascript\nvar tf = doc.textFrames[0];\nvar textRange = tf.textRange;\n\n\
+    // Character attributes\nvar charAttr = textRange.characterAttributes;\ncharAttr.size\
+    \ = 24;           // Font size in points\ncharAttr.textFont = app.textFonts.getByName(\"\
+    ArialMT\");\ncharAttr.fillColor = red;\ncharAttr.tracking = 50;       // Em units\n\
+    charAttr.horizontalScale = 100;\ncharAttr.verticalScale = 100;\ncharAttr.baselineShift\
+    \ = 0;\n\n// Paragraph attributes\nvar paraAttr = textRange.paragraphAttributes;\n\
+    paraAttr.justification = Justification.CENTER;\nparaAttr.firstLineIndent = 0;\n\
+    paraAttr.leftIndent = 0;\nparaAttr.spaceBefore = 0;\nparaAttr.spaceAfter = 0;\n\
+    ```\n\n### Accessing Text Content\n\n```javascript\nvar tf = doc.textFrames[0];\n\
+    \n// Access sub-ranges\nvar firstChar = tf.characters[0];\nvar firstWord = tf.words[0];\n\
+    var firstPara = tf.paragraphs[0];\nvar firstLine = tf.lines[0];\n\n// Modify specific\
+    \ ranges\ntf.words[0].characterAttributes.size = 36;\ntf.paragraphs[0].paragraphAttributes.justification\
+    \ = Justification.LEFT;\n```\n\n### Threading Text Frames\n\n```javascript\nvar\
+    \ frame1 = doc.textFrames.areaText(path1);\nvar frame2 = doc.textFrames.areaText(path2);\n\
+    \n// Link frames so text flows from frame1 to frame2\nframe1.nextFrame = frame2;\n\
+    \n// Stories represent the full text across threaded frames\nvar storyCount =\
+    \ doc.stories.length;\nvar fullText = doc.stories[0].textRange.contents;\n```\n\
+    \n## Working with Layers\n\n```javascript\nvar doc = app.activeDocument;\n\n//\
+    \ Create a layer\nvar newLayer = doc.layers.add();\nnewLayer.name = \"Background\"\
+    ;\nnewLayer.visible = true;\nnewLayer.locked = false;\nnewLayer.opacity = 100;\n\
+    \n// Access existing layers\nvar topLayer = doc.layers[0];\nvar layerByName =\
+    \ doc.layers.getByName(\"Background\");\n\n// Move items between layers\nvar item\
+    \ = doc.pathItems[0];\nitem.move(newLayer, ElementPlacement.PLACEATBEGINNING);\n\
+    \n// Reorder layers\nnewLayer.zOrder(ZOrderMethod.SENDTOBACK);\n```\n\n## Working\
+    \ with Selections\n\n```javascript\n// Get current selection\nvar sel = app.activeDocument.selection;\n\
+    \n// Iterate selected items\nfor (var i = 0; i < sel.length; i++) {\n    var item\
+    \ = sel[i];\n    // Check type using typename\n    if (item.typename === \"PathItem\"\
+    ) {\n        item.fillColor = red;\n    } else if (item.typename === \"TextFrame\"\
+    ) {\n        item.contents = \"Modified\";\n    }\n}\n\n// Select an item programmatically\n\
+    doc.pathItems[0].selected = true;\n\n// Deselect all\ndoc.selection = null;\n\
+    ```\n\n## Working with Symbols\n\n```javascript\n// Place a symbol instance\n\
+    var sym = doc.symbols.getByName(\"MySymbol\");\nvar instance = doc.symbolItems.add(sym);\n\
+    instance.position = [200, 400];\n\n// Access symbol definition\nvar symDef = instance.symbol;\n\
+    \n// Break link to symbol (expand to regular art)\ninstance.breakLink();\n```\n\
+    \n## Transformations\n\n```javascript\nvar item = doc.pathItems[0];\n\n// Rotate\
+    \ 45 degrees around center\nitem.rotate(45);\n\n// Scale to 50% width, 75% height\n\
+    item.resize(50, 75);\n\n// Translate (move) by 100 points right and 50 points\
+    \ up\nitem.translate(100, 50);\n\n// Using a transformation matrix\nvar matrix\
+    \ = app.getIdentityMatrix();\nmatrix = app.concatenateRotationMatrix(matrix, 30);\n\
+    matrix = app.concatenateScaleMatrix(matrix, 150, 150);\nitem.transform(matrix);\n\
+    ```\n\n## Working with Artboards\n\n```javascript\nvar doc = app.activeDocument;\n\
+    \n// Access artboards\nvar ab = doc.artboards[0];\nvar rect = ab.artboardRect;\
+    \ // [left, top, right, bottom]\n\n// Create a new artboard\nvar newAB = doc.artboards.add([0,\
+    \ 0, 612, 792]); // Letter size\nnewAB.name = \"Page 2\";\n\n// Set active artboard\n\
+    doc.artboards.setActiveArtboardIndex(1);\n```\n\n## Data-Driven Graphics (Variables\
+    \ and Datasets)\n\n```javascript\n// Variables link document items to data fields\n\
+    var v = doc.variables.add();\nv.kind = VariableKind.TEXTUAL;\nv.name = \"headline\"\
+    ;\n\n// Link a text frame to the variable\nvar tf = doc.textFrames[0];\ntf.contentVariable\
+    \ = v;\n\n// Create datasets for batch content\nvar ds = doc.dataSets.add();\n\
+    ds.name = \"Version 1\";\n// Dataset captures current variable bindings\n\n//\
+    \ Switch datasets to swap content\ndoc.dataSets[0].display();\n```\n\n## Printing\n\
+    \n```javascript\nvar doc = app.activeDocument;\nvar opts = new PrintOptions();\n\
+    \nopts.printPreset = \"Default\";\n\n// Paper options\nvar paperOpts = new PrintPaperOptions();\n\
+    paperOpts.name = \"Letter\";\nopts.paperOptions = paperOpts;\n\n// Job options\n\
+    var jobOpts = new PrintJobOptions();\njobOpts.copies = 1;\njobOpts.designation\
+    \ = PrintArtworkDesignation.VISIBLELAYERS;\nopts.jobOptions = jobOpts;\n\ndoc.print(opts);\n\
+    ```\n\n## User Interaction Levels\n\nControl whether Illustrator shows dialogs\
+    \ during script execution:\n\n```javascript\n// Suppress all dialogs\napp.userInteractionLevel\
+    \ = UserInteractionLevel.DONTDISPLAYALERTS;\n\n// Perform operations that might\
+    \ prompt dialogs...\ndoc.close(SaveOptions.DONOTSAVECHANGES);\n\n// Restore dialog\
+    \ display\napp.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;\n```\n\
+    \n## Working with Methods (JavaScript-Specific)\n\nWhen calling methods with multiple\
+    \ optional parameters, use `undefined` to skip middle parameters:\n\n```javascript\n\
+    // rotate(angle, [changePositions], [changeFillPatterns], [changeFillGradients],\
+    \ ...)\nitem.rotate(30, undefined, undefined, true);\n```\n\n## Common Patterns\n\
+    \n### Iterate All Page Items in a Document\n\n```javascript\nfunction processAllItems(doc)\
+    \ {\n    for (var i = 0; i < doc.pageItems.length; i++) {\n        var item =\
+    \ doc.pageItems[i];\n        // Process based on type\n        switch (item.typename)\
+    \ {\n            case \"PathItem\":\n                // handle path\n        \
+    \        break;\n            case \"TextFrame\":\n                // handle text\n\
+    \                break;\n            case \"GroupItem\":\n                // handle\
+    \ group (may contain nested items)\n                break;\n        }\n    }\n\
+    }\n```\n\n### Batch Process Files in a Folder\n\n```javascript\nvar folder = Folder.selectDialog(\"\
+    Select folder of .ai files\");\nif (folder) {\n    var files = folder.getFiles(\"\
+    *.ai\");\n    for (var i = 0; i < files.length; i++) {\n        var doc = app.open(files[i]);\n\
+    \        // Process each document...\n        doc.close(SaveOptions.DONOTSAVECHANGES);\n\
+    \    }\n}\n```\n\n### Error Handling\n\n```javascript\ntry {\n    var doc = app.activeDocument;\n\
+    \    var layer = doc.layers.getByName(\"NonExistentLayer\");\n} catch (e) {\n\
+    \    alert(\"Error: \" + e.message);\n    // e.message, e.line, e.fileName available\n\
+    }\n```\n\n## Troubleshooting\n\n- **\"undefined is not an object\"**: Usually\
+    \ means the collection is empty or the index is out of bounds. Check `.length`\
+    \ before accessing items.\n- **Script runs but nothing changes visually**: Call\
+    \ `app.redraw()` to force a screen refresh after modifications.\n- **Color mode\
+    \ mismatch**: Document color space (RGB vs CMYK) must match color objects. Use\
+    \ `doc.documentColorSpace` to check.\n- **Position seems wrong**: Remember scripted\
+    \ documents use bottom-left origin with Y increasing upward. The `position` property\
+    \ is the top-left of the bounding box.\n- **Text not appearing**: Ensure the text\
+    \ frame has a non-zero size. For point text, set `position`; for area text, provide\
+    \ a valid path to `areaText()`.\n- **File paths on Windows**: Use forward slashes\
+    \ (`/`) or double backslashes (`\\\\`) in path strings, or use the `File` object\
+    \ constructor.\n- **Dialog boxes interrupting batch scripts**: Set `app.userInteractionLevel\
+    \ = UserInteractionLevel.DONTDISPLAYALERTS` before batch operations.\n- **Collections\
+    \ use `getByName()`**: Many collection objects support `getByName(\"name\")` which\
+    \ throws an error if not found; wrap in try/catch.\n\n## Scripting Constants Reference\n\
+    \nCommon enumeration constants used across the API:\n\n| Category | Constants\
+    \ |\n|---|---|\n| **Color Space** | `DocumentColorSpace.RGB`, `DocumentColorSpace.CMYK`\
+    \ |\n| **Justification** | `Justification.LEFT`, `Justification.CENTER`, `Justification.RIGHT`,\
+    \ `Justification.FULLJUSTIFY` |\n| **Point Type** | `PointType.SMOOTH`, `PointType.CORNER`\
+    \ |\n| **Stroke Cap** | `StrokeCap.BUTTENDCAP`, `StrokeCap.ROUNDENDCAP`, `StrokeCap.PROJECTINGENDCAP`\
+    \ |\n| **Stroke Join** | `StrokeJoin.MITERENDJOIN`, `StrokeJoin.ROUNDENDJOIN`,\
+    \ `StrokeJoin.BEVELENDJOIN` |\n| **Blend Mode** | `BlendModes.NORMAL`, `BlendModes.MULTIPLY`,\
+    \ `BlendModes.SCREEN`, `BlendModes.OVERLAY` |\n| **Save Options** | `SaveOptions.SAVECHANGES`,\
+    \ `SaveOptions.DONOTSAVECHANGES`, `SaveOptions.PROMPTTOSAVECHANGES` |\n| **Export\
+    \ Type** | `ExportType.PNG24`, `ExportType.PNG8`, `ExportType.JPEG`, `ExportType.SVG`,\
+    \ `ExportType.TIFF`, `ExportType.PHOTOSHOP`, `ExportType.AUTOCAD`, `ExportType.FLASH`\
+    \ |\n| **Element Placement** | `ElementPlacement.PLACEATBEGINNING`, `ElementPlacement.PLACEATEND`,\
+    \ `ElementPlacement.PLACEBEFORE`, `ElementPlacement.PLACEAFTER`, `ElementPlacement.INSIDE`\
+    \ |\n| **Z-Order** | `ZOrderMethod.BRINGTOFRONT`, `ZOrderMethod.SENDTOBACK`, `ZOrderMethod.BRINGFORWARD`,\
+    \ `ZOrderMethod.SENDBACKWARD` |\n| **Gradient Type** | `GradientType.LINEAR`,\
+    \ `GradientType.RADIAL` |\n| **Text Frame Kind** | `TextType.POINTTEXT`, `TextType.AREATEXT`,\
+    \ `TextType.PATHTEXT` |\n| **Variable Kind** | `VariableKind.TEXTUAL`, `VariableKind.IMAGE`,\
+    \ `VariableKind.VISIBILITY`, `VariableKind.GRAPH` |\n| **User Interaction** |\
+    \ `UserInteractionLevel.DISPLAYALERTS`, `UserInteractionLevel.DONTDISPLAYALERTS`\
+    \ |\n| **Compatibility** | `Compatibility.ILLUSTRATOR10` through `Compatibility.ILLUSTRATOR24`\
+    \ |\n\n## JavaScript Object Reference (Complete API Object List)\n\nThe Illustrator\
+    \ JavaScript API contains the following objects, grouped by category:\n\n### Core\
+    \ Objects\n\n`Application`, `Document`, `Documents`, `DocumentPreset`, `Layer`,\
+    \ `Layers`, `PageItem`, `PageItems`, `View`, `Views`, `Preferences`\n\n### Path\
+    \ and Shape Objects\n\n`PathItem`, `PathItems`, `PathPoint`, `PathPoints`, `CompoundPathItem`,\
+    \ `CompoundPathItems`, `GroupItem`, `GroupItems`\n\n### Text Objects\n\n`TextFrame`,\
+    \ `TextRange`, `TextRanges`, `TextPath`, `Characters`, `Words`, `Paragraphs`,\
+    \ `Lines`, `InsertionPoint`, `InsertionPoints`, `Story`, `Stories`, `CharacterAttributes`,\
+    \ `ParagraphAttributes`, `CharacterStyle`, `CharacterStyles`, `ParagraphStyle`,\
+    \ `ParagraphStyles`, `TextFont`, `TextFonts`, `TabStopInfo`\n\n### Color Objects\n\
+    \n`RGBColor`, `CMYKColor`, `GrayColor`, `LabColor`, `NoColor`, `SpotColor`, `Spot`,\
+    \ `Spots`, `PatternColor`, `GradientColor`, `Color`, `Gradient`, `Gradients`,\
+    \ `GradientStop`, `GradientStops`\n\n### Swatch and Style Objects\n\n`Swatch`,\
+    \ `Swatches`, `SwatchGroup`, `SwatchGroups`, `GraphicStyle`, `GraphicStyles`,\
+    \ `Pattern`, `Patterns`, `Brush`, `Brushes`\n\n### Symbol Objects\n\n`Symbol`,\
+    \ `Symbols`, `SymbolItem`, `SymbolItems`\n\n### Artboard Objects\n\n`Artboard`,\
+    \ `Artboards`\n\n### Placed and Raster Objects\n\n`PlacedItem`, `PlacedItems`,\
+    \ `RasterItem`, `RasterItems`, `MeshItem`, `MeshItems`, `GraphItem`, `GraphItems`,\
+    \ `PluginItem`, `PluginItems`, `NonNativeItem`, `NonNativeItems`, `LegacyTextItem`,\
+    \ `LegacyTextItems`\n\n### Data-Driven Objects\n\n`Variable`, `Variables`, `Dataset`,\
+    \ `Datasets`\n\n### Matrix and Transform Objects\n\n`Matrix`\n\n### Tag Objects\n\
+    \n`Tag`, `Tags`\n\n### Tracing Objects\n\n`TracingObject`, `TracingOptions`\n\n\
+    ### Save and Export Options\n\n`IllustratorSaveOptions`, `EPSSaveOptions`, `PDFSaveOptions`,\
+    \ `FXGSaveOptions`, `ExportOptionsAutoCAD`, `ExportOptionsFlash`, `ExportOptionsGIF`,\
+    \ `ExportOptionsJPEG`, `ExportOptionsPhotoshop`, `ExportOptionsPNG8`, `ExportOptionsPNG24`,\
+    \ `ExportOptionsSVG`, `ExportOptionsTIFF`\n\n### Open Options\n\n`OpenOptions`,\
+    \ `OpenOptionsAutoCAD`, `OpenOptionsFreeHand`, `OpenOptionsPhotoshop`, `PDFFileOptions`,\
+    \ `PhotoshopFileOptions`\n\n### Print Objects\n\n`PrintOptions`, `PrintJobOptions`,\
+    \ `PrintPaperOptions`, `PrintColorManagementOptions`, `PrintColorSeparationOptions`,\
+    \ `PrintCoordinateOptions`, `PrintFlattenerOptions`, `PrintFontOptions`, `PrintPageMarksOptions`,\
+    \ `PrintPostScriptOptions`, `Printer`, `PrinterInfo`, `Paper`, `PaperInfo`, `PPDFile`,\
+    \ `PPDFileInfo`, `Ink`, `InkInfo`, `Screen`, `ScreenInfo`, `ScreenSpotFunction`\n\
+    \n### Image and Rasterize Options\n\n`ImageCaptureOptions`, `RasterEffectOptions`,\
+    \ `RasterizeOptions`\n\n## References\n\n- [Changelog](https://ai-scripting.docsforadobe.dev/introduction/changelog/)\
+    \ - Recent scripting API changes (CC 2020 added `Document.getPageItemFromUuid`\
+    \ and `PageItem.uuid`; CC 2017 added `Application.getIsFileOpen`)\n- [Illustrator\
+    \ Scripting Guide](https://ai-scripting.docsforadobe.dev/) - Full community-maintained\
+    \ documentation"

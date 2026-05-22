@@ -1,0 +1,84 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mcp-copilot-studio-server-generator
+name: mcp-copilot-studio-server-generator
+description: Generate a complete MCP server implementation optimized for Copilot Studio
+  integration with proper schema constraints and streamable HTTP support
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mcp-copilot-studio-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- mcp-copilot-studio-server-generator
+content:
+  kind: skill_markdown
+  sha256: 55a4523e7480cc4fc7c0524b5c50d471bebe8100b408131aebb1fbab064e181d
+  char_count: 4252
+  text: "# Power Platform MCP Connector Generator\n\nGenerate a complete Power Platform\
+    \ custom connector with Model Context Protocol (MCP) integration for Microsoft\
+    \ Copilot Studio. This prompt creates all necessary files following Power Platform\
+    \ connector standards with MCP streamable HTTP support.\n\n## Instructions\n\n\
+    Create a complete MCP server implementation that:\n\n1. **Uses Copilot Studio\
+    \ MCP Pattern:**\n   - Implement `x-ms-agentic-protocol: mcp-streamable-1.0`\n\
+    \   - Support JSON-RPC 2.0 communication protocol\n   - Provide streamable HTTP\
+    \ endpoint at `/mcp`\n   - Follow Power Platform connector structure\n\n2. **Schema\
+    \ Compliance Requirements:**\n   - **NO reference types** in tool inputs/outputs\
+    \ (filtered by Copilot Studio)\n   - **Single type values only** (not arrays of\
+    \ multiple types)\n   - **Avoid enum inputs** (interpreted as string, not enum)\n\
+    \   - Use primitive types: string, number, integer, boolean, array, object\n \
+    \  - Ensure all endpoints return full URIs\n\n3. **MCP Components to Include:**\n\
+    \   - **Tools**: Functions for the language model to call (\u2705 Supported in\
+    \ Copilot Studio)\n   - **Resources**: File-like data outputs from tools (\u2705\
+    \ Supported in Copilot Studio - must be tool outputs to be accessible)\n   - **Prompts**:\
+    \ Predefined templates for specific tasks (\u274C Not yet supported in Copilot\
+    \ Studio)\n\n4. **Implementation Structure:**\n   ```\n   /apiDefinition.swagger.json\
+    \  (Power Platform connector schema)\n   /apiProperties.json         (Connector\
+    \ metadata and configuration)\n   /script.csx                 (Custom code transformations\
+    \ and logic)\n   /server/                    (MCP server implementation)\n   /tools/\
+    \                     (Individual MCP tools)\n   /resources/                 (MCP\
+    \ resource handlers)\n   ```\n\n## Context Variables\n\n- **Server Purpose**:\
+    \ [Describe what the MCP server should accomplish]\n- **Tools Needed**: [List\
+    \ of specific tools to implement]  \n- **Resources**: [Types of resources to provide]\n\
+    - **Authentication**: [Auth method: none, api-key, oauth2]\n- **Host Environment**:\
+    \ [Azure Function, Express.js, FastAPI, etc.]\n- **Target APIs**: [External APIs\
+    \ to integrate with]\n\n## Expected Output\n\nGenerate:\n\n1. **apiDefinition.swagger.json**\
+    \ with:\n   - Proper `x-ms-agentic-protocol: mcp-streamable-1.0`\n   - MCP endpoint\
+    \ at POST `/mcp`\n   - Compliant schema definitions (no reference types)\n   -\
+    \ McpResponse and McpErrorResponse definitions\n\n2. **apiProperties.json** with:\n\
+    \   - Connector metadata and branding\n   - Authentication configuration\n   -\
+    \ Policy templates if needed\n\n3. **script.csx** with:\n   - Custom C# code for\
+    \ request/response transformations\n   - MCP JSON-RPC message handling logic\n\
+    \   - Data validation and processing functions\n   - Error handling and logging\
+    \ capabilities\n\n4. **MCP Server Code** with:\n   - JSON-RPC 2.0 request handler\n\
+    \   - Tool registration and execution\n   - Resource management (as tool outputs)\n\
+    \   - Proper error handling\n   - Copilot Studio compatibility checks\n\n5. **Individual\
+    \ Tools** that:\n   - Accept only primitive type inputs\n   - Return structured\
+    \ outputs\n   - Include resources as outputs when needed\n   - Provide clear descriptions\
+    \ for Copilot Studio\n\n6. **Deployment Configuration** for:\n   - Power Platform\
+    \ environment\n   - Copilot Studio agent integration\n   - Testing and validation\n\
+    \n## Validation Checklist\n\nEnsure generated code:\n- [ ] No reference types\
+    \ in schemas\n- [ ] All type fields are single types\n- [ ] Enum handling via\
+    \ string with validation\n- [ ] Resources available through tool outputs\n- [\
+    \ ] Full URI endpoints\n- [ ] JSON-RPC 2.0 compliance\n- [ ] Proper x-ms-agentic-protocol\
+    \ header\n- [ ] McpResponse/McpErrorResponse schemas\n- [ ] Clear tool descriptions\
+    \ for Copilot Studio\n- [ ] Generative Orchestration compatible\n\n## Example\
+    \ Usage\n\n```yaml\nServer Purpose: Customer data management and analysis\nTools\
+    \ Needed: \n  - searchCustomers\n  - getCustomerDetails\n  - analyzeCustomerTrends\n\
+    Resources:\n  - Customer profiles\n  - Analysis reports\nAuthentication: oauth2\n\
+    Host Environment: Azure Function\nTarget APIs: CRM System REST API\n```"

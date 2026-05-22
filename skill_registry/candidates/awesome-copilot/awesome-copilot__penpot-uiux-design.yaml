@@ -1,0 +1,212 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__penpot-uiux-design
+name: penpot-uiux-design
+description: 'Comprehensive guide for creating professional UI/UX designs in Penpot
+  using MCP tools. Use this skill when: (1) Creating new UI/UX designs for web, mobile,
+  or desktop applications, (2) Building design systems with components and tokens,
+  (3) Designing dashboards, forms, navigation, or landing pages, (4) Applying accessibility
+  standards and best practices, (5) Following platform guidelines (iOS, Android, Material
+  Design), (6) Reviewing or improving existing Penpot designs for usability. Triggers:
+  "design a UI", "create interface", "build layout", "design dashboard", "create form",
+  "design landing page", "make it accessible", "design system", "component library".'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/penpot-uiux-design/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- penpot-uiux-design
+content:
+  kind: skill_markdown
+  sha256: d15c5f2607fc96c272738343f58d054357bf54042be36f7d68a1f473fc78bdfe
+  char_count: 12103
+  text: "# Penpot UI/UX Design Guide\n\nCreate professional, user-centered designs\
+    \ in Penpot using the `penpot/penpot-mcp` MCP server and proven UI/UX principles.\n\
+    \n## Available MCP Tools\n\n| Tool | Purpose |\n| ---- | ------- |\n| `mcp__penpot__execute_code`\
+    \ | Run JavaScript in Penpot plugin context to create/modify designs |\n| `mcp__penpot__export_shape`\
+    \ | Export shapes as PNG/SVG for visual inspection |\n| `mcp__penpot__import_image`\
+    \ | Import images (icons, photos, logos) into designs |\n| `mcp__penpot__penpot_api_info`\
+    \ | Retrieve Penpot API documentation |\n\n## MCP Server Setup\n\nThe Penpot MCP\
+    \ tools require the `penpot/penpot-mcp` server running locally. For detailed installation\
+    \ and troubleshooting, see [setup-troubleshooting.md](references/setup-troubleshooting.md).\n\
+    \n### Before Setup: Check If Already Running\n\n**Always check if the MCP server\
+    \ is already available before attempting setup:**\n\n1. **Try calling a tool first**:\
+    \ Attempt `mcp__penpot__penpot_api_info` - if it succeeds, the server is running\
+    \ and connected. No setup needed.\n\n2. **If the tool fails**, ask the user:\n\
+    \   > \"The Penpot MCP server doesn't appear to be connected. Is the server already\
+    \ installed and running? If so, I can help troubleshoot. If not, I can guide you\
+    \ through the setup.\"\n\n3. **Only proceed with setup instructions if the user\
+    \ confirms the server is not installed.**\n\n### Quick Start (Only If Not Installed)\n\
+    \n```bash\n# Clone and install\ngit clone https://github.com/penpot/penpot-mcp.git\n\
+    cd penpot-mcp\nnpm install\n\n# Build and start servers\nnpm run bootstrap\n```\n\
+    \nThen in Penpot:\n1. Open a design file\n2. Go to **Plugins** \u2192 **Load plugin\
+    \ from URL**\n3. Enter: `http://localhost:4400/manifest.json`\n4. Click **\"Connect\
+    \ to MCP server\"** in the plugin UI\n\n### VS Code Configuration\n\nAdd to `settings.json`:\n\
+    ```json\n{\n  \"mcp\": {\n    \"servers\": {\n      \"penpot\": {\n        \"\
+    url\": \"http://localhost:4401/sse\"\n      }\n    }\n  }\n}\n```\n\n### Troubleshooting\
+    \ (If Server Is Installed But Not Working)\n\n| Issue | Solution |\n| ----- |\
+    \ -------- |\n| Plugin won't connect | Check servers are running (`npm run start:all`\
+    \ in penpot-mcp dir) |\n| Browser blocks localhost | Allow local network access\
+    \ prompt, or disable Brave Shield, or try Firefox |\n| Tools not appearing in\
+    \ client | Restart VS Code/Claude completely after config changes |\n| Tool execution\
+    \ fails/times out | Ensure Penpot plugin UI is open and shows \"Connected\" |\n\
+    | \"WebSocket connection failed\" | Check firewall allows ports 4400, 4401, 4402\
+    \ |\n\n## Quick Reference\n\n| Task | Reference File |\n| ---- | --------------\
+    \ |\n| MCP server installation & troubleshooting | [setup-troubleshooting.md](references/setup-troubleshooting.md)\
+    \ |\n| Component specs (buttons, forms, nav) | [component-patterns.md](references/component-patterns.md)\
+    \ |\n| Accessibility (contrast, touch targets) | [accessibility.md](references/accessibility.md)\
+    \ |\n| Screen sizes & platform specs | [platform-guidelines.md](references/platform-guidelines.md)\
+    \ |\n\n## Core Design Principles\n\n### The Golden Rules\n\n1. **Clarity over\
+    \ cleverness**: Every element must have a purpose\n2. **Consistency builds trust**:\
+    \ Reuse patterns, colors, and components\n3. **User goals first**: Design for\
+    \ tasks, not features\n4. **Accessibility is not optional**: Design for everyone\n\
+    5. **Test with real users**: Validate assumptions early\n\n### Visual Hierarchy\
+    \ (Priority Order)\n\n1. **Size**: Larger = more important\n2. **Color/Contrast**:\
+    \ High contrast draws attention\n3. **Position**: Top-left (LTR) gets seen first\n\
+    4. **Whitespace**: Isolation emphasizes importance\n5. **Typography weight**:\
+    \ Bold stands out\n\n## Design Workflow\n\n1. **Check for design system first**:\
+    \ Ask user if they have existing tokens/specs, or discover from current Penpot\
+    \ file\n2. **Understand the page**: Call `mcp__penpot__execute_code` with `penpotUtils.shapeStructure()`\
+    \ to see hierarchy\n3. **Find elements**: Use `penpotUtils.findShapes()` to locate\
+    \ elements by type or name\n4. **Create/modify**: Use `penpot.createBoard()`,\
+    \ `penpot.createRectangle()`, `penpot.createText()` etc.\n5. **Apply layout**:\
+    \ Use `addFlexLayout()` for responsive containers\n6. **Validate**: Call `mcp__penpot__export_shape`\
+    \ to visually check your work\n\n## Design System Handling\n\n**Before creating\
+    \ designs, determine if the user has an existing design system:**\n\n1. **Ask\
+    \ the user**: \"Do you have a design system or brand guidelines to follow?\"\n\
+    2. **Discover from Penpot**: Check for existing components, colors, and patterns\n\
+    \n```javascript\n// Discover existing design patterns in current file\nconst allShapes\
+    \ = penpotUtils.findShapes(() => true, penpot.root);\n\n// Find existing colors\
+    \ in use\nconst colors = new Set();\nallShapes.forEach(s => {\n  if (s.fills)\
+    \ s.fills.forEach(f => colors.add(f.fillColor));\n});\n\n// Find existing text\
+    \ styles (font sizes, weights)\nconst textStyles = allShapes\n  .filter(s => s.type\
+    \ === 'text')\n  .map(s => ({ fontSize: s.fontSize, fontWeight: s.fontWeight }));\n\
+    \n// Find existing components\nconst components = penpot.library.local.components;\n\
+    \nreturn { colors: [...colors], textStyles, componentCount: components.length\
+    \ };\n```\n\n**If user HAS a design system:**\n\n- Use their specified colors,\
+    \ spacing, typography\n- Match their existing component patterns\n- Follow their\
+    \ naming conventions\n\n**If user has NO design system:**\n\n- Use the default\
+    \ tokens below as a starting point\n- Offer to help establish consistent patterns\n\
+    - Reference specs in [component-patterns.md](references/component-patterns.md)\n\
+    \n## Key Penpot API Gotchas\n\n- `width`/`height` are READ-ONLY \u2192 use `shape.resize(w,\
+    \ h)`\n- `parentX`/`parentY` are READ-ONLY \u2192 use `penpotUtils.setParentXY(shape,\
+    \ x, y)`\n- Use `insertChild(index, shape)` for z-ordering (not `appendChild`)\n\
+    - Flex children array order is REVERSED for `dir=\"column\"` or `dir=\"row\"`\n\
+    - After `text.resize()`, reset `growType` to `\"auto-width\"` or `\"auto-height\"\
+    `\n\n## Positioning New Boards\n\n**Always check existing boards before creating\
+    \ new ones** to avoid overlap:\n\n```javascript\n// Find all existing boards and\
+    \ calculate next position\nconst boards = penpotUtils.findShapes(s => s.type ===\
+    \ 'board', penpot.root);\nlet nextX = 0;\nconst gap = 100; // Space between boards\n\
+    \nif (boards.length > 0) {\n  // Find rightmost board edge\n  boards.forEach(b\
+    \ => {\n    const rightEdge = b.x + b.width;\n    if (rightEdge + gap > nextX)\
+    \ {\n      nextX = rightEdge + gap;\n    }\n  });\n}\n\n// Create new board at\
+    \ calculated position\nconst newBoard = penpot.createBoard();\nnewBoard.x = nextX;\n\
+    newBoard.y = 0;\nnewBoard.resize(375, 812);\n```\n\n**Board spacing guidelines:**\n\
+    \n- Use 100px gap between related screens (same flow)\n- Use 200px+ gap between\
+    \ different sections/flows\n- Align boards vertically (same y) for visual organization\n\
+    - Group related screens horizontally in user flow order\n\n## Default Design Tokens\n\
+    \n**Use these defaults only when user has no design system. Always prefer user's\
+    \ tokens if available.**\n\n### Spacing Scale (8px base)\n\n| Token | Value |\
+    \ Usage |\n| ----- | ----- | ----- |\n| `spacing-xs` | 4px | Tight inline elements\
+    \ |\n| `spacing-sm` | 8px | Related elements |\n| `spacing-md` | 16px | Default\
+    \ padding |\n| `spacing-lg` | 24px | Section spacing |\n| `spacing-xl` | 32px\
+    \ | Major sections |\n| `spacing-2xl` | 48px | Page-level spacing |\n\n### Typography\
+    \ Scale\n\n| Level | Size | Weight | Usage |\n| ----- | ---- | ------ | -----\
+    \ |\n| Display | 48-64px | Bold | Hero headlines |\n| H1 | 32-40px | Bold | Page\
+    \ titles |\n| H2 | 24-28px | Semibold | Section headers |\n| H3 | 20-22px | Semibold\
+    \ | Subsections |\n| Body | 16px | Regular | Main content |\n| Small | 14px |\
+    \ Regular | Secondary text |\n| Caption | 12px | Regular | Labels, hints |\n\n\
+    ### Color Usage\n\n| Purpose | Recommendation |\n| ------- | -------------- |\n\
+    | Primary | Main brand color, CTAs |\n| Secondary | Supporting actions |\n| Success\
+    \ | #22C55E range (confirmations) |\n| Warning | #F59E0B range (caution) |\n|\
+    \ Error | #EF4444 range (errors) |\n| Neutral | Gray scale for text/borders |\n\
+    \n## Common Layouts\n\n### Mobile Screen (375\xD7812)\n\n```text\n\u250C\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2510\n\u2502 Status Bar (44px)           \u2502\n\u251C\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2524\n\u2502 Header/Nav (56px)           \u2502\n\u251C\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2524\n\u2502                             \u2502\n\u2502 Content Area       \
+    \         \u2502\n\u2502 (Scrollable)                \u2502\n\u2502 Padding: 16px\
+    \ horizontal    \u2502\n\u2502                             \u2502\n\u251C\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2524\n\u2502 Bottom Nav/CTA (84px)       \u2502\n\u2514\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2518\n\n```\n\n### Desktop Dashboard (1440\xD7900)\n\n```text\n\u250C\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u252C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2510\n\u2502      \u2502 Header (64px)                    \u2502\n\u2502\
+    \ Side \u2502\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2502\n\u2502 bar\
+    \  \u2502 Page Title + Actions             \u2502\n\u2502      \u2502\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2502\n\u2502 240  \u2502 Content Grid  \
+    \                   \u2502\n\u2502 px   \u2502 \u250C\u2500\u2500\u2500\u2500\u2500\
+    \u2510 \u250C\u2500\u2500\u2500\u2500\u2500\u2510 \u250C\u2500\u2500\u2500\u2500\
+    \u2500\u2510 \u250C\u2500\u2500\u2500\u2500\u2500\u2510 \u2502\n\u2502      \u2502\
+    \ \u2502Card \u2502 \u2502Card \u2502 \u2502Card \u2502 \u2502Card \u2502 \u2502\
+    \n\u2502      \u2502 \u2514\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\
+    \u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\
+    \u2500\u2500\u2500\u2500\u2518 \u2502\n\u2502      \u2502                    \
+    \              \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n```\n\n## Component Checklist\n\n\
+    ### Buttons\n\n- [ ] Clear, action-oriented label (2-3 words)\n- [ ] Minimum touch\
+    \ target: 44\xD744px\n- [ ] Visual states: default, hover, active, disabled, loading\n\
+    - [ ] Sufficient contrast (3:1 against background)\n- [ ] Consistent border radius\
+    \ across app\n\n### Forms\n\n- [ ] Labels above inputs (not just placeholders)\n\
+    - [ ] Required field indicators\n- [ ] Error messages adjacent to fields\n- [\
+    \ ] Logical tab order\n- [ ] Input types match content (email, tel, etc.)\n\n\
+    ### Navigation\n\n- [ ] Current location clearly indicated\n- [ ] Consistent position\
+    \ across screens\n- [ ] Maximum 7\xB12 top-level items\n- [ ] Touch-friendly on\
+    \ mobile (48px targets)\n\n## Accessibility Quick Checks\n\n1. **Color contrast**:\
+    \ Text 4.5:1, Large text 3:1\n2. **Touch targets**: Minimum 44\xD744px\n3. **Focus\
+    \ states**: Visible keyboard focus indicators\n4. **Alt text**: Meaningful descriptions\
+    \ for images\n5. **Hierarchy**: Proper heading levels (H1\u2192H2\u2192H3)\n6.\
+    \ **Color independence**: Never rely solely on color\n\n## Design Review Checklist\n\
+    \nBefore finalizing any design:\n\n- [ ] Visual hierarchy is clear\n- [ ] Consistent\
+    \ spacing and alignment\n- [ ] Typography is readable (16px+ body text)\n- [ ]\
+    \ Color contrast meets WCAG AA\n- [ ] Interactive elements are obvious\n- [ ]\
+    \ Mobile-friendly touch targets\n- [ ] Loading/empty/error states considered\n\
+    - [ ] Consistent with design system\n\n## Validating Designs\n\nUse these validation\
+    \ approaches with `mcp__penpot__execute_code`:\n\n| Check | Method |\n| -----\
+    \ | ------ |\n| Elements outside bounds | `penpotUtils.analyzeDescendants()` with\
+    \ `isContainedIn()` |\n| Text too small (<12px) | `penpotUtils.findShapes()` filtering\
+    \ by `fontSize` |\n| Missing contrast | Call `mcp__penpot__export_shape` and visually\
+    \ inspect |\n| Hierarchy structure | `penpotUtils.shapeStructure()` to review\
+    \ nesting |\n\n### Export CSS\n\nUse `penpot.generateStyle(selection, { type:\
+    \ 'css', includeChildren: true })` via `mcp__penpot__execute_code` to extract\
+    \ CSS from designs.\n\n## Tips for Great Designs\n\n1. **Start with content**:\
+    \ Real content reveals layout needs\n2. **Design mobile-first**: Constraints breed\
+    \ creativity\n3. **Use a grid**: 8px base grid keeps things aligned\n4. **Limit\
+    \ colors**: 1 primary + 1 secondary + neutrals\n5. **Limit fonts**: 1-2 typefaces\
+    \ maximum\n6. **Embrace whitespace**: Breathing room improves comprehension\n\
+    7. **Be consistent**: Same action = same appearance everywhere\n8. **Provide feedback**:\
+    \ Every action needs a response"

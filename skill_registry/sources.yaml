@@ -1,0 +1,67 @@
+schema_version: local-skill-sources/v0.0.1
+sources:
+  - id: agentskills
+    repo: agentskills/agentskills
+    url: https://github.com/agentskills/agentskills.git
+    ref: main
+    source_tier: standard
+    allowed_paths:
+      - skills
+    skipped_paths: []
+    default_license_policy: repo
+    import_policy: skip
+    max_skill_chars: 60000
+
+  - id: openai-skills
+    repo: openai/skills
+    url: https://github.com/openai/skills.git
+    ref: main
+    source_tier: official
+    allowed_paths:
+      - skills/.curated
+    skipped_paths:
+      - skills/.system
+    default_license_policy: per_skill
+    import_policy: candidate
+    max_skill_chars: 60000
+
+  - id: anthropic-skills
+    repo: anthropics/skills
+    url: https://github.com/anthropics/skills.git
+    ref: main
+    source_tier: official
+    allowed_paths:
+      - skills
+    skipped_paths:
+      - template
+    default_license_policy: per_skill
+    import_policy: candidate
+    max_skill_chars: 60000
+
+  - id: awesome-copilot
+    repo: github/awesome-copilot
+    url: https://github.com/github/awesome-copilot.git
+    ref: main
+    source_tier: community
+    allowed_paths:
+      - skills
+    skipped_paths:
+      - plugins
+    default_license_policy: repo
+    import_policy: candidate
+    max_skill_chars: 60000
+
+  - id: mattpocock-skills
+    repo: mattpocock/skills
+    url: https://github.com/mattpocock/skills.git
+    ref: main
+    source_tier: community
+    allowed_paths:
+      - skills/engineering
+    skipped_paths:
+      - skills/personal
+      - skills/deprecated
+      - skills/in-progress
+    default_license_policy: repo
+    import_policy: candidate
+    max_skill_chars: 60000

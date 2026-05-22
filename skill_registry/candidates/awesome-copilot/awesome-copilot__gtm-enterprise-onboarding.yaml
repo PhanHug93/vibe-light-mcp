@@ -1,0 +1,214 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-enterprise-onboarding
+name: gtm-enterprise-onboarding
+description: Four-phase framework for onboarding enterprise customers from contract
+  to value realization. Use when implementing new enterprise customers, preventing
+  churn during onboarding, or solving the adoption cliff that kills deals post-go-live.
+  Includes the Week 4 ghosting pattern.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-enterprise-onboarding/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- gtm-enterprise-onboarding
+content:
+  kind: skill_markdown
+  sha256: d70746655ff049c6600cd7e7e3ba8aeb5bc318f4a8996979b8db2be096f003de
+  char_count: 14295
+  text: "# Enterprise Onboarding\n\nFour-phase framework for onboarding enterprise\
+    \ customers from contract to value realization. The goal isn't just go-live \u2014\
+    \ it's sustained adoption that doesn't cliff at Week 12.\n\n## When to Use\n\n\
+    **Triggers:**\n- \"How do we onboard this enterprise customer?\"\n- \"Customer\
+    \ went live but adoption is weak\"\n- \"We keep losing customers 3 months after\
+    \ go-live\"\n- \"POC to production transition\"\n- \"How do I prevent Week 4 ghosting?\"\
+    \n- \"Customer success onboarding framework\"\n\n**Context:**\n- Enterprise or\
+    \ mid-market deals\n- Complex technical requirements\n- Multiple stakeholders\
+    \ involved\n- 30-90 day implementation timelines\n- Risk of churn during first\
+    \ year\n\n---\n\n## Core Frameworks\n\n### 1. The Week 4 Ghosting Problem (And\
+    \ How to Prevent It)\n\n**The Pattern:**\n\nWeek 1: Kickoff call goes great. Everyone's\
+    \ excited.\nWeek 2-3: Technical discovery, requirements gathering. Still good.\n\
+    Week 4: Customer stops responding. Meetings get cancelled. \"Too busy.\"\n\n**What\
+    \ Happened?**\n\nYou started customer onboarding before internal alignment on\
+    \ their side.\n\n**Who Owns This Project Internally?**\n- Sales rep? (Already\
+    \ moved to next deal)\n- Technical champion? (Day job took over)\n- Executive\
+    \ sponsor? (Delegates, doesn't drive)\n- Nobody? (**This is why they're ghosting**)\n\
+    \n**The Framework: Internal Owner Validation**\n\nBefore kickoff call, answer:\n\
+    \n**Who on customer side will:**\n- Attend weekly project meetings? (Not \"invited\"\
+    \ \u2014 will actually show up)\n- Unblock issues with procurement/legal/security?\
+    \ (Has authority)\n- Drive adoption with end users? (Has influence)\n- Escalate\
+    \ when things stall? (Has executive access)\n\n**If you can't name a specific\
+    \ person for each, you don't have a project owner. You have a signed contract\
+    \ with nobody driving it.**\n\n**How to Fix It:**\n\n**During sales \u2192 CS\
+    \ handoff (before customer kickoff):**\n\nSales rep must identify:\n- Primary\
+    \ project owner (name, not role)\n- Their capacity (dedicated or side project?)\n\
+    - Their authority (can they unblock?)\n- Their motivation (what's in it for them?)\n\
+    \n**If there's no clear owner:**\n\nDon't start onboarding yet. Have sales introduce\
+    \ you to economic buyer:\n\n\"Before we kick off implementation, we want to make\
+    \ sure we have the right project owner on your side. In our experience, implementations\
+    \ succeed when someone owns driving this forward week-to-week. Who on your team\
+    \ should we partner with?\"\n\n**Common Mistake:**\n\nAssuming someone will own\
+    \ it. Ask explicitly. If they can't name someone, the deal is at risk.\n\n---\n\
+    \n### 2. The Adoption Cliff (Week 12 Problem)\n\n**The Pattern:**\n\nGo-live happens\
+    \ Week 6. Usage spikes. You celebrate.\n\nWeek 8: Usage plateaus.\nWeek 10: Usage\
+    \ declining.\nWeek 12: Usage down 50% from peak.\n\n**Why This Happens:**\n\n\
+    You treated go-live as the finish line. **Go-live is the starting line.**\n\n\
+    **What Drives Sustained Adoption:**\n\n**Not:** Feature completeness, technical\
+    \ integration, training sessions\n\n**Yes:** Ongoing value demonstration, user\
+    \ success stories, expanding use cases\n\n**Framework: Adoption Stages Beyond\
+    \ Go-Live**\n\n**Week 1-6 (Implementation):** Get it working\n- Measure: % of\
+    \ technical setup complete\n- Owner: Technical lead\n\n**Week 6-12 (Initial Adoption):**\
+    \ Get people using it\n- Measure: # active users, frequency of use\n- Owner: Enablement\
+    \ / DevRel\n\n**Week 12-26 (Sustained Adoption):** Prove ongoing value\n- Measure:\
+    \ Use case expansion, team spread\n- Owner: Customer success\n\n**Week 26+ (Expansion):**\
+    \ Grow within account\n- Measure: New teams, new use cases, upgrade triggers\n\
+    - Owner: Account executive + CS\n\n**The Handoff That Most Teams Miss:**\n\nWeek\
+    \ 6 (go-live) \u2192 Week 12 (sustained adoption)\n\nMost CS teams celebrate go-live\
+    \ and move to next customer. **This is when churn seeds get planted.**\n\n**What\
+    \ to Do Week 6-12:**\n\n**Week 7:** First value report\n\"Here's what your team\
+    \ accomplished in the first week: [specific metric]. Here's what good looks like\
+    \ at Week 12: [target].\"\n\n**Week 9:** User success story\n\"[User name] on\
+    \ [team name] saved [X hours/reduced Y errors] this week. Here's how they're using\
+    \ it.\"\n\n**Week 11:** Use case expansion conversation\n\"You're using us for\
+    \ [primary use case]. Teams like yours also use us for [adjacent use case]. Want\
+    \ to explore?\"\n\n**Common Mistake:**\n\nMeasuring \"go-live completion\" instead\
+    \ of \"sustained active usage.\" Go-live is not success. Week 26 retained adoption\
+    \ is success.\n\n---\n\n### 3. Pre-Onboarding: Success Is Built Before First Customer\
+    \ Call\n\n**The Pattern:**\n\nMost onboarding failures trace back to pre-kickoff\
+    \ gaps.\n\n**What Gets Missed:**\n\n**Sales didn't brief CS properly:**\n- Deal\
+    \ drivers unknown\n- Stakeholder dynamics unclear\n- Technical requirements assumed\n\
+    \n**No internal project owner identified:**\n- CS reaches out, nobody responds\n\
+    - Meetings get scheduled with wrong people\n- Decisions don't stick\n\n**Customer\
+    \ timeline unrealistic:**\n- They want go-live in 2 weeks\n- Technical setup takes\
+    \ 6 weeks minimum\n- Expectations misaligned from Day 1\n\n**Framework: Pre-Kickoff\
+    \ Checklist**\n\nBefore scheduling kickoff call, validate:\n\n**Account Intelligence:**\n\
+    - [ ] Sales handoff completed (deal drivers, stakeholders, technical requirements)\n\
+    - [ ] Past interactions reviewed (demo notes, proposal, emails)\n- [ ] Organizational\
+    \ structure mapped (team sizes, reporting lines)\n- [ ] Use cases documented (primary\
+    \ + future)\n\n**Internal Setup:**\n- [ ] Internal Slack channel created (#account-[customer-name])\n\
+    - [ ] Account plan updated in CRM\n- [ ] Project plan template prepared\n- [ ]\
+    \ Roles assigned (CSM lead, technical lead, exec sponsor)\n\n**Customer Readiness:**\n\
+    - [ ] Project owner identified by name (not just \"their DevRel team\")\n- [ ]\
+    \ Executive sponsor confirmed on both sides\n- [ ] Timeline realistic (their goals\
+    \ vs your typical timeline)\n- [ ] Known blockers documented (procurement, security,\
+    \ legal)\n\n**Timeline Validation:**\n- [ ] Customer's go-live date is realistic\
+    \ given technical requirements\n- [ ] Internal capacity available (not overbooked)\n\
+    - [ ] Dependencies identified (SSO, integrations, data migration)\n\n**Decision\
+    \ Criteria:**\n\nOnly schedule kickoff when all four sections validated. If gaps\
+    \ exist, surface to sales or executive sponsor before engaging customer.\n\n**Common\
+    \ Mistake:**\n\nStarting onboarding without internal clarity. This creates confusion,\
+    \ missed deadlines, and erosion of customer confidence.\n\n---\n\n### 4. The Four-Phase\
+    \ Onboarding Flow\n\n**Phase 1: Kickoff (Week 1)**\n\n**Goal:** Align on objectives,\
+    \ timeline, success metrics\n\n**Attendees:** Executive sponsors + project leads\
+    \ + technical leads\n\n**Agenda:**\n1. Introductions and roles (5 min)\n2. Executive\
+    \ alignment on strategic objectives (5 min)\n3. Success definition: \"What does\
+    \ success look like in 3/6/12 months?\" (10 min)\n4. Timeline and milestones (5\
+    \ min)\n5. Meeting cadence (weekly project team, monthly exec review) (5 min)\n\
+    6. Next steps (technical discovery call, success plan review) (5 min)\n\n**Deliverable:**\
+    \ Kickoff recap sent within 24 hours with success metrics, timeline, next meetings\n\
+    \n**Phase 2: Discovery & Planning (Week 2-3)**\n\n**Goal:** Understand technical\
+    \ landscape, map use cases, plan rollout\n\n**Three parallel workstreams:**\n\n\
+    **Workstream 1: Technical Discovery**\n- Current infrastructure (on-prem, cloud,\
+    \ hybrid)\n- Existing tools and integrations\n- Security/compliance requirements\n\
+    - Timeline constraints\n\n**Workstream 2: Success Planning**\n- Use cases prioritized\
+    \ (start with highest-value)\n- Success metrics defined (how to measure adoption)\n\
+    - Training needs identified (who needs what)\n\n**Workstream 3: Technical Setup**\n\
+    - SSO/identity configuration\n- Integrations required\n- Data migration (if applicable)\n\
+    - Pilot group identified\n\n**Deliverable:** Customer Success Plan document with\
+    \ use cases, metrics, timeline, milestones\n\n**Phase 3: Implementation (Week\
+    \ 4-6)**\n\n**Goal:** Deploy to pilot group, validate use cases, prepare for broader\
+    \ rollout\n\n**Three parallel tracks:**\n\n**Track 1: Administration & Setup**\n\
+    - SSO configuration complete\n- Integrations live\n- Data migrated (if applicable)\n\
+    \n**Track 2: User Enablement**\n- Training sessions for pilot group\n- Documentation\
+    \ shared\n- Office hours scheduled\n\n**Track 3: Pilot & Feedback**\n- Pilot group\
+    \ using product\n- Feedback collected weekly\n- Issues triaged and resolved\n\n\
+    **Deliverable:** Go-live readiness checklist completed, pilot group validated\n\
+    \n**Phase 4: Go-Live & Ongoing Success (Week 6+)**\n\n**Goal:** Roll out broadly,\
+    \ sustain adoption, expand use cases\n\n**Week 6-8 (Rollout):**\n- Broader rollout\
+    \ to all teams\n- Training sessions scheduled\n- Support available (Slack, email,\
+    \ office hours)\n\n**Week 8-12 (Value Demonstration):**\n- First value report\
+    \ (Week 7)\n- User success stories shared (Week 9)\n- Use case expansion conversation\
+    \ (Week 11)\n\n**Week 12-26 (Sustained Adoption):**\n- Monthly business reviews\n\
+    - Adoption tracking (active users, frequency, use cases)\n- Expansion opportunities\
+    \ identified\n\n**Common Mistake:**\n\nTreating go-live as completion. Phase 4\
+    \ is where retention is won or lost.\n\n---\n\n### 5. The Parallel Tracks Anti-Pattern\n\
+    \n**The Pattern:**\n\nMost onboarding teams run workstreams **sequentially**:\n\
+    1. Technical setup (Weeks 1-2)\n2. Then training (Weeks 3-4)\n3. Then pilot (Weeks\
+    \ 5-6)\n\n**Total time: 6 weeks**\n\n**What Works Better: Parallel Tracks**\n\n\
+    Run technical setup, training, and pilot **simultaneously**:\n- Week 1: Technical\
+    \ discovery + identify pilot group + schedule training\n- Week 2: SSO config +\
+    \ pilot group training + pilot starts\n- Week 3: Integrations + broader training\
+    \ + pilot feedback\n\n**Total time: 3 weeks**\n\n**Why Parallel Works:**\n\n1.\
+    \ Shortens time-to-value\n2. Keeps customer engaged (something happening every\
+    \ week)\n3. Identifies blockers early (pilot group surfaces issues before broad\
+    \ rollout)\n\n**How to Execute:**\n\nAssign clear owners to each track:\n- Track\
+    \ 1 (Admin): Technical lead\n- Track 2 (Enablement): Training/DevRel lead\n- Track\
+    \ 3 (Pilot): CSM + pilot group champion\n\nWeekly sync across tracks to surface\
+    \ dependencies and blockers.\n\n**Common Mistake:**\n\nWaiting for \"perfect technical\
+    \ setup\" before starting pilot. Get pilot group using it early, even if setup\
+    \ isn't perfect. Their feedback makes the broad rollout better.\n\n---\n\n## Decision\
+    \ Trees\n\n### Should I Start Customer Onboarding?\n\n```\nHas sales identified\
+    \ a project owner by name?\n\u251C\u2500 No \u2192 Get project owner identified\
+    \ before kickoff\n\u2514\u2500 Yes \u2192 Continue...\n    \u2502\n    Is their\
+    \ timeline realistic given typical deployment?\n    \u251C\u2500 No \u2192 Reset\
+    \ expectations before kickoff\n    \u2514\u2500 Yes \u2192 Continue...\n     \
+    \   \u2502\n        Do you have internal capacity?\n        \u251C\u2500 No \u2192\
+    \ Delay kickoff or get more resources\n        \u2514\u2500 Yes \u2192 Proceed\
+    \ to kickoff\n```\n\n### Is This Onboarding At Risk?\n\n```\nIs customer responding\
+    \ to meeting invites?\n\u251C\u2500 No \u2192 Week 4 ghosting, escalate to exec\
+    \ sponsor\n\u2514\u2500 Yes \u2192 Continue...\n    \u2502\n    Are they completing\
+    \ their action items?\n    \u251C\u2500 No \u2192 No project owner, identify who\
+    \ drives this\n    \u2514\u2500 Yes \u2192 Continue...\n        \u2502\n     \
+    \   Is pilot group using the product?\n        \u251C\u2500 No \u2192 Pilot group\
+    \ wrong or product not solving pain\n        \u2514\u2500 Yes \u2192 On track\n\
+    ```\n\n### Is Adoption Sustained Post-Go-Live?\n\n```\nAre active users growing\
+    \ Week 6 \u2192 Week 12?\n\u251C\u2500 Yes \u2192 Healthy adoption\n\u2514\u2500\
+    \ No \u2192 Continue...\n    \u2502\n    Are active users declining?\n    \u251C\
+    \u2500 Yes \u2192 Adoption cliff, intervene immediately\n    \u2514\u2500 No (plateau)\
+    \ \u2192 At risk, start value demonstration\n```\n\n---\n\n## Common Mistakes\n\
+    \n**1. Starting customer onboarding before internal alignment**\n   - Wastes first\
+    \ 2-3 weeks, creates confusion, kills credibility\n\n**2. Not identifying real\
+    \ project owner upfront**\n   - Discovers it Week 4, has to restart or deal stalls\n\
+    \n**3. Overcommitting on timeline without technical requirements**\n   - Discovers\
+    \ blockers mid-implementation, misses deadline\n\n**4. No internal communication\
+    \ hub**\n   - Decisions don't propagate across teams, rework happens\n\n**5. Treating\
+    \ go-live as project complete**\n   - Adoption cliff at Week 12, account at risk\n\
+    \n**6. Sequential tracks instead of parallel**\n   - Implementation takes twice\
+    \ as long, customer loses momentum\n\n**7. No ongoing metrics post go-live**\n\
+    \   - Discovers adoption issues too late to save account\n\n---\n\n## Quick Reference\n\
+    \n**Pre-Kickoff Validation:**\n- [ ] Sales handoff complete (deal drivers, stakeholders,\
+    \ requirements)\n- [ ] Project owner identified by name on customer side\n- [\
+    \ ] Timeline realistic (their goals vs typical deployment)\n- [ ] Internal roles\
+    \ assigned (CSM, technical, exec sponsor)\n\n**Kickoff Agenda (30-45 min):**\n\
+    1. Introductions (5 min)\n2. Executive alignment (5 min)\n3. Success definition\
+    \ (10 min)\n4. Timeline and milestones (5 min)\n5. Meeting cadence (5 min)\n6.\
+    \ Next steps (5 min)\n\n**Adoption Tracking (Week 6-26):**\n- Week 7: First value\
+    \ report\n- Week 9: User success story\n- Week 11: Use case expansion conversation\n\
+    - Week 13: First monthly business review\n- Week 26: Expansion readiness assessment\n\
+    \n**Four Phases:**\n1. Kickoff (Week 1): Align\n2. Discovery (Week 2-3): Plan\n\
+    3. Implementation (Week 4-6): Deploy to pilot\n4. Go-Live & Sustained (Week 6+):\
+    \ Rollout, value demonstration, expansion\n\n**Red Flags:**\n- Customer not responding\
+    \ Week 4 \u2192 No project owner\n- Pilot group not using product Week 5 \u2192\
+    \ Wrong group or wrong use case\n- Active users declining Week 8-12 \u2192 Adoption\
+    \ cliff forming\n\n---\n\n## Related Skills\n\n- **enterprise-account-planning**:\
+    \ Pre-sale deal planning and stakeholder mapping\n- **operating-cadence**: Onboarding\
+    \ review cadence and health metrics\n- **product-led-growth**: Self-serve onboarding\
+    \ patterns\n\n---\n\n*Based on enterprise onboarding across multiple platform\
+    \ companies \u2014 designing partner onboarding directly and collaborating closely\
+    \ with CS on customer onboarding. Not theory \u2014 lessons from seeing Week 4\
+    \ ghosting happen repeatedly and learning that go-live \u2260 success, and understanding\
+    \ the adoption cliff that kills 30% of deals in first year.*"

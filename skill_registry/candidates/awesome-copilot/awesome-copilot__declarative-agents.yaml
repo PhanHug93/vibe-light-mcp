@@ -1,0 +1,88 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__declarative-agents
+name: declarative-agents
+description: Complete development kit for Microsoft 365 Copilot declarative agents
+  with three comprehensive workflows (basic, advanced, validation), TypeSpec support,
+  and Microsoft 365 Agents Toolkit integration
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/declarative-agents/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- declarative-agents
+content:
+  kind: skill_markdown
+  sha256: 7a0913860f4478f8db00963c70d2fbdf32118ff8802a62175a9d5c0c77adb37f
+  char_count: 4710
+  text: "# Microsoft 365 Declarative Agents Development Kit\n\nI'll help you create\
+    \ and develop Microsoft 365 Copilot declarative agents using the latest v1.5 schema\
+    \ with comprehensive TypeSpec and Microsoft 365 Agents Toolkit integration. Choose\
+    \ from three specialized workflows:\n\n## Workflow 1: Basic Agent Creation\n**Perfect\
+    \ for**: New developers, simple agents, quick prototypes\n\nI'll guide you through:\n\
+    1. **Agent Planning**: Define purpose, target users, and core capabilities\n2.\
+    \ **Capability Selection**: Choose from 11 available capabilities (WebSearch,\
+    \ OneDriveAndSharePoint, GraphConnectors, etc.)\n3. **Basic Schema Creation**:\
+    \ Generate compliant JSON manifest with proper constraints\n4. **TypeSpec Alternative**:\
+    \ Create modern type-safe definitions that compile to JSON\n5. **Testing Setup**:\
+    \ Configure Agents Playground for local testing\n6. **Toolkit Integration**: Leverage\
+    \ Microsoft 365 Agents Toolkit for enhanced development\n\n## Workflow 2: Advanced\
+    \ Enterprise Agent Design\n**Perfect for**: Complex enterprise scenarios, production\
+    \ deployment, advanced features\n\nI'll help you architect:\n1. **Enterprise Requirements\
+    \ Analysis**: Multi-tenant considerations, compliance, security\n2. **Advanced\
+    \ Capability Configuration**: Complex capability combinations and interactions\n\
+    3. **Behavior Override Implementation**: Custom response patterns and specialized\
+    \ behaviors\n4. **Localization Strategy**: Multi-language support with proper\
+    \ resource management\n5. **Conversation Starters**: Strategic conversation entry\
+    \ points for user engagement\n6. **Production Deployment**: Environment management,\
+    \ versioning, and lifecycle planning\n7. **Monitoring & Analytics**: Implementation\
+    \ of tracking and performance optimization\n\n## Workflow 3: Validation & Optimization\n\
+    **Perfect for**: Existing agents, troubleshooting, performance optimization\n\n\
+    I'll perform:\n1. **Schema Compliance Validation**: Full v1.5 specification adherence\
+    \ checking\n2. **Character Limit Optimization**: Name (100), description (1000),\
+    \ instructions (8000)\n3. **Capability Audit**: Verify proper capability configuration\
+    \ and usage\n4. **TypeSpec Migration**: Convert existing JSON to modern TypeSpec\
+    \ definitions\n5. **Testing Protocol**: Comprehensive validation using Agents\
+    \ Playground\n6. **Performance Analysis**: Identify bottlenecks and optimization\
+    \ opportunities\n7. **Best Practices Review**: Alignment with Microsoft guidelines\
+    \ and recommendations\n\n## Core Features Across All Workflows\n\n### Microsoft\
+    \ 365 Agents Toolkit Integration\n- **VS Code Extension**: Full integration with\
+    \ `teamsdevapp.ms-teams-vscode-extension`\n- **TypeSpec Development**: Modern\
+    \ type-safe agent definitions\n- **Local Debugging**: Agents Playground integration\
+    \ for testing\n- **Environment Management**: Development, staging, production\
+    \ configurations\n- **Lifecycle Management**: Creation, testing, deployment, monitoring\n\
+    \n### TypeSpec Examples\n```typespec\n// Modern declarative agent definition\n\
+    model MyAgent {\n  name: string;\n  description: string;\n  instructions: string;\n\
+    \  capabilities: AgentCapability[];\n  conversation_starters?: ConversationStarter[];\n\
+    }\n```\n\n### JSON Schema v1.5 Validation\n- Full compliance with latest Microsoft\
+    \ specification\n- Character limit enforcement (name: 100, description: 1000,\
+    \ instructions: 8000)\n- Array constraint validation (conversation_starters: max\
+    \ 4, capabilities: max 5)\n- Required field validation and type checking\n\n###\
+    \ Available Capabilities (Choose up to 5)\n1. **WebSearch**: Internet search functionality\n\
+    2. **OneDriveAndSharePoint**: File and content access\n3. **GraphConnectors**:\
+    \ Enterprise data integration\n4. **MicrosoftGraph**: Microsoft 365 service integration\n\
+    5. **TeamsAndOutlook**: Communication platform access\n6. **PowerPlatform**: Power\
+    \ Apps and Power Automate integration\n7. **BusinessDataProcessing**: Enterprise\
+    \ data analysis\n8. **WordAndExcel**: Document and spreadsheet manipulation\n\
+    9. **CopilotForMicrosoft365**: Advanced Copilot features\n10. **EnterpriseApplications**:\
+    \ Third-party system integration\n11. **CustomConnectors**: Custom API and service\
+    \ integration\n\n### Environment Variables Support\n```json\n{\n  \"name\": \"\
+    ${AGENT_NAME}\",\n  \"description\": \"${AGENT_DESCRIPTION}\",\n  \"instructions\"\
+    : \"${AGENT_INSTRUCTIONS}\"\n}\n```\n\n**Which workflow would you like to start\
+    \ with?** Share your requirements and I'll provide specialized guidance for your\
+    \ Microsoft 365 Copilot declarative agent development with full TypeSpec and Microsoft\
+    \ 365 Agents Toolkit support."

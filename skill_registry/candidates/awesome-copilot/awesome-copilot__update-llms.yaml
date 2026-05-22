@@ -1,0 +1,135 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__update-llms
+name: update-llms
+description: Update the llms.txt file in the root folder to reflect changes in documentation
+  or specifications following the llms.txt specification at https://llmstxt.org/
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/update-llms/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- update-llms
+content:
+  kind: skill_markdown
+  sha256: 7377a6b500b054bf41a50b744faba999a44d64dce0201e0a0108ce06e6726fcf
+  char_count: 8390
+  text: "# Update LLMs.txt File\n\nUpdate the existing `llms.txt` file in the root\
+    \ of the repository to reflect changes in documentation, specifications, or repository\
+    \ structure. This file provides high-level guidance to large language models (LLMs)\
+    \ on where to find relevant content for understanding the repository's purpose\
+    \ and specifications.\n\n## Primary Directive\n\nUpdate the existing `llms.txt`\
+    \ file to maintain accuracy and compliance with the llms.txt specification while\
+    \ reflecting current repository structure and content. The file must remain optimized\
+    \ for LLM consumption while staying human-readable.\n\n## Analysis and Planning\
+    \ Phase\n\nBefore updating the `llms.txt` file, you must complete a thorough analysis:\n\
+    \n### Step 1: Review Current File and Specification\n- Read the existing `llms.txt`\
+    \ file to understand current structure\n- Review the official specification at\
+    \ https://llmstxt.org/ to ensure continued compliance\n- Identify areas that may\
+    \ need updates based on repository changes\n\n### Step 2: Repository Structure\
+    \ Analysis\n- Examine the current repository structure using appropriate tools\n\
+    - Compare current structure with what's documented in existing `llms.txt`\n- Identify\
+    \ new directories, files, or documentation that should be included\n- Note any\
+    \ removed or relocated files that need to be updated\n\n### Step 3: Content Discovery\
+    \ and Change Detection\n- Identify new README files and their locations\n- Find\
+    \ new documentation files (`.md` files in `/docs/`, `/spec/`, etc.)\n- Locate\
+    \ new specification files and their purposes\n- Discover new configuration files\
+    \ and their relevance\n- Find new example files and code samples\n- Identify any\
+    \ changes to existing documentation structure\n\n### Step 4: Create Update Plan\n\
+    Based on your analysis, create a structured plan that includes:\n- Changes needed\
+    \ to maintain accuracy\n- New files to be added to the llms.txt\n- Outdated references\
+    \ to be removed or updated\n- Organizational improvements to maintain clarity\n\
+    \n## Implementation Requirements\n\n### Format Compliance\nThe updated `llms.txt`\
+    \ file must maintain this exact structure per the specification:\n\n1. **H1 Header**:\
+    \ Single line with repository/project name (required)\n2. **Blockquote Summary**:\
+    \ Brief description in blockquote format (optional but recommended)\n3. **Additional\
+    \ Details**: Zero or more markdown sections without headings for context\n4. **File\
+    \ List Sections**: Zero or more H2 sections containing markdown lists of links\n\
+    \n### Content Requirements\n\n#### Required Elements\n- **Project Name**: Clear,\
+    \ descriptive title as H1\n- **Summary**: Concise blockquote explaining the repository's\
+    \ purpose\n- **Key Files**: Essential files organized by category (H2 sections)\n\
+    \n#### File Link Format\nEach file link must follow: `[descriptive-name](relative-url):\
+    \ optional description`\n\n#### Section Organization\nOrganize files into logical\
+    \ H2 sections such as:\n- **Documentation**: Core documentation files\n- **Specifications**:\
+    \ Technical specifications and requirements\n- **Examples**: Sample code and usage\
+    \ examples\n- **Configuration**: Setup and configuration files\n- **Optional**:\
+    \ Secondary files (special meaning - can be skipped for shorter context)\n\n###\
+    \ Content Guidelines\n\n#### Language and Style\n- Use concise, clear, unambiguous\
+    \ language\n- Avoid jargon without explanation\n- Write for both human and LLM\
+    \ readers\n- Be specific and informative in descriptions\n\n#### File Selection\
+    \ Criteria\nInclude files that:\n- Explain the repository's purpose and scope\n\
+    - Provide essential technical documentation\n- Show usage examples and patterns\n\
+    - Define interfaces and specifications\n- Contain configuration and setup instructions\n\
+    \nExclude files that:\n- Are purely implementation details\n- Contain redundant\
+    \ information\n- Are build artifacts or generated content\n- Are not relevant\
+    \ to understanding the project\n\n## Execution Steps\n\n### Step 1: Current State\
+    \ Analysis\n1. Read the existing `llms.txt` file thoroughly\n2. Examine the current\
+    \ repository structure completely\n3. Compare existing file references with actual\
+    \ repository content\n4. Identify outdated, missing, or incorrect references\n\
+    5. Note any structural issues with the current file\n\n### Step 2: Content Planning\n\
+    1. Determine if the primary purpose statement needs updates\n2. Review and update\
+    \ the summary blockquote if needed\n3. Plan additions for new files and directories\n\
+    4. Plan removals for outdated or moved content\n5. Reorganize sections if needed\
+    \ for better clarity\n\n### Step 3: File Updates\n1. Update the existing `llms.txt`\
+    \ file in the repository root\n2. Maintain compliance with the exact format specification\n\
+    3. Add new file references with appropriate descriptions\n4. Remove or update\
+    \ outdated references\n5. Ensure all links are valid relative paths\n\n### Step\
+    \ 4: Validation\n1. Verify continued compliance with https://llmstxt.org/ specification\n\
+    2. Check that all links are valid and accessible\n3. Ensure the file still serves\
+    \ as an effective LLM navigation tool\n4. Confirm the file remains both human\
+    \ and machine readable\n\n## Quality Assurance\n\n### Format Validation\n- \u2705\
+    \ H1 header with project name\n- \u2705 Blockquote summary (if included)\n- \u2705\
+    \ H2 sections for file lists\n- \u2705 Proper markdown link format\n- \u2705 No\
+    \ broken or invalid links\n- \u2705 Consistent formatting throughout\n\n### Content\
+    \ Validation\n- \u2705 Clear, unambiguous language\n- \u2705 Comprehensive coverage\
+    \ of essential files\n- \u2705 Logical organization of content\n- \u2705 Appropriate\
+    \ file descriptions\n- \u2705 Serves as effective LLM navigation tool\n\n### Specification\
+    \ Compliance\n- \u2705 Follows https://llmstxt.org/ format exactly\n- \u2705 Uses\
+    \ required markdown structure\n- \u2705 Implements optional sections appropriately\n\
+    - \u2705 File located at repository root (`/llms.txt`)\n\n## Update Strategy\n\
+    \n### Addition Process\nWhen adding new content:\n1. Identify the appropriate\
+    \ section for new files\n2. Create clear, descriptive names for links\n3. Write\
+    \ concise but informative descriptions\n4. Maintain alphabetical or logical ordering\
+    \ within sections\n5. Consider if new sections are needed for new content types\n\
+    \n### Removal Process\nWhen removing outdated content:\n1. Verify files are actually\
+    \ removed or relocated\n2. Check if relocated files should be updated rather than\
+    \ removed\n3. Remove entire sections if they become empty\n4. Update cross-references\
+    \ if needed\n\n### Reorganization Process\nWhen restructuring content:\n1. Maintain\
+    \ logical flow from general to specific\n2. Keep essential documentation in primary\
+    \ sections\n3. Move secondary content to \"Optional\" section if appropriate\n\
+    4. Ensure new organization improves LLM navigation\n\nExample structure for `llms.txt`:\n\
+    \n```txt\n# [Repository Name]\n\n> [Concise description of the repository's purpose\
+    \ and scope]\n\n[Optional additional context paragraphs without headings]\n\n\
+    ## Documentation\n\n- [Main README](README.md): Primary project documentation\
+    \ and getting started guide\n- [Contributing Guide](CONTRIBUTING.md): Guidelines\
+    \ for contributing to the project\n- [Code of Conduct](CODE_OF_CONDUCT.md): Community\
+    \ guidelines and expectations\n\n## Specifications\n\n- [Technical Specification](spec/technical-spec.md):\
+    \ Detailed technical requirements and constraints\n- [API Specification](spec/api-spec.md):\
+    \ Interface definitions and data contracts\n\n## Examples\n\n- [Basic Example](examples/basic-usage.md):\
+    \ Simple usage demonstration\n- [Advanced Example](examples/advanced-usage.md):\
+    \ Complex implementation patterns\n\n## Configuration\n\n- [Setup Guide](docs/setup.md):\
+    \ Installation and configuration instructions\n- [Deployment Guide](docs/deployment.md):\
+    \ Production deployment guidelines\n\n## Optional\n\n- [Architecture Documentation](docs/architecture.md):\
+    \ Detailed system architecture\n- [Design Decisions](docs/decisions.md): Historical\
+    \ design decision records\n```\n\n## Success Criteria\n\nThe updated `llms.txt`\
+    \ file should:\n1. Accurately reflect the current repository structure and content\n\
+    2. Maintain compliance with the llms.txt specification\n3. Provide clear navigation\
+    \ to essential documentation\n4. Remove outdated or incorrect references\n5. Include\
+    \ new important files and documentation\n6. Maintain logical organization for\
+    \ easy LLM consumption\n7. Use clear, unambiguous language throughout\n8. Continue\
+    \ to serve both human and machine readers effectively"

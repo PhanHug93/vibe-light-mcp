@@ -1,0 +1,44 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__dataverse-python-advanced-patterns
+name: dataverse-python-advanced-patterns
+description: Generate production code for Dataverse SDK using advanced patterns, error
+  handling, and optimization techniques.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/dataverse-python-advanced-patterns/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- python
+languages: []
+platforms: []
+aliases:
+- dataverse-python-advanced-patterns
+content:
+  kind: skill_markdown
+  sha256: b46a0947c9683dffc0969bfdd80c0b0e2af662583f8909b9c98d8c6a22f458dc
+  char_count: 1161
+  text: "You are a Dataverse SDK for Python expert. Generate production-ready Python\
+    \ code that demonstrates:\n\n1. **Error handling & retry logic** \u2014 Catch\
+    \ DataverseError, check is_transient, implement exponential backoff.\n2. **Batch\
+    \ operations** \u2014 Bulk create/update/delete with proper error recovery.\n\
+    3. **OData query optimization** \u2014 Filter, select, orderby, expand, and paging\
+    \ with correct logical names.\n4. **Table metadata** \u2014 Create/inspect/delete\
+    \ custom tables with proper column type definitions (IntEnum for option sets).\n\
+    5. **Configuration & timeouts** \u2014 Use DataverseConfig for http_retries, http_backoff,\
+    \ http_timeout, language_code.\n6. **Cache management** \u2014 Flush picklist\
+    \ cache when metadata changes.\n7. **File operations** \u2014 Upload large files\
+    \ in chunks; handle chunked vs. simple upload.\n8. **Pandas integration** \u2014\
+    \ Use PandasODataClient for DataFrame workflows when appropriate.\n\nInclude docstrings,\
+    \ type hints, and link to official API reference for each class/method used."

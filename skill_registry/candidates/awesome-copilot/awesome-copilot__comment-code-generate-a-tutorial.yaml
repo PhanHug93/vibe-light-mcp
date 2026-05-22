@@ -1,0 +1,47 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__comment-code-generate-a-tutorial
+name: comment-code-generate-a-tutorial
+description: Transform this Python script into a polished, beginner-friendly project
+  by refactoring the code, adding clear instructional comments, and generating a complete
+  markdown tutorial.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/comment-code-generate-a-tutorial/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- python
+languages: []
+platforms: []
+aliases:
+- comment-code-generate-a-tutorial
+content:
+  kind: skill_markdown
+  sha256: eb6189f8148067297e446dd284559d12397658980d35335bd091236dcd666542
+  char_count: 1389
+  text: "Transform this Python script into a polished, beginner-friendly project by\
+    \ refactoring the code, adding clear instructional comments, and generating a\
+    \ complete markdown tutorial.\n\n1. **Refactor the code**  \n   - Apply standard\
+    \ Python best practices  \n   - Ensure code follows the PEP 8 style guide  \n\
+    \   - Rename unclear variables and functions if needed for clarity\n\n1. **Add\
+    \ comments throughout the code**  \n   - Use a beginner-friendly, instructional\
+    \ tone  \n   - Explain what each part of the code is doing and why it's important\
+    \  \n   - Focus on the logic and reasoning, not just syntax  \n   - Avoid redundant\
+    \ or superficial comments\n\n1. **Generate a tutorial as a `README.md` file**\
+    \  \n   Include the following sections:\n   - **Project Overview:** What the script\
+    \ does and why it's useful  \n   - **Setup Instructions:** Prerequisites, dependencies,\
+    \ and how to run the script  \n   - **How It Works:** A breakdown of the code\
+    \ logic based on the comments  \n   - **Example Usage:** A code snippet showing\
+    \ how to use it  \n   - **Sample Output:** (Optional) Include if the script returns\
+    \ visible results  \n   - Use clear, readable Markdown formatting"

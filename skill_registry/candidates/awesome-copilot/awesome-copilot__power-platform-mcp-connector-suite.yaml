@@ -1,0 +1,113 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__power-platform-mcp-connector-suite
+name: power-platform-mcp-connector-suite
+description: Generate complete Power Platform custom connector with MCP integration
+  for Copilot Studio - includes schema generation, troubleshooting, and validation
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/power-platform-mcp-connector-suite/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- power-platform-mcp-connector-suite
+content:
+  kind: skill_markdown
+  sha256: 0b7764050e18c8257335da89594192c462aa33e2fcd2cef8c1f066ba1fe496d3
+  char_count: 6359
+  text: "# Power Platform MCP Connector Suite\n\nGenerate comprehensive Power Platform\
+    \ custom connector implementations with Model Context Protocol integration for\
+    \ Microsoft Copilot Studio.\n\n## MCP Capabilities in Copilot Studio\n\n**Currently\
+    \ Supported:**\n- \u2705 **Tools**: Functions that the LLM can call (with user\
+    \ approval)\n- \u2705 **Resources**: File-like data that agents can read (must\
+    \ be tool outputs)\n\n**Not Yet Supported:**\n- \u274C **Prompts**: Pre-written\
+    \ templates (prepare for future support)\n\n## Connector Generation\n\nCreate\
+    \ complete Power Platform connector with:\n\n**Core Files:**\n- `apiDefinition.swagger.json`\
+    \ with `x-ms-agentic-protocol: mcp-streamable-1.0`\n- `apiProperties.json` with\
+    \ connector metadata and authentication\n- `script.csx` with custom C# transformations\
+    \ for MCP JSON-RPC handling\n- `readme.md` with connector documentation\n\n**MCP\
+    \ Integration:**\n- POST `/mcp` endpoint for JSON-RPC 2.0 communication\n- McpResponse\
+    \ and McpErrorResponse schema definitions\n- Copilot Studio constraint compliance\
+    \ (no reference types, single types)\n- Resource integration as tool outputs (Resources\
+    \ and Tools supported; Prompts not yet supported)\n\n## Schema Validation & Troubleshooting\n\
+    \n**Validate schemas for Copilot Studio compliance:**\n- \u2705 No reference types\
+    \ (`$ref`) in tool inputs/outputs\n- \u2705 Single type values only (not `[\"\
+    string\", \"number\"]`)\n- \u2705 Primitive types: string, number, integer, boolean,\
+    \ array, object\n- \u2705 Resources as tool outputs, not separate entities\n-\
+    \ \u2705 Full URIs for all endpoints\n\n**Common issues and fixes:**\n- Tools\
+    \ filtered \u2192 Remove reference types, use primitives\n- Type errors \u2192\
+    \ Single types with validation logic\n- Resources unavailable \u2192 Include in\
+    \ tool outputs\n- Connection failures \u2192 Verify `x-ms-agentic-protocol` header\n\
+    \n## Context Variables\n\n- **Connector Name**: [Display name for the connector]\n\
+    - **Server Purpose**: [What the MCP server should accomplish]\n- **Tools Needed**:\
+    \ [List of MCP tools to implement]\n- **Resources**: [Types of resources to provide]\n\
+    - **Authentication**: [none, api-key, oauth2, basic]\n- **Host Environment**:\
+    \ [Azure Function, Express.js, etc.]\n- **Target APIs**: [External APIs to integrate\
+    \ with]\n\n## Generation Modes\n\n### Mode 1: Complete New Connector\nGenerate\
+    \ all files for a new Power Platform MCP connector from scratch, including CLI\
+    \ validation setup.\n\n### Mode 2: Schema Validation\nAnalyze and fix existing\
+    \ schemas for Copilot Studio compliance using paconn and validation tools.\n\n\
+    ### Mode 3: Integration Troubleshooting\nDiagnose and resolve MCP integration\
+    \ issues with Copilot Studio using CLI debugging tools.\n\n### Mode 4: Hybrid\
+    \ Connector\nAdd MCP capabilities to existing Power Platform connector with proper\
+    \ validation workflows.\n\n### Mode 5: Certification Preparation\nPrepare connector\
+    \ for Microsoft certification submission with complete metadata and validation\
+    \ compliance.\n\n### Mode 6: OAuth Security Hardening\nImplement OAuth 2.0 authentication\
+    \ enhanced with MCP security best practices and advanced token validation.\n\n\
+    ## Expected Output\n\n**1. apiDefinition.swagger.json**\n- Swagger 2.0 format\
+    \ with Microsoft extensions\n- MCP endpoint: `POST /mcp` with proper protocol\
+    \ header\n- Compliant schema definitions (primitive types only)\n- McpResponse/McpErrorResponse\
+    \ definitions\n\n**2. apiProperties.json**\n- Connector metadata and branding\
+    \ (`iconBrandColor` required)\n- Authentication configuration\n- Policy templates\
+    \ for MCP transformations\n\n**3. script.csx**\n- JSON-RPC 2.0 message handling\n\
+    - Request/response transformations\n- MCP protocol compliance logic\n- Error handling\
+    \ and validation\n\n**4. Implementation guidance**\n- Tool registration and execution\
+    \ patterns\n- Resource management strategies\n- Copilot Studio integration steps\n\
+    - Testing and validation procedures\n\n## Validation Checklist\n\n### Technical\
+    \ Compliance\n- [ ] `x-ms-agentic-protocol: mcp-streamable-1.0` in MCP endpoint\n\
+    - [ ] No reference types in any schema definitions\n- [ ] All type fields are\
+    \ single types (not arrays)\n- [ ] Resources included as tool outputs\n- [ ] JSON-RPC\
+    \ 2.0 compliance in script.csx\n- [ ] Full URI endpoints throughout\n- [ ] Clear\
+    \ descriptions for Copilot Studio agents\n- [ ] Authentication properly configured\n\
+    - [ ] Policy templates for MCP transformations\n- [ ] Generative Orchestration\
+    \ compatibility\n\n### CLI Validation\n- [ ] **paconn validate**: `paconn validate\
+    \ --api-def apiDefinition.swagger.json` passes without errors\n- [ ] **pac CLI\
+    \ ready**: Connector can be created/updated with `pac connector create/update`\n\
+    - [ ] **Script validation**: script.csx passes automatic validation during pac\
+    \ CLI upload\n- [ ] **Package validation**: `ConnectorPackageValidator.ps1` runs\
+    \ successfully\n\n### OAuth and Security Requirements\n- [ ] **OAuth 2.0 Enhanced**:\
+    \ Standard OAuth 2.0 with MCP security best practices implementation\n- [ ] **Token\
+    \ Validation**: Implement token audience validation to prevent passthrough attacks\n\
+    - [ ] **Custom Security Logic**: Enhanced validation in script.csx for MCP compliance\n\
+    - [ ] **State Parameter Protection**: Secure state parameters for CSRF prevention\n\
+    - [ ] **HTTPS Enforcement**: All production endpoints use HTTPS only\n- [ ] **MCP\
+    \ Security Practices**: Implement confused deputy attack prevention within OAuth\
+    \ 2.0\n\n### Certification Requirements\n- [ ] **Complete metadata**: settings.json\
+    \ with product and service information\n- [ ] **Icon compliance**: PNG format,\
+    \ 230x230 or 500x500 dimensions\n- [ ] **Documentation**: Certification-ready\
+    \ readme with comprehensive examples\n- [ ] **Security compliance**: OAuth 2.0\
+    \ enhanced with MCP security practices, privacy policy\n- [ ] **Authentication\
+    \ flow**: OAuth 2.0 with custom security validation properly configured\n\n##\
+    \ Example Usage\n\n```yaml\nMode: Complete New Connector\nConnector Name: Customer\
+    \ Analytics MCP\nServer Purpose: Customer data analysis and insights\nTools Needed:\n\
+    \  - searchCustomers: Find customers by criteria\n  - getCustomerProfile: Retrieve\
+    \ detailed customer data\n  - analyzeCustomerTrends: Generate trend analysis\n\
+    Resources:\n  - Customer profiles (JSON data)\n  - Analysis reports (structured\
+    \ data)\nAuthentication: oauth2\nHost Environment: Azure Function\nTarget APIs:\
+    \ CRM REST API\n```"

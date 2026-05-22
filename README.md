@@ -1,6 +1,6 @@
 # 🧠 TechStack Local MCP Server
 
-![Version](https://img.shields.io/badge/version-1.0.14-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-green) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![Version](https://img.shields.io/badge/version-1.0.16-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-green) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
 > Biến AI của bạn thành một developer thực thụ — tự nhận diện project, nhớ context, và học hỏi qua từng workspace.
 
@@ -504,6 +504,59 @@ cp /path/to/vibe-light-mcp/docs/mcp_system_prompt.md /your-project/.github/copil
 | `cleanup_workspace` | Dọn dẹp L1 cũ hơn N ngày |
 | `memory_stats` | Thống kê bộ nhớ L1/L2 |
 | `backup_memory_database` | 📦 Backup ChromaDB → .tar.gz (auto-cleanup, giữ 5 bản) |
+
+### 🚪 Refinery
+
+| Tool | Mô tả |
+|---|---|
+| `prepare_llm_payload` | Gateway context compiler: normalize task, kéo evidence theo `memory_scope` (session: `SESSION_LOCAL + L1 + L2`), nén theo budget, trả về `compiled_context` + `context_blocks` |
+
+### 🧩 Local Skills
+
+| Tool | Mô tả |
+|---|---|
+| `get_skills` | Trả audited local skill digest cho agent dùng ngay trong prompt. Không fetch skill động trên mạng; facet chưa audit sẽ trả `no_match`. MVP hiện có `android-kotlin@0.0.1` cho Android/Kotlin. |
+
+Local skills are served from an audited local registry. When
+`skill_registry/index/skill_store.sqlite` exists, `get_skills` reads that SQLite store
+first and falls back to YAML digests if the store is missing or invalid. Build the
+store with:
+
+```bash
+python3 scripts/build_skill_store.py
+```
+
+Ví dụ:
+
+```json
+{
+  "requested_skills": ["android"],
+  "languages": ["kotlin"],
+  "mode": "auto",
+  "active_hashes": [],
+  "max_tokens": 1800
+}
+```
+
+### 🔐 Multi-Agent Session Scope Contract
+
+- `memory_scope="session"`: **bắt buộc** truyền `agent_id` (không rỗng).
+- `session_id` là optional discriminator phụ (ví dụ `current`, `turn-42`).
+- Session scope semantics:
+  - **Read-through**: `SESSION_LOCAL + L1 (workspace) + L2 (global)`.
+  - **Write path** (`store_working_context`): chỉ ghi vào `SESSION_LOCAL`.
+- Isolation mặc định: hai agent dùng chung `session_id="current"` nhưng khác `agent_id` sẽ ra `session_namespace` khác nhau.
+
+Ví dụ 4 agent dùng chung 1 MCP process (an toàn mặc định):
+
+```json
+[
+  {"agent_id": "planner", "session_id": "current"},
+  {"agent_id": "coder", "session_id": "current"},
+  {"agent_id": "reviewer", "session_id": "current"},
+  {"agent_id": "tester", "session_id": "current"}
+]
+```
 
 ### 🔍 Workspace & Knowledge
 

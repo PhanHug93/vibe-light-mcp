@@ -1,0 +1,80 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__microsoft-code-reference
+name: microsoft-code-reference
+description: "Look up Microsoft API references, find working code samples, and verify\
+  \ SDK code is correct. Use when working with Azure SDKs, .NET libraries, or Microsoft\
+  \ APIs\u2014to find the right method, check parameters, get working examples, or\
+  \ troubleshoot errors. Catches hallucinated methods, wrong signatures, and deprecated\
+  \ patterns by querying official docs."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/microsoft-code-reference/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- microsoft-code-reference
+content:
+  kind: skill_markdown
+  sha256: 19f13822dd8674ac0a24787ac15472c9137d0db5b03750ba43ee9dcdac8ddd03
+  char_count: 4187
+  text: "# Microsoft Code Reference\n\n## Tools\n\n| Need | Tool | Example |\n|------|------|---------|\n\
+    | API method/class lookup | `microsoft_docs_search` | `\"BlobClient UploadAsync\
+    \ Azure.Storage.Blobs\"` |\n| Working code sample | `microsoft_code_sample_search`\
+    \ | `query: \"upload blob managed identity\", language: \"python\"` |\n| Full\
+    \ API reference | `microsoft_docs_fetch` | Fetch URL from `microsoft_docs_search`\
+    \ (for overloads, full signatures) |\n\n## Finding Code Samples\n\nUse `microsoft_code_sample_search`\
+    \ to get official, working examples:\n\n```\nmicrosoft_code_sample_search(query:\
+    \ \"upload file to blob storage\", language: \"csharp\")\nmicrosoft_code_sample_search(query:\
+    \ \"authenticate with managed identity\", language: \"python\")\nmicrosoft_code_sample_search(query:\
+    \ \"send message service bus\", language: \"javascript\")\n```\n\n**When to use:**\n\
+    - Before writing code\u2014find a working pattern to follow\n- After errors\u2014\
+    compare your code against a known-good sample\n- Unsure of initialization/setup\u2014\
+    samples show complete context\n\n## API Lookups\n\n```\n# Verify method exists\
+    \ (include namespace for precision)\n\"BlobClient UploadAsync Azure.Storage.Blobs\"\
+    \n\"GraphServiceClient Users Microsoft.Graph\"\n\n# Find class/interface\n\"DefaultAzureCredential\
+    \ class Azure.Identity\"\n\n# Find correct package\n\"Azure Blob Storage NuGet\
+    \ package\"\n\"azure-storage-blob pip package\"\n```\n\nFetch full page when method\
+    \ has multiple overloads or you need complete parameter details.\n\n## Error Troubleshooting\n\
+    \nUse `microsoft_code_sample_search` to find working code samples and compare\
+    \ with your implementation. For specific errors, use `microsoft_docs_search` and\
+    \ `microsoft_docs_fetch`:\n\n| Error Type | Query |\n|------------|-------|\n\
+    | Method not found | `\"[ClassName] methods [Namespace]\"` |\n| Type not found\
+    \ | `\"[TypeName] NuGet package namespace\"` |\n| Wrong signature | `\"[ClassName]\
+    \ [MethodName] overloads\"` \u2192 fetch full page |\n| Deprecated warning | `\"\
+    [OldType] migration v12\"` |\n| Auth failure | `\"DefaultAzureCredential troubleshooting\"\
+    ` |\n| 403 Forbidden | `\"[ServiceName] RBAC permissions\"` |\n\n## When to Verify\n\
+    \nAlways verify when:\n- Method name seems \"too convenient\" (`UploadFile` vs\
+    \ actual `Upload`)\n- Mixing SDK versions (v11 `CloudBlobClient` vs v12 `BlobServiceClient`)\n\
+    - Package name doesn't follow conventions (`Azure.*` for .NET, `azure-*` for Python)\n\
+    - Using an API for the first time\n\n## Validation Workflow\n\nBefore generating\
+    \ code using Microsoft SDKs, verify it's correct:\n\n1. **Confirm method or package\
+    \ exists** \u2014 `microsoft_docs_search(query: \"[ClassName] [MethodName] [Namespace]\"\
+    )`\n2. **Fetch full details** (for overloads/complex params) \u2014 `microsoft_docs_fetch(url:\
+    \ \"...\")`\n3. **Find working sample** \u2014 `microsoft_code_sample_search(query:\
+    \ \"[task]\", language: \"[lang]\")`\n\nFor simple lookups, step 1 alone may suffice.\
+    \ For complex API usage, complete all three steps.\n\n## CLI Alternative\n\nIf\
+    \ the Learn MCP server is not available, use the `mslearn` CLI from a terminal\
+    \ or shell (for example, Bash, PowerShell, or cmd) instead:\n\n```sh\n# Run directly\
+    \ (no install needed)\nnpx @microsoft/learn-cli search \"BlobClient UploadAsync\
+    \ Azure.Storage.Blobs\"\n\n# Or install globally, then run\nnpm install -g @microsoft/learn-cli\n\
+    mslearn search \"BlobClient UploadAsync Azure.Storage.Blobs\"\n```\n\n| MCP Tool\
+    \ | CLI Command |\n|----------|-------------|\n| `microsoft_docs_search(query:\
+    \ \"...\")` | `mslearn search \"...\"` |\n| `microsoft_code_sample_search(query:\
+    \ \"...\", language: \"...\")` | `mslearn code-search \"...\" --language ...`\
+    \ |\n| `microsoft_docs_fetch(url: \"...\")` | `mslearn fetch \"...\"` |\n\nPass\
+    \ `--json` to `search` or `code-search` to get raw JSON output for further processing."

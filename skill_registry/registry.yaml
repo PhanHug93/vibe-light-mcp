@@ -1,0 +1,54 @@
+schema_version: local-skill-registry/v0.0.1
+description: Local audited skill registry for MCP get_skills delivery.
+
+skills:
+  - id: android-kotlin
+    version: "0.0.1"
+    status: audited
+    digest_path: digests/android-kotlin.yaml
+    facets:
+      - mobile
+      - android
+    platforms:
+      - android
+    languages:
+      - kotlin
+    aliases:
+      - android
+      - android_kotlin
+      - android-kotlin
+      - kotlin
+      - jetpack
+      - compose
+      - xml_views
+      - fragment
+      - recyclerview
+    audited_scope:
+      - Kotlin Android implementation and review
+      - Legacy Fragment and RecyclerView state handling
+      - Compose/XML/custom View risk checks
+    source_pack:
+      name: mobile-local-skills-pack-v1.1.1
+      frozen: true
+      origin: /Users/admin/Downloads/mobile-local-skills-pack-v1.1.1.zip
+
+planned_facets:
+  ios:
+    languages:
+      - swift
+      - objective-c
+    reason: Present in local pack, but not yet converted to audited digest.
+  flutter:
+    languages:
+      - dart
+    reason: Present in local pack, but not yet converted to audited digest.
+  kotlin-multiplatform:
+    languages:
+      - kotlin
+      - swift
+    reason: Present in local pack, but not yet converted to audited digest.
+  electron:
+    languages:
+      - javascript
+      - typescript
+    reason: Out of current audited mobile skill scope.

@@ -7,7 +7,7 @@
 #   ┌────────────────────────────────────────────────────────────────┐
 #   │  mcp_internal (internal: true — NO external access)           │
 #   │  ┌──────────┐          ┌──────────────┐                       │
-#   │  │ chromadb │◄────────►│  mcp_server  │                       │
+#   │  │ memorydb │◄────────►│  mcp_server  │                       │
 #   │  │ :8000    │          │              │                       │
 #   │  └──────────┘          └──────┬───────┘                       │
 #   └───────────────────────────────┼───────────────────────────────┘
@@ -18,8 +18,8 @@
 #   │                    └──────────────────┘                       │
 #   └───────────────────────────────────────────────────────────────┘
 #
-# ChromaDB: Chỉ ở mcp_internal → KHÔNG thể truy cập từ host/LAN
-# MCP Server: Ở cả 2 network → truy cập ChromaDB nội bộ + expose port ra host
+# MemoryDB: Chỉ ở mcp_internal → KHÔNG thể truy cập từ host/LAN
+# MCP Server: Ở cả 2 network → truy cập MemoryDB nội bộ + expose port ra host
 #
 # Usage (từ project root):
 #   cp deploy/compose/.env.example deploy/compose/.env  # Lần đầu
@@ -30,21 +30,21 @@
 
 services:
   # --------------------------------------------------------------------------
-  # ChromaDB — Vector Database (Internal Only)
+  # MemoryDB — MCP Memory Database (ChromaDB backend, Internal Only)
   # --------------------------------------------------------------------------
-  # ⚠ KHÔNG expose port ra host. ChromaDB chỉ giao tiếp nội bộ với mcp_server
+  # ⚠ KHÔNG expose port ra host. MemoryDB chỉ giao tiếp nội bộ với mcp_server
   # qua mạng Docker internal. Điều này ngăn bất kỳ ai trên mạng LAN truy cập
-  # trực tiếp vào Vector DB chứa toàn bộ memory/knowledge của AI.
+  # trực tiếp vào database chứa toàn bộ memory/knowledge của AI.
   # --------------------------------------------------------------------------
-  chromadb:
+  memorydb:
     image: chromadb/chroma:latest
-    container_name: mcp-chromadb
+    container_name: mcp-memorydb
     restart: unless-stopped
-    # KHÔNG có "ports:" → ChromaDB chỉ reachable qua mcp_internal
+    # KHÔNG có "ports:" → MemoryDB chỉ reachable qua mcp_internal
     networks:
       - mcp_internal
     volumes:
-      - chroma_data:/chroma/chroma    # Named volume — persistent qua restart
+      - memorydb_data:/chroma/chroma  # Named volume — persistent qua restart
     environment:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
@@ -84,10 +84,10 @@ services:
     container_name: mcp-server
     restart: unless-stopped
     depends_on:
-      chromadb:
-        condition: service_healthy      # Chờ ChromaDB healthy trước khi boot
+      memorydb:
+        condition: service_healthy      # Chờ MemoryDB healthy trước khi boot
     # ── Dual Network ─────────────────────────────────────────────────────
-    # mcp_internal: giao tiếp với ChromaDB (internal, không ai ngoài truy cập)
+    # mcp_internal: giao tiếp với MemoryDB (internal, không ai ngoài truy cập)
     # mcp_exposed:  cho phép Docker map port ra host (port 8000)
     networks:
       - mcp_internal
@@ -95,16 +95,22 @@ services:
     ports:
       - "${MCP_EXTERNAL_PORT:-8000}:${MCP_PORT:-8000}"   # Chỉ MCP được expose
     volumes:
-      - usage_logs:/data                                  # Named volume: logs + usage data
-      - ../../tech_stacks:/app/tech_stacks:rw             # Bind mount: git pull trên host → container thấy ngay
+      - mcp_data:/data                                    # Runtime data: MCP logs, backups, local DB path
+      - tech_stacks_data:/app/tech_stacks                 # Seeded from image defaults on first boot
+      - skill_registry_data:/app/skill_registry           # Seeded from image defaults on first boot
     env_file:
       - .env
     environment:
       - MCP_TRANSPORT=${MCP_TRANSPORT:-sse}
       - MCP_HOST=${MCP_HOST:-0.0.0.0}
       - MCP_PORT=${MCP_PORT:-8000}
-      - MCP_CHROMA_HOST=chromadb                          # Tên service Docker = hostname nội bộ
+      - MCP_CHROMA_HOST=memorydb                          # Tên service Docker = hostname nội bộ
       - MCP_CHROMA_PORT=8000                              # Port mặc định của chromadb/chroma image
+      - MCP_CHROMA_DB=/data/db
+      - MCP_USAGE_LOG_DIR=/data/usage_logs
+      - MCP_TECH_STACKS_DIR=/app/tech_stacks
+      - MCP_SKILL_REGISTRY_DIR=/app/skill_registry
+      - MCP_SKILL_STORE_PATH=/app/skill_registry/index/skill_store.sqlite
       - MCP_EXEC_MODE=${MCP_EXEC_MODE:-allowlist}
     healthcheck:
       test: ["CMD-SHELL", "grep -q '00000000:1F40' /proc/net/tcp || exit 1"]
@@ -116,7 +122,7 @@ services:
     # ── Resource Limits (Server 8GB RAM) ──────────────────────────────────
     # MCP Server + embedding model (sentence-transformers) ~400-800MB.
     # Giới hạn 1.5GB → đủ cho embedding + request handling.
-    # Budget: ChromaDB 2.5GB + MCP 1.5GB + OS 2GB = 6GB / 8GB (chừa 2GB buffer)
+    # Budget: MemoryDB 2.5GB + MCP 1.5GB + OS 2GB = 6GB / 8GB (chừa 2GB buffer)
     deploy:
       resources:
         limits:
@@ -135,15 +141,15 @@ services:
 # Networks (Dual-Network Security Model)
 # ===========================================================================
 networks:
-  # Internal: ChromaDB ↔ MCP Server giao tiếp qua hostname.
+  # Internal: MemoryDB ↔ MCP Server giao tiếp qua hostname.
   # internal: true → KHÔNG có default gateway → container không thể ra internet
-  # và host/LAN không thể vào. ChromaDB hoàn toàn bị cô lập.
+  # và host/LAN không thể vào. MemoryDB hoàn toàn bị cô lập.
   mcp_internal:
     driver: bridge
     internal: true
 
   # Exposed: Chỉ MCP Server join network này để Docker có thể
-  # map port container ra host. ChromaDB KHÔNG join network này.
+  # map port container ra host. MemoryDB KHÔNG join network này.
   mcp_exposed:
     driver: bridge
 
@@ -151,7 +157,11 @@ networks:
 # Volumes — Dữ liệu persistent qua restart/rebuild
 # ===========================================================================
 volumes:
-  chroma_data:
-    driver: local     # ChromaDB Vector DB (L1/L2 memory — não bộ AI)
-  usage_logs:
-    driver: local     # MCP usage logs, backup data
+  memorydb_data:
+    driver: local     # Memory DB (ChromaDB backend) for L1/session/L2 memory
+  mcp_data:
+    driver: local     # MCP runtime data: logs, backups, local DB path
+  tech_stacks_data:
+    driver: local     # Tech stack rules/references, seeded from image defaults
+  skill_registry_data:
+    driver: local     # Audited local skill registry + SQLite skill store

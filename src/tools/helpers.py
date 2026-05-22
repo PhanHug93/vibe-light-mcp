@@ -91,6 +91,7 @@ def get_memory_mb() -> float:
 
 
 _SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9_.-]+$")
+_MEMORY_SCOPES: frozenset[str] = frozenset({"workspace", "session", "global"})
 
 
 def validate_path_within(path: Path, root: Path) -> Path:
@@ -127,3 +128,53 @@ def validate_stack_name(stack: str) -> str | None:
             "Must contain only letters, digits, underscores, dashes, or dots."
         )
     return None
+
+
+def validate_memory_scope(scope: str, allow_global: bool = True) -> str | None:
+    """Validate a memory scope value. Returns error message or None if OK."""
+    normalized = scope.strip().lower()
+    allowed = _MEMORY_SCOPES if allow_global else frozenset({"workspace", "session"})
+    if normalized not in allowed:
+        allowed_text = ", ".join(sorted(allowed))
+        return (
+            f"Invalid memory_scope: '{scope}'. "
+            f"Use one of: {allowed_text}."
+        )
+    return None
+
+
+def validate_session_scope_inputs(agent_id: str, session_id: str = "") -> str | None:
+    """Validate identifiers used for session-scoped memory isolation."""
+    normalized_agent = agent_id.strip()
+    if not normalized_agent:
+        return (
+            "session scope requires a non-empty agent_id for multi-agent isolation. "
+            "session_id is optional."
+        )
+    # session_id is optional by design; if present, caller can use it as a sub-scope.
+    _ = session_id.strip()
+    return None
+
+
+def make_session_namespace(
+    workspace_path: str,
+    agent_id: str = "",
+    session_id: str = "",
+) -> str:
+    """Generate a deterministic session namespace for multi-agent isolation.
+
+    The namespace is stable across repeated calls with the same workspace,
+    agent_id, and session_id, but isolated from other agents/sessions.
+    ``agent_id`` is REQUIRED for safe multi-agent isolation.
+    ``session_id`` is optional and can be used as a finer discriminator.
+    """
+    ws_id = make_workspace_id(workspace_path)
+    normalized_agent = agent_id.strip()
+    normalized_session = session_id.strip()
+    if not normalized_agent:
+        raise ValueError(
+            "session scope requires a non-empty agent_id for multi-agent isolation."
+        )
+
+    seed = f"{ws_id}:{normalized_agent}:{normalized_session}"
+    return hashlib.md5(seed.encode()).hexdigest()[:12]  # noqa: S324

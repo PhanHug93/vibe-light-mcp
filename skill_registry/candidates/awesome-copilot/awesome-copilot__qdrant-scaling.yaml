@@ -1,0 +1,53 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-scaling
+name: qdrant-scaling
+description: Guides Qdrant scaling decisions. Use when someone asks 'how many nodes
+  do I need', 'data doesn't fit on one node', 'need more throughput', 'cluster is
+  slow', 'too many tenants', 'vertical or horizontal', 'how to shard', or 'need to
+  add capacity'.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-scaling/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- typescript
+languages: []
+platforms: []
+aliases:
+- qdrant-scaling
+content:
+  kind: skill_markdown
+  sha256: 6dee402516b353fec38f39eeb8aacf9aa96b504bdd9d3fa5977f96163c642bcf
+  char_count: 1866
+  text: "# Qdrant Scaling\n\nFirst determine what you're scaling for:\n\n- data volume\n\
+    - query throughput (QPS)\n- query latency\n- query volume\n\nAfter determining\
+    \ the scaling goal, we can choose scaling strategy based on tradeoffs and assumptions.\n\
+    Each pulls toward different strategies. Scaling for throughput and latency are\
+    \ opposite tuning directions.\n\n\n## Scaling Data Volume\n\nThis becomes relevant\
+    \ when volume of the dataset exceeds the capacity of a single node.\nRead more\
+    \ about scaling for data volume in [Scaling Data Volume](scaling-data-volume/SKILL.md)\n\
+    \n\n## Scaling for Query Throughput\n\nIf your system needs to handle more parallel\
+    \ queries than a single node can handle,\n then you need to scale for query throughput.\n\
+    \nRead more about scaling for query throughput in [Scaling for Query Throughput](scaling-qps/SKILL.md)\n\
+    \n## Scaling for Query Latency\n\nLatency of a single query is determined by the\
+    \ slowest component in the query execution path.\nIt is in sometimes correlated\
+    \ with throughput, but not always. It might require different strategies for scaling.\n\
+    \nRead more about scaling for query latency in [Scaling for Query Latency](minimize-latency/SKILL.md)\n\
+    \n\n## Scaling for Query Volume\n\nBy query volume we understand the amount of\
+    \ results that a single query returns. \nIf the query volume is too high, it can\
+    \ cause performance issues and increase latency.\n\nTuning for query volume is\
+    \ opposite might require special strategies. \n\nRead more about scaling for query\
+    \ volume in [Scaling for Query Volume](scaling-query-volume/SKILL.md)"

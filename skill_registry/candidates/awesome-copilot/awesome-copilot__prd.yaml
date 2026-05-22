@@ -1,0 +1,85 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__prd
+name: prd
+description: Generate high-quality Product Requirements Documents (PRDs) for software
+  systems and AI-powered features. Includes executive summaries, user stories, technical
+  specifications, and risk analysis.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/prd/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- prd
+content:
+  kind: skill_markdown
+  sha256: 6772e6f0fcc7110d625c7f4595e4990e1910007676c36d217eda4e779041d5e5
+  char_count: 4307
+  text: "# Product Requirements Document (PRD)\n\n## Overview\n\nDesign comprehensive,\
+    \ production-grade Product Requirements Documents (PRDs) that bridge the gap between\
+    \ business vision and technical execution. This skill works for modern software\
+    \ systems, ensuring that requirements are clearly defined.\n\n## When to Use\n\
+    \nUse this skill when:\n\n- Starting a new product or feature development cycle\n\
+    - Translating a vague idea into a concrete technical specification\n- Defining\
+    \ requirements for AI-powered features\n- Stakeholders need a unified \"source\
+    \ of truth\" for project scope\n- User asks to \"write a PRD\", \"document requirements\"\
+    , or \"plan a feature\"\n\n---\n\n## Operational Workflow\n\n### Phase 1: Discovery\
+    \ (The Interview)\n\nBefore writing a single line of the PRD, you **MUST** interrogate\
+    \ the user to fill knowledge gaps. Do not assume context.\n\n**Ask about:**\n\n\
+    - **The Core Problem**: Why are we building this now?\n- **Success Metrics**:\
+    \ How do we know it worked?\n- **Constraints**: Budget, tech stack, or deadline?\n\
+    \n### Phase 2: Analysis & Scoping\n\nSynthesize the user's input. Identify dependencies\
+    \ and hidden complexities.\n\n- Map out the **User Flow**.\n- Define **Non-Goals**\
+    \ to protect the timeline.\n\n### Phase 3: Technical Drafting\n\nGenerate the\
+    \ document using the **Strict PRD Schema** below.\n\n---\n\n## PRD Quality Standards\n\
+    \n### Requirements Quality\n\nUse concrete, measurable criteria. Avoid \"fast\"\
+    , \"easy\", or \"intuitive\".\n\n```diff\n# Vague (BAD)\n- The search should be\
+    \ fast and return relevant results.\n- The UI must look modern and be easy to\
+    \ use.\n\n# Concrete (GOOD)\n+ The search must return results within 200ms for\
+    \ a 10k record dataset.\n+ The search algorithm must achieve >= 85% Precision@10\
+    \ in benchmark evals.\n+ The UI must follow the 'Vercel/Next.js' design system\
+    \ and achieve 100% Lighthouse Accessibility score.\n```\n\n---\n\n## Strict PRD\
+    \ Schema\n\nYou **MUST** follow this exact structure for the output:\n\n### 1.\
+    \ Executive Summary\n\n- **Problem Statement**: 1-2 sentences on the pain point.\n\
+    - **Proposed Solution**: 1-2 sentences on the fix.\n- **Success Criteria**: 3-5\
+    \ measurable KPIs.\n\n### 2. User Experience & Functionality\n\n- **User Personas**:\
+    \ Who is this for?\n- **User Stories**: `As a [user], I want to [action] so that\
+    \ [benefit].`\n- **Acceptance Criteria**: Bulleted list of \"Done\" definitions\
+    \ for each story.\n- **Non-Goals**: What are we NOT building?\n\n### 3. AI System\
+    \ Requirements (If Applicable)\n\n- **Tool Requirements**: What tools and APIs\
+    \ are needed?\n- **Evaluation Strategy**: How to measure output quality and accuracy.\n\
+    \n### 4. Technical Specifications\n\n- **Architecture Overview**: Data flow and\
+    \ component interaction.\n- **Integration Points**: APIs, DBs, and Auth.\n- **Security\
+    \ & Privacy**: Data handling and compliance.\n\n### 5. Risks & Roadmap\n\n- **Phased\
+    \ Rollout**: MVP -> v1.1 -> v2.0.\n- **Technical Risks**: Latency, cost, or dependency\
+    \ failures.\n\n---\n\n## Implementation Guidelines\n\n### DO (Always)\n\n- **Define\
+    \ Testing**: For AI systems, specify how to test and validate output quality.\n\
+    - **Iterate**: Present a draft and ask for feedback on specific sections.\n\n\
+    ### DON'T (Avoid)\n\n- **Skip Discovery**: Never write a PRD without asking at\
+    \ least 2 clarifying questions first.\n- **Hallucinate Constraints**: If the user\
+    \ didn't specify a tech stack, ask or label it as `TBD`.\n\n---\n\n## Example:\
+    \ Intelligent Search System\n\n### 1. Executive Summary\n\n**Problem**: Users\
+    \ struggle to find specific documentation snippets in massive repositories.\n\
+    **Solution**: An intelligent search system that provides direct answers with source\
+    \ citations.\n**Success**:\n\n- Reduce search time by 50%.\n- Citation accuracy\
+    \ >= 95%.\n\n### 2. User Stories\n\n- **Story**: As a developer, I want to ask\
+    \ natural language questions so I don't have to guess keywords.\n- **AC**:\n \
+    \ - Supports multi-turn clarification.\n  - Returns code blocks with \"Copy\"\
+    \ button.\n\n### 3. AI System Architecture\n\n- **Tools Required**: `codesearch`,\
+    \ `grep`, `webfetch`.\n\n### 4. Evaluation\n\n- **Benchmark**: Test with 50 common\
+    \ developer questions.\n- **Pass Rate**: 90% must match expected citations."

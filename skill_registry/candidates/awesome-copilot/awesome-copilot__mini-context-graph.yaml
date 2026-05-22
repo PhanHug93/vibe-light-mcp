@@ -1,0 +1,132 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mini-context-graph
+name: mini-context-graph
+description: "A persistent, compounding knowledge base combining Karpathy's LLM Wiki\
+  \ pattern\nwith a structured knowledge graph. Ingest documents once \u2014 the LLM\
+  \ writes wiki\npages, extracts entities/relations into the graph, and stores raw\
+  \ content for\nevidence retrieval. Knowledge accumulates and cross-references; it\
+  \ is never\nre-derived from scratch."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mini-context-graph/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- mini-context-graph
+content:
+  kind: skill_markdown
+  sha256: 872f1acea4f2db44cc592d2346d57782a1c949425bad485a8b0cee19ee5666e9
+  char_count: 7999
+  text: "# Mini Context Graph Skill\n\n## The Core Idea\n\nStandard RAG re-discovers\
+    \ knowledge from scratch on every query. This skill is different:\n\n1. **Wiki\
+    \ layer** \u2014 The LLM writes and maintains persistent markdown pages (summaries,\
+    \ entity pages, topic syntheses). Cross-references are already there. The wiki\
+    \ gets richer with every ingest.\n2. **Graph layer** \u2014 Entities and relations\
+    \ are extracted once and stored as a navigable knowledge graph. BFS traversal\
+    \ answers structural queries without re-reading sources.\n3. **Raw source layer**\
+    \ \u2014 Original documents are stored immutably with chunks. Provenance links\
+    \ tie every graph node and edge back to the exact text that supports it.\n\n>\
+    \ The LLM writes; the Python tools handle all bookkeeping.\n\n---\n\n## Three\
+    \ Layers\n\n| Layer | Where | What the LLM does | What Python does |\n|-------|-------|-------------------|-----------------|\n\
+    | **Raw Sources** | `data/documents.json` | Reads (never modifies) | Stores chunks\
+    \ + metadata |\n| **Wiki** | `wiki/` (markdown) | Writes/updates pages | Manages\
+    \ index.md + log.md |\n| **Graph** | `data/graph.json` | Extracts entities + relations\
+    \ | Persists, deduplicates, traverses |\n\n---\n\n## \u26A1 Quick Start for Agents\n\
+    \n```python\nfrom scripts.contextgraph import ContextGraphSkill\nfrom scripts.tools\
+    \ import wiki_store\n\nskill = ContextGraphSkill()\n\n# ===== INGEST WITH FULL\
+    \ RAG + WIKI =====\n# 1. Read references/ingestion.md and references/ontology.md\
+    \ first\n# 2. Extract entities and relations (LLM reasoning step)\nentities =\
+    \ [\n    {\"name\": \"memory leak\",   \"type\": \"issue\",  \"supporting_text\"\
+    : \"memory leaks cause crashes\"},\n    {\"name\": \"system crash\",  \"type\"\
+    : \"issue\",  \"supporting_text\": \"system crashes due to memory leaks\"},\n\
+    ]\nrelations = [\n    {\"source\": \"memory leak\", \"target\": \"system crash\"\
+    , \"type\": \"causes\",\n     \"confidence\": 1.0, \"supporting_text\": \"System\
+    \ crashes due to memory leaks.\"},\n]\n\nresult = skill.ingest_with_content(\n\
+    \    doc_id=\"doc_001\",\n    title=\"System Crash Analysis\",\n    source=\"\
+    /docs/incident_report.pdf\",\n    raw_content=\"System crashes due to memory leaks.\
+    \ Memory leaks occur when objects are not released.\",\n    entities=entities,\n\
+    \    relations=relations,\n)\n# result = {\"doc_id\": \"doc_001\", \"chunk_count\"\
+    : 1, \"nodes_added\": 2, \"edges_added\": 1}\n\n# 3. Write a wiki summary page\
+    \ for this document\nwiki_store.write_page(\n    category=\"summary\",\n    title=\"\
+    System Crash Analysis Summary\",\n    content=\"\"\"---\ntitle: System Crash Analysis\n\
+    source_document: doc_001\ntags: [summary, incident]\n---\n\n# System Crash Analysis\n\
+    \n**Source:** incident_report.pdf\n\n## Key Claims\n\n- [[memory-leak]] causes\
+    \ [[system-crash]] (confidence: 1.0)\n\n## Entities\n\n- [[memory-leak]] (issue)\n\
+    - [[system-crash]] (issue)\n\"\"\",\n    summary=\"Incident report: memory leaks\
+    \ cause system crashes.\",\n)\n\n# ===== QUERY WITH EVIDENCE =====\nresult = skill.query_with_evidence(\"\
+    Why does the system crash?\")\n# Returns: {\"query\": ..., \"subgraph\": ...,\
+    \ \"supporting_documents\": [...], \"evidence_chain\": ...}\n\n# ===== WIKI SEARCH\
+    \ (read wiki before answering) =====\npages = wiki_store.search_wiki(\"memory\
+    \ leak\")\n# Returns: [{slug, category, path, snippet}, ...]\n```\n\n---\n\n##\
+    \ Operations\n\n### Ingest\n\nWhen a user provides a new document:\n\n1. Read\
+    \ `references/ingestion.md` \u2014 entity/relation extraction rules.\n2. Read\
+    \ `references/ontology.md` \u2014 type normalization rules.\n3. Extract entities\
+    \ and relations using your LLM reasoning.\n4. Call `skill.ingest_with_content(...)`\
+    \ \u2014 stores raw content + chunks + graph nodes + provenance.\n5. **Write a\
+    \ wiki summary page** using `wiki_store.write_page(category=\"summary\", ...)`.\n\
+    6. **Update entity pages** \u2014 for each new/updated entity, write or update\
+    \ `wiki_store.write_page(category=\"entity\", ...)`.\n7. **Update topic pages**\
+    \ if the document touches an existing synthesis topic.\n8. A single document ingest\
+    \ will typically touch 3\u201310 wiki pages.\n\n### Query\n\nWhen a user asks\
+    \ a question:\n\n1. **Check the wiki first** \u2014 `wiki_store.search_wiki(query)`\
+    \ to find relevant pages. Read them.\n2. If the wiki has a good answer, synthesize\
+    \ from wiki pages (fast path).\n3. If deeper graph traversal is needed, call `skill.query_with_evidence(query)`.\n\
+    4. Return the answer with evidence citations from `supporting_documents`.\n5.\
+    \ If the answer is valuable, file it back as a new wiki topic page.\n\n### Lint\n\
+    \nPeriodically health-check the wiki:\n\n```python\nfrom scripts.tools import\
+    \ wiki_store\nissues = wiki_store.lint_wiki()\n# Returns: {orphan_pages, missing_pages,\
+    \ broken_wikilinks, isolated_pages}\n```\n\nAsk the LLM to review and fix: broken\
+    \ links, orphan pages, stale claims, missing cross-references. See `references/lint.md`\
+    \ for full lint workflow.\n\n---\n\n## Ingestion Constraints\n\n- \u274C Do NOT\
+    \ hallucinate entities not present in the text\n- \u274C Do NOT add relations\
+    \ without explicit textual evidence\n- \u274C Do NOT add edges with confidence\
+    \ < 0.6\n- \u2705 Provide `supporting_text` for every entity and relation \u2014\
+    \ this enables provenance\n- \u2705 Write a wiki summary page for every ingested\
+    \ document\n- \u2705 Update existing entity pages when new information arrives\n\
+    - \u2705 Flag contradictions in wiki pages when new data conflicts with old claims\n\
+    \n---\n\n## Retrieval Constraints\n\n- \U0001F512 Traversal depth MUST NOT exceed\
+    \ 2 (config: MAX_GRAPH_DEPTH)\n- \U0001F512 Only edges with confidence \u2265\
+    \ 0.6 (config: MIN_CONFIDENCE)\n- \U0001F512 Maximum 50 nodes returned (config:\
+    \ MAX_NODES)\n- \u274C Do NOT fabricate nodes or edges not in the graph\n\n---\n\
+    \n## Full Python API Reference\n\n| Method | Purpose | When to Use |\n|--------|---------|-------------|\n\
+    | `skill.ingest_with_content(doc_id, title, source, raw_content, entities, relations)`\
+    \ | Full RAG ingest: raw docs + graph + provenance | Every new document |\n| `skill.add_node(name,\
+    \ node_type)` | Add single entity (no provenance) | Quick additions without a\
+    \ source doc |\n| `skill.add_edge(source_name, target_name, relation, confidence)`\
+    \ | Add single relation | Quick additions without a source doc |\n| `skill.query(query)`\
+    \ | Graph-only retrieval \u2192 subgraph | Structural queries |\n| `skill.query_with_evidence(query)`\
+    \ | Graph + provenance \u2192 subgraph + source chunks | Queries requiring citations\
+    \ |\n| `wiki_store.write_page(category, title, content, summary)` | Write/update\
+    \ a wiki page | After every ingest; after answering queries |\n| `wiki_store.read_page(category,\
+    \ title)` | Read a wiki page | Before answering; for cross-referencing |\n| `wiki_store.search_wiki(query)`\
+    \ | Keyword search across wiki | Fast path before graph traversal |\n| `wiki_store.list_pages(category)`\
+    \ | List all wiki pages | Getting an overview |\n| `wiki_store.get_log(last_n)`\
+    \ | Read recent operations | Understanding wiki history |\n| `wiki_store.lint_wiki()`\
+    \ | Health check | Periodic maintenance |\n| `documents_store.list_documents()`\
+    \ | List all ingested raw sources | Audit / provenance checking |\n| `documents_store.search_chunks(query)`\
+    \ | Chunk-level search | Finding specific evidence |\n\n---\n\n## Design Philosophy\n\
+    \n> \"The wiki is a persistent, compounding artifact. The cross-references are\
+    \ already there. The synthesis already reflects everything you've read.\" \u2014\
+    \ Karpathy\n\n| Layer | What Happens | Who Owns It |\n|-------|-----------|-------------|\n\
+    | **LLM Reasoning** | Extraction, synthesis, writing wiki pages | Agent (.md guidance\
+    \ files) |\n| **Wiki Persistence** | Index, log, file I/O | `wiki_store.py` |\n\
+    | **Graph Persistence** | Dedup, index, BFS traverse | `graph_store.py`, `retrieval_engine.py`\
+    \ |\n| **Raw Source Storage** | Immutable docs + chunks + provenance | `documents_store.py`\
+    \ |\n\nThe human curates sources and asks questions. The LLM writes the wiki,\
+    \ extracts the graph, and answers with citations. Python handles all bookkeeping."

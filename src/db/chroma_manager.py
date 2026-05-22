@@ -46,9 +46,12 @@ from src.config import (
     CHROMA_PORT,
     CHROMA_OP_TIMEOUT,
     CHROMA_POOL_SIZE,
+    CHROMA_QUERY_POOL_SIZE,
     CHROMA_HEARTBEAT_INTERVAL,
     CHROMA_DISTANCE_FN,
+    REFINERY_POOL_SIZE,
     L1_PREFIX,
+    SESSION_PREFIX,
     L2_COLLECTION,
 )
 from src.db.embedding import get_embedding_fn
@@ -84,8 +87,12 @@ class ChromaManager:
             thread_name_prefix="chroma",
         )
         self._query_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=2,
+            max_workers=CHROMA_QUERY_POOL_SIZE,
             thread_name_prefix="query",
+        )
+        self._refinery_executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=REFINERY_POOL_SIZE,
+            thread_name_prefix="refinery",
         )
         self._health_thread = threading.Thread(
             target=self._background_health_loop,
@@ -246,14 +253,8 @@ class ChromaManager:
     # Direct collection accessors (for use INSIDE executor — no nesting)
     # ------------------------------------------------------------------
 
-    def get_l1_direct(self, workspace_id: str) -> Collection:
-        """Get or create an L1 collection — direct call, no executor.
-
-        Thread-safe: all ``_l1_cache`` mutations protected by ``self._lock``.
-        Uses cosine distance for semantic search consistency.
-        """
-        collection_name = f"{L1_PREFIX}{workspace_id}"
-
+    def _get_local_collection_direct(self, collection_name: str) -> Collection:
+        """Get or create a scoped local collection - direct call, no executor."""
         # Fast path: check cache under lock (microseconds)
         with self._lock:
             if collection_name in self._l1_cache and self._healthy:
@@ -282,8 +283,16 @@ class ChromaManager:
                 self._l1_cache.popitem(last=False)
             self._l1_cache[collection_name] = collection
 
-        logger.info("L1 collection ready: %s", collection_name)
+        logger.info("Local collection ready: %s", collection_name)
         return collection
+
+    def get_l1_direct(self, workspace_id: str) -> Collection:
+        """Get or create a workspace-scoped L1 collection."""
+        return self._get_local_collection_direct(f"{L1_PREFIX}{workspace_id}")
+
+    def get_session_direct(self, session_namespace: str) -> Collection:
+        """Get or create a session-scoped local collection."""
+        return self._get_local_collection_direct(f"{SESSION_PREFIX}{session_namespace}")
 
     def get_l2_direct(self) -> Collection:
         """Get or create the L2 collection — direct call, no executor.
@@ -370,6 +379,7 @@ class ChromaManager:
         logger.info("ChromaManager shutting down thread pools...")
         self._executor.shutdown(wait=False)
         self._query_executor.shutdown(wait=False)
+        self._refinery_executor.shutdown(wait=False)
 
 
 # ---------------------------------------------------------------------------

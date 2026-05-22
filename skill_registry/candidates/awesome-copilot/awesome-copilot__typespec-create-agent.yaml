@@ -1,0 +1,66 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__typespec-create-agent
+name: typespec-create-agent
+description: Generate a complete TypeSpec declarative agent with instructions, capabilities,
+  and conversation starters for Microsoft 365 Copilot
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/typespec-create-agent/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- typespec-create-agent
+content:
+  kind: skill_markdown
+  sha256: a25c02160da90770d824b693bd408c94e830942a657c99511a00174506ec1672
+  char_count: 2946
+  text: "# Create TypeSpec Declarative Agent\n\nCreate a complete TypeSpec declarative\
+    \ agent for Microsoft 365 Copilot with the following structure:\n\n## Requirements\n\
+    \nGenerate a `main.tsp` file with:\n\n1. **Agent Declaration**\n   - Use `@agent`\
+    \ decorator with a descriptive name and description\n   - Name should be 100 characters\
+    \ or less\n   - Description should be 1,000 characters or less\n\n2. **Instructions**\n\
+    \   - Use `@instructions` decorator with clear behavioral guidelines\n   - Define\
+    \ the agent's role, expertise, and personality\n   - Specify what the agent should\
+    \ and shouldn't do\n   - Keep under 8,000 characters\n\n3. **Conversation Starters**\n\
+    \   - Include 2-4 `@conversationStarter` decorators\n   - Each with a title and\
+    \ example query\n   - Make them diverse and showcase different capabilities\n\n\
+    4. **Capabilities** (based on user needs)\n   - `WebSearch` - for web content\
+    \ with optional site scoping\n   - `OneDriveAndSharePoint` - for document access\
+    \ with URL filtering\n   - `TeamsMessages` - for Teams channel/chat access\n \
+    \  - `Email` - for email access with folder filtering\n   - `People` - for organization\
+    \ people search\n   - `CodeInterpreter` - for Python code execution\n   - `GraphicArt`\
+    \ - for image generation\n   - `GraphConnectors` - for Copilot connector content\n\
+    \   - `Dataverse` - for Dataverse data access\n   - `Meetings` - for meeting content\
+    \ access\n\n## Template Structure\n\n```typescript\nimport \"@typespec/http\"\
+    ;\nimport \"@typespec/openapi3\";\nimport \"@microsoft/typespec-m365-copilot\"\
+    ;\n\nusing TypeSpec.Http;\nusing TypeSpec.M365.Copilot.Agents;\n\n@agent({\n \
+    \ name: \"[Agent Name]\",\n  description: \"[Agent Description]\"\n})\n@instructions(\"\
+    \"\"\n  [Detailed instructions about agent behavior, role, and guidelines]\n\"\
+    \"\")\n@conversationStarter(#{\n  title: \"[Starter Title 1]\",\n  text: \"[Example\
+    \ query 1]\"\n})\n@conversationStarter(#{\n  title: \"[Starter Title 2]\",\n \
+    \ text: \"[Example query 2]\"\n})\nnamespace [AgentName] {\n  // Add capabilities\
+    \ as operations here\n  op capabilityName is AgentCapabilities.[CapabilityType]<[Parameters]>;\n\
+    }\n```\n\n## Best Practices\n\n- Use descriptive, role-based agent names (e.g.,\
+    \ \"Customer Support Assistant\", \"Research Helper\")\n- Write instructions in\
+    \ second person (\"You are...\")\n- Be specific about the agent's expertise and\
+    \ limitations\n- Include diverse conversation starters that showcase different\
+    \ features\n- Only include capabilities the agent actually needs\n- Scope capabilities\
+    \ (URLs, folders, etc.) when possible for better performance\n- Use triple-quoted\
+    \ strings for multi-line instructions\n\n## Examples\n\nAsk the user:\n1. What\
+    \ is the agent's purpose and role?\n2. What capabilities does it need?\n3. What\
+    \ knowledge sources should it access?\n4. What are typical user interactions?\n\
+    \nThen generate the complete TypeSpec agent definition."

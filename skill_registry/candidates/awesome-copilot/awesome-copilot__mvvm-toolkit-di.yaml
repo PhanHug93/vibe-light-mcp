@@ -1,0 +1,145 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mvvm-toolkit-di
+name: mvvm-toolkit-di
+description: Wire CommunityToolkit.Mvvm ViewModels into Microsoft.Extensions.DependencyInjection.
+  Covers the .NET Generic Host composition root, constructor injection, service lifetimes
+  (Singleton / Transient / Scoped), IMessenger registration, resolving ViewModels
+  in Views, keyed services, testing seams, and the legacy Ioc.Default escape hatch.
+  Use across WPF, WinUI 3, .NET MAUI, Uno, and Avalonia.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mvvm-toolkit-di/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+- testing
+languages: []
+platforms: []
+aliases:
+- mvvm-toolkit-di
+content:
+  kind: skill_markdown
+  sha256: 1cb004175f6c732d684c78df2d6ad8fe7b597a503bc6f6fa031b41613da0b8d6
+  char_count: 9353
+  text: "# CommunityToolkit.Mvvm + `Microsoft.Extensions.DependencyInjection`\n\n\
+    The MVVM Toolkit deliberately ships **no DI container** \u2014 it composes with\n\
+    `Microsoft.Extensions.DependencyInjection`, the same container ASP.NET\nCore,\
+    \ Worker services, and the .NET Generic Host use.\n\n> **TL;DR.** Build the service\
+    \ provider once at startup (prefer\n> `Host.CreateDefaultBuilder()`). Register\
+    \ services and ViewModels.\n> Inject through constructors. Avoid `Ioc.Default.GetService<T>()`\n\
+    > in user code.\n\n---\n\n## When to use this skill\n\n- Standing up the composition\
+    \ root for a new XAML app (WPF, WinUI 3,\n  MAUI, Uno, Avalonia)\n- Choosing service/VM\
+    \ lifetimes\n- Wiring `IMessenger` once and injecting it into `ObservableRecipient`\n\
+    \  ViewModels\n- Resolving a page's ViewModel without coupling to a service locator\n\
+    - Diagnosing \"Unable to resolve service for type X while attempting to\n  activate\
+    \ Y\"\n\nFor source generators and ViewModel patterns see the **`mvvm-toolkit`**\n\
+    skill. For Messenger pub/sub see **`mvvm-toolkit-messenger`**.\n\n---\n\n## Recommended\
+    \ composition root (Generic Host)\n\n```csharp\nusing Microsoft.Extensions.DependencyInjection;\n\
+    using Microsoft.Extensions.Hosting;\nusing CommunityToolkit.Mvvm.Messaging;\n\n\
+    public partial class App : Application\n{\n    public IHost Host { get; }\n\n\
+    \    public App()\n    {\n        Host = Microsoft.Extensions.Hosting.Host\n \
+    \           .CreateDefaultBuilder()\n            .ConfigureServices((_, services)\
+    \ =>\n            {\n                services.AddSingleton<IFilesService, FilesService>();\n\
+    \                services.AddSingleton<ISettingsService, SettingsService>();\n\
+    \                services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);\n\
+    \n                services.AddSingleton<ShellViewModel>();\n                services.AddTransient<ContactViewModel>();\n\
+    \                services.AddTransient<EditorViewModel>();\n            })\n \
+    \           .Build();\n    }\n\n    public static T GetService<T>() where T :\
+    \ class =>\n        ((App)Current).Host.Services.GetRequiredService<T>();\n}\n\
+    ```\n\nGeneric Host benefits:\n\n- `appsettings.json` binding via `Microsoft.Extensions.Configuration`\n\
+    - Logging via `Microsoft.Extensions.Logging`\n- Hosted services (`IHostedService`)\
+    \ for background work\n- Scope validation in development builds\n\n> WPF and Windows\
+    \ Forms must integrate the host lifetime with the app\n> lifetime \u2014 see\n\
+    > [Use the .NET Generic Host in a WPF app](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/app-development/how-to-use-host-builder).\n\
+    \n### Without Generic Host\n\nWhen you only need a service container and want\
+    \ zero extra dependencies:\n\n```csharp\nvar services = new ServiceCollection();\n\
+    services.AddSingleton<IFilesService, FilesService>();\nservices.AddTransient<ContactViewModel>();\n\
+    ServiceProvider provider = services.BuildServiceProvider();\n```\n\n---\n\n##\
+    \ Constructor injection\n\nInject services and child ViewModels through the constructor:\n\
+    \n```csharp\npublic sealed partial class ContactViewModel(\n    IFilesService\
+    \ files,\n    IMessenger messenger,\n    ILogger<ContactViewModel> logger)\n \
+    \   : ObservableRecipient(messenger)\n{\n    [ObservableProperty]\n    private\
+    \ string? name;\n\n    [RelayCommand]\n    private async Task SaveAsync()\n  \
+    \  {\n        logger.LogInformation(\"Saving {Name}\", Name);\n        await files.SaveAsync(Name!);\n\
+    \    }\n}\n```\n\nWhy constructor injection beats a service locator:\n\n- Dependencies\
+    \ are explicit and visible at the call site\n- Unit tests inject fakes/mocks directly\n\
+    - The DI container validates the dependency graph at startup\n- Missing registrations\
+    \ throw immediately, not at first use\n\n---\n\n## Lifetimes\n\n| Lifetime | Method\
+    \ | Typical use in XAML apps |\n|----------|--------|--------------------------|\n\
+    | Singleton | `AddSingleton<T>` | Shell/main-window VM, settings, file/HTTP services,\
+    \ the shared `IMessenger`, app-wide caches |\n| Transient | `AddTransient<T>`\
+    \ | Per-page or per-document ViewModels (a fresh instance every resolve) |\n|\
+    \ Scoped | `AddScoped<T>` | Rarely needed in client apps; useful with explicit\
+    \ `IServiceScope` (e.g., per-window scopes) |\n\n```csharp\nservices.AddSingleton<ShellViewModel>();\
+    \   // 1 instance for app lifetime\nservices.AddTransient<NoteViewModel>();  \
+    \  // new instance per resolve\nservices.AddScoped<DialogService>();       //\
+    \ 1 per scope (rare)\n```\n\n---\n\n## Resolving in a View\n\nResolve the page's\
+    \ root ViewModel in code-behind, then let it pull its\nown dependencies:\n\n```csharp\n\
+    public sealed partial class ContactPage : Page\n{\n    public ContactViewModel\
+    \ ViewModel { get; }\n\n    public ContactPage()\n    {\n        ViewModel = App.GetService<ContactViewModel>();\n\
+    \        InitializeComponent();\n    }\n}\n```\n\nBind in XAML with `{x:Bind ViewModel.Xxx}`\
+    \ (compiled bindings) or\n`{Binding Xxx}` against `DataContext`.\n\nFor navigation\
+    \ frameworks (WinUI 3 `Frame.Navigate`, MAUI Shell, Prism,\nMVVMCross), let the\
+    \ framework resolve the page and the page resolves its\nViewModel from DI. Don't\
+    \ `new` ViewModels manually.\n\n---\n\n## `IMessenger` registration\n\nRegister\
+    \ the messenger you want once, inject `IMessenger` everywhere:\n\n```csharp\n\
+    services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);\n// or\nservices.AddSingleton<IMessenger>(StrongReferenceMessenger.Default);\n\
+    ```\n\nThen:\n\n```csharp\npublic sealed partial class MyViewModel(IMessenger\
+    \ messenger)\n    : ObservableRecipient(messenger) { }\n```\n\nFor per-window\
+    \ messengers, register with keyed services or as scoped\ninstances and inject\
+    \ into per-window ViewModels.\n\nSee the **`mvvm-toolkit-messenger`** skill for\
+    \ the messenger surface area.\n\n---\n\n## Keyed services (.NET 8+)\n\nResolve\
+    \ different implementations of the same interface by key:\n\n```csharp\nservices.AddKeyedSingleton<IExporter,\
+    \ CsvExporter>(\"csv\");\nservices.AddKeyedSingleton<IExporter, JsonExporter>(\"\
+    json\");\n\npublic sealed partial class ExportViewModel(\n    [FromKeyedServices(\"\
+    csv\")] IExporter csvExporter,\n    [FromKeyedServices(\"json\")] IExporter jsonExporter)\n\
+    \    : ObservableObject { /* ... */ }\n```\n\n---\n\n## Testing seams\n\nConstructor-injected\
+    \ dependencies are trivial to swap in tests. With\n`Moq`:\n\n```csharp\n[Fact]\n\
+    public async Task Save_calls_files_service()\n{\n    var files = new Mock<IFilesService>();\n\
+    \    var messenger = new WeakReferenceMessenger();\n    var logger = NullLogger<ContactViewModel>.Instance;\n\
+    \n    var vm = new ContactViewModel(files.Object, messenger, logger)\n    {\n\
+    \        Name = \"Ada\"\n    };\n\n    await vm.SaveCommand.ExecuteAsync(null);\n\
+    \n    files.Verify(f => f.SaveAsync(\"Ada\"), Times.Once);\n}\n```\n\nIf you're\
+    \ mocking `Ioc.Default` or static state, the ViewModel is using a\nservice locator\
+    \ \u2014 refactor to constructor injection.\n\n---\n\n## Legacy: `Ioc.Default`\n\
+    \n`CommunityToolkit.Mvvm.DependencyInjection.Ioc` is an escape hatch for\ncases\
+    \ where constructor injection is impossible \u2014 XAML-instantiated VMs\nfor\
+    \ design-time data, `ValueConverter`s, control templates.\n\n```csharp\nIoc.Default.ConfigureServices(\n\
+    \    new ServiceCollection()\n        .AddSingleton<IFilesService, FilesService>()\n\
+    \        .AddTransient<ContactViewModel>()\n        .BuildServiceProvider());\n\
+    \nvar files = Ioc.Default.GetRequiredService<IFilesService>();\n```\n\nTreat it\
+    \ as the last resort. Inside ViewModels, services, and any class\nthe DI container\
+    \ can construct, prefer constructor injection.\n\n---\n\n## Common pitfalls\n\n\
+    1. **`Ioc.Default.GetService<T>()` inside a VM constructor.** Hides the\n   dependency,\
+    \ breaks unit tests, prevents startup graph validation.\n2. **Everything `Singleton`.**\
+    \ A \"per-document\" VM registered as singleton\n   becomes shared state across\
+    \ all documents \u2014 subtle data corruption.\n   Use `AddTransient` for per-instance\
+    \ VMs.\n3. **Multiple `BuildServiceProvider()` calls.** Each call is a fresh\n\
+    \   container \u2014 singletons aren't shared. Build once at startup.\n4. **Capturing\
+    \ `IServiceProvider` in long-lived objects.** Indicates a\n   service-locator\
+    \ pattern. Inject the specific dependencies you need.\n5. **No scope validation\
+    \ in development.** Use `Host.CreateDefaultBuilder()`\n   (which sets `ValidateScopes`\
+    \ and `ValidateOnBuild` in development) so\n   registration mistakes fail at startup,\
+    \ not at first use.\n6. **Resolving scoped services from the root provider.**\
+    \ They're\n   effectively promoted to singleton lifetime \u2014 the warning is\
+    \ silent\n   without scope validation. Either change the lifetime or resolve from\n\
+    \   an explicit `IServiceScope`.\n\n---\n\n## References\n\n| Topic | File |\n\
+    |-------|------|\n| Full deep dive (Generic Host setup, lifetimes, keyed services,\
+    \ testing patterns, legacy Ioc) | [`references/dependency-injection.md`](references/dependency-injection.md)\
+    \ |\n\nExternal:\n\n- DI overview: <https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection>\n\
+    - DI usage: <https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage>\n\
+    - MVVM Toolkit Ioc page: <https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/ioc>\n\
+    - Generic Host: <https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host>"

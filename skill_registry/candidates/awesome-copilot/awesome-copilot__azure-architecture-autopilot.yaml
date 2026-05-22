@@ -1,0 +1,129 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__azure-architecture-autopilot
+name: azure-architecture-autopilot
+description: 'Design Azure infrastructure using natural language, or analyze existing
+  Azure resources to auto-generate architecture diagrams, refine them through conversation,
+  and deploy with Bicep.
+
+  When to use this skill: - "Create X on Azure", "Set up a RAG architecture" (new
+  design) - "Analyze my current Azure infrastructure", "Draw a diagram for rg-xxx"
+  (existing analysis) - "Foundry is slow", "I want to reduce costs", "Strengthen security"
+  (natural language modification) - Azure resource deployment, Bicep template generation,
+  IaC code generation - Microsoft Foundry, AI Search, OpenAI, Fabric, ADLS Gen2, Databricks,
+  and all Azure services'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/azure-architecture-autopilot/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_assets_directory
+  - has_references_directory
+  - has_scripts_directory
+facets:
+- security
+languages: []
+platforms: []
+aliases:
+- azure-architecture-autopilot
+content:
+  kind: skill_markdown
+  sha256: 2e8c7088c3df5ee8058a0c13147277f866d993c518920adc63a2facff5ad215f
+  char_count: 7315
+  text: "# Azure Architecture Builder\n\nA pipeline that designs Azure infrastructure\
+    \ using natural language, or analyzes existing resources to visualize architecture\
+    \ and proceed through modification and deployment.\n\nThe diagram engine is **embedded\
+    \ within the skill** (`scripts/` folder).\nNo `pip install` needed \u2014 it directly\
+    \ uses the bundled Python scripts\nto generate interactive HTML diagrams with\
+    \ 605+ official Azure icons.\nReady to use immediately without network access\
+    \ or package installation.\n\n## Automatic User Language Detection\n\n**\U0001F6A8\
+    \ Detect the language of the user's first message and provide all subsequent responses\
+    \ in that language. This is the highest-priority principle.**\n\n- If the user\
+    \ writes in Korean \u2192 respond in Korean\n- If the user writes in English \u2192\
+    \ **respond in English** (ask_user, progress updates, reports, Bicep comments\
+    \ \u2014 all in English)\n- The instructions and examples in this document are\
+    \ written in English, and **all user-facing output must match the user's language**\n\
+    \n**\u26A0\uFE0F Do not copy examples from this document verbatim to the user.**\n\
+    Use only the structure as reference, and adapt text to the user's language.\n\n\
+    ## Tool Usage Guide (GHCP Environment)\n\n| Feature | Tool Name | Notes |\n|---------|-----------|-------|\n\
+    | Fetch URL content | `web_fetch` | For MS Docs lookups, etc. |\n| Web search\
+    \ | `web_search` | URL discovery |\n| Ask user | `ask_user` | `choices` must be\
+    \ a string array |\n| Sub-agents | `task` | explore/task/general-purpose |\n|\
+    \ Shell command execution | `powershell` | Windows PowerShell |\n\n> All sub-agents\
+    \ (explore/task/general-purpose) cannot use `web_fetch` or `web_search`.\n> Fact-checking\
+    \ that requires MS Docs lookups must be performed **directly by the main agent**.\n\
+    \n## External Tool Path Discovery\n\n`az`, `python`, `bicep`, etc. are often not\
+    \ on PATH.\n**Discover once before starting a Phase and cache the result. Do not\
+    \ re-discover every time.**\n\n> **\u26A0\uFE0F Do not use `Get-Command python`**\
+    \ \u2014 risk of Windows Store alias.\n> Direct filesystem discovery (`$env:LOCALAPPDATA\\\
+    Programs\\Python`) takes priority.\n\naz CLI path:\n```powershell\n$azCmd = $null\n\
+    if (Get-Command az -ErrorAction SilentlyContinue) { $azCmd = 'az' }\nif (-not\
+    \ $azCmd) {\n  $azExe = Get-ChildItem -Path \"$env:ProgramFiles\\Microsoft SDKs\\\
+    Azure\\CLI2\\wbin\", \"$env:LOCALAPPDATA\\Programs\\Azure CLI\\wbin\" -Filter\
+    \ \"az.cmd\" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty\
+    \ FullName\n  if ($azExe) { $azCmd = $azExe }\n}\n```\n\nPython path + embedded\
+    \ diagram engine: refer to the diagram generation section in `references/phase1-advisor.md`.\n\
+    \n## Progress Updates Required\n\nUse blockquote + emoji + bold format:\n```markdown\n\
+    > **\u23F3 [Action]** \u2014 [Reason]\n> **\u2705 [Complete]** \u2014 [Result]\n\
+    > **\u26A0\uFE0F [Warning]** \u2014 [Details]\n> **\u274C [Failed]** \u2014 [Cause]\n\
+    ```\n\n## Parallel Preload Principle\n\nWhile waiting for user input via `ask_user`,\
+    \ preload information needed for the next step in parallel.\n\n| ask_user Question\
+    \ | Preload Simultaneously |\n|---|---|\n| Project name / scan scope | Reference\
+    \ files, MS Docs, Python path discovery, **diagram module path verification**\
+    \ |\n| Model/SKU selection | MS Docs for next question choices |\n| Architecture\
+    \ confirmation | `az account show/list`, `az group list` |\n| Subscription selection\
+    \ | `az group list` |\n\n---\n\n## Path Branching \u2014 Automatically Determined\
+    \ by User Request\n\n### Path A: New Design (New Build)\n\n**Trigger**: \"create\"\
+    , \"set up\", \"deploy\", \"build\", etc.\n```\nPhase 1 (references/phase1-advisor.md)\
+    \ \u2014 Interactive architecture design + diagram\n    \u2193\nPhase 2 (references/bicep-generator.md)\
+    \ \u2014 Bicep code generation\n    \u2193\nPhase 3 (references/bicep-reviewer.md)\
+    \ \u2014 Code review + compilation verification\n    \u2193\nPhase 4 (references/phase4-deployer.md)\
+    \ \u2014 validate \u2192 what-if \u2192 deploy\n```\n\n### Path B: Existing Analysis\
+    \ + Modification (Analyze & Modify)\n\n**Trigger**: \"analyze\", \"current resources\"\
+    , \"scan\", \"draw a diagram\", \"show my infrastructure\", etc.\n```\nPhase 0\
+    \ (references/phase0-scanner.md) \u2014 Existing resource scan + diagram\n   \
+    \ \u2193\nModification conversation \u2014 \"What would you like to change here?\"\
+    \ (natural language modification request \u2192 follow-up questions)\n    \u2193\
+    \nPhase 1 (references/phase1-advisor.md) \u2014 Confirm modifications + update\
+    \ diagram\n    \u2193\nPhase 2~4 \u2014 Same as above\n```\n\n### When Path Determination\
+    \ Is Ambiguous\n\nAsk the user directly:\n```\nask_user({\n  question: \"What\
+    \ would you like to do?\",\n  choices: [\n    \"Design a new Azure architecture\
+    \ (Recommended)\",\n    \"Analyze + modify existing Azure resources\"\n  ]\n})\n\
+    ```\n\n---\n\n## Phase Transition Rules\n\n- Each Phase reads and follows the\
+    \ instructions in its corresponding `references/*.md` file\n- When transitioning\
+    \ between Phases, always inform the user about the next step\n- Do not skip Phases\
+    \ (especially the what-if between Phase 3 \u2192 Phase 4)\n- **\U0001F6A8 Required\
+    \ condition for Phase 1 \u2192 Phase 2 transition**: `01_arch_diagram_draft.html`\
+    \ must have been generated using the embedded diagram engine and shown to the\
+    \ user. **Do not proceed to Bicep generation without a diagram.** Completing spec\
+    \ collection alone does not mean Phase 1 is done \u2014 Phase 1 includes diagram\
+    \ generation + user confirmation.\n- Modification request after deployment \u2192\
+    \ return to Phase 1, not Phase 0 (Delta Confirmation Rule)\n\n## Service Coverage\
+    \ & Fallback\n\n### Optimized Services\nMicrosoft Foundry, Azure OpenAI, AI Search,\
+    \ ADLS Gen2, Key Vault, Microsoft Fabric, Azure Data Factory, VNet/Private Endpoint,\
+    \ AML/AI Hub\n\n### Other Azure Services\nAll supported \u2014 MS Docs are automatically\
+    \ consulted to generate at the same quality standard.\n**Do not send messages\
+    \ that cause user anxiety such as \"out of scope\" or \"best-effort\".**\n\n###\
+    \ Stable vs Dynamic Information Handling\n\n| Category | Handling Method | Examples\
+    \ |\n|----------|----------------|---------|\n| **Stable** | Reference files first\
+    \ | `isHnsEnabled: true`, PE triple set |\n| **Dynamic** | **Always fetch MS Docs**\
+    \ | API version, model availability, SKU, region |\n\n## Quick Reference\n\n|\
+    \ File | Role |\n|------|------|\n| `references/phase0-scanner.md` | Existing\
+    \ resource scan + relationship inference + diagram |\n| `references/phase1-advisor.md`\
+    \ | Interactive architecture design + fact checking |\n| `references/bicep-generator.md`\
+    \ | Bicep code generation rules |\n| `references/bicep-reviewer.md` | Code review\
+    \ checklist |\n| `references/phase4-deployer.md` | validate \u2192 what-if \u2192\
+    \ deploy |\n| `references/service-gotchas.md` | Required properties, PE mappings\
+    \ |\n| `references/azure-dynamic-sources.md` | MS Docs URL registry |\n| `references/azure-common-patterns.md`\
+    \ | PE/security/naming patterns |\n| `references/ai-data.md` | AI/Data service\
+    \ guide |"

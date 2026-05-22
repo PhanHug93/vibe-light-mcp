@@ -1,0 +1,57 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__cli-mastery
+name: cli-mastery
+description: Interactive training for the GitHub Copilot CLI. Guided lessons, quizzes,
+  scenario challenges, and a full reference covering slash commands, shortcuts, modes,
+  agents, skills, MCP, and configuration. Say "cliexpert" to start.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/cli-mastery/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- cli-mastery
+content:
+  kind: skill_markdown
+  sha256: d3e4194d69f973aa5bf8993c8e68b09fea9f0f2c0427e740a18fd4175d956879
+  char_count: 2066
+  text: "# Copilot CLI Mastery\n\n**UTILITY SKILL** \u2014 interactive Copilot CLI\
+    \ trainer.\nINVOKES: `ask_user`, `sql`, `view`\nUSE FOR: \"cliexpert\", \"teach\
+    \ me the Copilot CLI\", \"quiz me on slash commands\", \"CLI cheat sheet\", \"\
+    copilot CLI final exam\"\nDO NOT USE FOR: general coding, non-CLI questions, IDE-only\
+    \ features\n\n## Routing and Content\n\n| Trigger | Action |\n|---------|--------|\n\
+    | \"cliexpert\", \"teach me\" | Read next `references/module-N-*.md`, teach |\n\
+    | \"quiz me\", \"test me\" | Read current module, 5+ questions via `ask_user`\
+    \ |\n| \"scenario\", \"challenge\" | Read `references/scenarios.md` |\n| \"reference\"\
+    \ | Read relevant module, summarize |\n| \"final exam\" | Read `references/final-exam.md`\
+    \ |\n\nSpecific CLI questions get direct answers without loading references.\n\
+    Reference files in `references/` dir. Read on demand with `view`.\n\n## Behavior\n\
+    \nOn first interaction, initialize progress tracking:\n```sql\nCREATE TABLE IF\
+    \ NOT EXISTS mastery_progress (key TEXT PRIMARY KEY, value TEXT);\nCREATE TABLE\
+    \ IF NOT EXISTS mastery_completed (module TEXT PRIMARY KEY, completed_at TEXT\
+    \ DEFAULT (datetime('now')));\nINSERT OR IGNORE INTO mastery_progress (key,value)\
+    \ VALUES ('xp','0'),('level','Newcomer'),('module','0');\n```\nXP: lesson +20,\
+    \ correct +15, perfect quiz +50, scenario +30.\nLevels: 0=Newcomer 100=Apprentice\
+    \ 250=Navigator 400=Practitioner 550=Specialist 700=Expert 850=Virtuoso 1000=Architect\
+    \ 1150=Grandmaster 1500=Wizard.\nMax XP from all content: 1600 (8 modules \xD7\
+    \ 145 + 8 scenarios \xD7 30 + final exam 200).\n\nWhen module counter exceeds\
+    \ 8 and user says \"cliexpert\", offer: scenarios, final exam, or review any module.\n\
+    \nRules: `ask_user` with `choices` for ALL quizzes/scenarios. Show XP after correct\
+    \ answers. One concept at a time; offer quiz or review after each lesson."

@@ -1,0 +1,106 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-search-quality-search-strategies
+name: qdrant-search-strategies
+description: Guides Qdrant search strategy selection. Use when someone asks 'should
+  I use hybrid search?', 'BM25 or sparse vectors?', 'how to rerank?', 'results are
+  not relevant', 'I don't get needed results from my dataset but they're there', 'retrieval
+  quality is not good enough', 'results too similar', 'need diversity', 'MMR', 'relevance
+  feedback', 'recommendation API', 'discovery API', 'ColBERT reranking', or 'missing
+  keyword matches'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-search-quality/search-strategies/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- qdrant-search-strategies
+content:
+  kind: skill_markdown
+  sha256: ed5044af012df8b84eca9e7cef6888dec798e5aa5b32144cf72646e93847d469
+  char_count: 6961
+  text: "# How to Improve Search Results with Advanced Strategies\n\nThese strategies\
+    \ complement basic vector search. Use them after confirming the embedding model\
+    \ is fitting the task and HNSW config is correct. If exact search returns bad\
+    \ results, verify the selection of the embedding model (retriever) first.\nIf\
+    \ the user wants to use a weaker embedding model because it is small, fast, and\
+    \ cheap, use reranking or relevance feedback to improve search quality.\n\n##\
+    \ Missing Obvious Keyword Matches\n\nUse when: pure vector search misses results\
+    \ that contain obvious keyword matches. Domain terminology not in embedding training\
+    \ data, exact keyword matching critical (brand names, SKUs), acronyms common.\
+    \ Skip when: pure semantic queries, all data in training set, latency budget very\
+    \ tight.\n\n- Dense + sparse with `prefetch` and fusion [Hybrid search](https://search.qdrant.tech/md/documentation/search/hybrid-queries/?s=hybrid-search)\n\
+    - Prefer learned sparse ([miniCOIL](https://search.qdrant.tech/md/documentation/fastembed/fastembed-minicoil/),\
+    \ SPLADE, GTE) over raw BM25 if applicable (when user needs smart keywords matching\
+    \ and learned sparse models know the vocabulary of the domain)\n- For non-English\
+    \ languages, [configure sparse BM25 parameters accordingly](https://search.qdrant.tech/md/documentation/search/text-search/?s=language-specific-settings)\n\
+    - RRF: good default, supports weighted (v1.17+) [RRF](https://search.qdrant.tech/md/documentation/search/hybrid-queries/?s=reciprocal-rank-fusion-rrf)\n\
+    - DBSF with asymmetric limits (sparse_limit=250, dense_limit=100) can outperform\
+    \ RRF for technical docs [DBSF](https://search.qdrant.tech/md/documentation/search/hybrid-queries/?s=distribution-based-score-fusion-dbsf)\n\
+    - Fusion can also be done through reranking\n\n## Right Documents Found But Wrong\
+    \ Order\n\nUse when: good recall but poor precision (right docs in top-100, not\
+    \ top-10).\n\n- Cross-encoder rerankers via FastEmbed [Rerankers](https://search.qdrant.tech/md/documentation/fastembed/fastembed-rerankers/)\n\
+    - See how to use [Multistage queries](https://search.qdrant.tech/md/documentation/search/hybrid-queries/?s=multi-stage-queries)\
+    \ in Qdrant\n- ColBERT and ColPali/ColQwen reranking is especially precise due\
+    \ to late interaction mechanisms, but it is heavy. It is important to configure\
+    \ and store multivectors without building HNSW for them to save resources. See\
+    \ [Multivector representation](https://search.qdrant.tech/md/documentation/tutorials-search-engineering/using-multivector-representations/)\n\
+    \n## Right Documents Not Found But They Are There\n\nUse when: basic retrieval\
+    \ is in place but the retriever misses relevant items you know exist in the dataset.\
+    \ Works on any embeddable data (text, images, etc.).\n\nRelevance Feedback (RF)\
+    \ Query uses a feedback model's scores on retrieved results to steer the retriever\
+    \ through the full vector space on subsequent iterations, like reranking the entire\
+    \ collection through the retriever. Complementary to reranking: a reranker sees\
+    \ a limited subset, RF leverages feedback signals collection-wide. Even 3\u2013\
+    5 feedback scores are enough. Can run multiple iterations.\n\nA feedback model\
+    \ is anything producing a relevance score per document: a bi-encoder, cross-encoder,\
+    \ late-interaction model, LLM-as-judge. Fuzzy relevance scores work, not just\
+    \ binary (good/bad, relevant/irrelevant), due to the fact that feedback is expressed\
+    \ as a graded relevance score (higher = more relevant).\n\nSkip when: if the retriever\
+    \ already has strong recall, or if retriever and feedback model strongly agree\
+    \ on relevance.\n\n- RF Query is currently based on a [3-parameter naive formula](https://search.qdrant.tech/md/documentation/search/search-relevance/?s=naive-strategy)\
+    \ with no universal defaults, so it must be tuned per dataset, retriever, and\
+    \ feedback model\n- Use [qdrant-relevance-feedback](https://pypi.org/project/qdrant-relevance-feedback/)\
+    \ to tune parameters, evaluate impact with Evaluator, and check retriever-feedback\
+    \ agreement. See README for setup instructions. No GPUs are needed, and the framework\
+    \ also provides predefined retriever and feedback model options.\n- Check the\
+    \ configuration of the [Relevance Feedback Query API](https://search.qdrant.tech/md/documentation/search/search-relevance/?s=relevance-feedback)\n\
+    - Use this as a helper end-to-end text retrieval example with parameter tuning\
+    \ and evals to understand how to use the API and run the `qdrant-relevance-feedback`\
+    \ framework: [RF tutorial](https://search.qdrant.tech/md/documentation/tutorials-search-engineering/using-relevance-feedback/)\n\
+    \n## Results Too Similar\n\nUse when: top results are redundant, near-duplicates,\
+    \ or lack diversity. Common in dense content domains (academic papers, product\
+    \ catalogs).\n\n- Use MMR (v1.15+) as a query parameter with `diversity` to balance\
+    \ relevance and diversity [MMR](https://search.qdrant.tech/md/documentation/search/search-relevance/?s=maximal-marginal-relevance-mmr)\n\
+    - Start with `diversity=0.5`, lower for more precision, higher for more exploration\n\
+    - MMR is slower than standard search. Only use when redundancy is an actual problem.\n\
+    \n## Know What Good Results Could Look Like But Can't Get Them\n\nUse when: you\
+    \ can provide positive and negative example points to steer search closer to positive\
+    \ and further from negative.\n\n- Recommendation API: positive/negative examples\
+    \ to recommend fitting vectors [Recommendation API](https://search.qdrant.tech/md/documentation/search/explore/?s=recommendation-api)\n\
+    \  - Best score strategy: better for diverse examples, supports negative-only\
+    \ [Best score](https://search.qdrant.tech/md/documentation/search/explore/?s=best-score-strategy)\n\
+    - Discovery API: context pairs (positive/negative) to constrain search regions\
+    \ without a request target [Discovery](https://search.qdrant.tech/md/documentation/search/explore/?s=discovery-api)\n\
+    \n## Have Business Logic Behind Relevance\nUse when: results should be additionally\
+    \ ranked according to some business logic based on data, like recency or distance.\n\
+    \nCheck how to set up in [Score Boosting docs](https://search.qdrant.tech/md/documentation/search/search-relevance/?s=score-boosting)\n\
+    \n## What NOT to Do\n\n- Use hybrid search before verifying pure vector quality\
+    \ (adds complexity, may mask model issues)\n- Use BM25 on non-English text without\
+    \ correctly configuring language-specific stop-word removal (severely degraded\
+    \ results)\n- Skip evaluation when adding relevance feedback (it's good to check\
+    \ on real queries that it actually could help)"

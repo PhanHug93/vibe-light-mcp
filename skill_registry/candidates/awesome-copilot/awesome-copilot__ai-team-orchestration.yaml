@@ -1,0 +1,117 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__ai-team-orchestration
+name: ai-team-orchestration
+description: 'Bootstrap and run a multi-agent AI development team. Use when: starting
+  a new software project with AI agents, setting up parallel dev/QA teams, creating
+  sprint plans, writing brainstorm prompts with distinct agent voices, recovering
+  a project workflow, or planning sprints.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/ai-team-orchestration/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- testing
+languages: []
+platforms: []
+aliases:
+- ai-team-orchestration
+content:
+  kind: skill_markdown
+  sha256: be73d0a778f7f4027f17bb5b7783b18c37a74f6782eec0baab40346139e65865
+  char_count: 5599
+  text: "# AI Team Orchestration\n\n## When to Use\n- Starting a new project that\
+    \ needs planning, development, testing, and deployment\n- Setting up parallel\
+    \ AI agent teams (dev, QA, DevOps)\n- Writing brainstorm prompts that produce\
+    \ real debate (not generic output)\n- Creating sprint plans with cross-chat context\
+    \ survival\n- Recovering from context overflow mid-sprint\n\n## Team Roles\n\n\
+    | Agent | Name | Role | Focus |\n|-------|------|------|-------|\n| Producer |\
+    \ **Remy** | Sprint planning, coordination, merging PRs | Scope control, handoffs,\
+    \ issue triage |\n| Product Designer | **Kira** | UX, mechanics, user experience\
+    \ | Fun factor, user flows, feature design |\n| Visual/Art Director | **Milo**\
+    \ | CSS, animations, visual identity | Design system, polish, accessibility |\n\
+    | Frontend Engineer | **Nova** | UI framework, state management, components |\
+    \ React/Vue/Svelte, client-side logic |\n| Backend Engineer | **Sage** | API,\
+    \ database, auth, security | Server-side logic, infrastructure |\n| DevOps Engineer\
+    \ | **Dash** | CI/CD, cloud deployment, pipelines | GitHub Actions, Azure/AWS/GCP\
+    \ |\n| QA Engineer | **Ivy** | E2E tests, automation, playtesting | Playwright/Cypress,\
+    \ bug filing, sign-off |\n\nCustomize names and roles for your project. Not every\
+    \ project needs all roles.\n\n## Chat Architecture\n\nThe human (CEO) is the message\
+    \ bus between parallel chats:\n\n```\n\u250C\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  @ai-team-producer\
+    \ \u2014 Plans, merges     \u2502\n\u2502  NEVER writes code                 \
+    \    \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u252C\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2518\n                 \u2502 Human carries messages\n\
+    \      \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253C\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n      \u25BC\
+    \          \u25BC          \u25BC\n\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2510 \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2510 \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502@ai-team\
+    \  \u2502 \u2502@ai-team\u2502 \u2502DevOps  \u2502\n\u2502-dev      \u2502 \u2502\
+    -qa     \u2502 \u2502(on     \u2502\n\u2502          \u2502 \u2502        \u2502\
+    \ \u2502demand) \u2502\n\u2502 Nova     \u2502 \u2502 Ivy    \u2502 \u2502   \
+    \     \u2502\n\u2502 Sage     \u2502 \u2502        \u2502 \u2502        \u2502\
+    \n\u2502 Milo     \u2502 \u2502        \u2502 \u2502        \u2502\n\u2502   \
+    \       \u2502 \u2502feature/\u2502 \u2502feature/\u2502\n\u2502 feature/ \u2502\
+    \ \u2502qa-N    \u2502 \u2502devops-N\u2502\n\u2502 sprint-N \u2502 \u2514\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2518\n```\n\nEach team works in a **separate VS Code window**\
+    \ with its own clone:\n```bash\ngit clone <repo> project-dev    # Dev team\ngit\
+    \ clone <repo> project-qa     # QA\ngit clone <repo> project-devops # DevOps (only\
+    \ when needed)\n```\n\n## Project Bootstrap\n\n### 1. Create PROJECT_BRIEF.md\n\
+    \nThe single source of truth across all chats. See the [project brief template](./references/project-brief-template.md).\n\
+    \n**Required sections (do not abbreviate):**\n1. Project Overview\n2. Concept\
+    \ / Product Description\n3. Tech Stack\n4. Architecture (ASCII diagram)\n5. Key\
+    \ Files Map\n6. Team Roles\n7. Sprint Status (updated every sprint)\n8. Current\
+    \ State (rewritten every sprint)\n9. Security Rules\n10. How to Run Locally\n\
+    11. How to Deploy\n12. **Cross-Chat Handoff Protocol** \u2014 how context survives\
+    \ between chats\n13. **Bug & Fix Tracking** \u2014 GitHub Issues as single source\
+    \ of truth\n14. **Multi-Repo Setup** \u2014 separate clones, branch strategy,\
+    \ merge rules\n\n### 2. Run a Brainstorm\n\nSee the [brainstorm format](./references/brainstorm-format.md).\
+    \ Key: name each agent explicitly with distinct personality and perspective. Require\
+    \ at least 2 genuine disagreements to prevent groupthink.\n\n### 3. Create Sprint\
+    \ Plans\n\nSee the [sprint plan template](./references/sprint-plan-template.md).\
+    \ Every sprint gets:\n- `docs/sprint-N/plan.md` \u2014 prioritized tasks, success\
+    \ criteria\n- `docs/sprint-N/progress.md` \u2014 live tracker, enables recovery\n\
+    - `docs/sprint-N/done.md` \u2014 handoff doc written at sprint end\n\n### 4. Execute\
+    \ Sprints\n\n```\nRead PROJECT_BRIEF.md, then read docs/sprint-N/plan.md. Execute\
+    \ Sprint N.\n\nFirst: git pull origin main && git checkout -b feature/sprint-N\n\
+    \nClose GitHub Issues in commits: \"fix: description (Fixes #NN)\"\nUpdate docs/sprint-N/progress.md\
+    \ after each phase.\nWhen done, push and create PR: git push origin feature/sprint-N\n\
+    Follow Sections 12-14 of PROJECT_BRIEF.md.\n```\n\n### 5. QA Sign-off\n\nAfter\
+    \ dev merges, QA does a full playthrough:\n```\nRead PROJECT_BRIEF.md. You are\
+    \ Ivy (QA).\nSprint N is merged to main. Do full playthrough.\nFile bugs as GitHub\
+    \ Issues. Write docs/qa/sprint-N-signoff.md.\n```\n\n## Context Recovery\n\nWhen\
+    \ a chat gets long (>100 messages), save state and start fresh:\n\n**Before closing:**\n\
+    1. Update `docs/sprint-N/progress.md` with current status\n2. Update `PROJECT_BRIEF.md`\
+    \ sections 7+8\n3. Write `docs/sprint-N/done.md`\n\n**Cold start prompt:**\n```\n\
+    Read PROJECT_BRIEF.md and docs/sprint-N/progress.md.\nContinue from where it left\
+    \ off.\n```\n\n## Anti-Patterns\n\nSee [anti-patterns reference](./references/anti-patterns.md)\
+    \ for the full list. Top 5:\n\n| Don't | Do Instead |\n|-------|------------|\n\
+    | Rebase feature branches | Merge (rebase loses commits) |\n| Producer writes\
+    \ code | Producer only plans, merges, files issues |\n| Batch \"fix everything\"\
+    \ commits | One commit per fix with issue reference |\n| Vague brainstorm prompts\
+    \ | Name each agent with distinct perspective |\n| Keep bugs only in chat | File\
+    \ GitHub Issues (chat context dies) |\n\n## Tips for Better Results\n\n- **\"\
+    Take your time, do it right\"** in prompts produces better output than rushing\n\
+    - **Test before merge** \u2014 you playtest, file issues, dev fixes, then merge\n\
+    - **Run team consiliums** before major sprints \u2014 each agent reviews the plan\
+    \ from their perspective\n- **Save lessons to memory** after every milestone"

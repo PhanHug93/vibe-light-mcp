@@ -1,0 +1,139 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__winmd-api-search
+name: winmd-api-search
+description: "Find and explore Windows desktop APIs. Use when building features that\
+  \ need platform capabilities \u2014 camera, file access, notifications, UI controls,\
+  \ AI/ML, sensors, networking, etc. Discovers the right API for a task and retrieves\
+  \ full type details (methods, properties, events, enumeration values)."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/winmd-api-search/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- winmd-api-search
+content:
+  kind: skill_markdown
+  sha256: d777e47317ae46772d5fadb37ebc322bd2a3610c315d9b782748e2fb205b93f3
+  char_count: 8705
+  text: "# WinMD API Search\n\nThis skill helps you find the right Windows API for\
+    \ any capability and get its full details. It searches a local cache of all WinMD\
+    \ metadata from:\n\n- **Windows Platform SDK** \u2014 all `Windows.*` WinRT APIs\
+    \ (always available, no restore needed)\n- **WinAppSDK / WinUI** \u2014 bundled\
+    \ as a baseline in the cache generator (always available, no restore needed)\n\
+    - **NuGet packages** \u2014 any additional packages in restored projects that\
+    \ contain `.winmd` files\n- **Project-output WinMD** \u2014 class libraries (C++/WinRT,\
+    \ C#) that produce `.winmd` as build output\n\nEven on a fresh clone with no restore\
+    \ or build, you still get full Platform SDK + WinAppSDK coverage.\n\n## When to\
+    \ Use This Skill\n\n- User wants to build a feature and you need to find which\
+    \ API provides that capability\n- User asks \"how do I do X?\" where X involves\
+    \ a platform feature (camera, files, notifications, sensors, AI, etc.)\n- You\
+    \ need the exact methods, properties, events, or enumeration values of a type\
+    \ before writing code\n- You're unsure which control, class, or interface to use\
+    \ for a UI or system task\n\n## Prerequisites\n\n- **.NET SDK 8.0 or later** \u2014\
+    \ required to build the cache generator. Install from [dotnet.microsoft.com](https://dotnet.microsoft.com/download)\
+    \ if not available.\n\n## Cache Setup (Required Before First Use)\n\nAll query\
+    \ and search commands read from a local JSON cache. **You must generate the cache\
+    \ before running any queries.**\n\n```powershell\n# All projects in the repo (recommended\
+    \ for first run)\n.\\.github\\skills\\winmd-api-search\\scripts\\Update-WinMdCache.ps1\n\
+    \n# Single project\n.\\.github\\skills\\winmd-api-search\\scripts\\Update-WinMdCache.ps1\
+    \ -ProjectDir <project-folder>\n```\n\nNo project restore or build is needed for\
+    \ baseline coverage (Platform SDK + WinAppSDK). For additional NuGet packages,\
+    \ the project needs `dotnet restore` (which generates `project.assets.json`) or\
+    \ a `packages.config` file.\n\nCache is stored at `Generated Files\\winmd-cache\\\
+    `, deduplicated per-package+version.\n\n### What gets indexed\n\n| Source | When\
+    \ available |\n|--------|----------------|\n| Windows Platform SDK | Always (reads\
+    \ from local SDK install) |\n| WinAppSDK (latest) | Always (bundled as baseline\
+    \ in cache generator) |\n| WinAppSDK Runtime | When installed on the system (detected\
+    \ via `Get-AppxPackage`) |\n| Project NuGet packages | After `dotnet restore`\
+    \ or with `packages.config` |\n| Project-output `.winmd` | After project build\
+    \ (class libraries that produce WinMD) |\n\n> **Note:** This cache directory should\
+    \ be in `.gitignore` \u2014 it's generated, not source.\n\n## How to Use\n\nPick\
+    \ the path that matches the situation:\n\n---\n\n### Discover \u2014 \"I don't\
+    \ know which API to use\"\n\nThe user describes a capability in their own words.\
+    \ You need to find the right API.\n\n**0. Ensure the cache exists**\n\nIf the\
+    \ cache hasn't been generated yet, run `Update-WinMdCache.ps1` first \u2014 see\
+    \ [Cache Setup](#cache-setup-required-before-first-use) above.\n\n**1. Translate\
+    \ user language \u2192 search keywords**\n\nMap the user's daily language to programming\
+    \ terms. Try multiple variations:\n\n| User says | Search keywords to try (in\
+    \ order) |\n|-----------|-----------------------------------|\n| \"take a picture\"\
+    \ | `camera`, `capture`, `photo`, `MediaCapture` |\n| \"load from disk\" | `file\
+    \ open`, `picker`, `FileOpen`, `StorageFile` |\n| \"describe what's in it\" |\
+    \ `image description`, `Vision`, `Recognition` |\n| \"show a popup\" | `dialog`,\
+    \ `flyout`, `popup`, `ContentDialog` |\n| \"drag and drop\" | `drag`, `drop`,\
+    \ `DragDrop` |\n| \"save settings\" | `settings`, `ApplicationData`, `LocalSettings`\
+    \ |\n\nStart with simple everyday words. If results are weak or irrelevant, try\
+    \ the more technical variation.\n\n**2. Run searches**\n\n```powershell\n.\\.github\\\
+    skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1 -Action search -Query\
+    \ \"<keyword>\"\n```\n\nThis returns ranked namespaces with top matching types\
+    \ and the **JSON file path**.\n\nIf results have **low scores (below 60) or are\
+    \ irrelevant**, fall back to searching online documentation:\n\n1. Use web search\
+    \ to find the right API on Microsoft Learn, for example:\n   - `site:learn.microsoft.com/uwp/api\
+    \ <capability keywords>` for `Windows.*` APIs\n   - `site:learn.microsoft.com/windows/windows-app-sdk/api/winrt\
+    \ <capability keywords>` for `Microsoft.*` WinAppSDK APIs\n2. Read the documentation\
+    \ pages to identify which type matches the user's requirement.\n3. Once you know\
+    \ the type name, come back and use `-Action members` or `-Action enums` to get\
+    \ the exact local signatures.\n\n**3. Read the JSON to choose the right API**\n\
+    \nRead the file at the path(s) from the top results. The JSON has all types in\
+    \ that namespace \u2014 full members, signatures, parameters, return types, enumeration\
+    \ values.\n\nRead and decide which types and members fit the user's requirement.\n\
+    \n**4. Look up official documentation for context**\n\nThe cache contains only\
+    \ signatures \u2014 no descriptions or usage guidance. For explanations, examples,\
+    \ and remarks, look up the type on Microsoft Learn:\n\n| Namespace prefix | Documentation\
+    \ base URL |\n|-----------------|----------------------|\n| `Windows.*` | `https://learn.microsoft.com/uwp/api/{fully.qualified.typename}`\
+    \ |\n| `Microsoft.*` (WinAppSDK) | `https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/{fully.qualified.typename}`\
+    \ |\n\nFor example, `Microsoft.UI.Xaml.Controls.NavigationView` maps to:\n`https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.navigationview`\n\
+    \n**5. Use the API knowledge to answer or write code**\n\n---\n\n### Lookup \u2014\
+    \ \"I know the API, show me the details\"\n\nYou already know (or suspect) the\
+    \ type or namespace name. Go direct:\n\n```powershell\n# Get all members of a\
+    \ known type\n.\\.github\\skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1\
+    \ -Action members -TypeName \"Microsoft.UI.Xaml.Controls.NavigationView\"\n\n\
+    # Get enum values\n.\\.github\\skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1\
+    \ -Action enums -TypeName \"Microsoft.UI.Xaml.Visibility\"\n\n# List all types\
+    \ in a namespace\n.\\.github\\skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1\
+    \ -Action types -Namespace \"Microsoft.UI.Xaml.Controls\"\n\n# Browse namespaces\n\
+    .\\.github\\skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1 -Action namespaces\
+    \ -Filter \"Microsoft.UI\"\n```\n\nIf you need full detail beyond what `-Action\
+    \ members` shows, use `-Action search` to get the JSON file path, then read the\
+    \ JSON file directly.\n\n---\n\n### Other Commands\n\n```powershell\n# List cached\
+    \ projects\n.\\.github\\skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1\
+    \ -Action projects\n\n# List packages for a project\n.\\.github\\skills\\winmd-api-search\\\
+    scripts\\Invoke-WinMdQuery.ps1 -Action packages\n\n# Show stats\n.\\.github\\\
+    skills\\winmd-api-search\\scripts\\Invoke-WinMdQuery.ps1 -Action stats\n```\n\n\
+    > If only one project is cached, `-Project` is auto-selected.\n> If multiple projects\
+    \ exist, add `-Project <name>` (use `-Action projects` to see available names).\n\
+    > In scan mode, manifest names include a short hash suffix to avoid collisions;\
+    \ you can pass the base project name without the suffix if it's unambiguous.\n\
+    \n## Search Scoring\n\nThe search ranks type names and member names against your\
+    \ query:\n\n| Score | Match type | Example |\n|-------|-----------|---------|\n\
+    | 100 | Exact name | `Button` \u2192 `Button` |\n| 80 | Starts with | `Navigation`\
+    \ \u2192 `NavigationView` |\n| 60 | Contains | `Dialog` \u2192 `ContentDialog`\
+    \ |\n| 50 | PascalCase initials | `ASB` \u2192 `AutoSuggestBox` |\n| 40 | Multi-keyword\
+    \ AND | `navigation item` \u2192 `NavigationViewItem` |\n| 20 | Fuzzy character\
+    \ match | `NavVw` \u2192 `NavigationView` |\n\nResults are grouped by namespace.\
+    \ Higher-scored namespaces appear first.\n\n## Troubleshooting\n\n| Issue | Fix\
+    \ |\n|-------|-----|\n| \"Cache not found\" | Run `Update-WinMdCache.ps1` |\n\
+    | \"Multiple projects cached\" | Add `-Project <name>` |\n| \"Namespace not found\"\
+    \ | Use `-Action namespaces` to list available ones |\n| \"Type not found\" |\
+    \ Use fully qualified name (e.g., `Microsoft.UI.Xaml.Controls.Button`) |\n| Stale\
+    \ after NuGet update | Re-run `Update-WinMdCache.ps1` |\n| Cache in git history\
+    \ | Add `Generated Files/` to `.gitignore` |\n\n## References\n\n- [Windows Platform\
+    \ SDK API reference](https://learn.microsoft.com/uwp/api/) \u2014 documentation\
+    \ for `Windows.*` namespaces\n- [Windows App SDK API reference](https://learn.microsoft.com/windows/windows-app-sdk/api/winrt/)\
+    \ \u2014 documentation for `Microsoft.*` WinAppSDK namespaces"

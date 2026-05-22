@@ -1,0 +1,97 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__commit-message-storyteller
+name: commit-message-storyteller
+description: "Analyzes git diffs or staged changes and generates narrative commit\
+  \ messages that explain WHY a change was made, not just what changed \u2014 following\
+  \ Conventional Commits format. Use when asked to \"write a commit message\", \"\
+  generate a commit\", \"describe my changes\", \"what should I commit this as\",\
+  \ \"commit this\", \"summarize my diff\", or \"help me commit\". Works with git\
+  \ diff output, staged files, or plain descriptions of changes."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/commit-message-storyteller/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- commit-message-storyteller
+content:
+  kind: skill_markdown
+  sha256: 9a351d6276d9c17c5e5ac0920efc1dfa054cf9e17c7db52a9fc2a0e38f39e65a
+  char_count: 5153
+  text: "# Commit Message Storyteller\n\nTransforms raw git diffs and change descriptions\
+    \ into clear, story-driven commit messages that follow the [Conventional Commits](https://www.conventionalcommits.org/)\
+    \ specification. Instead of \"update file.js\", you get messages that communicate\
+    \ intent, context, and impact.\n\n## When to Use This Skill\n\n- User says \"\
+    write a commit message\", \"help me commit\", or \"generate a commit\"\n- User\
+    \ pastes a git diff or describes code changes\n- User says \"what should I commit\
+    \ this as?\" or \"summarize my diff\"\n- User wants better commit history for\
+    \ their team or open-source project\n- User is preparing a pull request and wants\
+    \ meaningful commit messages\n\n## Prerequisites\n\nHave at least one of the following\
+    \ ready:\n- Output from `git diff` or `git diff --staged`\n- A description of\
+    \ what you changed and why\n- A list of modified files\n\n## How It Works\n\n\
+    ### Step 1: Gather the Change Context\n\nAsk the user (or infer from the diff)\
+    \ for:\n\n1. **What changed** \u2014 files, functions, logic affected\n2. **Why\
+    \ it changed** \u2014 bug fix, new feature, refactor, performance, etc.\n3. **Who/what\
+    \ triggered it** \u2014 issue number, user request, tech debt, etc.\n\nIf the\
+    \ user provides a raw `git diff`, extract this context automatically from the\
+    \ diff.\n\n### Step 2: Identify the Commit Type\n\nMap the change to a Conventional\
+    \ Commits type using this guide:\n\n| Type | Use When |\n|------|----------|\n\
+    | `feat` | A new feature or capability is added |\n| `fix` | A bug or incorrect\
+    \ behavior is corrected |\n| `refactor` | Code restructured without changing behavior\
+    \ |\n| `perf` | A change that improves performance |\n| `docs` | Documentation\
+    \ only changes |\n| `style` | Formatting, whitespace, missing semicolons (no logic\
+    \ change) |\n| `test` | Adding or updating tests |\n| `chore` | Build process,\
+    \ dependency updates, config changes |\n| `ci` | CI/CD pipeline changes |\n| `revert`\
+    \ | Reverting a previous commit |\n\nSee `references/conventional-commits-guide.md`\
+    \ for detailed examples.\n\n### Step 3: Write the Commit Message\n\nFollow this\
+    \ structure:\n\n```\n<type>(<optional scope>): <short imperative summary>\n\n\
+    <body \u2014 the story: why this change was made, what problem it solves>\n\n\
+    <footer \u2014 issue refs, breaking change notices>\n```\n\n#### Rules for Each\
+    \ Part\n\n**Subject line (first line):**\n- Use imperative mood: \"add\", \"fix\"\
+    , \"remove\" \u2014 not \"added\" or \"fixes\"\n- Max 72 characters\n- No period\
+    \ at the end\n- Lowercase after the colon\n\n**Body (the story):**\n- Explain\
+    \ the *why*, not the *what* (the diff already shows the what)\n- Describe the\
+    \ problem that existed before this change\n- Mention any alternatives considered\
+    \ if relevant\n- Keep lines under 100 characters\n- Separate from subject with\
+    \ a blank line\n\n**Footer:**\n- Reference issues: `Closes #123`, `Fixes #456`,\
+    \ `Refs #789`\n- Mark breaking changes: `BREAKING CHANGE: <description>`\n\n###\
+    \ Step 4: Generate Output\n\nProduce the commit message in a copyable code block,\
+    \ followed by a one-line plain-English explanation of the story you told.\n\n\
+    **Example output:**\n\n```\nfix(auth): prevent token refresh loop on expired sessions\n\
+    \nWhen a user's session expired mid-request, the auth middleware was\ntriggering\
+    \ a token refresh, which itself failed validation and triggered\nanother refresh\
+    \ \u2014 causing an infinite retry loop that crashed the app.\n\nThis adds a recursion\
+    \ guard flag that aborts the refresh cycle if a\nrefresh is already in progress,\
+    \ returning a clean 401 instead.\n\nCloses #312\n```\n\n> **Story told:** A silent\
+    \ infinite loop on session expiry was crashing the app; this stops the cycle early\
+    \ and returns a clean error.\n\n---\n\n## Multiple Commits from One Diff\n\nIf\
+    \ the diff contains **logically separate changes**, split them into multiple commit\
+    \ messages and tell the user. Use this heuristic:\n\n- Different files with unrelated\
+    \ purposes \u2192 likely separate commits\n- Same file but distinct concerns (e.g.,\
+    \ bug fix + refactor) \u2192 suggest splitting\n- Everything tightly coupled \u2192\
+    \ one commit is fine\n\n---\n\n## Edge Cases\n\n| Situation | How to Handle |\n\
+    |-----------|---------------|\n| User provides no context beyond a diff | Infer\
+    \ type and scope from file names and changed symbols |\n| Changes span many files\
+    \ with no clear theme | Ask: \"Is this one logical change, or multiple?\" |\n\
+    | Breaking change detected | Add `BREAKING CHANGE:` footer automatically |\n|\
+    \ User says \"keep it short\" | Omit body, just write a strong subject line |\n\
+    | No issue number available | Omit the footer entirely |\n\n---\n\n## Quick Reference\n\
+    \n```bash\n# Get your staged diff to paste into Copilot\ngit diff --staged\n\n\
+    # Or get the last uncommitted working tree changes\ngit diff\n```\n\nSee `references/conventional-commits-guide.md`\
+    \ for type examples and scope guidelines."

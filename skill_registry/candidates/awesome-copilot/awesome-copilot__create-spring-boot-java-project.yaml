@@ -1,0 +1,83 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-spring-boot-java-project
+name: create-spring-boot-java-project
+description: Create Spring Boot Java Project Skeleton
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-spring-boot-java-project/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- create-spring-boot-java-project
+content:
+  kind: skill_markdown
+  sha256: 353f26c4ff608b0e9a00e6f0d75916cae2fb5680358285e06f6c1862c4b459e4
+  char_count: 4550
+  text: "# Create Spring Boot Java project prompt\n\n- Please make sure you have the\
+    \ following software installed on your system:\n\n  - Java 21\n  - Docker\n  -\
+    \ Docker Compose\n\n- If you need to custom the project name, please change the\
+    \ `artifactId` and the `packageName` in [download-spring-boot-project-template](#download-spring-boot-project-template)\n\
+    \n- If you need to update the Spring Boot version, please change the `bootVersion`\
+    \ in [download-spring-boot-project-template](#download-spring-boot-project-template)\n\
+    \n## Check Java version\n\n- Run following command in terminal and check the version\
+    \ of Java\n\n```shell\njava -version\n```\n\n## Download Spring Boot project template\n\
+    \n- Run following command in terminal to download a Spring Boot project template\n\
+    \n```shell\ncurl https://start.spring.io/starter.zip \\\n  -d artifactId=${input:projectName:demo-java}\
+    \ \\\n  -d bootVersion=3.4.5 \\\n  -d dependencies=lombok,configuration-processor,web,data-jpa,postgresql,data-redis,data-mongodb,validation,cache,testcontainers\
+    \ \\\n  -d javaVersion=21 \\\n  -d packageName=com.example \\\n  -d packaging=jar\
+    \ \\\n  -d type=maven-project \\\n  -o starter.zip\n```\n\n## Unzip the downloaded\
+    \ file\n\n- Run following command in terminal to unzip the downloaded file\n\n\
+    ```shell\nunzip starter.zip -d ./${input:projectName:demo-java}\n```\n\n## Remove\
+    \ the downloaded zip file\n\n- Run following command in terminal to delete the\
+    \ downloaded zip file\n\n```shell\nrm -f starter.zip\n```\n\n## Change directory\
+    \ to the project root\n\n- Run following command in terminal to change directory\
+    \ to the project root\n\n```shell\ncd ${input:projectName:demo-java}\n```\n\n\
+    ## Add additional dependencies\n\n- Insert `springdoc-openapi-starter-webmvc-ui`\
+    \ and `archunit-junit5` dependency into `pom.xml` file\n\n```xml\n<dependency>\n\
+    \  <groupId>org.springdoc</groupId>\n  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>\n\
+    \  <version>2.8.6</version>\n</dependency>\n<dependency>\n  <groupId>com.tngtech.archunit</groupId>\n\
+    \  <artifactId>archunit-junit5</artifactId>\n  <version>1.2.1</version>\n  <scope>test</scope>\n\
+    </dependency>\n```\n\n## Add SpringDoc, Redis, JPA and MongoDB configurations\n\
+    \n- Insert SpringDoc configurations into `application.properties` file\n\n```properties\n\
+    # SpringDoc configurations\nspringdoc.swagger-ui.doc-expansion=none\nspringdoc.swagger-ui.operations-sorter=alpha\n\
+    springdoc.swagger-ui.tags-sorter=alpha\n```\n\n- Insert Redis configurations into\
+    \ `application.properties` file\n\n```properties\n# Redis configurations\nspring.data.redis.host=localhost\n\
+    spring.data.redis.port=6379\nspring.data.redis.password=rootroot\n```\n\n- Insert\
+    \ JPA configurations into `application.properties` file\n\n```properties\n# JPA\
+    \ configurations\nspring.datasource.driver-class-name=org.postgresql.Driver\n\
+    spring.datasource.url=jdbc:postgresql://localhost:5432/postgres\nspring.datasource.username=postgres\n\
+    spring.datasource.password=rootroot\nspring.jpa.hibernate.ddl-auto=update\nspring.jpa.show-sql=true\n\
+    spring.jpa.properties.hibernate.format_sql=true\n```\n\n- Insert MongoDB configurations\
+    \ into `application.properties` file\n\n```properties\n# MongoDB configurations\n\
+    spring.data.mongodb.host=localhost\nspring.data.mongodb.port=27017\nspring.data.mongodb.authentication-database=admin\n\
+    spring.data.mongodb.username=root\nspring.data.mongodb.password=rootroot\nspring.data.mongodb.database=test\n\
+    ```\n\n## Add `docker-compose.yaml` with Redis, PostgreSQL and MongoDB services\n\
+    \n- Create `docker-compose.yaml` at project root and add following services: `redis:6`,\
+    \ `postgresql:17` and `mongo:8`.\n\n  - redis service should have\n    - password\
+    \ `rootroot`\n    - mapping port 6379 to 6379\n    - mounting volume `./redis_data`\
+    \ to `/data`\n  - postgresql service should have\n    - password `rootroot`\n\
+    \    - mapping port 5432 to 5432\n    - mounting volume `./postgres_data` to `/var/lib/postgresql/data`\n\
+    \  - mongo service should have\n    - initdb root username `root`\n    - initdb\
+    \ root password `rootroot`\n    - mapping port 27017 to 27017\n    - mounting\
+    \ volume `./mongo_data` to `/data/db`\n\n## Add `.gitignore` file\n\n- Insert\
+    \ `redis_data`, `postgres_data` and `mongo_data` directories in `.gitignore` file\n\
+    \n## Run Maven test command\n\n- Run maven clean test command to check if the\
+    \ project is working\n\n```shell\n./mvnw clean test\n```\n\n## Run Maven run command\
+    \ (Optional)\n\n- (Optional) `docker-compose up -d` to start the services, `./mvnw\
+    \ spring-boot:run` to run the Spring Boot project, `docker-compose rm -sf` to\
+    \ stop the services.\n\n## Let's do this step by step"

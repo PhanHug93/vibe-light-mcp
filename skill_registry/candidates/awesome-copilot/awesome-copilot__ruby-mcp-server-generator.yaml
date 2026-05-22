@@ -1,0 +1,227 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__ruby-mcp-server-generator
+name: ruby-mcp-server-generator
+description: Generate a complete Model Context Protocol server project in Ruby using
+  the official MCP Ruby SDK gem.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/ruby-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- ruby-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: 93b219e2584a86b9aa9437263a49544a0202cd162dc26140ce1a880ae4ddf6f9
+  char_count: 14522
+  text: "# Ruby MCP Server Generator\n\nGenerate a complete, production-ready MCP\
+    \ server in Ruby using the official Ruby SDK.\n\n## Project Generation\n\nWhen\
+    \ asked to create a Ruby MCP server, generate a complete project with this structure:\n\
+    \n```\nmy-mcp-server/\n\u251C\u2500\u2500 Gemfile\n\u251C\u2500\u2500 Rakefile\n\
+    \u251C\u2500\u2500 lib/\n\u2502   \u251C\u2500\u2500 my_mcp_server.rb\n\u2502\
+    \   \u251C\u2500\u2500 my_mcp_server/\n\u2502   \u2502   \u251C\u2500\u2500 server.rb\n\
+    \u2502   \u2502   \u251C\u2500\u2500 tools/\n\u2502   \u2502   \u2502   \u251C\
+    \u2500\u2500 greet_tool.rb\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 calculate_tool.rb\n\
+    \u2502   \u2502   \u251C\u2500\u2500 prompts/\n\u2502   \u2502   \u2502   \u2514\
+    \u2500\u2500 code_review_prompt.rb\n\u2502   \u2502   \u2514\u2500\u2500 resources/\n\
+    \u2502   \u2502       \u2514\u2500\u2500 example_resource.rb\n\u251C\u2500\u2500\
+    \ bin/\n\u2502   \u2514\u2500\u2500 mcp-server\n\u251C\u2500\u2500 test/\n\u2502\
+    \   \u251C\u2500\u2500 test_helper.rb\n\u2502   \u2514\u2500\u2500 tools/\n\u2502\
+    \       \u251C\u2500\u2500 greet_tool_test.rb\n\u2502       \u2514\u2500\u2500\
+    \ calculate_tool_test.rb\n\u2514\u2500\u2500 README.md\n```\n\n## Gemfile Template\n\
+    \n```ruby\nsource 'https://rubygems.org'\n\ngem 'mcp', '~> 0.4.0'\n\ngroup :development,\
+    \ :test do\n  gem 'minitest', '~> 5.0'\n  gem 'rake', '~> 13.0'\n  gem 'rubocop',\
+    \ '~> 1.50'\nend\n```\n\n## Rakefile Template\n\n```ruby\nrequire 'rake/testtask'\n\
+    require 'rubocop/rake_task'\n\nRake::TestTask.new(:test) do |t|\n  t.libs << 'test'\n\
+    \  t.libs << 'lib'\n  t.test_files = FileList['test/**/*_test.rb']\nend\n\nRuboCop::RakeTask.new\n\
+    \ntask default: %i[test rubocop]\n```\n\n## lib/my_mcp_server.rb Template\n\n\
+    ```ruby\n# frozen_string_literal: true\n\nrequire 'mcp'\nrequire_relative 'my_mcp_server/server'\n\
+    require_relative 'my_mcp_server/tools/greet_tool'\nrequire_relative 'my_mcp_server/tools/calculate_tool'\n\
+    require_relative 'my_mcp_server/prompts/code_review_prompt'\nrequire_relative\
+    \ 'my_mcp_server/resources/example_resource'\n\nmodule MyMcpServer\n  VERSION\
+    \ = '1.0.0'\nend\n```\n\n## lib/my_mcp_server/server.rb Template\n\n```ruby\n\
+    # frozen_string_literal: true\n\nmodule MyMcpServer\n  class Server\n    attr_reader\
+    \ :mcp_server\n    \n    def initialize(server_context: {})\n      @mcp_server\
+    \ = MCP::Server.new(\n        name: 'my_mcp_server',\n        version: MyMcpServer::VERSION,\n\
+    \        tools: [\n          Tools::GreetTool,\n          Tools::CalculateTool\n\
+    \        ],\n        prompts: [\n          Prompts::CodeReviewPrompt\n       \
+    \ ],\n        resources: [\n          Resources::ExampleResource.resource\n  \
+    \      ],\n        server_context: server_context\n      )\n      \n      setup_resource_handler\n\
+    \    end\n    \n    def handle_json(json_string)\n      mcp_server.handle_json(json_string)\n\
+    \    end\n    \n    def start_stdio\n      transport = MCP::Server::Transports::StdioTransport.new(mcp_server)\n\
+    \      transport.open\n    end\n    \n    private\n    \n    def setup_resource_handler\n\
+    \      mcp_server.resources_read_handler do |params|\n        Resources::ExampleResource.read(params[:uri])\n\
+    \      end\n    end\n  end\nend\n```\n\n## lib/my_mcp_server/tools/greet_tool.rb\
+    \ Template\n\n```ruby\n# frozen_string_literal: true\n\nmodule MyMcpServer\n \
+    \ module Tools\n    class GreetTool < MCP::Tool\n      tool_name 'greet'\n   \
+    \   description 'Generate a greeting message'\n      \n      input_schema(\n \
+    \       properties: {\n          name: {\n            type: 'string',\n      \
+    \      description: 'Name to greet'\n          }\n        },\n        required:\
+    \ ['name']\n      )\n      \n      output_schema(\n        properties: {\n   \
+    \       message: { type: 'string' },\n          timestamp: { type: 'string', format:\
+    \ 'date-time' }\n        },\n        required: ['message', 'timestamp']\n    \
+    \  )\n      \n      annotations(\n        read_only_hint: true,\n        idempotent_hint:\
+    \ true\n      )\n      \n      def self.call(name:, server_context:)\n       \
+    \ timestamp = Time.now.iso8601\n        message = \"Hello, #{name}! Welcome to\
+    \ MCP.\"\n        \n        structured_data = {\n          message: message,\n\
+    \          timestamp: timestamp\n        }\n        \n        MCP::Tool::Response.new(\n\
+    \          [{ type: 'text', text: message }],\n          structured_content: structured_data\n\
+    \        )\n      end\n    end\n  end\nend\n```\n\n## lib/my_mcp_server/tools/calculate_tool.rb\
+    \ Template\n\n```ruby\n# frozen_string_literal: true\n\nmodule MyMcpServer\n \
+    \ module Tools\n    class CalculateTool < MCP::Tool\n      tool_name 'calculate'\n\
+    \      description 'Perform mathematical calculations'\n      \n      input_schema(\n\
+    \        properties: {\n          operation: {\n            type: 'string',\n\
+    \            description: 'Operation to perform',\n            enum: ['add', 'subtract',\
+    \ 'multiply', 'divide']\n          },\n          a: {\n            type: 'number',\n\
+    \            description: 'First operand'\n          },\n          b: {\n    \
+    \        type: 'number',\n            description: 'Second operand'\n        \
+    \  }\n        },\n        required: ['operation', 'a', 'b']\n      )\n      \n\
+    \      output_schema(\n        properties: {\n          result: { type: 'number'\
+    \ },\n          operation: { type: 'string' }\n        },\n        required: ['result',\
+    \ 'operation']\n      )\n      \n      annotations(\n        read_only_hint: true,\n\
+    \        idempotent_hint: true\n      )\n      \n      def self.call(operation:,\
+    \ a:, b:, server_context:)\n        result = case operation\n                \
+    \ when 'add' then a + b\n                 when 'subtract' then a - b\n       \
+    \          when 'multiply' then a * b\n                 when 'divide'\n      \
+    \             return error_response('Division by zero') if b.zero?\n         \
+    \          a / b.to_f\n                 else\n                   return error_response(\"\
+    Unknown operation: #{operation}\")\n                 end\n        \n        structured_data\
+    \ = {\n          result: result,\n          operation: operation\n        }\n\
+    \        \n        MCP::Tool::Response.new(\n          [{ type: 'text', text:\
+    \ \"Result: #{result}\" }],\n          structured_content: structured_data\n \
+    \       )\n      end\n      \n      def self.error_response(message)\n       \
+    \ MCP::Tool::Response.new(\n          [{ type: 'text', text: message }],\n   \
+    \       is_error: true\n        )\n      end\n    end\n  end\nend\n```\n\n## lib/my_mcp_server/prompts/code_review_prompt.rb\
+    \ Template\n\n```ruby\n# frozen_string_literal: true\n\nmodule MyMcpServer\n \
+    \ module Prompts\n    class CodeReviewPrompt < MCP::Prompt\n      prompt_name\
+    \ 'code_review'\n      description 'Generate a code review prompt'\n      \n \
+    \     arguments [\n        MCP::Prompt::Argument.new(\n          name: 'language',\n\
+    \          description: 'Programming language',\n          required: true\n  \
+    \      ),\n        MCP::Prompt::Argument.new(\n          name: 'focus',\n    \
+    \      description: 'Review focus area (e.g., performance, security)',\n     \
+    \     required: false\n        )\n      ]\n      \n      meta(\n        version:\
+    \ '1.0',\n        category: 'development'\n      )\n      \n      def self.template(args,\
+    \ server_context:)\n        language = args['language'] || 'Ruby'\n        focus\
+    \ = args['focus'] || 'general quality'\n        \n        MCP::Prompt::Result.new(\n\
+    \          description: \"Code review for #{language} with focus on #{focus}\"\
+    ,\n          messages: [\n            MCP::Prompt::Message.new(\n            \
+    \  role: 'user',\n              content: MCP::Content::Text.new(\n           \
+    \     \"Please review this #{language} code with focus on #{focus}.\"\n      \
+    \        )\n            ),\n            MCP::Prompt::Message.new(\n          \
+    \    role: 'assistant',\n              content: MCP::Content::Text.new(\n    \
+    \            \"I'll review the code focusing on #{focus}. Please share the code.\"\
+    \n              )\n            ),\n            MCP::Prompt::Message.new(\n   \
+    \           role: 'user',\n              content: MCP::Content::Text.new(\n  \
+    \              '[paste code here]'\n              )\n            )\n         \
+    \ ]\n        )\n      end\n    end\n  end\nend\n```\n\n## lib/my_mcp_server/resources/example_resource.rb\
+    \ Template\n\n```ruby\n# frozen_string_literal: true\n\nmodule MyMcpServer\n \
+    \ module Resources\n    class ExampleResource\n      RESOURCE_URI = 'resource://data/example'\n\
+    \      \n      def self.resource\n        MCP::Resource.new(\n          uri: RESOURCE_URI,\n\
+    \          name: 'example-data',\n          description: 'Example resource data',\n\
+    \          mime_type: 'application/json'\n        )\n      end\n      \n     \
+    \ def self.read(uri)\n        return [] unless uri == RESOURCE_URI\n        \n\
+    \        data = {\n          message: 'Example resource data',\n          timestamp:\
+    \ Time.now.iso8601,\n          version: MyMcpServer::VERSION\n        }\n    \
+    \    \n        [{\n          uri: uri,\n          mimeType: 'application/json',\n\
+    \          text: data.to_json\n        }]\n      end\n    end\n  end\nend\n```\n\
+    \n## bin/mcp-server Template\n\n```ruby\n#!/usr/bin/env ruby\n# frozen_string_literal:\
+    \ true\n\nrequire_relative '../lib/my_mcp_server'\n\nbegin\n  server = MyMcpServer::Server.new\n\
+    \  server.start_stdio\nrescue Interrupt\n  warn \"\\nShutting down server...\"\
+    \n  exit 0\nrescue StandardError => e\n  warn \"Error: #{e.message}\"\n  warn\
+    \ e.backtrace.join(\"\\n\")\n  exit 1\nend\n```\n\nMake the file executable:\n\
+    ```bash\nchmod +x bin/mcp-server\n```\n\n## test/test_helper.rb Template\n\n```ruby\n\
+    # frozen_string_literal: true\n\n$LOAD_PATH.unshift File.expand_path('../lib',\
+    \ __dir__)\nrequire 'my_mcp_server'\nrequire 'minitest/autorun'\n```\n\n## test/tools/greet_tool_test.rb\
+    \ Template\n\n```ruby\n# frozen_string_literal: true\n\nrequire 'test_helper'\n\
+    \nmodule MyMcpServer\n  module Tools\n    class GreetToolTest < Minitest::Test\n\
+    \      def test_greet_with_name\n        response = GreetTool.call(\n        \
+    \  name: 'Ruby',\n          server_context: {}\n        )\n        \n        refute\
+    \ response.is_error\n        assert_equal 1, response.content.length\n       \
+    \ assert_match(/Ruby/, response.content.first[:text])\n        \n        assert\
+    \ response.structured_content\n        assert_equal 'Hello, Ruby! Welcome to MCP.',\
+    \ response.structured_content[:message]\n      end\n      \n      def test_output_schema_validation\n\
+    \        response = GreetTool.call(\n          name: 'Test',\n          server_context:\
+    \ {}\n        )\n        \n        assert response.structured_content.key?(:message)\n\
+    \        assert response.structured_content.key?(:timestamp)\n      end\n    end\n\
+    \  end\nend\n```\n\n## test/tools/calculate_tool_test.rb Template\n\n```ruby\n\
+    # frozen_string_literal: true\n\nrequire 'test_helper'\n\nmodule MyMcpServer\n\
+    \  module Tools\n    class CalculateToolTest < Minitest::Test\n      def test_addition\n\
+    \        response = CalculateTool.call(\n          operation: 'add',\n       \
+    \   a: 5,\n          b: 3,\n          server_context: {}\n        )\n        \n\
+    \        refute response.is_error\n        assert_equal 8, response.structured_content[:result]\n\
+    \      end\n      \n      def test_subtraction\n        response = CalculateTool.call(\n\
+    \          operation: 'subtract',\n          a: 10,\n          b: 4,\n       \
+    \   server_context: {}\n        )\n        \n        refute response.is_error\n\
+    \        assert_equal 6, response.structured_content[:result]\n      end\n   \
+    \   \n      def test_multiplication\n        response = CalculateTool.call(\n\
+    \          operation: 'multiply',\n          a: 6,\n          b: 7,\n        \
+    \  server_context: {}\n        )\n        \n        refute response.is_error\n\
+    \        assert_equal 42, response.structured_content[:result]\n      end\n  \
+    \    \n      def test_division\n        response = CalculateTool.call(\n     \
+    \     operation: 'divide',\n          a: 15,\n          b: 3,\n          server_context:\
+    \ {}\n        )\n        \n        refute response.is_error\n        assert_equal\
+    \ 5.0, response.structured_content[:result]\n      end\n      \n      def test_division_by_zero\n\
+    \        response = CalculateTool.call(\n          operation: 'divide',\n    \
+    \      a: 10,\n          b: 0,\n          server_context: {}\n        )\n    \
+    \    \n        assert response.is_error\n        assert_match(/Division by zero/,\
+    \ response.content.first[:text])\n      end\n      \n      def test_unknown_operation\n\
+    \        response = CalculateTool.call(\n          operation: 'modulo',\n    \
+    \      a: 10,\n          b: 3,\n          server_context: {}\n        )\n    \
+    \    \n        assert response.is_error\n        assert_match(/Unknown operation/,\
+    \ response.content.first[:text])\n      end\n    end\n  end\nend\n```\n\n## README.md\
+    \ Template\n\n```markdown\n# My MCP Server\n\nA Model Context Protocol server\
+    \ built with Ruby and the official MCP Ruby SDK.\n\n## Features\n\n- \u2705 Tools:\
+    \ greet, calculate\n- \u2705 Prompts: code_review\n- \u2705 Resources: example-data\n\
+    - \u2705 Input/output schemas\n- \u2705 Tool annotations\n- \u2705 Structured\
+    \ content\n- \u2705 Full test coverage\n\n## Requirements\n\n- Ruby 3.0 or later\n\
+    \n## Installation\n\n```bash\nbundle install\n```\n\n## Usage\n\n### Stdio Transport\n\
+    \nRun the server:\n\n```bash\nbundle exec bin/mcp-server\n```\n\nThen send JSON-RPC\
+    \ requests:\n\n```bash\n{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"ping\"\
+    }\n{\"jsonrpc\":\"2.0\",\"id\":\"2\",\"method\":\"tools/list\"}\n{\"jsonrpc\"\
+    :\"2.0\",\"id\":\"3\",\"method\":\"tools/call\",\"params\":{\"name\":\"greet\"\
+    ,\"arguments\":{\"name\":\"Ruby\"}}}\n```\n\n### Rails Integration\n\nAdd to your\
+    \ Rails controller:\n\n```ruby\nclass McpController < ApplicationController\n\
+    \  def index\n    server = MyMcpServer::Server.new(\n      server_context: { user_id:\
+    \ current_user.id }\n    )\n    render json: server.handle_json(request.body.read)\n\
+    \  end\nend\n```\n\n## Testing\n\nRun tests:\n\n```bash\nbundle exec rake test\n\
+    ```\n\nRun linter:\n\n```bash\nbundle exec rake rubocop\n```\n\nRun all checks:\n\
+    \n```bash\nbundle exec rake\n```\n\n## Integration with Claude Desktop\n\nAdd\
+    \ to `claude_desktop_config.json`:\n\n```json\n{\n  \"mcpServers\": {\n    \"\
+    my-mcp-server\": {\n      \"command\": \"bundle\",\n      \"args\": [\"exec\"\
+    , \"bin/mcp-server\"],\n      \"cwd\": \"/path/to/my-mcp-server\"\n    }\n  }\n\
+    }\n```\n\n## Project Structure\n\n```\nmy-mcp-server/\n\u251C\u2500\u2500 Gemfile\
+    \              # Dependencies\n\u251C\u2500\u2500 Rakefile             # Build\
+    \ tasks\n\u251C\u2500\u2500 lib/                 # Source code\n\u2502   \u251C\
+    \u2500\u2500 my_mcp_server.rb # Main entry point\n\u2502   \u2514\u2500\u2500\
+    \ my_mcp_server/   # Module namespace\n\u2502       \u251C\u2500\u2500 server.rb\
+    \    # Server setup\n\u2502       \u251C\u2500\u2500 tools/       # Tool implementations\n\
+    \u2502       \u251C\u2500\u2500 prompts/     # Prompt templates\n\u2502      \
+    \ \u2514\u2500\u2500 resources/   # Resource handlers\n\u251C\u2500\u2500 bin/\
+    \                 # Executables\n\u2502   \u2514\u2500\u2500 mcp-server      \
+    \ # Stdio server\n\u251C\u2500\u2500 test/                # Test suite\n\u2502\
+    \   \u251C\u2500\u2500 test_helper.rb   # Test configuration\n\u2502   \u2514\u2500\
+    \u2500 tools/           # Tool tests\n\u2514\u2500\u2500 README.md           \
+    \ # This file\n```\n\n## License\n\nMIT\n```\n\n## Generation Instructions\n\n\
+    1. **Ask for project name and description**\n2. **Generate all files** with proper\
+    \ naming and module structure\n3. **Use classes for tools and prompts** for better\
+    \ organization\n4. **Include input/output schemas** for type safety\n5. **Add\
+    \ tool annotations** for behavior hints\n6. **Include structured content** in\
+    \ responses\n7. **Implement comprehensive tests** for all tools\n8. **Follow Ruby\
+    \ conventions** (snake_case, modules, frozen_string_literal)\n9. **Add proper\
+    \ error handling** with is_error flag\n10. **Provide both stdio and HTTP** usage\
+    \ examples"

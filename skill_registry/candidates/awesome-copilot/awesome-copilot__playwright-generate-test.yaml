@@ -1,0 +1,55 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__playwright-generate-test
+name: playwright-generate-test
+description: Generate a Playwright test based on a scenario using Playwright MCP
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/playwright-generate-test/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+- testing
+languages: []
+platforms: []
+aliases:
+- playwright-generate-test
+content:
+  kind: skill_markdown
+  sha256: 79dbb1a49fc5a6502788ccba1a4bd30769a017a1cc31d9db329d1326ea3d898f
+  char_count: 877
+  text: '# Test Generation with Playwright MCP
+
+
+    Your goal is to generate a Playwright test based on the provided scenario after
+    completing all prescribed steps.
+
+
+    ## Specific Instructions
+
+
+    - You are given a scenario, and you need to generate a playwright test for it.
+    If the user does not provide a scenario, you will ask them to provide one.
+
+    - DO NOT generate test code prematurely or based solely on the scenario without
+    completing all prescribed steps.
+
+    - DO run steps one by one using the tools provided by the Playwright MCP.
+
+    - Only after all steps are completed, emit a Playwright TypeScript test that uses
+    `@playwright/test` based on message history
+
+    - Save generated test file in the tests directory
+
+    - Execute the test file and iterate until the test passes'

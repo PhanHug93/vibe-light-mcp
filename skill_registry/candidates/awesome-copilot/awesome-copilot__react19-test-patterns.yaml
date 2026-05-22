@@ -1,0 +1,70 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react19-test-patterns
+name: react19-test-patterns
+description: Provides before/after patterns for migrating test files to React 19 compatibility,
+  including act() imports, Simulate removal, and StrictMode call count changes.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react19-test-patterns/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- testing
+languages: []
+platforms: []
+aliases:
+- react19-test-patterns
+content:
+  kind: skill_markdown
+  sha256: 3f0e423124fb2e7f719c5e88a0c231c35d0c95c8235ddd20e44d4d28d3699665
+  char_count: 3158
+  text: "# React 19 Test Migration Patterns\n\nReference for all test file migrations\
+    \ required by React 19.\n\n## Priority Order\n\nFix test files in this order;\
+    \ each layer depends on the previous:\n\n1. **`act` import**  fix first, it unblocks\
+    \ everything else\n2. **`Simulate` \u2192 `fireEvent`**  fix immediately after\
+    \ act\n3. **Full react-dom/test-utils cleanup**  remove remaining imports\n4.\
+    \ **StrictMode call counts**  measure actual, don't guess\n5. **Async act wrapping**\
+    \  for remaining \"not wrapped in act\" warnings\n6. **Custom render helper**\
+    \  verify once per codebase, not per test\n\n---\n\n## 1. act() Import Fix\n\n\
+    ```jsx\n// Before  REMOVED in React 19:\nimport { act } from 'react-dom/test-utils';\n\
+    \n// After:\nimport { act } from 'react';\n```\n\nIf mixed with other test-utils\
+    \ imports:\n```jsx\n// Before:\nimport { act, Simulate, renderIntoDocument } from\
+    \ 'react-dom/test-utils';\n\n// After  split the imports:\nimport { act } from\
+    \ 'react';\nimport { fireEvent, render } from '@testing-library/react'; // replaces\
+    \ Simulate + renderIntoDocument\n```\n\n---\n\n## 2. Simulate \u2192 fireEvent\n\
+    \n```jsx\n// Before  Simulate REMOVED in React 19:\nimport { Simulate } from 'react-dom/test-utils';\n\
+    Simulate.click(element);\nSimulate.change(input, { target: { value: 'hello' }\
+    \ });\nSimulate.submit(form);\nSimulate.keyDown(element, { key: 'Enter', keyCode:\
+    \ 13 });\n\n// After:\nimport { fireEvent } from '@testing-library/react';\nfireEvent.click(element);\n\
+    fireEvent.change(input, { target: { value: 'hello' } });\nfireEvent.submit(form);\n\
+    fireEvent.keyDown(element, { key: 'Enter', keyCode: 13 });\n```\n\n---\n\n## 3.\
+    \ react-dom/test-utils Full API Map\n\n| Old (react-dom/test-utils) | New location\
+    \ |\n|---|---|\n| `act` | `import { act } from 'react'` |\n| `Simulate` | `fireEvent`\
+    \ from `@testing-library/react` |\n| `renderIntoDocument` | `render` from `@testing-library/react`\
+    \ |\n| `findRenderedDOMComponentWithTag` | `getByRole`, `getByTestId` from RTL\
+    \ |\n| `findRenderedDOMComponentWithClass` | `getByRole` or `container.querySelector`\
+    \ |\n| `scryRenderedDOMComponentsWithTag` | `getAllByRole` from RTL |\n| `isElement`,\
+    \ `isCompositeComponent` | Remove  not needed with RTL |\n| `isDOMComponent` |\
+    \ Remove |\n\n---\n\n## 4. StrictMode Call Count Fixes\n\nReact 19 StrictMode\
+    \ no longer double-invokes `useEffect` in development. Spy assertions counting\
+    \ effect calls must be updated.\n\n**Strategy  always measure, never guess:**\n\
+    ```bash\n# Run the failing test, read the actual count from the error:\nnpm test\
+    \ -- --watchAll=false --testPathPattern=\"[filename]\" --forceExit 2>&1 | grep\
+    \ -E \"Expected|Received\"\n```\n\n```jsx\n// Before (React 18 StrictMode  effects\
+    \ ran twice):\nexpect(mockFn).toHaveBeenCalledTimes(2);  // 1 call \xD7 2 (strict\
+    \ double-invoke)\n\n// After (React 19 StrictMode  effects run once):\nexpect(mockFn).toHaveBeenCalledTimes(1);\n\
+    ```\n\n```jsx\n// Render-phase calls (component body)  still double-invoked in\
+    \ React 19 StrictMode:\nexpect(renderSpy).toHaveBeenCalledTimes(2);  // stays\
+    \ at 2 for render body calls"

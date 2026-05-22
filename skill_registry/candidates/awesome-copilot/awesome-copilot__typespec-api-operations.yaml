@@ -1,0 +1,150 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__typespec-api-operations
+name: typespec-api-operations
+description: Add GET, POST, PATCH, and DELETE operations to a TypeSpec API plugin
+  with proper routing, parameters, and adaptive cards
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/typespec-api-operations/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- typespec-api-operations
+content:
+  kind: skill_markdown
+  sha256: 882751e73fb23048fcffd739345cabec0b3176a922b528f271c3dc7ce78ddd8a
+  char_count: 9145
+  text: "# Add TypeSpec API Operations\n\nAdd RESTful operations to an existing TypeSpec\
+    \ API plugin for Microsoft 365 Copilot.\n\n## Adding GET Operations\n\n### Simple\
+    \ GET - List All Items\n```typescript\n/**\n * List all items.\n */\n@route(\"\
+    /items\")\n@get op listItems(): Item[];\n```\n\n### GET with Query Parameter -\
+    \ Filter Results\n```typescript\n/**\n * List items filtered by criteria.\n *\
+    \ @param userId Optional user ID to filter items\n */\n@route(\"/items\")\n@get\
+    \ op listItems(@query userId?: integer): Item[];\n```\n\n### GET with Path Parameter\
+    \ - Get Single Item\n```typescript\n/**\n * Get a specific item by ID.\n * @param\
+    \ id The ID of the item to retrieve\n */\n@route(\"/items/{id}\")\n@get op getItem(@path\
+    \ id: integer): Item;\n```\n\n### GET with Adaptive Card\n```typescript\n/**\n\
+    \ * List items with adaptive card visualization.\n */\n@route(\"/items\")\n@card(#{\n\
+    \  dataPath: \"$\",\n  title: \"$.title\",\n  file: \"item-card.json\"\n})\n@get\
+    \ op listItems(): Item[];\n```\n\n**Create the Adaptive Card** (`appPackage/item-card.json`):\n\
+    ```json\n{\n  \"type\": \"AdaptiveCard\",\n  \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\"\
+    ,\n  \"version\": \"1.5\",\n  \"body\": [\n    {\n      \"type\": \"Container\"\
+    ,\n      \"$data\": \"${$root}\",\n      \"items\": [\n        {\n          \"\
+    type\": \"TextBlock\",\n          \"text\": \"**${if(title, title, 'N/A')}**\"\
+    ,\n          \"wrap\": true\n        },\n        {\n          \"type\": \"TextBlock\"\
+    ,\n          \"text\": \"${if(description, description, 'N/A')}\",\n         \
+    \ \"wrap\": true\n        }\n      ]\n    }\n  ],\n  \"actions\": [\n    {\n \
+    \     \"type\": \"Action.OpenUrl\",\n      \"title\": \"View Details\",\n    \
+    \  \"url\": \"https://example.com/items/${id}\"\n    }\n  ]\n}\n```\n\n## Adding\
+    \ POST Operations\n\n### Simple POST - Create Item\n```typescript\n/**\n * Create\
+    \ a new item.\n * @param item The item to create\n */\n@route(\"/items\")\n@post\
+    \ op createItem(@body item: CreateItemRequest): Item;\n\nmodel CreateItemRequest\
+    \ {\n  title: string;\n  description?: string;\n  userId: integer;\n}\n```\n\n\
+    ### POST with Confirmation\n```typescript\n/**\n * Create a new item with confirmation.\n\
+    \ */\n@route(\"/items\")\n@post\n@capabilities(#{\n  confirmation: #{\n    type:\
+    \ \"AdaptiveCard\",\n    title: \"Create Item\",\n    body: \"\"\"\n    Are you\
+    \ sure you want to create this item?\n      * **Title**: {{ function.parameters.item.title\
+    \ }}\n      * **User ID**: {{ function.parameters.item.userId }}\n    \"\"\"\n\
+    \  }\n})\nop createItem(@body item: CreateItemRequest): Item;\n```\n\n## Adding\
+    \ PATCH Operations\n\n### Simple PATCH - Update Item\n```typescript\n/**\n * Update\
+    \ an existing item.\n * @param id The ID of the item to update\n * @param item\
+    \ The updated item data\n */\n@route(\"/items/{id}\")\n@patch op updateItem(\n\
+    \  @path id: integer,\n  @body item: UpdateItemRequest\n): Item;\n\nmodel UpdateItemRequest\
+    \ {\n  title?: string;\n  description?: string;\n  status?: \"active\" | \"completed\"\
+    \ | \"archived\";\n}\n```\n\n### PATCH with Confirmation\n```typescript\n/**\n\
+    \ * Update an item with confirmation.\n */\n@route(\"/items/{id}\")\n@patch\n\
+    @capabilities(#{\n  confirmation: #{\n    type: \"AdaptiveCard\",\n    title:\
+    \ \"Update Item\",\n    body: \"\"\"\n    Updating item #{{ function.parameters.id\
+    \ }}:\n      * **Title**: {{ function.parameters.item.title }}\n      * **Status**:\
+    \ {{ function.parameters.item.status }}\n    \"\"\"\n  }\n})\nop updateItem(\n\
+    \  @path id: integer,\n  @body item: UpdateItemRequest\n): Item;\n```\n\n## Adding\
+    \ DELETE Operations\n\n### Simple DELETE\n```typescript\n/**\n * Delete an item.\n\
+    \ * @param id The ID of the item to delete\n */\n@route(\"/items/{id}\")\n@delete\
+    \ op deleteItem(@path id: integer): void;\n```\n\n### DELETE with Confirmation\n\
+    ```typescript\n/**\n * Delete an item with confirmation.\n */\n@route(\"/items/{id}\"\
+    )\n@delete\n@capabilities(#{\n  confirmation: #{\n    type: \"AdaptiveCard\",\n\
+    \    title: \"Delete Item\",\n    body: \"\"\"\n    \u26A0\uFE0F Are you sure\
+    \ you want to delete item #{{ function.parameters.id }}?\n    This action cannot\
+    \ be undone.\n    \"\"\"\n  }\n})\nop deleteItem(@path id: integer): void;\n```\n\
+    \n## Complete CRUD Example\n\n### Define the Service and Models\n```typescript\n\
+    @service\n@server(\"https://api.example.com\")\n@actions(#{\n  nameForHuman: \"\
+    Items API\",\n  descriptionForHuman: \"Manage items\",\n  descriptionForModel:\
+    \ \"Read, create, update, and delete items\"\n})\nnamespace ItemsAPI {\n  \n \
+    \ // Models\n  model Item {\n    @visibility(Lifecycle.Read)\n    id: integer;\n\
+    \    \n    userId: integer;\n    title: string;\n    description?: string;\n \
+    \   status: \"active\" | \"completed\" | \"archived\";\n    \n    @format(\"date-time\"\
+    )\n    createdAt: utcDateTime;\n    \n    @format(\"date-time\")\n    updatedAt?:\
+    \ utcDateTime;\n  }\n\n  model CreateItemRequest {\n    userId: integer;\n   \
+    \ title: string;\n    description?: string;\n  }\n\n  model UpdateItemRequest\
+    \ {\n    title?: string;\n    description?: string;\n    status?: \"active\" |\
+    \ \"completed\" | \"archived\";\n  }\n\n  // Operations\n  @route(\"/items\")\n\
+    \  @card(#{ dataPath: \"$\", title: \"$.title\", file: \"item-card.json\" })\n\
+    \  @get op listItems(@query userId?: integer): Item[];\n\n  @route(\"/items/{id}\"\
+    )\n  @card(#{ dataPath: \"$\", title: \"$.title\", file: \"item-card.json\" })\n\
+    \  @get op getItem(@path id: integer): Item;\n\n  @route(\"/items\")\n  @post\n\
+    \  @capabilities(#{\n    confirmation: #{\n      type: \"AdaptiveCard\",\n   \
+    \   title: \"Create Item\",\n      body: \"Creating: **{{ function.parameters.item.title\
+    \ }}**\"\n    }\n  })\n  op createItem(@body item: CreateItemRequest): Item;\n\
+    \n  @route(\"/items/{id}\")\n  @patch\n  @capabilities(#{\n    confirmation: #{\n\
+    \      type: \"AdaptiveCard\",\n      title: \"Update Item\",\n      body: \"\
+    Updating item #{{ function.parameters.id }}\"\n    }\n  })\n  op updateItem(@path\
+    \ id: integer, @body item: UpdateItemRequest): Item;\n\n  @route(\"/items/{id}\"\
+    )\n  @delete\n  @capabilities(#{\n    confirmation: #{\n      type: \"AdaptiveCard\"\
+    ,\n      title: \"Delete Item\",\n      body: \"\u26A0\uFE0F Delete item #{{ function.parameters.id\
+    \ }}?\"\n    }\n  })\n  op deleteItem(@path id: integer): void;\n}\n```\n\n##\
+    \ Advanced Features\n\n### Multiple Query Parameters\n```typescript\n@route(\"\
+    /items\")\n@get op listItems(\n  @query userId?: integer,\n  @query status?: \"\
+    active\" | \"completed\" | \"archived\",\n  @query limit?: integer,\n  @query\
+    \ offset?: integer\n): ItemList;\n\nmodel ItemList {\n  items: Item[];\n  total:\
+    \ integer;\n  hasMore: boolean;\n}\n```\n\n### Header Parameters\n```typescript\n\
+    @route(\"/items\")\n@get op listItems(\n  @header(\"X-API-Version\") apiVersion?:\
+    \ string,\n  @query userId?: integer\n): Item[];\n```\n\n### Custom Response Models\n\
+    ```typescript\n@route(\"/items/{id}\")\n@delete op deleteItem(@path id: integer):\
+    \ DeleteResponse;\n\nmodel DeleteResponse {\n  success: boolean;\n  message: string;\n\
+    \  deletedId: integer;\n}\n```\n\n### Error Responses\n```typescript\nmodel ErrorResponse\
+    \ {\n  error: {\n    code: string;\n    message: string;\n    details?: string[];\n\
+    \  };\n}\n\n@route(\"/items/{id}\")\n@get op getItem(@path id: integer): Item\
+    \ | ErrorResponse;\n```\n\n## Testing Prompts\n\nAfter adding operations, test\
+    \ with these prompts:\n\n**GET Operations:**\n- \"List all items and show them\
+    \ in a table\"\n- \"Show me items for user ID 1\"\n- \"Get the details of item\
+    \ 42\"\n\n**POST Operations:**\n- \"Create a new item with title 'My Task' for\
+    \ user 1\"\n- \"Add an item: title 'New Feature', description 'Add login'\"\n\n\
+    **PATCH Operations:**\n- \"Update item 10 with title 'Updated Title'\"\n- \"Change\
+    \ the status of item 5 to completed\"\n\n**DELETE Operations:**\n- \"Delete item\
+    \ 99\"\n- \"Remove the item with ID 15\"\n\n## Best Practices\n\n### Parameter\
+    \ Naming\n- Use descriptive parameter names: `userId` not `uid`\n- Be consistent\
+    \ across operations\n- Use optional parameters (`?`) for filters\n\n### Documentation\n\
+    - Add JSDoc comments to all operations\n- Describe what each parameter does\n\
+    - Document expected responses\n\n### Models\n- Use `@visibility(Lifecycle.Read)`\
+    \ for read-only fields like `id`\n- Use `@format(\"date-time\")` for date fields\n\
+    - Use union types for enums: `\"active\" | \"completed\"`\n- Make optional fields\
+    \ explicit with `?`\n\n### Confirmations\n- Always add confirmations to destructive\
+    \ operations (DELETE, PATCH)\n- Show key details in confirmation body\n- Use warning\
+    \ emoji (\u26A0\uFE0F) for irreversible actions\n\n### Adaptive Cards\n- Keep\
+    \ cards simple and focused\n- Use conditional rendering with `${if(..., ..., 'N/A')}`\n\
+    - Include action buttons for common next steps\n- Test data binding with actual\
+    \ API responses\n\n### Routing\n- Use RESTful conventions:\n  - `GET /items` -\
+    \ List\n  - `GET /items/{id}` - Get one\n  - `POST /items` - Create\n  - `PATCH\
+    \ /items/{id}` - Update\n  - `DELETE /items/{id}` - Delete\n- Group related operations\
+    \ in the same namespace\n- Use nested routes for hierarchical resources\n\n##\
+    \ Common Issues\n\n### Issue: Parameter not showing in Copilot\n**Solution**:\
+    \ Check parameter is properly decorated with `@query`, `@path`, or `@body`\n\n\
+    ### Issue: Adaptive card not rendering\n**Solution**: Verify file path in `@card`\
+    \ decorator and check JSON syntax\n\n### Issue: Confirmation not appearing\n**Solution**:\
+    \ Ensure `@capabilities` decorator is properly formatted with confirmation object\n\
+    \n### Issue: Model property not appearing in response\n**Solution**: Check if\
+    \ property needs `@visibility(Lifecycle.Read)` or remove it if it should be writable"

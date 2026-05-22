@@ -1,0 +1,64 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react18-batching-patterns
+name: react18-batching-patterns
+description: Provides exact patterns for diagnosing and fixing automatic batching
+  regressions in React 18 class components. Use this skill whenever a class component
+  has multiple setState calls in an async method, inside setTimeout, inside a Promise
+  .then() or .catch(), or in a native event handler. Use it before writing any flushSync
+  call - the decision tree here prevents unnecessary flushSync overuse. Also use this
+  skill when fixing test failures caused by intermediate state assertions that break
+  after React 18 upgrade.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react18-batching-patterns/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- frontend
+- testing
+languages: []
+platforms: []
+aliases:
+- react18-batching-patterns
+content:
+  kind: skill_markdown
+  sha256: f4bdb6d5b817c19b00062392ff51965d42fe185facbb5724653dd9aa39c3140e
+  char_count: 2483
+  text: "# React 18 Automatic Batching Patterns\n\nReference for diagnosing and fixing\
+    \ the most dangerous silent breaking change in React 18 for class-component codebases.\n\
+    \n## The Core Change\n\n| Location of setState | React 17 | React 18 |\n|---|---|---|\n\
+    | React event handler | Batched | Batched (same) |\n| setTimeout | **Immediate\
+    \ re-render** | **Batched** |\n| Promise .then() / .catch() | **Immediate re-render**\
+    \ | **Batched** |\n| async/await | **Immediate re-render** | **Batched** |\n|\
+    \ Native addEventListener callback | **Immediate re-render** | **Batched** |\n\
+    \n**Batched** means: all setState calls within that execution context flush together\
+    \ in a single re-render at the end. No intermediate renders occur.\n\n## Quick\
+    \ Diagnosis\n\nRead every async class method. Ask: does any code after an `await`\
+    \ read `this.state` to make a decision?\n\n```\nCode reads this.state after await?\n\
+    \  YES \u2192 Category A (silent state-read bug)\n  NO, but intermediate render\
+    \ must be visible to user?\n    YES \u2192 Category C (flushSync needed)\n   \
+    \ NO \u2192 Category B (refactor, no flushSync)\n```\n\nFor the full pattern for\
+    \ each category, read:\n- **`references/batching-categories.md`** - Category A,\
+    \ B, C with full before/after code\n- **`references/flushSync-guide.md`** - when\
+    \ to use flushSync, when NOT to, import syntax\n\n## The flushSync Rule\n\n**Use\
+    \ `flushSync` sparingly.** It forces a synchronous re-render, bypassing React\
+    \ 18's concurrent scheduler. Overusing it negates the performance benefits of\
+    \ React 18.\n\nOnly use `flushSync` when:\n- The user must see an intermediate\
+    \ UI state before an async operation begins\n- A spinner/loading state must render\
+    \ before a fetch starts\n- Sequential UI steps have distinct visible states (progress\
+    \ wizard, multi-step flow)\n\nIn most cases, the fix is a **refactor** - restructuring\
+    \ the code to not read `this.state` after `await`. Read `references/batching-categories.md`\
+    \ for the correct approach per category."

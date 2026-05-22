@@ -1,0 +1,59 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-monitoring
+name: qdrant-monitoring
+description: Guides Qdrant monitoring and observability setup. Use when someone asks
+  'how to monitor Qdrant', 'what metrics to track', 'is Qdrant healthy', 'optimizer
+  stuck', 'why is memory growing', 'requests are slow', or needs to set up Prometheus,
+  Grafana, or health checks. Also use when debugging production issues that require
+  metric analysis.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-monitoring/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- qdrant-monitoring
+content:
+  kind: skill_markdown
+  sha256: 5264e89c01d4e02fb3db9ad9bebd0132c7de951a249c1ebc93d863a834529af2
+  char_count: 1103
+  text: '# Qdrant Monitoring
+
+
+    Qdrant monitoring allows tracking performance and health of your deployment, and
+    identifying issues before they become outages. First determine whether you need
+    to set up monitoring or diagnose an active issue.
+
+
+    - Understand available metrics [Monitoring docs](https://search.qdrant.tech/md/documentation/operations/monitoring/)
+
+
+
+    ## Monitoring Setup
+
+
+    Prometheus scraping, health probes, Hybrid Cloud specifics, alerting, and log
+    centralization. [Monitoring Setup](setup/SKILL.md)
+
+
+
+    ## Debugging with Metrics
+
+
+    Optimizer stuck, memory growth, slow requests. Using metrics to diagnose active
+    production issues. [Debugging with Metrics](debugging/SKILL.md)'

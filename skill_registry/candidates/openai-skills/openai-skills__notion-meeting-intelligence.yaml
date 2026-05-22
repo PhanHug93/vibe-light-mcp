@@ -1,0 +1,70 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__notion-meeting-intelligence
+name: notion-meeting-intelligence
+description: Prepare meeting materials with Notion context and Codex research; use
+  when gathering context, drafting agendas/pre-reads, and tailoring materials to attendees.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/notion-meeting-intelligence/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: skills/.curated/notion-meeting-intelligence/LICENSE.txt
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- notion-meeting-intelligence
+content:
+  kind: skill_markdown
+  sha256: bad61faccbbe0f2cab53bcfbc4cb22f847ba8593ef14c2e37fea5b9b03346332
+  char_count: 3402
+  text: "# Meeting Intelligence\n\nPrep meetings by pulling Notion context, tailoring\
+    \ agendas/pre-reads, and enriching with Codex research.\n\n## Quick start\n1)\
+    \ Confirm meeting goal, attendees, date/time, and decisions needed.\n2) Gather\
+    \ context: search with `Notion:notion-search`, then fetch with `Notion:notion-fetch`\
+    \ (prior notes, specs, OKRs, decisions).\n3) Pick the right template via `reference/template-selection-guide.md`\
+    \ (status, decision, planning, retro, 1:1, brainstorming).\n4) Draft agenda/pre-read\
+    \ in Notion with `Notion:notion-create-pages`, embedding source links and owner/timeboxes.\n\
+    5) Enrich with Codex research (industry insights, benchmarks, risks) and update\
+    \ the page with `Notion:notion-update-page` as plans change.\n\n## Workflow\n\
+    ### 0) If any MCP call fails because Notion MCP is not connected, pause and set\
+    \ it up:\n1. Add the Notion MCP:\n   - `codex mcp add notion --url https://mcp.notion.com/mcp`\n\
+    2. Enable remote MCP client:\n   - Set `[features].rmcp_client = true` in `config.toml`\
+    \ **or** run `codex --enable rmcp_client`\n3. Log in with OAuth:\n   - `codex\
+    \ mcp login notion`\n\nAfter successful login, the user will have to restart codex.\
+    \ You should finish your answer and tell them so when they try again they can\
+    \ continue with Step 1.\n\n### 1) Gather inputs\n- Ask for objective, desired\
+    \ outcomes/decisions, attendees, duration, date/time, and prior materials.\n-\
+    \ Search Notion for relevant docs, past notes, specs, and action items (`Notion:notion-search`),\
+    \ then fetch key pages (`Notion:notion-fetch`).\n- Capture blockers/risks and\
+    \ open questions up front.\n\n### 2) Choose format\n- Status/update \u2192 status\
+    \ template.\n- Decision/approval \u2192 decision template.\n- Planning (sprint/project)\
+    \ \u2192 planning template.\n- Retro/feedback \u2192 retrospective template.\n\
+    - 1:1 \u2192 one-on-one template.\n- Ideation \u2192 brainstorming template.\n\
+    - Use `reference/template-selection-guide.md` to confirm.\n\n### 3) Build the\
+    \ agenda/pre-read\n- Start from the chosen template in `reference/` and adapt\
+    \ sections (context, goals, agenda, owner/time per item, decisions, risks, prep\
+    \ asks).\n- Include links to pulled Notion pages and any required pre-reading.\n\
+    - Assign owners for each agenda item; call out timeboxes and expected outputs.\n\
+    \n### 4) Enrich with research\n- Add concise Codex research where helpful: market/industry\
+    \ facts, benchmarks, risks, best practices.\n- Keep claims cited with source links;\
+    \ separate fact from opinion.\n\n### 5) Finalize and share\n- Add next steps and\
+    \ owners for follow-ups.\n- If tasks arise, create/link tasks in the relevant\
+    \ Notion database.\n- Update the page via `Notion:notion-update-page` when details\
+    \ change; keep a brief changelog if multiple edits.\n\n## References and examples\n\
+    - `reference/` \u2014 template picker and meeting templates (e.g., `template-selection-guide.md`,\
+    \ `status-update-template.md`, `decision-meeting-template.md`, `sprint-planning-template.md`,\
+    \ `one-on-one-template.md`, `retrospective-template.md`, `brainstorming-template.md`).\n\
+    - `examples/` \u2014 end-to-end meeting preps (e.g., `executive-review.md`, `project-decision.md`,\
+    \ `sprint-planning.md`, `customer-meeting.md`)."

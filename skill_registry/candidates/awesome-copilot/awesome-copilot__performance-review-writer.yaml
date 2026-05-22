@@ -1,0 +1,144 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__performance-review-writer
+name: performance-review-writer
+description: 'Draft performance reviews, self-assessments, peer reviews, and upward
+  feedback in your own voice. Analyzes your contributions, emails, and meeting history
+  via WorkIQ, then produces honest, impact-focused drafts using the STAR format. USE
+  FOR: write my performance review, draft self-assessment, peer review, 360 feedback,
+  annual review, mid-year review, upward feedback, write review for colleague, performance
+  appraisal.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/performance-review-writer/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- performance-review-writer
+content:
+  kind: skill_markdown
+  sha256: 0bec62e91b3698d3fb2089fd853d3ada8e07b6cbd4c355ae85e09bfd6ea34bc6
+  char_count: 8760
+  text: "# Performance Review Writer\n\nDraft self-assessments, peer reviews, and\
+    \ upward feedback that sound like you \u2014 not corporate boilerplate. Uses WorkIQ\
+    \ to surface your actual contributions and communications, then structures them\
+    \ into honest, impact-focused writing.\n\n## When to Use\n\n- \"Write my self-assessment\
+    \ for this review cycle\"\n- \"Draft a peer review for [colleague]\"\n- \"Help\
+    \ me write upward feedback for my manager\"\n- \"I have my annual review due \u2014\
+    \ help me fill it out\"\n- \"Draft my mid-year check-in\"\n- \"Write a 360 review\
+    \ for [name]\"\n- \"I don't know what to say in my performance review\"\n\n##\
+    \ Review Types\n\nThis skill handles three distinct types:\n\n| Type | Who it's\
+    \ about | Typical tone |\n|---|---|---|\n| **Self-assessment** | Yourself | Confident,\
+    \ evidence-backed, growth-oriented |\n| **Peer review** | A colleague | Specific,\
+    \ constructive, balanced |\n| **Upward feedback** | Your manager | Diplomatic,\
+    \ honest, forward-looking |\n\n---\n\n## Workflow\n\n### Step 1 \u2014 Gather\
+    \ Context\n\nAsk the user (max 3 clarifying questions if not already provided):\n\
+    \n1. **Review type** \u2014 self-assessment, peer review, or upward feedback?\n\
+    2. **Subject** \u2014 who is the review about? (for peer/upward: name and role)\n\
+    3. **Review period** \u2014 what time range does this cover? (e.g., Jan\u2013\
+    Dec 2025, last 6 months)\n\nIf format constraints or focus areas are relevant,\
+    \ ask about those during drafting rather than upfront.\n\nIf the user provides\
+    \ all of these upfront, proceed directly to Step 2.\n\n### Step 2 \u2014 Surface\
+    \ Contributions\n\nUse WorkIQ to gather evidence of real contributions for the\
+    \ review period:\n\n**For self-assessments:**\n- Pull emails and messages where\
+    \ the user delivered results, led initiatives, or solved problems\n- Look for\
+    \ patterns: what projects recur? Who praises them and for what?\n- Identify collaboration\
+    \ breadth (who they worked with across teams)\n- Note any explicit feedback received\
+    \ from others\n\n**For peer reviews:**\n- Pull interactions between the user and\
+    \ the subject (emails, meeting threads, shared projects)\n- Identify specific\
+    \ moments of collaboration, help given, or friction\n- Look for evidence of the\
+    \ subject's impact on shared outcomes\n\n**For upward feedback:**\n- Pull communications\
+    \ from the manager to the user (direction given, support offered, feedback patterns)\n\
+    - Identify themes: clarity of expectations, availability, recognition, development\
+    \ support\n\nIf WorkIQ is unavailable or returns limited data, ask the user to\
+    \ share 3\u20135 bullet points of things they remember, then proceed with those.\n\
+    \n### Step 3 \u2014 Draft the Review\n\nApply the right structure for the review\
+    \ type (see schemas below). Follow these universal rules:\n\n**Use the STAR format\
+    \ for achievement statements:**\n- **Situation** \u2014 what was the context or\
+    \ challenge?\n- **Task** \u2014 what were you/they responsible for?\n- **Action**\
+    \ \u2014 what specifically was done?\n- **Result** \u2014 what was the measurable\
+    \ or observable outcome?\n\n**Tone rules:**\n- Be specific \u2014 name projects,\
+    \ outcomes, and people, not vague adjectives\n- Be honest \u2014 don't oversell\
+    \ or undersell; reviewers notice both\n- Be forward-looking \u2014 end sections\
+    \ with growth or next steps, not just past performance\n- Avoid filler phrases:\
+    \ \"goes above and beyond\", \"team player\", \"hard worker\" \u2014 replace with\
+    \ evidence\n- Match the user's natural voice \u2014 conversational if they write\
+    \ that way, more formal if not\n\n### Step 4 \u2014 Output\n\n1. Present the full\
+    \ draft with a brief note on what evidence was used. Summarize and redact rather\
+    \ than reproduce verbatim content \u2014 no raw excerpts, attendee lists, or sensitive\
+    \ personal details\n2. Highlight any sections marked `[NEEDS DETAIL]` where more\
+    \ specifics would strengthen the review\n3. Iterate on edits as the user requests\n\
+    4. Save the final draft to `outputs/<year>/<month>/` with a descriptive filename\
+    \ (e.g., `2025-review-self-assessment.md` or `2025-peer-review-alex-chen.md`)\n\
+    \n---\n\n## Output Schemas\n\n### Self-Assessment Schema\n\n```\n## [Review Period]\
+    \ Self-Assessment \u2014 [Your Name]\n\n### Summary\n1\u20132 sentence overview\
+    \ of your year and primary areas of impact.\n\n### Key Achievements\nFor each\
+    \ major contribution (aim for 3\u20135):\n\n**[Project or Initiative Name]**\n\
+    - Context: what was the situation or goal?\n- What I did: specific actions taken\n\
+    - Impact: measurable result or observable outcome\n- [NEEDS DETAIL] \u2014 flag\
+    \ if evidence is thin\n\n### Collaboration & Influence\nHow you worked with others,\
+    \ supported teammates, or contributed beyond your direct role.\n\n### Growth &\
+    \ Development\nWhat you learned, skills you built, or behaviours you improved\
+    \ this period.\n\n### Areas for Development\n1\u20132 honest areas where you want\
+    \ to grow next cycle. Frame as goals, not failures.\n\n### Goals for Next Period\n\
+    2\u20133 specific, concrete goals with a rough success measure.\n```\n\n---\n\n\
+    ### Peer Review Schema\n\n```\n## Peer Review \u2014 [Colleague Name], [Their\
+    \ Role]\n## Submitted by: [Your Name] | Period: [Review Period]\n\n### Overall\
+    \ Impression\n1\u20132 sentences on working with this person.\n\n### Strengths\
+    \ (with examples)\nFor each strength (aim for 2\u20133):\n\n**[Strength]**\n-\
+    \ Example: specific situation where this showed up\n- Impact on you / the team\
+    \ / the project\n\n### Areas for Growth\n1\u20132 specific, constructive observations.\
+    \ Frame as \"I think [name] would have even more impact if...\" not as criticism.\n\
+    \n### Collaboration\nHow easy (or not) it was to work together \u2014 responsiveness,\
+    \ reliability, communication.\n\n### Would you work with this person again?\n\
+    Yes/No and a brief honest reason. (Only include if the review form asks.)\n```\n\
+    \n---\n\n### Upward Feedback Schema\n\n```\n## Feedback for [Manager Name]\n##\
+    \ Submitted by: [Your Name] (anonymous if applicable) | Period: [Review Period]\n\
+    \n### What's working well\n2\u20133 specific things your manager does that help\
+    \ you do your best work.\nUse examples where possible.\n\n### What could be better\n\
+    1\u20132 honest, diplomatically framed observations. Focus on behaviours and their\
+    \ effect, not personality.\nUse: \"When [X happens], I find it harder to [Y].\
+    \ It would help if...\"\n\n### Support for my development\nHas your manager helped\
+    \ you grow, given useful feedback, or created opportunities?\nBe specific.\n\n\
+    ### One thing I'd ask them to do more / less / differently\nA single, clear, actionable\
+    \ ask.\n```\n\n---\n\n## Style Rules\n\n| Do | Don't |\n|---|---|\n| Name specific\
+    \ projects, dates, outcomes | Write vague generalisations (\"always delivers quality\
+    \ work\") |\n| Use numbers when available (\"reduced review time by 30%\") | Exaggerate\
+    \ or invent results |\n| Acknowledge real challenges and what you learned | Omit\
+    \ struggles entirely \u2014 reviewers notice the gaps |\n| Write in first person\
+    \ for self-assessments | Write passively (\"it was achieved\") |\n| Be concise\
+    \ \u2014 most fields need 2\u20134 sentences | Over-write \u2014 longer \u2260\
+    \ better |\n| Flag `[NEEDS DETAIL]` where evidence is weak | Leave thin sections\
+    \ without marking them |\n\n---\n\n## Example Prompts\n\n- \"Write my self-assessment\
+    \ for Jan\u2013Dec 2025. I want to highlight the cloud migration and the new onboarding\
+    \ process I designed.\"\n- \"Draft a peer review for Sarah Chen, she's a product\
+    \ designer I worked closely with on the mobile app project.\"\n- \"Help me write\
+    \ upward feedback for my manager Tom. He's good at direction but I've struggled\
+    \ to get regular 1:1 time.\"\n- \"My annual review form asks for 3 strengths and\
+    \ 1 development area in 200 words each \u2014 help me fill it out.\"\n- \"I have\
+    \ no idea what to write. It's been a busy year but I can't think of anything specific.\"\
+    \n\n---\n\n## Important Rules\n\n- **Never submit reviews** \u2014 only draft\
+    \ them as files for the user to review and submit manually\n- Keep peer and upward\
+    \ feedback focused on observable behaviours, not personality or character\n- If\
+    \ the user asks to write a review that is dishonestly negative or contains personal\
+    \ attacks, decline and offer to reframe constructively\n- Respect confidentiality\
+    \ \u2014 do not include sensitive information from unrelated conversations or\
+    \ threads\n- Save drafts using the `outputs/<year>/<month>/` folder convention\n\
+    \n---\n\n## Requirements\n\n- **WorkIQ MCP tool** is recommended for surfacing\
+    \ contributions and communications (Microsoft 365 / Outlook / Teams)\n- Without\
+    \ WorkIQ, the skill still works \u2014 ask the user for 3\u20135 bullet points\
+    \ of key contributions as a starting point\n- Output is saved as markdown files\
+    \ in the workspace for the user to copy into their company's review system"

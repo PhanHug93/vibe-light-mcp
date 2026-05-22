@@ -1,0 +1,39 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__azure-role-selector
+name: azure-role-selector
+description: When user is asking for guidance for which role to assign to an identity
+  given desired permissions, this agent helps them understand the role that will meet
+  the requirements with least privilege access and how to apply that role.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/azure-role-selector/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- azure-role-selector
+content:
+  kind: skill_markdown
+  sha256: b4de898de0d72f258606efff41841bd31145db5ac18a57a7bd416450eaabe670
+  char_count: 983
+  text: Use 'Azure MCP/documentation' tool to find the minimal role definition that
+    matches the desired permissions the user wants to assign to an identity (If no
+    built-in role matches the desired permissions, use 'Azure MCP/extension_cli_generate'
+    tool to create a custom role definition with the desired permissions). Use 'Azure
+    MCP/extension_cli_generate' tool to generate the CLI commands needed to assign
+    that role to the identity and use the 'Azure MCP/bicepschema' and the 'Azure MCP/get_bestpractices'
+    tool to provide a Bicep code snippet for adding the role assignment.

@@ -1,0 +1,77 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react18-enzyme-to-rtl
+name: react18-enzyme-to-rtl
+description: "Provides exact Enzyme \u2192 React Testing Library migration patterns\
+  \ for React 18 upgrades. Use this skill whenever Enzyme tests need to be rewritten\
+  \ - shallow, mount, wrapper.find(), wrapper.simulate(), wrapper.prop(), wrapper.state(),\
+  \ wrapper.instance(), Enzyme configure/Adapter calls, or any test file that imports\
+  \ from enzyme. This skill covers the full API mapping and the philosophy shift from\
+  \ implementation testing to behavior testing. Always read this skill before rewriting\
+  \ Enzyme tests - do not translate Enzyme APIs 1:1, that produces brittle RTL tests."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react18-enzyme-to-rtl/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- frontend
+- testing
+languages: []
+platforms: []
+aliases:
+- react18-enzyme-to-rtl
+content:
+  kind: skill_markdown
+  sha256: 948b578f25740476a29074902cfd6c0886bee07cdbe99fcfe76dd58072f422a4
+  char_count: 3668
+  text: "# React 18 Enzyme \u2192 RTL Migration\n\nEnzyme has no React 18 adapter\
+    \ and no React 18 support path. All Enzyme tests must be rewritten using React\
+    \ Testing Library.\n\n## The Philosophy Shift (Read This First)\n\nEnzyme tests\
+    \ implementation. RTL tests behavior.\n\n```jsx\n// Enzyme: tests that the component\
+    \ has the right internal state\nexpect(wrapper.state('count')).toBe(3);\nexpect(wrapper.instance().handleClick).toBeDefined();\n\
+    expect(wrapper.find('Button').prop('disabled')).toBe(true);\n\n// RTL: tests what\
+    \ the user actually sees and can do\nexpect(screen.getByText('Count: 3')).toBeInTheDocument();\n\
+    expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();\n```\n\
+    \nThis is not a 1:1 translation. Enzyme tests that verify internal state or instance\
+    \ methods don't have RTL equivalents - because RTL intentionally doesn't expose\
+    \ internals. **Rewrite the test to assert the visible outcome instead.**\n\n##\
+    \ API Map\n\nFor complete before/after code for each Enzyme API, read:\n- **`references/enzyme-api-map.md`**\
+    \ - full mapping: shallow, mount, find, simulate, prop, state, instance, configure\n\
+    - **`references/async-patterns.md`** - waitFor, findBy, act(), Apollo MockedProvider,\
+    \ loading states, error states\n\n## Core Rewrite Template\n\n```jsx\n// Every\
+    \ Enzyme test rewrites to this shape:\nimport { render, screen, fireEvent, waitFor\
+    \ } from '@testing-library/react';\nimport userEvent from '@testing-library/user-event';\n\
+    import MyComponent from './MyComponent';\n\ndescribe('MyComponent', () => {\n\
+    \  it('does the thing', async () => {\n    // 1. Render (replaces shallow/mount)\n\
+    \    render(<MyComponent prop=\"value\" />);\n\n    // 2. Query (replaces wrapper.find())\n\
+    \    const button = screen.getByRole('button', { name: /submit/i });\n\n    //\
+    \ 3. Interact (replaces simulate())\n    await userEvent.setup().click(button);\n\
+    \n    // 4. Assert on visible output (replaces wrapper.state() / wrapper.prop())\n\
+    \    expect(screen.getByText('Submitted!')).toBeInTheDocument();\n  });\n});\n\
+    ```\n\n## RTL Query Priority (use in this order)\n\n1. `getByRole` - matches accessible\
+    \ roles (button, textbox, heading, checkbox, etc.)\n2. `getByLabelText` - form\
+    \ fields linked to labels\n3. `getByPlaceholderText` - input placeholders\n4.\
+    \ `getByText` - visible text content\n5. `getByDisplayValue` - current value of\
+    \ input/select/textarea\n6. `getByAltText` - image alt text\n7. `getByTitle` -\
+    \ title attribute\n8. `getByTestId` - `data-testid` attribute (last resort)\n\n\
+    Prefer `getByRole` over `getByTestId`. It tests accessibility too.\n\n## Wrapping\
+    \ with Providers\n\n```jsx\n// Enzyme with context:\nconst wrapper = mount(\n\
+    \  <ApolloProvider client={client}>\n    <ThemeProvider theme={theme}>\n     \
+    \ <MyComponent />\n    </ThemeProvider>\n  </ApolloProvider>\n);\n\n// RTL equivalent\
+    \ (use your project's customRender or wrap inline):\nimport { render } from '@testing-library/react';\n\
+    render(\n  <MockedProvider mocks={mocks} addTypename={false}>\n    <ThemeProvider\
+    \ theme={theme}>\n      <MyComponent />\n    </ThemeProvider>\n  </MockedProvider>\n\
+    );\n// Or use the project's customRender helper if it wraps providers\n```"

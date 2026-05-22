@@ -1,0 +1,128 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__cloudflare-deploy
+name: cloudflare-deploy
+description: Deploy applications and infrastructure to Cloudflare using Workers, Pages,
+  and related platform services. Use when the user asks to deploy, host, publish,
+  or set up a project on Cloudflare.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/cloudflare-deploy/SKILL.md
+license:
+  status: accepted
+  kind: Apache-2.0
+  file: skills/.curated/cloudflare-deploy/LICENSE.txt
+risk:
+  level: low
+  flags:
+  - has_assets_directory
+  - has_references_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- cloudflare-deploy
+content:
+  kind: skill_markdown
+  sha256: d7632537cf19be17cf33d2c696b9d9c2ea3ee51026030e9b203d5b9255e75b15
+  char_count: 7125
+  text: "# Cloudflare Deploy\n\nConsolidated skill for building on the Cloudflare\
+    \ platform. Use decision trees below to find the right product, then load detailed\
+    \ references.\n\n## Prerequisites\n\n- When sandboxing blocks the deployment network\
+    \ calls, rerun with `sandbox_permissions=require_escalated`.\n- The deployment\
+    \ might take a few minutes. Use appropriate timeout values.\n\n## Authentication\
+    \ (Required Before Deploy)\n\nVerify auth before `wrangler deploy`, `wrangler\
+    \ pages deploy`, or `npm run deploy`:\n\n```bash\nnpx wrangler whoami    # Shows\
+    \ account if authenticated\n```\n\nNot authenticated? \u2192 `references/wrangler/auth.md`\n\
+    - Interactive/local: `wrangler login` (one-time OAuth)\n- CI/CD: Set `CLOUDFLARE_API_TOKEN`\
+    \ env var\n\n## Quick Decision Trees\n\n### \"I need to run code\"\n\n```\nNeed\
+    \ to run code?\n\u251C\u2500 Serverless functions at the edge \u2192 workers/\n\
+    \u251C\u2500 Full-stack web app with Git deploys \u2192 pages/\n\u251C\u2500 Stateful\
+    \ coordination/real-time \u2192 durable-objects/\n\u251C\u2500 Long-running multi-step\
+    \ jobs \u2192 workflows/\n\u251C\u2500 Run containers \u2192 containers/\n\u251C\
+    \u2500 Multi-tenant (customers deploy code) \u2192 workers-for-platforms/\n\u251C\
+    \u2500 Scheduled tasks (cron) \u2192 cron-triggers/\n\u251C\u2500 Lightweight\
+    \ edge logic (modify HTTP) \u2192 snippets/\n\u251C\u2500 Process Worker execution\
+    \ events (logs/observability) \u2192 tail-workers/\n\u2514\u2500 Optimize latency\
+    \ to backend infrastructure \u2192 smart-placement/\n```\n\n### \"I need to store\
+    \ data\"\n\n```\nNeed storage?\n\u251C\u2500 Key-value (config, sessions, cache)\
+    \ \u2192 kv/\n\u251C\u2500 Relational SQL \u2192 d1/ (SQLite) or hyperdrive/ (existing\
+    \ Postgres/MySQL)\n\u251C\u2500 Object/file storage (S3-compatible) \u2192 r2/\n\
+    \u251C\u2500 Message queue (async processing) \u2192 queues/\n\u251C\u2500 Vector\
+    \ embeddings (AI/semantic search) \u2192 vectorize/\n\u251C\u2500 Strongly-consistent\
+    \ per-entity state \u2192 durable-objects/ (DO storage)\n\u251C\u2500 Secrets\
+    \ management \u2192 secrets-store/\n\u251C\u2500 Streaming ETL to R2 \u2192 pipelines/\n\
+    \u2514\u2500 Persistent cache (long-term retention) \u2192 cache-reserve/\n```\n\
+    \n### \"I need AI/ML\"\n\n```\nNeed AI?\n\u251C\u2500 Run inference (LLMs, embeddings,\
+    \ images) \u2192 workers-ai/\n\u251C\u2500 Vector database for RAG/search \u2192\
+    \ vectorize/\n\u251C\u2500 Build stateful AI agents \u2192 agents-sdk/\n\u251C\
+    \u2500 Gateway for any AI provider (caching, routing) \u2192 ai-gateway/\n\u2514\
+    \u2500 AI-powered search widget \u2192 ai-search/\n```\n\n### \"I need networking/connectivity\"\
+    \n\n```\nNeed networking?\n\u251C\u2500 Expose local service to internet \u2192\
+    \ tunnel/\n\u251C\u2500 TCP/UDP proxy (non-HTTP) \u2192 spectrum/\n\u251C\u2500\
+    \ WebRTC TURN server \u2192 turn/\n\u251C\u2500 Private network connectivity \u2192\
+    \ network-interconnect/\n\u251C\u2500 Optimize routing \u2192 argo-smart-routing/\n\
+    \u251C\u2500 Optimize latency to backend (not user) \u2192 smart-placement/\n\u2514\
+    \u2500 Real-time video/audio \u2192 realtimekit/ or realtime-sfu/\n```\n\n###\
+    \ \"I need security\"\n\n```\nNeed security?\n\u251C\u2500 Web Application Firewall\
+    \ \u2192 waf/\n\u251C\u2500 DDoS protection \u2192 ddos/\n\u251C\u2500 Bot detection/management\
+    \ \u2192 bot-management/\n\u251C\u2500 API protection \u2192 api-shield/\n\u251C\
+    \u2500 CAPTCHA alternative \u2192 turnstile/\n\u2514\u2500 Credential leak detection\
+    \ \u2192 waf/ (managed ruleset)\n```\n\n### \"I need media/content\"\n\n```\n\
+    Need media?\n\u251C\u2500 Image optimization/transformation \u2192 images/\n\u251C\
+    \u2500 Video streaming/encoding \u2192 stream/\n\u251C\u2500 Browser automation/screenshots\
+    \ \u2192 browser-rendering/\n\u2514\u2500 Third-party script management \u2192\
+    \ zaraz/\n```\n\n### \"I need infrastructure-as-code\"\n\n```\nNeed IaC? \u2192\
+    \ pulumi/ (Pulumi), terraform/ (Terraform), or api/ (REST API)\n```\n\n## Product\
+    \ Index\n\n### Compute & Runtime\n| Product | Reference |\n|---------|-----------|\n\
+    | Workers | `references/workers/` |\n| Pages | `references/pages/` |\n| Pages\
+    \ Functions | `references/pages-functions/` |\n| Durable Objects | `references/durable-objects/`\
+    \ |\n| Workflows | `references/workflows/` |\n| Containers | `references/containers/`\
+    \ |\n| Workers for Platforms | `references/workers-for-platforms/` |\n| Cron Triggers\
+    \ | `references/cron-triggers/` |\n| Tail Workers | `references/tail-workers/`\
+    \ |\n| Snippets | `references/snippets/` |\n| Smart Placement | `references/smart-placement/`\
+    \ |\n\n### Storage & Data\n| Product | Reference |\n|---------|-----------|\n\
+    | KV | `references/kv/` |\n| D1 | `references/d1/` |\n| R2 | `references/r2/`\
+    \ |\n| Queues | `references/queues/` |\n| Hyperdrive | `references/hyperdrive/`\
+    \ |\n| DO Storage | `references/do-storage/` |\n| Secrets Store | `references/secrets-store/`\
+    \ |\n| Pipelines | `references/pipelines/` |\n| R2 Data Catalog | `references/r2-data-catalog/`\
+    \ |\n| R2 SQL | `references/r2-sql/` |\n\n### AI & Machine Learning\n| Product\
+    \ | Reference |\n|---------|-----------|\n| Workers AI | `references/workers-ai/`\
+    \ |\n| Vectorize | `references/vectorize/` |\n| Agents SDK | `references/agents-sdk/`\
+    \ |\n| AI Gateway | `references/ai-gateway/` |\n| AI Search | `references/ai-search/`\
+    \ |\n\n### Networking & Connectivity\n| Product | Reference |\n|---------|-----------|\n\
+    | Tunnel | `references/tunnel/` |\n| Spectrum | `references/spectrum/` |\n| TURN\
+    \ | `references/turn/` |\n| Network Interconnect | `references/network-interconnect/`\
+    \ |\n| Argo Smart Routing | `references/argo-smart-routing/` |\n| Workers VPC\
+    \ | `references/workers-vpc/` |\n\n### Security\n| Product | Reference |\n|---------|-----------|\n\
+    | WAF | `references/waf/` |\n| DDoS Protection | `references/ddos/` |\n| Bot Management\
+    \ | `references/bot-management/` |\n| API Shield | `references/api-shield/` |\n\
+    | Turnstile | `references/turnstile/` |\n\n### Media & Content\n| Product | Reference\
+    \ |\n|---------|-----------|\n| Images | `references/images/` |\n| Stream | `references/stream/`\
+    \ |\n| Browser Rendering | `references/browser-rendering/` |\n| Zaraz | `references/zaraz/`\
+    \ |\n\n### Real-Time Communication\n| Product | Reference |\n|---------|-----------|\n\
+    | RealtimeKit | `references/realtimekit/` |\n| Realtime SFU | `references/realtime-sfu/`\
+    \ |\n\n### Developer Tools\n| Product | Reference |\n|---------|-----------|\n\
+    | Wrangler | `references/wrangler/` |\n| Miniflare | `references/miniflare/` |\n\
+    | C3 | `references/c3/` |\n| Observability | `references/observability/` |\n|\
+    \ Analytics Engine | `references/analytics-engine/` |\n| Web Analytics | `references/web-analytics/`\
+    \ |\n| Sandbox | `references/sandbox/` |\n| Workerd | `references/workerd/` |\n\
+    | Workers Playground | `references/workers-playground/` |\n\n### Infrastructure\
+    \ as Code\n| Product | Reference |\n|---------|-----------|\n| Pulumi | `references/pulumi/`\
+    \ |\n| Terraform | `references/terraform/` |\n| API | `references/api/` |\n\n\
+    ### Other Services\n| Product | Reference |\n|---------|-----------|\n| Email\
+    \ Routing | `references/email-routing/` |\n| Email Workers | `references/email-workers/`\
+    \ |\n| Static Assets | `references/static-assets/` |\n| Bindings | `references/bindings/`\
+    \ |\n| Cache Reserve | `references/cache-reserve/` |\n\n## Troubleshooting\n\n\
+    ### Escalated Network Access\n\nIf deployment fails due to network issues (timeouts,\
+    \ DNS errors, connection resets), rerun the deploy with escalated permissions\
+    \ (use `sandbox_permissions=require_escalated`). The deploy requires escalated\
+    \ network access when sandbox networking blocks outbound requests.\n\nExample\
+    \ guidance to the user:\n\n```\nThe deploy needs escalated network access to deploy\
+    \ to Cloudflare. I can rerun the command with escalated permissions\u2014want\
+    \ me to proceed?\n```"

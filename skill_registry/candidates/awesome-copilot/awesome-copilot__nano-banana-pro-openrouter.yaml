@@ -1,0 +1,63 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__nano-banana-pro-openrouter
+name: nano-banana-pro-openrouter
+description: Generate or edit images via OpenRouter with the Gemini 3 Pro Image model.
+  Use for prompt-only image generation, image edits, and multi-image compositing;
+  supports 1K/2K/4K output.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/nano-banana-pro-openrouter/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_assets_directory
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- nano-banana-pro-openrouter
+content:
+  kind: skill_markdown
+  sha256: 3e0ce50fe4b76ad1fa7adcaaceb88f3e8c3c1ecb251f980fbe58a8edc2470fb8
+  char_count: 2653
+  text: "# Nano Banana Pro OpenRouter\n\n## Overview\n\nGenerate or edit images with\
+    \ OpenRouter using the `google/gemini-3-pro-image-preview` model. Support prompt-only\
+    \ generation, single-image edits, and multi-image composition.\n\n### Prompt-only\
+    \ generation\n\n```\nuv run {baseDir}/scripts/generate_image.py \\\n  --prompt\
+    \ \"A cinematic sunset over snow-capped mountains\" \\\n  --filename sunset.png\n\
+    ```\n\n### Edit a single image\n\n```\nuv run {baseDir}/scripts/generate_image.py\
+    \ \\\n  --prompt \"Replace the sky with a dramatic aurora\" \\\n  --input-image\
+    \ input.jpg \\\n  --filename aurora.png\n```\n\n### Compose multiple images\n\n\
+    ```\nuv run {baseDir}/scripts/generate_image.py \\\n  --prompt \"Combine the subjects\
+    \ into a single studio portrait\" \\\n  --input-image face1.jpg \\\n  --input-image\
+    \ face2.jpg \\\n  --filename composite.png\n```\n\n## Resolution\n\n- Use `--resolution`\
+    \ with `1K`, `2K`, or `4K`.\n- Default is `1K` if not specified.\n\n## System\
+    \ prompt customization\n\nThe skill reads an optional system prompt from `assets/SYSTEM_TEMPLATE`.\
+    \ This allows you to customize the image generation behavior without modifying\
+    \ code.\n\n## Behavior and constraints\n\n- Accept up to 3 input images via repeated\
+    \ `--input-image`.\n- `--filename` accepts relative paths (saves to current directory)\
+    \ or absolute paths.\n- If multiple images are returned, append `-1`, `-2`, etc.\
+    \ to the filename.\n- Print `MEDIA: <path>` for each saved image. Do not read\
+    \ images back into the response.\n\n## Troubleshooting\n\nIf the script exits\
+    \ non-zero, check stderr against these common blockers:\n\n| Symptom | Resolution\
+    \ |\n|---------|------------|\n| `OPENROUTER_API_KEY is not set` | Ask the user\
+    \ to set it. PowerShell: `$env:OPENROUTER_API_KEY = \"sk-or-...\"` / bash: `export\
+    \ OPENROUTER_API_KEY=\"sk-or-...\"` |\n| `uv: command not found` or not recognized\
+    \ | macOS/Linux: <code>curl -LsSf https://astral.sh/uv/install.sh &#124; sh</code>.\
+    \ Windows: <code>powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1\
+    \ &#124; iex\"</code>. Then restart the terminal. |\n| `AuthenticationError` /\
+    \ HTTP 401 | Key is invalid or has no credits. Verify at <https://openrouter.ai/settings/keys>.\
+    \ |\n\nFor transient errors (HTTP 429, network timeouts), retry once after 30\
+    \ seconds. Do not retry the same error more than twice \u2014 surface the issue\
+    \ to the user instead."

@@ -1,0 +1,57 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__update-avm-modules-in-bicep
+name: update-avm-modules-in-bicep
+description: Update Azure Verified Modules (AVM) to latest versions in Bicep files.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/update-avm-modules-in-bicep/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- testing
+languages: []
+platforms: []
+aliases:
+- update-avm-modules-in-bicep
+content:
+  kind: skill_markdown
+  sha256: b8ca2755d0ae9b57ea4d90776eb6495a29f614adce765704f02cb352a72c0f18
+  char_count: 2250
+  text: "# Update Azure Verified Modules in Bicep Files\n\nUpdate Bicep file `${file}`\
+    \ to use latest Azure Verified Module (AVM) versions. Limit progress updates to\
+    \ non-breaking changes. Don't output information other than the final output table\
+    \ and summary.\n\n## Process\n\n1. **Scan**: Extract AVM modules and current versions\
+    \ from `${file}`\n1. **Identify**: List all unique AVM modules used by matching\
+    \ `avm/res/{service}/{resource}` using `#search` tool\n1. **Check**: Use `#fetch`\
+    \ tool to get latest version of each AVM module from MCR: `https://mcr.microsoft.com/v2/bicep/avm/res/{service}/{resource}/tags/list`\n\
+    1. **Compare**: Parse semantic versions to identify AVM modules needing update\n\
+    1. **Review**: For breaking changes, use `#fetch` tool to get docs from: `https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/{service}/{resource}`\n\
+    1. **Update**: Apply version updates and parameter changes using `#editFiles`\
+    \ tool\n1. **Validate**: Run `bicep lint` and `bicep build` using `#runCommands`\
+    \ tool to ensure compliance.\n1. **Output**: Summarize changes in a table format\
+    \ with summary of updates below.\n\n## Tool Usage\n\nAlways use tools `#search`,\
+    \ `#searchResults`,`#fetch`, `#editFiles`, `#runCommands`, `#todos` if available.\
+    \ Avoid writing code to perform tasks.\n\n## Breaking Change Policy\n\n\u26A0\uFE0F\
+    \ **PAUSE for approval** if updates involve:\n\n- Incompatible parameter changes\n\
+    - Security/compliance modifications\n- Behavioral changes\n\n## Output Format\n\
+    \nOnly display results in table with icons:\n\n```markdown\n| Module | Current\
+    \ | Latest | Status | Action | Docs |\n|--------|---------|--------|--------|--------|------|\n\
+    | avm/res/compute/vm | 0.1.0 | 0.2.0 | \U0001F504 | Updated | [\U0001F4D6](link)\
+    \ |\n| avm/res/storage/account | 0.3.0 | 0.3.0 | \u2705 | Current | [\U0001F4D6\
+    ](link) |\n\n### Summary of Updates\n\nDescribe updates made, any manual reviews\
+    \ needed or issues encountered.\n```\n\n## Icons\n\n- \U0001F504 Updated\n- \u2705\
+    \ Current\n- \u26A0\uFE0F Manual review required\n- \u274C Failed\n- \U0001F4D6\
+    \ Documentation\n\n## Requirements\n\n- Use MCR tags API only for version discovery\n\
+    - Parse JSON tags array and sort by semantic versioning\n- Maintain Bicep file\
+    \ validity and linting compliance"

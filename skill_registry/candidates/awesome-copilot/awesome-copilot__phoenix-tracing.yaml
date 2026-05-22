@@ -1,0 +1,106 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__phoenix-tracing
+name: phoenix-tracing
+description: OpenInference semantic conventions and instrumentation for Phoenix AI
+  observability. Use when implementing LLM tracing, creating custom spans, or deploying
+  to production.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/phoenix-tracing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- phoenix-tracing
+content:
+  kind: skill_markdown
+  sha256: bb291aaa0c562ef6bd912bca8dc29dd18d9ef439ba3f9c4ec56e380314acb7c2
+  char_count: 6757
+  text: "# Phoenix Tracing\n\nComprehensive guide for instrumenting LLM applications\
+    \ with OpenInference tracing in Phoenix. Contains reference files covering setup,\
+    \ instrumentation, span types, and production deployment.\n\n## When to Apply\n\
+    \nReference these guidelines when:\n\n- Setting up Phoenix tracing (Python or\
+    \ TypeScript)\n- Creating custom spans for LLM operations\n- Adding attributes\
+    \ following OpenInference conventions\n- Deploying tracing to production\n- Querying\
+    \ and analyzing trace data\n\n## Reference Categories\n\n| Priority | Category\
+    \        | Description                    | Prefix                     |\n| --------\
+    \ | --------------- | ------------------------------ | --------------------------\
+    \ |\n| 1        | Setup           | Installation and configuration | `setup-*`\
+    \                  |\n| 2        | Instrumentation | Auto and manual tracing \
+    \       | `instrumentation-*`        |\n| 3        | Span Types      | 9 span\
+    \ kinds with attributes   | `span-*`                   |\n| 4        | Organization\
+    \    | Projects and sessions          | `projects-*`, `sessions-*` |\n| 5    \
+    \    | Enrichment      | Custom metadata                | `metadata-*`       \
+    \        |\n| 6        | Production      | Batch processing, masking      | `production-*`\
+    \             |\n| 7        | Feedback        | Annotations and evaluation   \
+    \  | `annotations-*`            |\n\n## Quick Reference\n\n### 1. Setup (START\
+    \ HERE)\n\n- [setup-python](references/setup-python.md) - Install arize-phoenix-otel,\
+    \ configure endpoint\n- [setup-typescript](references/setup-typescript.md) - Install\
+    \ @arizeai/phoenix-otel, configure endpoint\n\n### 2. Instrumentation\n\n- [instrumentation-auto-python](references/instrumentation-auto-python.md)\
+    \ - Auto-instrument OpenAI, LangChain, etc.\n- [instrumentation-auto-typescript](references/instrumentation-auto-typescript.md)\
+    \ - Auto-instrument supported frameworks\n- [instrumentation-manual-python](references/instrumentation-manual-python.md)\
+    \ - Custom spans with decorators\n- [instrumentation-manual-typescript](references/instrumentation-manual-typescript.md)\
+    \ - Custom spans with wrappers\n\n### 3. Span Types (with full attribute schemas)\n\
+    \n- [span-llm](references/span-llm.md) - LLM API calls (model, tokens, messages,\
+    \ cost)\n- [span-chain](references/span-chain.md) - Multi-step workflows and pipelines\n\
+    - [span-retriever](references/span-retriever.md) - Document retrieval (documents,\
+    \ scores)\n- [span-tool](references/span-tool.md) - Function/API calls (name,\
+    \ parameters)\n- [span-agent](references/span-agent.md) - Multi-step reasoning\
+    \ agents\n- [span-embedding](references/span-embedding.md) - Vector generation\n\
+    - [span-reranker](references/span-reranker.md) - Document re-ranking\n- [span-guardrail](references/span-guardrail.md)\
+    \ - Safety checks\n- [span-evaluator](references/span-evaluator.md) - LLM evaluation\n\
+    \n### 4. Organization\n\n- [projects-python](references/projects-python.md) /\
+    \ [projects-typescript](references/projects-typescript.md) - Group traces by application\n\
+    - [sessions-python](references/sessions-python.md) / [sessions-typescript](references/sessions-typescript.md)\
+    \ - Track conversations\n\n### 5. Enrichment\n\n- [metadata-python](references/metadata-python.md)\
+    \ / [metadata-typescript](references/metadata-typescript.md) - Custom attributes\n\
+    \n### 6. Production (CRITICAL)\n\n- [production-python](references/production-python.md)\
+    \ / [production-typescript](references/production-typescript.md) - Batch processing,\
+    \ PII masking\n\n### 7. Feedback\n\n- [annotations-overview](references/annotations-overview.md)\
+    \ - Feedback concepts\n- [annotations-python](references/annotations-python.md)\
+    \ / [annotations-typescript](references/annotations-typescript.md) - Add feedback\
+    \ to spans\n\n### Reference Files\n\n- [fundamentals-overview](references/fundamentals-overview.md)\
+    \ - Traces, spans, attributes basics\n- [fundamentals-required-attributes](references/fundamentals-required-attributes.md)\
+    \ - Required fields per span type\n- [fundamentals-universal-attributes](references/fundamentals-universal-attributes.md)\
+    \ - Common attributes (user.id, session.id)\n- [fundamentals-flattening](references/fundamentals-flattening.md)\
+    \ - JSON flattening rules\n- [attributes-messages](references/attributes-messages.md)\
+    \ - Chat message format\n- [attributes-metadata](references/attributes-metadata.md)\
+    \ - Custom metadata schema\n- [attributes-graph](references/attributes-graph.md)\
+    \ - Agent workflow attributes\n- [attributes-exceptions](references/attributes-exceptions.md)\
+    \ - Error tracking\n\n## Common Workflows\n\n- **Quick Start**: setup-{lang} \u2192\
+    \ instrumentation-auto-{lang} \u2192 Check Phoenix\n- **Custom Spans**: setup-{lang}\
+    \ \u2192 instrumentation-manual-{lang} \u2192 span-{type}\n- **Session Tracking**:\
+    \ sessions-{lang} for conversation grouping patterns\n- **Production**: production-{lang}\
+    \ for batching, masking, and deployment\n\n## How to Use This Skill\n\n**Navigation\
+    \ Patterns:**\n\n```bash\n# By category prefix\nreferences/setup-*           \
+    \   # Installation and configuration\nreferences/instrumentation-*    # Auto and\
+    \ manual tracing\nreferences/span-*               # Span type specifications\n\
+    references/sessions-*           # Session tracking\nreferences/production-*  \
+    \       # Production deployment\nreferences/fundamentals-*       # Core concepts\n\
+    references/attributes-*         # Attribute specifications\n\n# By language\n\
+    references/*-python.md          # Python implementations\nreferences/*-typescript.md\
+    \      # TypeScript implementations\n```\n\n**Reading Order:**\n1. Start with\
+    \ setup-{lang} for your language\n2. Choose instrumentation-auto-{lang} OR instrumentation-manual-{lang}\n\
+    3. Reference span-{type} files as needed for specific operations\n4. See fundamentals-*\
+    \ files for attribute specifications\n\n## References\n\n**Phoenix Documentation:**\n\
+    \n- [Phoenix Documentation](https://docs.arize.com/phoenix)\n- [OpenInference\
+    \ Spec](https://github.com/Arize-ai/openinference/tree/main/spec)\n\n**Python\
+    \ API Documentation:**\n\n- [Python OTEL Package](https://arize-phoenix.readthedocs.io/projects/otel/en/latest/)\
+    \ - `arize-phoenix-otel` API reference\n- [Python Client Package](https://arize-phoenix.readthedocs.io/projects/client/en/latest/)\
+    \ - `arize-phoenix-client` API reference\n\n**TypeScript API Documentation:**\n\
+    \n- [TypeScript Packages](https://arize-ai.github.io/phoenix/) - `@arizeai/phoenix-otel`,\
+    \ `@arizeai/phoenix-client`, and other TypeScript packages"

@@ -1,0 +1,234 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-enterprise-account-planning
+name: gtm-enterprise-account-planning
+description: Strategic account planning and execution for enterprise deals. Use when
+  planning complex sales cycles, managing multiple stakeholders, applying MEDDICC
+  qualification, tracking deal health, or building mutual action plans. Includes the
+  "stale MAP equals dead deal" pattern.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-enterprise-account-planning/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gtm-enterprise-account-planning
+content:
+  kind: skill_markdown
+  sha256: 92441114f77b1dd72d2edf1d55e369a00e0dce0bf8b4a749fbbc5198de4ddf78
+  char_count: 15645
+  text: "# Enterprise Account Planning\n\nStrategic account planning and execution\
+    \ for enterprise deals. Turn complex sales cycles into systematic wins \u2014\
+    \ or at least know when they're dying before you waste months.\n\n## When to Use\n\
+    \n**Triggers:**\n- \"How do I plan this enterprise deal?\"\n- \"This deal has\
+    \ been in motion 3 months, why isn't it closing?\"\n- \"Should I create a full\
+    \ account plan or simplified version?\"\n- \"How do I know if this deal is actually\
+    \ moving?\"\n- \"MEDDICC qualification\"\n- \"Building a mutual action plan\"\n\
+    \n**Context:**\n- Strategic deals above your average ACV\n- Multiple stakeholders\
+    \ involved\n- Sales cycle exceeds 60 days\n- Complex buying process (legal, procurement,\
+    \ security)\n- Enterprise or mid-market accounts\n\n---\n\n## Core Frameworks\n\
+    \n### 1. If Your MAP Hasn't Been Updated in 3 Weeks, That Deal Is Dead\n\n**The\
+    \ Pattern I've Seen:**\n\nThe Mutual Action Plan (MAP) is the single best indicator\
+    \ of deal health. Not pipeline stage. Not verbal commitments. Not \"they love\
+    \ the product.\"\n\n**The MAP tells you everything:**\n\n**Healthy deal:**\n-\
+    \ MAP updated weekly\n- Customer adding their own action items\n- Both sides completing\
+    \ tasks on schedule\n- New stakeholders appearing in MAP\n- Dates moving up (not\
+    \ pushed out)\n\n**Dying deal:**\n- MAP last updated 3+ weeks ago\n- Only your\
+    \ side has action items\n- Customer tasks marked \"pending\" for weeks\n- No new\
+    \ stakeholders engaged\n- All dates in the past\n\n**Why This Happens:**\n\nWhen\
+    \ a deal is real, the customer wants it to happen. They're doing work. They're\
+    \ involving stakeholders. They're moving through their process.\n\nWhen a deal\
+    \ is dying, you're doing all the work. They're \"too busy.\" They'll \"get back\
+    \ to you next week.\" The economic buyer is \"traveling.\"\n\n**The 3-Week Rule:**\n\
+    \nIf your MAP hasn't been updated in 3 weeks, the deal is dead \u2014 you just\
+    \ don't know it yet. **I've never seen a deal close with a stale MAP. Not once\
+    \ in 11 years.**\n\n**What to Do:**\n\n**Week 1 of silence:** Send MAP update:\
+    \ \"Here's what we've completed. What's your status on [specific customer action]?\"\
+    \n\n**Week 2 of silence:** Escalate to champion: \"Haven't heard back on MAP.\
+    \ Are we still on track for [date]? If priorities shifted, let me know.\"\n\n\
+    **Week 3 of silence:** Qualify out or reset: \"It seems like timing might not\
+    \ be right. Should we pause and reconnect in [timeframe], or is there a blocker\
+    \ I can help with?\"\n\n**Common Mistake:**\n\nKeeping deals in pipeline because\
+    \ \"they said they want it.\" Verbal interest \u2260 action. If they're not doing\
+    \ work, they're not buying.\n\n---\n\n### 2. The EB Discovery Problem (And Why\
+    \ Deals Die at Week 8)\n\n**The Pattern:**\n\nYou're 8 weeks into a deal. POC\
+    \ went great. Champion loves you. Technical validation complete. You send the\
+    \ proposal.\n\nThen: radio silence.\n\n**What happened?** You never met the Economic\
+    \ Buyer.\n\n**The Economic Buyer (EB) is the person who:**\n- Controls budget\
+    \ allocation\n- Makes final purchase decision\n- Signs the contract\n\n**Not:**\n\
+    - Your champion (they influence, don't decide)\n- The technical lead (they validate,\
+    \ don't buy)\n- The VP who attended one demo (they advise, don't sign)\n\n**Why\
+    \ Deals Die Without EB Access:**\n\nYou built the business case with your champion's\
+    \ assumptions. But the EB has different priorities:\n- Champion cares about: solving\
+    \ their team's pain\n- EB cares about: ROI, risk mitigation, strategic alignment\n\
+    \nWhen you send proposal to EB through the champion, EB sees:\n- Price tag with\
+    \ no context\n- Solution to a problem they didn't articulate\n- Risk they haven't\
+    \ evaluated\n\n**Result:** Deal stalls or dies.\n\n**The Framework: EB Validation\
+    \ Checklist**\n\nBefore sending proposal, validate:\n\n- [ ] Have you identified\
+    \ the EB? (Name, title, confirmed by champion)\n- [ ] Have you met the EB? (Video\
+    \ call minimum, in-person ideal)\n- [ ] Does EB agree on the problem? (In their\
+    \ words, not yours)\n- [ ] Does EB agree on success metrics? (How they'll measure\
+    \ ROI)\n- [ ] Does EB know the price range? (Ballpark discussed, not surprised)\n\
+    - [ ] Does EB understand timeline? (Implementation, go-live, value realization)\n\
+    \n**If you answered \"no\" to any, don't send the proposal yet.**\n\n**How to\
+    \ Get EB Access:**\n\n**Ask your champion:**\n\"Before we finalize pricing, I'd\
+    \ love 15 minutes with [EB name] to make sure we're aligned on outcomes and timeline.\
+    \ Can you intro us?\"\n\n**If champion blocks:** \"I can handle that, you don't\
+    \ need to talk to them\"\n\u2192 This is a red flag. Either champion doesn't have\
+    \ access (not a real champion) or they're afraid EB will kill the deal (which\
+    \ means deal is weak).\n\n**Push back:**\n\"I totally understand. At the same\
+    \ time, I want to make sure [EB] sees the full value before seeing the price.\
+    \ In my experience, when economic buyers aren't involved early, deals get delayed\
+    \ in procurement. Can we do a quick alignment call?\"\n\n**Common Mistake:**\n\
+    \nTreating EB meeting as \"nice to have.\" It's mandatory for any deal >$50K.\
+    \ No EB access = no deal.\n\n---\n\n### 3. Personal Win Mapping (People Buy for\
+    \ Themselves)\n\n**The Pattern:**\n\nEnterprise software purchases are made by\
+    \ committees. But committees don't buy. **People buy.**\n\nAnd people buy for\
+    \ personal reasons:\n- Career advancement\n- Looking good to their boss\n- Reducing\
+    \ their workload\n- Covering their ass (CYA)\n- Proving they were right\n- Not\
+    \ looking stupid\n\n**Framework: Personal Win Identification**\n\nFor each stakeholder,\
+    \ map:\n\n**Professional Win:**\n- What do they get credit for if this succeeds?\n\
+    - What pain goes away for them personally?\n- How does this make them look good?\n\
+    \n**Professional Risk:**\n- What happens to them if this fails?\n- What's their\
+    \ reputation cost if this goes wrong?\n- Who's skeptical of them internally?\n\
+    \n**Personal Motivations:**\n- Are they new in role? (Need quick wins)\n- Facing\
+    \ budget cuts? (Need to justify spend)\n- Up for promotion? (Need visible success)\n\
+    - Burned by vendors before? (Extra risk-averse)\n\n**Example: VP of Engineering**\n\
+    \n**Professional Win:**\n- Reduce on-call burden for team (they'll stop complaining\
+    \ to her)\n- Faster incident response (looks good in QBRs)\n- Attract better eng\
+    \ talent (modern tooling)\n\n**Professional Risk:**\n- Team rejects new tool (she\
+    \ forced it on them)\n- Migration goes badly (downtime, incidents)\n- Vendor fails\
+    \ (she picked them)\n\n**Personal Motivations:**\n- New in role (6 months), needs\
+    \ wins\n- Under pressure to improve uptime metrics\n- Previous monitoring tool\
+    \ she picked failed\n\n**How This Changes Your Pitch:**\n\n**Generic pitch:**\n\
+    \"Our platform improves incident response time by 40%.\"\n\n**Personal win pitch:**\n\
+    \"You mentioned the on-call burden is burning out your team. We've seen teams\
+    \ reduce on-call pages by 40% in the first month, which helps with retention.\
+    \ And since you're focused on uptime metrics for the board, the improved response\
+    \ time shows up immediately in your QBR dashboards.\"\n\n**The Difference:**\n\
+    \nGeneric = business case\nPersonal = career case\n\nBoth matter. But personal\
+    \ wins close deals.\n\n**Common Mistake:**\n\nSelling only to the business problem.\
+    \ \"This saves money. This improves efficiency.\" That's necessary but not sufficient.\
+    \ **People need to see what's in it for them personally.**\n\n---\n\n### 4. Enterprise\
+    \ Account Plan Structure (Four Components)\n\nA complete account plan has four\
+    \ interconnected pieces. Each feeds the others.\n\n**Component 1: Account Summary**\n\
+    - Company basics (HQ, size, industry, subsidiaries)\n- Technical landscape (infrastructure,\
+    \ tools, platforms)\n- Top corporate initiatives (from press, annual reports,\
+    \ LinkedIn)\n- Hypothesis: \"How can we help?\" (write this before engaging)\n\
+    - LinkedIn keyword analysis (quantify their investment in your domain)\n\n**Component\
+    \ 2: Org Chart**\n- Map all relevant contacts: name, title, location, LinkedIn,\
+    \ email, phone, notes\n- Notes capture: domain of responsibility, technical specialties,\
+    \ personal win\n- Include people across levels: C-suite, directors, architects,\
+    \ leads, specialists\n- Don't just map buyer \u2014 map influencers, users, potential\
+    \ blockers\n\n**Component 3: Opportunity Plan (MEDDICC)**\n- **M - Metrics**:\
+    \ How will the customer measure success? (Validated with EB)\n- **E - Economic\
+    \ Buyer**: Who has budget authority? Have you met them?\n- **D - Decision Criteria**:\
+    \ What criteria will they use to decide? (Technical, business, political)\n- **D\
+    \ - Decision Process**: What's their buying process? (Procurement, legal, security\
+    \ review)\n- **I - Identified Pain**: What specific pain have they articulated?\
+    \ (Their words, not yours)\n- **C - Champion**: Who inside the account is actively\
+    \ selling on your behalf?\n- **C - Competition**: Who else are they evaluating?\
+    \ What's the competitive dynamic?\n\nPlus: Issues/Risks table with mitigation\
+    \ plans, help needed, responsible parties\n\n**Component 4: Mutual Action Plan\
+    \ (MAP)**\n- Joint timeline with: Action, Your Owner, Customer Owner, Others Involved,\
+    \ Due Date\n- Both sides must have actions \u2014 if only your team has actions,\
+    \ it's not a deal, it's a demo\n- Track status (complete/in-progress)\n- Use MAP\
+    \ as running agenda for check-in calls\n- **If MAP isn't updated in 3 weeks, deal\
+    \ is dead**\n\n**Decision Criteria:**\n\nFull account plans worth investment for\
+    \ top 10-20% of accounts by potential deal size. For rest, use simplified version\
+    \ (summary + MEDDICC + next steps).\n\n**Common Mistakes:**\n- Creating account\
+    \ plan after deal is in motion (build before first engagement)\n- Not maintaining\
+    \ MAP weekly (stale MAP = stale deal)\n- Filling MEDDICC with assumptions instead\
+    \ of validated info\n- Mapping only obvious contacts instead of full org chart\n\
+    - Not tracking personal win for each stakeholder\n\n---\n\n### 5. LinkedIn Keyword\
+    \ Analysis for Account Intelligence\n\nBefore engaging strategic account, quantify\
+    \ their investment in your domain via LinkedIn.\n\n**How to Execute:**\n\n1. Define\
+    \ 8-10 keywords relevant to your space (e.g., category terms, technical roles,\
+    \ workflow keywords)\n2. Search LinkedIn for \"[company name] + [keyword]\" and\
+    \ record count\n3. Map concentrations: Which locations? Which departments?\n4.\
+    \ Identify outliers (high keyword concentration in specific departments signals\
+    \ maturity)\n\n**Why This Works:**\n\nIf a company has 50 employees with \"SRE\"\
+    \ in their profile, they're mature in site reliability. If they have 2, they're\
+    \ not ready for advanced observability tools.\n\nThis tells you:\n- Whether to\
+    \ pursue the account (do they have the team?)\n- Who to target (where are the\
+    \ concentrations?)\n- How to personalize outreach (reference their specific context)\n\
+    \n**Example:**\n\nSearching \"[Company] + DevOps\":\n- 120 results \u2192 Mature\
+    \ DevOps org, good fit\n- 5 results \u2192 Early, not ready\n\nSearching \"[Company]\
+    \ + SRE\":\n- 50 results \u2192 They care about reliability, pitch uptime/incident\
+    \ reduction\n- 0 results \u2192 Don't lead with SRE value prop\n\n**Common Mistakes:**\n\
+    - Just searching job titles (vary wildly) instead of keywords (consistent)\n-\
+    \ Not comparing counts to total employee count\n- Not refreshing analysis (hiring\
+    \ trends change quarterly)\n\n---\n\n### 6. The Unified Sales Process (Stage Gates)\n\
+    \nEnterprise sales follows defined stages with clear exit criteria. Don't advance\
+    \ stages without meeting criteria.\n\n**Stage 0 \u2014 Pipeline Generation:**\
+    \ Prospecting \u2192 Qualified interest confirmed\n**Stage 1 \u2014 Discovery:**\
+    \ Environment/pain/requirements \u2192 Pain identified, stakeholders mapped\n\
+    **Stage 2 \u2014 Demonstrating:** Product demo, champion building \u2192 Champion\
+    \ identified\n**Stage 3 \u2014 Proving Value:** POC/trial \u2192 Technical validation\
+    \ complete\n**Stage 4 \u2014 Proposal:** Pricing, terms, scope \u2192 Proposal\
+    \ delivered, EB aligned\n**Stage 5 \u2014 Paper Process:** Legal, procurement,\
+    \ security \u2192 Approvals secured\n**Stage 6 \u2014 Closed Won:** Deal signed\
+    \ \u2192 Customer success handoff\n\n**Exit Criteria Matter:**\n\nDon't move from\
+    \ Stage 2 \u2192 Stage 3 until you have a champion.\nDon't move from Stage 3 \u2192\
+    \ Stage 4 until POC success criteria are met.\nDon't move from Stage 4 \u2192\
+    \ Stage 5 until EB has approved.\n\n**Common Mistake:**\n\nAdvancing stages based\
+    \ on activity, not criteria. \"We demoed, so we're in Stage 3\" \u2014 but if\
+    \ they haven't agreed to POC, you're still in Stage 2.\n\n---\n\n## Decision Trees\n\
+    \n### Do I Need a Full Account Plan?\n\n```\nIs deal size above average ACV?\n\
+    \u251C\u2500 No \u2192 Simplified plan (summary + MEDDICC)\n\u2514\u2500 Yes \u2192\
+    \ Continue...\n    \u2502\n    Sales cycle >60 days?\n    \u251C\u2500 Yes \u2192\
+    \ Full account plan\n    \u2514\u2500 No \u2192 Simplified plan\n```\n\n### Is\
+    \ This Deal Actually Moving?\n\n```\nIs MAP being updated weekly?\n\u251C\u2500\
+    \ Yes \u2192 Healthy\n\u2514\u2500 No \u2192 Continue...\n    \u2502\n    Has\
+    \ it been >3 weeks since last MAP update?\n    \u251C\u2500 Yes \u2192 Dead deal\
+    \ (qualify out or reset)\n    \u2514\u2500 No \u2192 At risk (escalate to champion)\n\
+    ```\n\n### Should I Send the Proposal?\n\n```\nHave you met the Economic Buyer?\n\
+    \u251C\u2500 No \u2192 Don't send yet (get EB access first)\n\u2514\u2500 Yes\
+    \ \u2192 Continue...\n    \u2502\n    Does EB agree on problem and success metrics?\n\
+    \    \u251C\u2500 Yes \u2192 Send proposal\n    \u2514\u2500 No \u2192 Align with\
+    \ EB before sending\n```\n\n---\n\n## Common Mistakes\n\n**1. Creating account\
+    \ plan too late**\n   - Build before first engagement, not after deal is in motion\n\
+    \n**2. MEDDICC filled with assumptions**\n   - Validate each element with customer,\
+    \ don't guess\n\n**3. Stale Mutual Action Plan**\n   - If MAP isn't updated weekly,\
+    \ deal is stalling. 3+ weeks = dead.\n\n**4. Mapping only the buyer**\n   - Need\
+    \ full org chart: influencers, users, blockers\n\n**5. Ignoring personal wins**\n\
+    \   - People buy for career/reputation reasons, not just business ROI\n\n**6.\
+    \ Not tracking deal health**\n   - Green/yellow/red indicators catch dying deals\
+    \ early\n\n**7. Skipping champion validation**\n   - Without internal champion,\
+    \ you're selling alone\n\n---\n\n## Quick Reference\n\n**MAP Health Check:**\n\
+    - Green: Updated weekly, both sides have actions, customer completing tasks\n\
+    - Yellow: Updated bi-weekly, mostly your actions, customer slow to respond\n-\
+    \ Red: 3+ weeks stale, only your actions, customer unresponsive \u2192 **Dead\
+    \ deal**\n\n**MEDDICC Validation:**\n- [ ] Metrics: Success criteria agreed with\
+    \ EB\n- [ ] Economic Buyer: Met them, validated problem/solution\n- [ ] Decision\
+    \ Criteria: Understand their evaluation rubric\n- [ ] Decision Process: Know procurement/legal/security\
+    \ steps\n- [ ] Identified Pain: In customer's words, not yours\n- [ ] Champion:\
+    \ Actively selling internally on your behalf\n- [ ] Competition: Know alternatives\
+    \ they're considering\n\n**Personal Win Questions:**\n- \"What does success look\
+    \ like for you personally?\"\n- \"What happens to your team if this works? If\
+    \ it doesn't?\"\n- \"What are you being measured on this year?\"\n- \"Who internally\
+    \ is skeptical? Why?\"\n\n**Account Plan Checklist:**\n- [ ] Account summary with\
+    \ hypothesis\n- [ ] Org chart with personal wins mapped\n- [ ] MEDDICC fully validated\
+    \ (not assumed)\n- [ ] MAP with customer actions (not just yours)\n- [ ] Weekly\
+    \ MAP update cadence scheduled\n\n---\n\n## Related Skills\n\n- **enterprise-onboarding**:\
+    \ Post-close customer implementation\n- **partnership-architecture**: Deals involving\
+    \ partner relationships\n- **technical-product-pricing**: Enterprise pricing strategy\n\
+    \n---\n\n*Based on enterprise sales at a platform company during hypergrowth,\
+    \ with patterns from closing strategic accounts, navigating complex procurement\
+    \ processes, and learning the hard way that stale MAPs = dead deals. Not theory\
+    \ \u2014 lessons from watching deals die because we didn't track health metrics\
+    \ and closing deals because we validated EB alignment early.*"
