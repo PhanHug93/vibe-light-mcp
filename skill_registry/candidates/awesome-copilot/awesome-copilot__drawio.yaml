@@ -1,0 +1,67 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__drawio
+name: drawio
+description: Generate draw.io diagrams as .drawio files and export to PNG/SVG/PDF
+  with embedded XML
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/drawio/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- drawio
+content:
+  kind: skill_markdown
+  sha256: b7ea3e77d64adb6ae4ab5f08c0f7dbe9b238f7033486523e8cc324f80e649256
+  char_count: 3220
+  text: "# Draw.io Diagram Skill\n\nGenerate draw.io diagrams as native `.drawio`\
+    \ files and export them to PNG images that can be embedded in Word documents.\n\
+    \n## How to Create a Diagram\n\n1. **Generate draw.io XML** in `mxGraphModel`\
+    \ format for the requested diagram\n2. **Write the XML** to a `.drawio` file using\
+    \ the create/edit file tool\n3. **Export to PNG** using the bundled export script\n\
+    \n## Bundled Export Script\n\nThis skill includes `drawio-to-png.mjs`, a Node.js\
+    \ export script with two rendering backends:\n\n1. **draw.io CLI** (pixel-perfect,\
+    \ fastest) \u2014 used automatically if draw.io desktop is installed\n2. **Official\
+    \ draw.io viewer in headless browser** (pixel-perfect, needs Chromium/Edge) \u2014\
+    \ fallback when CLI is unavailable\n\n### Usage\n\n```bash\n# Install dependencies\
+    \ (one-time, from the scripts folder)\ncd skills/drawio/scripts && npm install\n\
+    \n# Export a single diagram\nnode skills/drawio/scripts/drawio-to-png.mjs <input.drawio>\
+    \ [output.png]\n\n# Export all .drawio files in a directory\nnode skills/drawio/scripts/drawio-to-png.mjs\
+    \ --dir <directory>\n\n# Force a specific renderer\nnode skills/drawio/scripts/drawio-to-png.mjs\
+    \ --renderer=cli|viewer|auto <input.drawio>\n```\n\n### Skill Folder Contents\n\
+    \n| File | Purpose |\n|------|---------|\n| `SKILL.md` | This instruction file\
+    \ |\n| `scripts/drawio-to-png.mjs` | Node.js export script (CLI + browser fallback)\
+    \ |\n| `scripts/package.json` | Dependencies (`puppeteer-core`) |\n\n## Supported\
+    \ Export Formats\n\n| Format | Embed XML | Notes |\n|--------|-----------|-------|\n\
+    | `png` | Yes | Viewable everywhere, editable in draw.io |\n| `svg` | Yes | Scalable,\
+    \ editable in draw.io |\n| `pdf` | Yes | Printable, editable in draw.io |\n\n\
+    ## Draw.io XML Style Conventions\n\nUse these styles for consistent, professional\
+    \ diagrams:\n\n```xml\n<!-- Primary service (highlighted) -->\n<mxCell style=\"\
+    rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;arcSize=12;shadow=1;\"\
+    \ />\n\n<!-- External system -->\n<mxCell style=\"rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;\"\
+    \ />\n\n<!-- Success/processing stage -->\n<mxCell style=\"rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;\"\
+    \ />\n\n<!-- Warning/quality gate -->\n<mxCell style=\"rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;\"\
+    \ />\n\n<!-- Error/failure path -->\n<mxCell style=\"rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;\"\
+    \ />\n\n<!-- Data store (cylinder) -->\n<mxCell style=\"shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;\"\
+    \ />\n\n<!-- Arrow -->\n<mxCell style=\"edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;\"\
+    \ />\n```\n\n## Locating the draw.io CLI\n\nTry `drawio` first (works if on PATH),\
+    \ then fall back:\n\n- **Windows**: `\"C:\\Program Files\\draw.io\\draw.io.exe\"\
+    `\n- **macOS**: `/Applications/draw.io.app/Contents/MacOS/draw.io`\n- **Linux**:\
+    \ `drawio` (via snap/apt/flatpak)\n\n### CLI Export Command\n\n```bash\ndrawio\
+    \ -x -f png -e -b 10 -o <output.png> <input.drawio>\n```\n\nFlags: `-x` (export),\
+    \ `-f` (format), `-e` (embed diagram XML), `-b` (border), `-o` (output path)."

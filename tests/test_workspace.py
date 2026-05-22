@@ -73,3 +73,56 @@ def test_make_workspace_id_whitespace_raises() -> None:
 
     with pytest.raises(ValueError, match="REQUIRED"):
         make_workspace_id("   ")
+
+
+def test_make_session_namespace_deterministic() -> None:
+    """Same workspace + agent/session IDs must produce the same namespace."""
+    from src.tools.helpers import make_session_namespace
+
+    ns1 = make_session_namespace("/foo/bar", agent_id="agent-a", session_id="s1")
+    ns2 = make_session_namespace("/foo/bar", agent_id="agent-a", session_id="s1")
+    assert ns1 == ns2
+    assert len(ns1) == 12
+
+
+def test_make_session_namespace_differs_by_agent() -> None:
+    """Different agents must not share the same session namespace."""
+    from src.tools.helpers import make_session_namespace
+
+    a = make_session_namespace("/foo/bar", agent_id="agent-a")
+    b = make_session_namespace("/foo/bar", agent_id="agent-b")
+    assert a != b
+
+
+def test_make_session_namespace_requires_agent_id() -> None:
+    """Session scope must always provide an agent identifier."""
+    from src.tools.helpers import make_session_namespace
+
+    with pytest.raises(ValueError, match="agent_id"):
+        make_session_namespace("/foo/bar")
+
+
+def test_make_session_namespace_requires_agent_even_with_session_id() -> None:
+    """session_id alone is not enough for multi-agent-safe isolation."""
+    from src.tools.helpers import make_session_namespace
+
+    with pytest.raises(ValueError, match="agent_id"):
+        make_session_namespace("/foo/bar", session_id="current")
+
+
+def test_make_session_namespace_same_session_diff_agent_isolated() -> None:
+    """Two agents sharing a session_id must still have different namespaces."""
+    from src.tools.helpers import make_session_namespace
+
+    ns_1 = make_session_namespace("/foo/bar", agent_id="agent-a", session_id="current")
+    ns_2 = make_session_namespace("/foo/bar", agent_id="agent-b", session_id="current")
+    assert ns_1 != ns_2
+
+
+def test_validate_memory_scope_rejects_invalid_value() -> None:
+    """Only known memory scopes should be accepted."""
+    from src.tools.helpers import validate_memory_scope
+
+    err = validate_memory_scope("invalid")
+    assert err is not None
+    assert "memory_scope" in err

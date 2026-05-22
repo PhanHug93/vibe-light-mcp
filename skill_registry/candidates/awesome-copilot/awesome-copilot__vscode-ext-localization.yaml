@@ -1,0 +1,48 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__vscode-ext-localization
+name: vscode-ext-localization
+description: Guidelines for proper localization of VS Code extensions, following VS
+  Code extension development guidelines, libraries and good practices
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/vscode-ext-localization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- vscode-ext-localization
+content:
+  kind: skill_markdown
+  sha256: a238b58545bc23476ac0bd6451e9b01a225cb125096b90b3425e8e08943e3d6c
+  char_count: 1473
+  text: "# VS Code extension localization\n\nThis skill helps you localize every aspect\
+    \ of VS Code extensions\n\n## When to use this skill\n\nUse this skill when you\
+    \ need to:\n- Localize new or existing contributed configurations (settings),\
+    \ commands, menus, views or walkthroughs\n- Localize new or existing messages\
+    \ or other string resources contained in extension source code that are displayed\
+    \ to the end user\n\n# Instructions\n\nVS Code localization is composed by three\
+    \ different approaches, depending on the resource that is being localized. When\
+    \ a new localizable resource is created or updated, the corresponding localization\
+    \ for all currently available languages must be created/updated.\n\n1. Configurations\
+    \ like Settings, Commands, Menus, Views, ViewsWelcome, Walkthrough Titles and\
+    \ Descriptions, defined in `package.json`\n  -> An exclusive `package.nls.LANGID.json`\
+    \ file, like `package.nls.pt-br.json` of Brazilian Portuguese (`pt-br`) localization\n\
+    2. Walkthrough content (defined in its own `Markdown` files)\n  -> An exclusive\
+    \ `Markdown` file like `walkthrough/someStep.pt-br.md` for Brazilian Portuguese\
+    \ localization\n3. Messages and string located in extension source code (JavaScript\
+    \ or TypeScript files)\n  -> An exclusive `bundle.l10n.pt-br.json` for Brazilian\
+    \ Portuguese localization"

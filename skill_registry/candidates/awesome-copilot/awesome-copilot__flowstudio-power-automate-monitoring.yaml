@@ -1,0 +1,200 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__flowstudio-power-automate-monitoring
+name: flowstudio-power-automate-monitoring
+description: 'Pro+ subscription required. Tenant-wide Power Automate monitoring using
+  the FlowStudio MCP cached store: failure rates, run-health trends, maker/app inventory,
+  inactive owners, and compliance/health reports. Use only for aggregated tenant views.
+  For one environment, one flow, run control, or root-cause debugging, use flowstudio-power-automate-mcp,
+  flowstudio-power-automate-debug, or the server monitor-flow bundle. Requires FlowStudio
+  for Teams or MCP Pro+.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/flowstudio-power-automate-monitoring/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- flowstudio-power-automate-monitoring
+content:
+  kind: skill_markdown
+  sha256: a2e7e9c8d4f94441754ec6ebebd64ce44689f4a619acd214a328ae3406641170
+  char_count: 13128
+  text: "# Power Automate Monitoring with FlowStudio MCP\n\nMonitor flow health, track\
+    \ failure rates, and inventory tenant assets through\nthe FlowStudio MCP **cached\
+    \ store** \u2014 fast reads, no PA API rate limits, and\nenriched with governance\
+    \ metadata and remediation hints.\n\n> **\u26A0\uFE0F Pro+ subscription required.**\
+    \ This skill calls `store_*` tools that\n> only work for FlowStudio for Teams\
+    \ or MCP Pro+ subscribers.\n>\n> **If the user does not have Pro+ access:** the\
+    \ first `store_*` tool call\n> will return a 403/404 error. When that happens:\n\
+    > 1. STOP calling store tools\n> 2. Tell the user this feature requires a Pro+\
+    \ subscription\n> 3. Link them to https://mcp.flowstudio.app/pricing\n> 4. If\
+    \ their question can be answered with live tools (e.g. \"list flows in\n>    one\
+    \ environment\"), offer to use the `flowstudio-power-automate-mcp` skill instead\n\
+    >\n> **Discovery:** load tool schemas via `tool_search` rather than `tools/list`\
+    \ \u2014\n> call with `query: \"select:list_store_flows,get_store_flow_summary\"\
+    ` for the\n> common monitoring tools, or load the full set with `query: \"skill:governance\"\
+    `\n> (the server's governance bundle covers most monitoring reads too \u2014 this\
+    \ skill\n> and `flowstudio-power-automate-governance` share the underlying tool\
+    \ family). This skill\n> covers response shapes, behavioral notes, and workflow\
+    \ patterns \u2014 things\n> `tool_search` cannot tell you. If this document disagrees\
+    \ with a real API\n> response, the API wins.\n\n---\n\n## How Monitoring Works\n\
+    \nFlow Studio scans the Power Automate API daily for each subscriber and caches\n\
+    the results. There are two levels:\n\n- **All flows** get metadata scanned: definition,\
+    \ connections, owners, trigger\n  type, and aggregate run statistics (`runPeriodTotal`,\
+    \ `runPeriodFailRate`,\n  etc.). Environments, apps, connections, and makers are\
+    \ also scanned.\n- **Monitored flows** (`monitor: true`) additionally get per-run\
+    \ detail:\n  individual run records with status, duration, failed action names,\
+    \ and\n  remediation hints. This is what populates `get_store_flow_runs` and\n\
+    \  `get_store_flow_summary`.\n\n**Data freshness:** Check the `scanned` field\
+    \ on `get_store_flow` to see when\na flow was last scanned. If stale, the scanning\
+    \ pipeline may not be running.\n\n**Enabling monitoring:** Set `monitor: true`\
+    \ via `update_store_flow` or the\nFlow Studio for Teams app\n([how to select flows](https://learn.flowstudio.app/teams-monitoring)).\n\
+    \n**Designating critical flows:** Use `update_store_flow` with `critical=true`\n\
+    on business-critical flows. This enables the governance skill's notification\n\
+    rule management to auto-configure failure alerts on critical flows.\n\n---\n\n\
+    ## Tools\n\n| Tool | Purpose |\n|---|---|\n| `list_store_flows` | List flows with\
+    \ failure rates and monitoring filters |\n| `get_store_flow` | Full cached record:\
+    \ run stats, owners, tier, connections, definition (`triggerUrl` field included)\
+    \ |\n| `get_store_flow_summary` | Aggregated run stats: success/fail rate, avg/max\
+    \ duration |\n| `get_store_flow_runs` | Per-run history with duration, status,\
+    \ failed actions, remediation (filter `status=\"Failed\"` for errors-only view)\
+    \ |\n| `update_store_flow` | Set monitor flag, notification rules, tags, governance\
+    \ metadata |\n| `list_store_environments` | All Power Platform environments |\n\
+    | `list_store_connections` | All connections |\n| `list_store_makers` | All makers\
+    \ (citizen developers) |\n| `get_store_maker` | Maker detail: flow/app counts,\
+    \ licenses, account status |\n| `list_store_power_apps` | All Power Apps canvas\
+    \ apps |\n\n> For start/stop, use `set_live_flow_state` from the `monitor-flow`\
+    \ bundle\n> (`tool_search query: \"select:set_live_flow_state\"`) \u2014 the cache\
+    \ resyncs on\n> the next scan. The previous `set_store_flow_state` convenience\
+    \ wrapper is\n> deprecated.\n\n---\n\n## Store vs Live\n\n| Question | Use Store\
+    \ | Use Live |\n|---|---|---|\n| How many flows are failing? | `list_store_flows`\
+    \ | \u2014 |\n| What's the fail rate over 30 days? | `get_store_flow_summary`\
+    \ | \u2014 |\n| Show error history for a flow | `get_store_flow_runs` (filter\
+    \ `status=\"Failed\"`) | \u2014 |\n| Who built this flow? | `get_store_flow` \u2192\
+    \ parse `owners` | \u2014 |\n| Read the full flow definition | `get_store_flow`\
+    \ has it (JSON string) | `get_live_flow` (structured) |\n| Inspect action inputs/outputs\
+    \ from a run | \u2014 | `get_live_flow_run_action_outputs` |\n| Resubmit a failed\
+    \ run | \u2014 | `resubmit_live_flow_run` |\n\n> Store tools answer \"what happened?\"\
+    \ and \"how healthy is it?\"\n> Live tools answer \"what exactly went wrong?\"\
+    \ and \"fix it now.\"\n\n> If `get_store_flow_runs` or `get_store_flow_summary`\
+    \ return empty results,\n> check: (1) is `monitor: true` on the flow? and (2)\
+    \ is the `scanned` field\n> recent? Use `get_store_flow` to verify both.\n\n---\n\
+    \n## Response Shapes\n\n### `list_store_flows`\n\nDirect array. Filters: `monitor`\
+    \ (bool), `rule_notify_onfail` (bool),\n`rule_notify_onmissingdays` (bool).\n\n\
+    ```json\n[\n  {\n    \"id\": \"Default-<envGuid>.<flowGuid>\",\n    \"displayName\"\
+    : \"Stripe subscription updated\",\n    \"state\": \"Started\",\n    \"triggerType\"\
+    : \"Request\",\n    \"triggerUrl\": \"https://...\",\n    \"tags\": [\"#operations\"\
+    , \"#sensitive\"],\n    \"environmentName\": \"Default-aaaaaaaa-...\",\n    \"\
+    monitor\": true,\n    \"runPeriodFailRate\": 0.012,\n    \"runPeriodTotal\": 82,\n\
+    \    \"createdTime\": \"2025-06-24T01:20:53Z\",\n    \"lastModifiedTime\": \"\
+    2025-06-24T03:51:03Z\"\n  }\n]\n```\n\n> `id` format: `Default-<envGuid>.<flowGuid>`.\
+    \ Split on first `.` to get\n> `environmentName` and `flowName`.\n>\n> `triggerUrl`\
+    \ and `tags` are optional. Some entries are sparse (just `id` +\n> `monitor`)\
+    \ \u2014 skip entries without `displayName`.\n>\n> Tags on `list_store_flows`\
+    \ are auto-extracted from the flow's `description`\n> field (maker hashtags like\
+    \ `#operations`). Tags written via\n> `update_store_flow(tags=...)` are stored\
+    \ separately and only visible on\n> `get_store_flow` \u2014 they do NOT appear\
+    \ in the list response.\n\n### `get_store_flow`\n\nFull cached record. Key fields:\n\
+    \n| Category | Fields |\n|---|---|\n| Identity | `name`, `displayName`, `environmentName`,\
+    \ `state`, `triggerType`, `triggerKind`, `tier`, `sharingType` |\n| Run stats\
+    \ | `runPeriodTotal`, `runPeriodFails`, `runPeriodSuccess`, `runPeriodFailRate`,\
+    \ `runPeriodSuccessRate`, `runPeriodDurationAverage`/`Max`/`Min` (milliseconds),\
+    \ `runTotal`, `runFails`, `runFirst`, `runLast`, `runToday` |\n| Governance |\
+    \ `monitor` (bool), `rule_notify_onfail` (bool), `rule_notify_onmissingdays` (number),\
+    \ `rule_notify_email` (string), `log_notify_onfail` (ISO), `description`, `tags`\
+    \ |\n| Freshness | `scanned` (ISO), `nextScan` (ISO) |\n| Lifecycle | `deleted`\
+    \ (bool), `deletedTime` (ISO) |\n| JSON strings | `actions`, `connections`, `owners`,\
+    \ `complexity`, `definition`, `createdBy`, `security`, `triggers`, `referencedResources`,\
+    \ `runError` \u2014 all require `json.loads()` to parse |\n\n> Duration fields\
+    \ (`runPeriodDurationAverage`, `Max`, `Min`) are in\n> **milliseconds**. Divide\
+    \ by 1000 for seconds.\n>\n> `runError` contains the last run error as a JSON\
+    \ string. Parse it:\n> `json.loads(record[\"runError\"])` \u2014 returns `{}`\
+    \ when no error.\n\n### `get_store_flow_summary`\n\nAggregated stats over a time\
+    \ window (default: last 7 days).\n\n```json\n{\n  \"flowKey\": \"Default-<envGuid>.<flowGuid>\"\
+    ,\n  \"windowStart\": null,\n  \"windowEnd\": null,\n  \"totalRuns\": 82,\n  \"\
+    successRuns\": 81,\n  \"failRuns\": 1,\n  \"successRate\": 0.988,\n  \"failRate\"\
+    : 0.012,\n  \"averageDurationSeconds\": 2.877,\n  \"maxDurationSeconds\": 9.433,\n\
+    \  \"firstFailRunRemediation\": null,\n  \"firstFailRunUrl\": null\n}\n```\n\n\
+    > Returns all zeros when no run data exists for this flow in the window.\n> Use\
+    \ `startTime` and `endTime` (ISO 8601) parameters to change the window.\n\n###\
+    \ `get_store_flow_runs`\n\nDirect array of cached run records. Parameters: `startTime`,\
+    \ `endTime`,\n`status` (array \u2014 pass `[\"Failed\"]` for an errors-only view,\
+    \ `[\"Succeeded\"]`,\nor omit for all).\n\n> Returns `[]` when no run data exists\
+    \ in the window.\n\n### Trigger URL\n\nRead the `triggerUrl` field directly from\
+    \ `get_store_flow` (cached) or\n`get_live_flow` (live). It is `null` for non-HTTP\
+    \ triggers.\n\n### Starting / stopping a flow\n\nUse `set_live_flow_state` from\
+    \ the `monitor-flow` server bundle. The cache\ncatches up on the next daily scan;\
+    \ if you need cache freshness sooner, call\n`get_live_flow` after the state change\
+    \ to confirm and let the next scan sync.\n\n### `update_store_flow`\n\nUpdates\
+    \ governance metadata. Only provided fields are updated (merge).\nReturns the\
+    \ full updated record (same shape as `get_store_flow`).\n\nSettable fields: `monitor`\
+    \ (bool), `rule_notify_onfail` (bool),\n`rule_notify_onmissingdays` (number, 0=disabled),\n\
+    `rule_notify_email` (comma-separated), `description`, `tags`,\n`businessImpact`,\
+    \ `businessJustification`, `businessValue`,\n`ownerTeam`, `ownerBusinessUnit`,\
+    \ `supportGroup`, `supportEmail`,\n`critical` (bool), `tier`, `security`.\n\n\
+    ### `list_store_environments`\n\nDirect array.\n\n```json\n[\n  {\n    \"id\"\
+    : \"Default-aaaaaaaa-...\",\n    \"displayName\": \"Flow Studio (default)\",\n\
+    \    \"sku\": \"Default\",\n    \"type\": \"NotSpecified\",\n    \"location\"\
+    : \"australia\",\n    \"isDefault\": true,\n    \"isAdmin\": true,\n    \"isManagedEnvironment\"\
+    : false,\n    \"createdTime\": \"2017-01-18T01:06:46Z\"\n  }\n]\n```\n\n> `sku`\
+    \ values: `Default`, `Production`, `Developer`, `Sandbox`, `Teams`.\n\n### `list_store_connections`\n\
+    \nDirect array. Can be very large (1500+ items).\n\n```json\n[\n  {\n    \"id\"\
+    : \"<environmentId>.<connectionId>\",\n    \"displayName\": \"user@contoso.com\"\
+    ,\n    \"createdBy\": \"{\\\"id\\\":\\\"...\\\",\\\"displayName\\\":\\\"...\\\"\
+    ,\\\"email\\\":\\\"...\\\"}\",\n    \"environmentName\": \"...\",\n    \"statuses\"\
+    : \"[{\\\"status\\\":\\\"Connected\\\"}]\"\n  }\n]\n```\n\n> `createdBy` and `statuses`\
+    \ are **JSON strings** \u2014 parse with `json.loads()`.\n\n### `list_store_makers`\n\
+    \nDirect array.\n\n```json\n[\n  {\n    \"id\": \"09dbe02f-...\",\n    \"displayName\"\
+    : \"Sample Maker\",\n    \"mail\": \"maker@contoso.com\",\n    \"deleted\": false,\n\
+    \    \"ownerFlowCount\": 199,\n    \"ownerAppCount\": 209,\n    \"userIsServicePrinciple\"\
+    : false\n  }\n]\n```\n\n> Deleted makers have `deleted: true` and no `displayName`/`mail`\
+    \ fields.\n\n### `get_store_maker`\n\nFull maker record. Key fields: `displayName`,\
+    \ `mail`, `userPrincipalName`,\n`ownerFlowCount`, `ownerAppCount`, `accountEnabled`,\
+    \ `deleted`, `country`,\n`firstFlow`, `firstFlowCreatedTime`, `lastFlowCreatedTime`,\n\
+    `firstPowerApp`, `lastPowerAppCreatedTime`,\n`licenses` (JSON string of M365 SKUs).\n\
+    \n### `list_store_power_apps`\n\nDirect array.\n\n```json\n[\n  {\n    \"id\"\
+    : \"<environmentId>.<appId>\",\n    \"displayName\": \"My App\",\n    \"environmentName\"\
+    : \"...\",\n    \"ownerId\": \"09dbe02f-...\",\n    \"ownerName\": \"Catherine\
+    \ Han\",\n    \"appType\": \"Canvas\",\n    \"sharedUsersCount\": 0,\n    \"createdTime\"\
+    : \"2023-08-18T01:06:22Z\",\n    \"lastModifiedTime\": \"2023-08-18T01:06:22Z\"\
+    ,\n    \"lastPublishTime\": \"2023-08-18T01:06:22Z\"\n  }\n]\n```\n\n---\n\n##\
+    \ Common Workflows\n\n### Find unhealthy flows\n\n```\n1. list_store_flows\n2.\
+    \ Filter where runPeriodFailRate > 0.1 and runPeriodTotal >= 5\n3. Sort by runPeriodFailRate\
+    \ descending\n4. For each: get_store_flow for full detail\n```\n\n### Check a\
+    \ specific flow's health\n\n```\n1. get_store_flow \u2192 check scanned (freshness),\
+    \ runPeriodFailRate, runPeriodTotal\n2. get_store_flow_summary \u2192 aggregated\
+    \ stats with optional time window\n3. get_store_flow_runs(status=[\"Failed\"])\
+    \ \u2192 per-run failure detail with remediation hints\n4. If deeper diagnosis\
+    \ needed \u2192 switch to live tools:\n   get_live_flow_runs \u2192 get_live_flow_run_action_outputs\n\
+    ```\n\n### Enable monitoring on a flow\n\n```\n1. update_store_flow with monitor=true\n\
+    2. Optionally set rule_notify_onfail=true, rule_notify_email=\"user@domain.com\"\
+    \n3. Run data will appear after the next daily scan\n```\n\n### Daily health check\n\
+    \n```\n1. list_store_flows\n2. Flag flows with runPeriodFailRate > 0.2 and runPeriodTotal\
+    \ >= 3\n3. Flag monitored flows with state=\"Stopped\" (may indicate auto-suspension)\n\
+    4. For critical failures \u2192 get_store_flow_runs(status=[\"Failed\"]) for remediation\
+    \ hints\n```\n\n### Maker audit\n\n```\n1. list_store_makers\n2. Identify deleted\
+    \ accounts still owning flows (deleted=true, ownerFlowCount > 0)\n3. get_store_maker\
+    \ for full detail on specific users\n```\n\n### Inventory\n\n```\n1. list_store_environments\
+    \ \u2192 environment count, SKUs, locations\n2. list_store_flows \u2192 flow count\
+    \ by state, trigger type, fail rate\n3. list_store_power_apps \u2192 app count,\
+    \ owners, sharing\n4. list_store_connections \u2192 connection count per environment\n\
+    ```\n\n---\n\n## Related Skills\n\n- `flowstudio-power-automate-mcp` \u2014 Foundation\
+    \ skill: connection setup, MCP helper, tool discovery\n- `flowstudio-power-automate-debug`\
+    \ \u2014 Deep diagnosis with action-level inputs/outputs (live API)\n- `flowstudio-power-automate-build`\
+    \ \u2014 Build and deploy flow definitions\n- `flowstudio-power-automate-governance`\
+    \ \u2014 Governance metadata, tagging, notification rules, CoE patterns"

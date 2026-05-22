@@ -1,0 +1,81 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-link
+name: arize-link
+description: Generates deep links to the Arize UI for traces, spans, sessions, datasets,
+  labeling queues, evaluators, and annotation configs. Produces clickable URLs for
+  sharing Arize resources with team members. Use when the user wants to link to or
+  open a trace, span, session, dataset, evaluator, or annotation config in the Arize
+  UI.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-link/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- arize-link
+content:
+  kind: skill_markdown
+  sha256: e7ca578678df826fbcb6e5498bea3ba8bd4fc5251c0eb3446d63023adef6a073
+  char_count: 4481
+  text: "# Arize Link\n\nGenerate deep links to the Arize UI for traces, spans, sessions,\
+    \ datasets, labeling queues, evaluators, and annotation configs.\n\n## When to\
+    \ Use\n\n- User wants a link to a trace, span, session, dataset, labeling queue,\
+    \ evaluator, or annotation config\n- You have IDs from exported data or logs and\
+    \ need to link back to the UI\n- User asks to \"open\" or \"view\" any of the\
+    \ above in Arize\n\n## Required Inputs\n\nCollect from the user or context (exported\
+    \ trace data, parsed URLs):\n\n| Always required | Resource-specific |\n|---|---|\n\
+    | `org_id` (base64) | `project_id` + `trace_id` [+ `span_id`] \u2014 trace/span\
+    \ |\n| `space_id` (base64) | `project_id` + `session_id` \u2014 session |\n| |\
+    \ `dataset_id` \u2014 dataset |\n| | `queue_id` \u2014 specific queue (omit for\
+    \ list) |\n| | `evaluator_id` [+ `version`] \u2014 evaluator |\n\n**All path IDs\
+    \ must be base64-encoded** (characters: `A-Za-z0-9+/=`). A raw numeric ID produces\
+    \ a valid-looking URL that 404s. If the user provides a number, ask them to copy\
+    \ the ID directly from their Arize browser URL (`https://app.arize.com/organizations/{org_id}/spaces/{space_id}/\u2026\
+    `). If you have a raw internal ID (e.g. `Organization:1:abC1`), base64-encode\
+    \ it before inserting into the URL.\n\n## URL Templates\n\nBase URL: `https://app.arize.com`\
+    \ (override for on-prem)\n\n**Trace** (add `&selectedSpanId={span_id}` to highlight\
+    \ a specific span):\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/projects/{project_id}?selectedTraceId={trace_id}&queryFilterA=&selectedTab=llmTracing&timeZoneA=America%2FLos_Angeles&startA={start_ms}&endA={end_ms}&envA=tracing&modelType=generative_llm\n\
+    ```\n\n**Session:**\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/projects/{project_id}?selectedSessionId={session_id}&queryFilterA=&selectedTab=llmTracing&timeZoneA=America%2FLos_Angeles&startA={start_ms}&endA={end_ms}&envA=tracing&modelType=generative_llm\n\
+    ```\n\n**Dataset** (`selectedTab`: `examples` or `experiments`):\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/datasets/{dataset_id}?selectedTab=examples\n\
+    ```\n\n**Queue list / specific queue:**\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/queues\n\
+    {base_url}/organizations/{org_id}/spaces/{space_id}/queues/{queue_id}\n```\n\n\
+    **Evaluator** (omit `?version=\u2026` for latest):\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/evaluators/{evaluator_id}\n\
+    {base_url}/organizations/{org_id}/spaces/{space_id}/evaluators/{evaluator_id}?version={version_url_encoded}\n\
+    ```\nThe `version` value must be URL-encoded (e.g., trailing `=` \u2192 `%3D`).\n\
+    \n**Annotation configs:**\n```\n{base_url}/organizations/{org_id}/spaces/{space_id}/annotation-configs\n\
+    ```\n\n## Time Range\n\nCRITICAL: `startA` and `endA` (epoch milliseconds) are\
+    \ **required** for trace/span/session links \u2014 omitting them defaults to the\
+    \ last 7 days and will show \"no recent data\" if the trace falls outside that\
+    \ window.\n\n**Priority order:**\n1. **User-provided URL** \u2014 extract and\
+    \ reuse `startA`/`endA` directly.\n2. **Span `start_time`** \u2014 pad \xB11 day\
+    \ (or \xB11 hour for a tighter window).\n3. **Fallback** \u2014 last 90 days (`now\
+    \ - 90d` to `now`).\n\nPrefer tight windows; 90-day windows load slowly.\n\n##\
+    \ Instructions\n\n1. Gather IDs from user, exported data, or URL context.\n2.\
+    \ Verify all path IDs are base64-encoded.\n3. Determine `startA`/`endA` using\
+    \ the priority order above.\n4. Substitute into the appropriate template and present\
+    \ as a clickable markdown link.\n\n## Troubleshooting\n\n| Problem | Solution\
+    \ |\n|---|---|\n| \"No data\" / empty view | Trace outside time window \u2014\
+    \ widen `startA`/`endA` (\xB11h \u2192 \xB11d \u2192 90d). |\n| 404 | ID wrong\
+    \ or not base64. Re-check `org_id`, `space_id`, `project_id` from the browser\
+    \ URL. |\n| Span not highlighted | `span_id` may belong to a different trace.\
+    \ Verify against exported span data. |\n| `org_id` unknown | `ax` CLI doesn't\
+    \ expose it. Ask user to copy from `https://app.arize.com/organizations/{org_id}/spaces/{space_id}/\u2026\
+    `. |\n\n## Related Skills\n\n- **arize-trace**: Export spans to get `trace_id`,\
+    \ `span_id`, and `start_time`.\n\n## Examples\n\nSee references/EXAMPLES.md for\
+    \ a complete set of concrete URLs for every link type."

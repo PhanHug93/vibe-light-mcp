@@ -1,0 +1,104 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__workiq-copilot
+name: workiq-copilot
+description: Guides the Copilot CLI on how to use the WorkIQ CLI/MCP server to query
+  Microsoft 365 Copilot data (emails, meetings, docs, Teams, people) for live context,
+  summaries, and recommendations.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/workiq-copilot/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- workiq-copilot
+content:
+  kind: skill_markdown
+  sha256: 29ed1f4026b4676d5f50e13169f8c64cb4a8ce4f58e9f2261acfd17f069b2e69
+  char_count: 5443
+  text: "# WorkIQ Copilot Skill\n\n## Overview\n\nWorkIQ (Public Preview) lets Copilot\
+    \ query Microsoft 365 data with natural language. It supports schedules, documents,\
+    \ Teams messages, email threads, follow-up tracking, stakeholder summaries, and\
+    \ more. Use this skill whenever a task needs live organizational intelligence\
+    \ beyond the local repository.\n\n## Supported Data & Sample Prompts\n\n- **Emails**\
+    \ \u2013 \u201CSummarize emails from Sarah about the budget.\u201D\n- **Meetings**\
+    \ \u2013 \u201CWhat are my upcoming meetings this week?\u201D\n- **Documents**\
+    \ \u2013 \u201CFind recent documents about Q4 planning.\u201D\n- **Teams** \u2013\
+    \ \u201CSummarize messages in the Engineering channel today.\u201D\n- **People/Projects**\
+    \ \u2013 \u201CWho is working on Project Alpha?\u201D\n\n## Getting Access\n\n\
+    1. **Copilot CLI plugin (preferred)**\n   - `copilot`\n   - `/plugin marketplace\
+    \ add github/copilot-plugins`\n   - `/plugin install workiq@copilot-plugins`\n\
+    \   - Restart Copilot CLI.\n2. **Standalone CLI / MCP server**\n   - `npm install\
+    \ -g @microsoft/workiq` (or `npx -y @microsoft/workiq mcp`).\n   - Run `workiq\
+    \ mcp` to expose MCP tools if needed.\n3. **Tenant consent**\n   - First use prompts\
+    \ for Microsoft 365 admin consent (EULA + permissions). Non-admins must contact\
+    \ tenant admin to approve per the Tenant Administrator Enablement Guide.\n\n##\
+    \ Pre-flight Checklist\n\n- Run `Get-Command workiq` to ensure the binary is available.\n\
+    - Accept the EULA once via `workiq accept-eula`.\n- Confirm the correct tenant\
+    \ (`-t <tenant-id>` if different from default `common`).\n- Be ready to complete\
+    \ device login in the browser when prompted.\n\n## Core Workflow\n\n1. **Clarify\
+    \ intent** \u2013 agenda, action items, document lookup, people search, risk summary,\
+    \ etc.\n2. **Craft precise prompt** \u2013 include timeframe, source, or topic\
+    \ (e.g., \u201CSummarize Teams posts in #eng for today\u201D).\n3. **Run command**\
+    \ \u2013 `workiq ask --question \"<prompt>\"` (use `-q` for shorthand if desired).\n\
+    4. **Monitor execution** \u2013 long answers may stream; wait for the response\
+    \ to finish before issuing additional requests.\n5. **Summarize & redact** \u2013\
+    \ highlight insights, note conflicts/tasks, avoid pasting raw links unless required.\n\
+    6. **Offer follow-ups** \u2013 blocking time, drafting notes, deeper queries,\
+    \ etc.\n\n## Command Reference\n\n| Command                           | Purpose\
+    \                                                       |\n| ---------------------------------\
+    \ | ------------------------------------------------------------- |\n| `workiq\
+    \ --help`                   | Show global options.                           \
+    \               |\n| `workiq version`                  | Display installed version.\
+    \                                    |\n| `workiq accept-eula`              |\
+    \ Accept license (first use).                                   |\n| `workiq ask`\
+    \                      | Interactive mode.                                   \
+    \          |\n| `workiq ask --question \"...\"`     | Ask a specific question\
+    \ (use `-q` shorthand if preferred).    |\n| `workiq ask -t <tenant> -q \"...\"\
+    ` | Target a specific tenant.                                     |\n| `workiq\
+    \ mcp`                      | Start MCP stdio server (expose WorkIQ tools to other\
+    \ agents). |\n\n## Prompt Patterns\n\n- Agenda: \u201CWhat\u2019s on my calendar\
+    \ tomorrow?\u201D\n- Action items: \u201CSummarize follow-ups from today\u2019\
+    s customer sync.\u201D\n- Documents: \u201CList PowerPoints about Contoso FY26\
+    \ roadmap.\u201D\n- Communications: \u201CWhat did my manager say about the deadline?\u201D\
+    \n- Insights: \u201CWhat blockers came up in the last three meetings?\u201D\n\
+    - Planning: \u201CSuggest focus blocks for Tuesday afternoon.\u201D\n\n## Response\
+    \ Guidelines\n\n- Keep summaries concise (2\u20133 sentences) calling out load,\
+    \ priorities, blockers, and optional next steps.\n- Refer to meetings/documents\
+    \ generically unless the user specifically needs links.\n- Mention if WorkIQ can\
+    \ continue (e.g., \u201CWorkIQ can show Thu\u2013Sun if needed\u201D).\n- Map\
+    \ WorkIQ\u2019s suggested actions to clear offers (block time, send follow-up,\
+    \ request recording, run deeper query).\n\n## Best Practices\n\n- Prefer narrow\
+    \ prompts to reduce noise; run multiple queries if needed.\n- Combine outputs\
+    \ logically (agenda + conflicts + action items) before responding.\n- Respect\
+    \ privacy: do not expose attendee lists or confidential snippets unless explicitly\
+    \ requested.\n- Log which commands were run so future steps can reference them\
+    \ (\u201CAsked WorkIQ for agenda + conflicts\u201D).\n- Use MCP mode (`workiq\
+    \ mcp`) when another agent/workflow needs direct tool access.\n\n## Troubleshooting\n\
+    \n- **Missing CLI** \u2013 install via npm or ensure PATH is set; notify user\
+    \ if unavailable.\n- **Consent/auth errors** \u2013 re-run command after admin\
+    \ grants permissions or after completing device login.\n- **Long/incomplete output**\
+    \ \u2013 rerun with refined scope or ask for specific data slices (per day/project/person).\n\
+    - **Command hanging** \u2013 cancel the running command in your terminal (for\
+    \ example, with Ctrl+C) or restart the Copilot CLI session, then retry; ensure\
+    \ browser login completed.\n\n## Follow-up Actions to Offer\n\n- Block focus/overflow\
+    \ holds at suggested times.\n- Draft reschedule/decline messages referencing WorkIQ\
+    \ guidance.\n- Request recordings or summaries for overlapping sessions.\n- Capture\
+    \ action items into task trackers.\n- Run additional WorkIQ queries (by project,\
+    \ stakeholder, time range) for deeper analysis."

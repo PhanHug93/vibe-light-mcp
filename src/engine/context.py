@@ -32,6 +32,7 @@ from datetime import datetime, timedelta, timezone
 from src.config import (
     CHROMA_OP_TIMEOUT,
     L1_PREFIX,
+    SESSION_PREFIX,
     L2_COLLECTION,
     L1_TTL_DAYS,
     QUICK_RECALL_TIMEOUT,
@@ -45,6 +46,7 @@ logger = logging.getLogger(__name__)
 
 # Convenience aliases
 _L1_PREFIX: str = L1_PREFIX
+_SESSION_PREFIX: str = SESSION_PREFIX
 _L2_COLLECTION: str = L2_COLLECTION
 _L1_TTL_DAYS: int = L1_TTL_DAYS
 _CHROMA_OP_TIMEOUT: int = CHROMA_OP_TIMEOUT
@@ -63,6 +65,87 @@ def _get_mgr() -> ChromaManager:
     return _mgr
 
 
+def _resolve_local_scope(
+    mgr: ChromaManager,
+    workspace_id: str,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
+):
+    """Return the local collection, collection name, and tier label for a scope."""
+    if memory_scope == "session":
+        if not session_namespace:
+            raise ValueError("session_namespace is required for session scope.")
+        return (
+            mgr.get_session_direct(session_namespace),
+            f"{_SESSION_PREFIX}{session_namespace}",
+            "SESSION_LOCAL",
+        )
+
+    return (
+        mgr.get_l1_direct(workspace_id),
+        f"{_L1_PREFIX}{workspace_id}",
+        "L1_LOCAL",
+    )
+
+
+def _build_query_specs(
+    mgr: ChromaManager,
+    workspace_id: str,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
+) -> list[tuple[str, typing.Callable]]:
+    """Build the collection getters to query for a given memory scope."""
+    if memory_scope == "global":
+        return [("L2_GLOBAL", mgr.get_l2_direct)]
+
+    if memory_scope == "session":
+        if not session_namespace:
+            raise ValueError("session_namespace is required for session scope.")
+        return [
+            ("SESSION_LOCAL", lambda: mgr.get_session_direct(session_namespace)),
+            ("L1_LOCAL", lambda: mgr.get_l1_direct(workspace_id)),
+            ("L2_GLOBAL", mgr.get_l2_direct),
+        ]
+
+    return [
+        ("L1_LOCAL", lambda: mgr.get_l1_direct(workspace_id)),
+        ("L2_GLOBAL", mgr.get_l2_direct),
+    ]
+
+
+def _run_query_specs(
+    query: str,
+    n_results: int,
+    where_filter: dict | None,
+    query_specs: list[tuple[str, typing.Callable]],
+    timeout: int = _CHROMA_OP_TIMEOUT,
+) -> list[dict]:
+    """Query all requested scopes in parallel and merge the results."""
+    mgr = _get_mgr()
+    futures = [
+        (
+            tier_label,
+            mgr._query_executor.submit(
+                _query_single_tier,
+                tier_label,
+                getter,
+                query,
+                n_results,
+                where_filter,
+            ),
+        )
+        for tier_label, getter in query_specs
+    ]
+
+    merged: list[dict] = []
+    for tier_label, future in futures:
+        try:
+            merged.extend(future.result(timeout=timeout))
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("%s parallel query failed: %s", tier_label, exc)
+    return merged
+
+
 # ---------------------------------------------------------------------------
 # Sync Core Functions (all ChromaDB calls go through _mgr)
 # ---------------------------------------------------------------------------
@@ -74,6 +157,8 @@ def _sync_store(
     tier: str = "L1",
     workspace_id: str = "default",
     tech_stack: str = "general",
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Chunk and store text into L1 or L2 collection.
 
@@ -92,17 +177,27 @@ def _sync_store(
         if tier == "L2":
             collection = mgr.get_l2_direct()
             collection_name = _L2_COLLECTION
+            tier_label = "L2_GLOBAL"
         else:
-            collection = mgr.get_l1_direct(workspace_id)
-            collection_name = f"{_L1_PREFIX}{workspace_id}"
+            collection, collection_name, tier_label = _resolve_local_scope(
+                mgr,
+                workspace_id,
+                memory_scope=memory_scope,
+                session_namespace=session_namespace,
+            )
     except (ConnectionError, TimeoutError) as exc:
+        return json.dumps(
+            {"status": "error", "message": str(exc)},
+            ensure_ascii=False,
+        )
+    except ValueError as exc:
         return json.dumps(
             {"status": "error", "message": str(exc)},
             ensure_ascii=False,
         )
 
     batch_id: str = hashlib.md5(
-        f"{metadata_source}:{tier}:{workspace_id}".encode()
+        f"{metadata_source}:{tier}:{workspace_id}:{memory_scope}:{session_namespace or ''}".encode()
     ).hexdigest()[:8]  # noqa: S324
     timestamp: str = datetime.now(timezone.utc).isoformat()
 
@@ -116,8 +211,10 @@ def _sync_store(
         {
             "source": metadata_source,
             "tech_stack": tech_stack,
-            "tier": tier,
-            "workspace_id": workspace_id if tier == "L1" else "global",
+            "tier": tier_label,
+            "workspace_id": workspace_id,
+            "memory_scope": memory_scope if tier != "L2" else "global",
+            "session_namespace": session_namespace or "",
             "timestamp": timestamp,
             "batch_id": batch_id,
             "chunk_index": i,
@@ -153,6 +250,8 @@ def _sync_store(
             "chunks_stored": len(chunks),
             "source": metadata_source,
             "tech_stack": tech_stack,
+            "memory_scope": memory_scope if tier != "L2" else "global",
+            "session_namespace": session_namespace or "",
         },
         indent=2,
         ensure_ascii=False,
@@ -207,6 +306,8 @@ def _sync_query_hybrid(
     workspace_id: str = "default",
     tech_stack: str | None = None,
     n_results: int = 5,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Federated search across L1 (local) and L2 (global) — in parallel."""
     mgr = _get_mgr()
@@ -222,44 +323,28 @@ def _sync_query_hybrid(
     if tech_stack:
         where_filter = {"tech_stack": tech_stack}
 
-    # Query L1 + L2 in parallel (persistent executor — B3)
-    l1_future = mgr._query_executor.submit(
-        _query_single_tier,
-        "L1_LOCAL",
-        lambda: mgr.get_l1_direct(workspace_id),
-        query,
-        n_results,
-        where_filter,
-    )
-    l2_future = mgr._query_executor.submit(
-        _query_single_tier,
-        "L2_GLOBAL",
-        mgr.get_l2_direct,
-        query,
-        n_results,
-        where_filter,
-    )
-
     try:
-        l1_results = l1_future.result(timeout=_CHROMA_OP_TIMEOUT)
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("L1 parallel query failed: %s", exc)
-        l1_results = []
-
-    try:
-        l2_results = l2_future.result(timeout=_CHROMA_OP_TIMEOUT)
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("L2 parallel query failed: %s", exc)
-        l2_results = []
+        query_specs = _build_query_specs(
+            mgr,
+            workspace_id,
+            memory_scope=memory_scope,
+            session_namespace=session_namespace,
+        )
+    except ValueError as exc:
+        return json.dumps(
+            {"status": "error", "message": str(exc)},
+            ensure_ascii=False,
+        )
 
     # Merge & Re-rank by distance
-    all_results = l1_results + l2_results
+    all_results = _run_query_specs(query, n_results, where_filter, query_specs)
     if not all_results:
         return json.dumps(
             {
                 "status": "no_results",
                 "message": "No context found in L1 or L2 memory.",
                 "suggestion": "Store context first with store_working_context or store_knowledge.",
+                "memory_scope": memory_scope,
             },
             indent=2,
             ensure_ascii=False,
@@ -285,6 +370,10 @@ def _sync_query_hybrid(
         {
             "status": "success",
             "total_results": len(top_results),
+            "memory_scope": memory_scope,
+            "session_namespace": session_namespace or "",
+            "local_hits": sum(1 for r in top_results if r["tier"] in ("L1_LOCAL", "SESSION_LOCAL")),
+            "session_hits": sum(1 for r in top_results if r["tier"] == "SESSION_LOCAL"),
             "l1_hits": sum(1 for r in top_results if r["tier"] == "L1_LOCAL"),
             "l2_hits": sum(1 for r in top_results if r["tier"] == "L2_GLOBAL"),
             "tech_stack_filter": tech_stack,
@@ -295,12 +384,27 @@ def _sync_query_hybrid(
     )
 
 
-def _sync_cleanup_l1(workspace_id: str = "default", days: int = _L1_TTL_DAYS) -> str:
-    """Delete L1 records older than *days*."""
+def _sync_cleanup_l1(
+    workspace_id: str = "default",
+    days: int = _L1_TTL_DAYS,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
+) -> str:
+    """Delete local records older than *days* for the selected scope."""
     mgr = _get_mgr()
     try:
-        collection = mgr.get_l1_direct(workspace_id)
+        collection, _, tier_label = _resolve_local_scope(
+            mgr,
+            workspace_id,
+            memory_scope=memory_scope,
+            session_namespace=session_namespace,
+        )
     except (ConnectionError, TimeoutError) as exc:
+        return json.dumps(
+            {"status": "error", "message": str(exc)},
+            ensure_ascii=False,
+        )
+    except ValueError as exc:
         return json.dumps(
             {"status": "error", "message": str(exc)},
             ensure_ascii=False,
@@ -343,8 +447,9 @@ def _sync_cleanup_l1(workspace_id: str = "default", days: int = _L1_TTL_DAYS) ->
         return json.dumps(
             {
                 "status": "skipped",
-                "message": f"No L1 records older than {days} days.",
+                "message": f"No local records older than {days} days.",
                 "total_records": total_before,
+                "memory_scope": memory_scope,
             },
             indent=2,
             ensure_ascii=False,
@@ -363,8 +468,10 @@ def _sync_cleanup_l1(workspace_id: str = "default", days: int = _L1_TTL_DAYS) ->
     return json.dumps(
         {
             "status": "success",
-            "tier": "L1",
+            "tier": tier_label,
             "workspace_id": workspace_id,
+            "memory_scope": memory_scope,
+            "session_namespace": session_namespace or "",
             "deleted": len(old_ids),
             "remaining": remaining,
             "cutoff_date": cutoff,
@@ -395,6 +502,7 @@ def _sync_memory_stats() -> str:
         )
 
     l1_stats: dict[str, int] = {}
+    session_stats: dict[str, int] = {}
     l2_count: int = 0
 
     for col in collections:
@@ -410,6 +518,9 @@ def _sync_memory_stats() -> str:
         if name.startswith(_L1_PREFIX):
             workspace = name[len(_L1_PREFIX) :]
             l1_stats[workspace] = count
+        elif name.startswith(_SESSION_PREFIX):
+            namespace = name[len(_SESSION_PREFIX) :]
+            session_stats[namespace] = count
         elif name == _L2_COLLECTION:
             l2_count = count
 
@@ -418,6 +529,8 @@ def _sync_memory_stats() -> str:
             "status": "success",
             "l1_workspaces": l1_stats,
             "l1_total_chunks": sum(l1_stats.values()),
+            "session_scopes": session_stats,
+            "session_total_chunks": sum(session_stats.values()),
             "l2_global_chunks": l2_count,
             "total_collections": len(collections),
         },
@@ -444,6 +557,8 @@ async def compress_and_store(
     tier: str = "L1",
     workspace_id: str = "default",
     tech_stack: str = "general",
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Store context into L1 (local) or L2 (global) memory."""
     mgr = _get_mgr()
@@ -453,7 +568,13 @@ async def compress_and_store(
             loop.run_in_executor(
                 mgr._executor,
                 lambda: _sync_store(
-                    text_data, metadata_source, tier, workspace_id, tech_stack
+                    text_data,
+                    metadata_source,
+                    tier,
+                    workspace_id,
+                    tech_stack,
+                    memory_scope,
+                    session_namespace,
                 ),
             ),
             timeout=_ASYNC_TIMEOUT,
@@ -468,6 +589,8 @@ async def query_memory(
     workspace_id: str = "default",
     tech_stack: str | None = None,
     n_results: int = 5,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Federated search across L1 + L2 with merge & re-rank."""
     mgr = _get_mgr()
@@ -476,7 +599,14 @@ async def query_memory(
         return await asyncio.wait_for(
             loop.run_in_executor(
                 mgr._executor,
-                lambda: _sync_query_hybrid(query, workspace_id, tech_stack, n_results),
+                lambda: _sync_query_hybrid(
+                    query,
+                    workspace_id,
+                    tech_stack,
+                    n_results,
+                    memory_scope,
+                    session_namespace,
+                ),
             ),
             timeout=_ASYNC_TIMEOUT,
         )
@@ -488,6 +618,8 @@ async def query_memory(
 async def cleanup_l1(
     workspace_id: str = "default",
     days: int = _L1_TTL_DAYS,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Cleanup old L1 records for a workspace."""
     mgr = _get_mgr()
@@ -496,7 +628,12 @@ async def cleanup_l1(
         return await asyncio.wait_for(
             loop.run_in_executor(
                 mgr._executor,
-                lambda: _sync_cleanup_l1(workspace_id, days),
+                lambda: _sync_cleanup_l1(
+                    workspace_id,
+                    days,
+                    memory_scope,
+                    session_namespace,
+                ),
             ),
             timeout=_ASYNC_TIMEOUT,
         )
@@ -529,6 +666,8 @@ def _sync_quick_recall(
     workspace_id: str = "default",
     tech_stack: str | None = None,
     n_results: int = 3,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Fast, lightweight recall for auto-recall tool."""
     mgr = _get_mgr()
@@ -541,34 +680,23 @@ def _sync_quick_recall(
     if tech_stack:
         where_filter = {"tech_stack": tech_stack}
 
-    # Query L1 + L2 in parallel (persistent executor)
-    l1_future = mgr._query_executor.submit(
-        _query_single_tier,
-        "L1_LOCAL",
-        lambda: mgr.get_l1_direct(workspace_id),
+    try:
+        query_specs = _build_query_specs(
+            mgr,
+            workspace_id,
+            memory_scope=memory_scope,
+            session_namespace=session_namespace,
+        )
+    except ValueError:
+        return ""
+
+    all_results = _run_query_specs(
         query,
         n_results,
         where_filter,
+        query_specs,
+        timeout=_QUICK_RECALL_TIMEOUT,
     )
-    l2_future = mgr._query_executor.submit(
-        _query_single_tier,
-        "L2_GLOBAL",
-        mgr.get_l2_direct,
-        query,
-        n_results,
-        where_filter,
-    )
-
-    try:
-        l1_results = l1_future.result(timeout=_QUICK_RECALL_TIMEOUT)
-    except Exception:  # noqa: BLE001
-        l1_results = []
-    try:
-        l2_results = l2_future.result(timeout=_QUICK_RECALL_TIMEOUT)
-    except Exception:  # noqa: BLE001
-        l2_results = []
-
-    all_results = l1_results + l2_results
     if not all_results:
         return ""
 
@@ -597,6 +725,8 @@ async def quick_recall(
     workspace_id: str = "default",
     tech_stack: str | None = None,
     n_results: int = 3,
+    memory_scope: str = "workspace",
+    session_namespace: str | None = None,
 ) -> str:
     """Fast context recall for auto-recall tool.
 
@@ -608,7 +738,14 @@ async def quick_recall(
         return await asyncio.wait_for(
             loop.run_in_executor(
                 mgr._executor,
-                lambda: _sync_quick_recall(query, workspace_id, tech_stack, n_results),
+                lambda: _sync_quick_recall(
+                    query,
+                    workspace_id,
+                    tech_stack,
+                    n_results,
+                    memory_scope,
+                    session_namespace,
+                ),
             ),
             timeout=_QUICK_RECALL_TIMEOUT,
         )

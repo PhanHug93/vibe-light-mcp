@@ -1,0 +1,79 @@
+schema_version: local-skill-candidate/v0.0.1
+id: mattpocock-skills__engineering-grill-with-docs
+name: grill-with-docs
+description: Grilling session that challenges your plan against the existing domain
+  model, sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline
+  as decisions crystallise. Use when user wants to stress-test a plan against their
+  project's language and documented decisions.
+status: candidate
+source_tier: community
+source:
+  source_id: mattpocock-skills
+  repo: mattpocock/skills
+  url: https://github.com/mattpocock/skills.git
+  ref: main
+  commit: b8be62ffacb0118fa3eaa29a0923c87c8c11985c
+  path: skills/engineering/grill-with-docs/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+- testing
+languages: []
+platforms: []
+aliases:
+- grill-with-docs
+content:
+  kind: skill_markdown
+  sha256: 3e35025119ba03efe7983dfdec3c8b96918142e3978512f3c2bf66d428310c7e
+  char_count: 3499
+  text: "<what-to-do>\n\nInterview me relentlessly about every aspect of this plan\
+    \ until we reach a shared understanding. Walk down each branch of the design tree,\
+    \ resolving dependencies between decisions one-by-one. For each question, provide\
+    \ your recommended answer.\n\nAsk the questions one at a time, waiting for feedback\
+    \ on each question before continuing.\n\nIf a question can be answered by exploring\
+    \ the codebase, explore the codebase instead.\n\n</what-to-do>\n\n<supporting-info>\n\
+    \n## Domain awareness\n\nDuring codebase exploration, also look for existing documentation:\n\
+    \n### File structure\n\nMost repos have a single context:\n\n```\n/\n\u251C\u2500\
+    \u2500 CONTEXT.md\n\u251C\u2500\u2500 docs/\n\u2502   \u2514\u2500\u2500 adr/\n\
+    \u2502       \u251C\u2500\u2500 0001-event-sourced-orders.md\n\u2502       \u2514\
+    \u2500\u2500 0002-postgres-for-write-model.md\n\u2514\u2500\u2500 src/\n```\n\n\
+    If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The\
+    \ map points to where each one lives:\n\n```\n/\n\u251C\u2500\u2500 CONTEXT-MAP.md\n\
+    \u251C\u2500\u2500 docs/\n\u2502   \u2514\u2500\u2500 adr/                   \
+    \       \u2190 system-wide decisions\n\u251C\u2500\u2500 src/\n\u2502   \u251C\
+    \u2500\u2500 ordering/\n\u2502   \u2502   \u251C\u2500\u2500 CONTEXT.md\n\u2502\
+    \   \u2502   \u2514\u2500\u2500 docs/adr/                 \u2190 context-specific\
+    \ decisions\n\u2502   \u2514\u2500\u2500 billing/\n\u2502       \u251C\u2500\u2500\
+    \ CONTEXT.md\n\u2502       \u2514\u2500\u2500 docs/adr/\n```\n\nCreate files lazily\
+    \ \u2014 only when you have something to write. If no `CONTEXT.md` exists, create\
+    \ one when the first term is resolved. If no `docs/adr/` exists, create it when\
+    \ the first ADR is needed.\n\n## During the session\n\n### Challenge against the\
+    \ glossary\n\nWhen the user uses a term that conflicts with the existing language\
+    \ in `CONTEXT.md`, call it out immediately. \"Your glossary defines 'cancellation'\
+    \ as X, but you seem to mean Y \u2014 which is it?\"\n\n### Sharpen fuzzy language\n\
+    \nWhen the user uses vague or overloaded terms, propose a precise canonical term.\
+    \ \"You're saying 'account' \u2014 do you mean the Customer or the User? Those\
+    \ are different things.\"\n\n### Discuss concrete scenarios\n\nWhen domain relationships\
+    \ are being discussed, stress-test them with specific scenarios. Invent scenarios\
+    \ that probe edge cases and force the user to be precise about the boundaries\
+    \ between concepts.\n\n### Cross-reference with code\n\nWhen the user states how\
+    \ something works, check whether the code agrees. If you find a contradiction,\
+    \ surface it: \"Your code cancels entire Orders, but you just said partial cancellation\
+    \ is possible \u2014 which is right?\"\n\n### Update CONTEXT.md inline\n\nWhen\
+    \ a term is resolved, update `CONTEXT.md` right there. Don't batch these up \u2014\
+    \ capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).\n\
+    \n`CONTEXT.md` should be totally devoid of implementation details. Do not treat\
+    \ `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions.\
+    \ It is a glossary and nothing else.\n\n### Offer ADRs sparingly\n\nOnly offer\
+    \ to create an ADR when all three are true:\n\n1. **Hard to reverse** \u2014 the\
+    \ cost of changing your mind later is meaningful\n2. **Surprising without context**\
+    \ \u2014 a future reader will wonder \"why did they do it this way?\"\n3. **The\
+    \ result of a real trade-off** \u2014 there were genuine alternatives and you\
+    \ picked one for specific reasons\n\nIf any of the three is missing, skip the\
+    \ ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).\n\n</supporting-info>"

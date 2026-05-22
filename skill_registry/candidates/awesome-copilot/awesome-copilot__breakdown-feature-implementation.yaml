@@ -1,0 +1,94 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__breakdown-feature-implementation
+name: breakdown-feature-implementation
+description: Prompt for creating detailed feature implementation plans, following
+  Epoch monorepo structure.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/breakdown-feature-implementation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- breakdown-feature-implementation
+content:
+  kind: skill_markdown
+  sha256: 97024b9a3e6643debabd5e0cb436216d4b0e319285acfd162221e85efa04d3fd
+  char_count: 4755
+  text: "# Feature Implementation Plan Prompt\n\n## Goal\n\nAct as an industry-veteran\
+    \ software engineer responsible for crafting high-touch features for large-scale\
+    \ SaaS companies. Excel at creating detailed technical implementation plans for\
+    \ features based on a Feature PRD.\nReview the provided context and output a thorough,\
+    \ comprehensive implementation plan.\n**Note:** Do NOT write code in output unless\
+    \ it's pseudocode for technical situations.\n\n## Output Format\n\nThe output\
+    \ should be a complete implementation plan in Markdown format, saved to `/docs/ways-of-work/plan/{epic-name}/{feature-name}/implementation-plan.md`.\n\
+    \n### File System\n\nFolder and file structure for both front-end and back-end\
+    \ repositories following Epoch's monorepo structure:\n\n```\napps/\n  [app-name]/\n\
+    services/\n  [service-name]/\npackages/\n  [package-name]/\n```\n\n### Implementation\
+    \ Plan\n\nFor each feature:\n\n#### Goal\n\nFeature goal described (3-5 sentences)\n\
+    \n#### Requirements\n\n- Detailed feature requirements (bulleted list)\n- Implementation\
+    \ plan specifics\n\n#### Technical Considerations\n\n##### System Architecture\
+    \ Overview\n\nCreate a comprehensive system architecture diagram using Mermaid\
+    \ that shows how this feature integrates into the overall system. The diagram\
+    \ should include:\n\n- **Frontend Layer**: User interface components, state management,\
+    \ and client-side logic\n- **API Layer**: tRPC endpoints, authentication middleware,\
+    \ input validation, and request routing\n- **Business Logic Layer**: Service classes,\
+    \ business rules, workflow orchestration, and event handling\n- **Data Layer**:\
+    \ Database interactions, caching mechanisms, and external API integrations\n-\
+    \ **Infrastructure Layer**: Docker containers, background services, and deployment\
+    \ components\n\nUse subgraphs to organize these layers clearly. Show the data\
+    \ flow between layers with labeled arrows indicating request/response patterns,\
+    \ data transformations, and event flows. Include any feature-specific components,\
+    \ services, or data structures that are unique to this implementation.\n\n- **Technology\
+    \ Stack Selection**: Document choice rationale for each layer\n```\n\n- **Technology\
+    \ Stack Selection**: Document choice rationale for each layer\n- **Integration\
+    \ Points**: Define clear boundaries and communication protocols\n- **Deployment\
+    \ Architecture**: Docker containerization strategy\n- **Scalability Considerations**:\
+    \ Horizontal and vertical scaling approaches\n\n##### Database Schema Design\n\
+    \nCreate an entity-relationship diagram using Mermaid showing the feature's data\
+    \ model:\n\n- **Table Specifications**: Detailed field definitions with types\
+    \ and constraints\n- **Indexing Strategy**: Performance-critical indexes and their\
+    \ rationale\n- **Foreign Key Relationships**: Data integrity and referential constraints\n\
+    - **Database Migration Strategy**: Version control and deployment approach\n\n\
+    ##### API Design\n\n- Endpoints with full specifications\n- Request/response formats\
+    \ with TypeScript types\n- Authentication and authorization with Stack Auth\n\
+    - Error handling strategies and status codes\n- Rate limiting and caching strategies\n\
+    \n##### Frontend Architecture\n\n###### Component Hierarchy Documentation\n\n\
+    The component structure will leverage the `shadcn/ui` library for a consistent\
+    \ and accessible foundation.\n\n**Layout Structure:**\n\n```\nRecipe Library Page\n\
+    \u251C\u2500\u2500 Header Section (shadcn: Card)\n\u2502   \u251C\u2500\u2500\
+    \ Title (shadcn: Typography `h1`)\n\u2502   \u251C\u2500\u2500 Add Recipe Button\
+    \ (shadcn: Button with DropdownMenu)\n\u2502   \u2502   \u251C\u2500\u2500 Manual\
+    \ Entry (DropdownMenuItem)\n\u2502   \u2502   \u251C\u2500\u2500 Import from URL\
+    \ (DropdownMenuItem)\n\u2502   \u2502   \u2514\u2500\u2500 Import from PDF (DropdownMenuItem)\n\
+    \u2502   \u2514\u2500\u2500 Search Input (shadcn: Input with icon)\n\u251C\u2500\
+    \u2500 Main Content Area (flex container)\n\u2502   \u251C\u2500\u2500 Filter\
+    \ Sidebar (aside)\n\u2502   \u2502   \u251C\u2500\u2500 Filter Title (shadcn:\
+    \ Typography `h4`)\n\u2502   \u2502   \u251C\u2500\u2500 Category Filters (shadcn:\
+    \ Checkbox group)\n\u2502   \u2502   \u251C\u2500\u2500 Cuisine Filters (shadcn:\
+    \ Checkbox group)\n\u2502   \u2502   \u2514\u2500\u2500 Difficulty Filters (shadcn:\
+    \ RadioGroup)\n\u2502   \u2514\u2500\u2500 Recipe Grid (main)\n\u2502       \u2514\
+    \u2500\u2500 Recipe Card (shadcn: Card)\n\u2502           \u251C\u2500\u2500 Recipe\
+    \ Image (img)\n\u2502           \u251C\u2500\u2500 Recipe Title (shadcn: Typography\
+    \ `h3`)\n\u2502           \u251C\u2500\u2500 Recipe Tags (shadcn: Badge)\n\u2502\
+    \           \u2514\u2500\u2500 Quick Actions (shadcn: Button - View, Edit)\n```\n\
+    \n- **State Flow Diagram**: Component state management using Mermaid\n- Reusable\
+    \ component library specifications\n- State management patterns with Zustand/React\
+    \ Query\n- TypeScript interfaces and types\n\n##### Security Performance\n\n-\
+    \ Authentication/authorization requirements\n- Data validation and sanitization\n\
+    - Performance optimization strategies\n- Caching mechanisms\n\n## Context Template\n\
+    \n- **Feature PRD:** [The content of the Feature PRD markdown file]"

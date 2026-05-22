@@ -1,0 +1,301 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__freecad-scripts
+name: freecad-scripts
+description: Expert skill for writing FreeCAD Python scripts, macros, and automation.
+  Use when asked to create FreeCAD models, parametric objects, Part/Mesh/Sketcher
+  scripts, workbench tools, GUI dialogs with PySide, Coin3D scenegraph manipulation,
+  or any FreeCAD Python API task. Covers FreeCAD scripting basics, geometry creation,
+  FeaturePython objects, interface tools, and macro development.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/freecad-scripts/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- frontend
+- python
+languages: []
+platforms: []
+aliases:
+- freecad-scripts
+content:
+  kind: skill_markdown
+  sha256: d7cf141375e743f9f56811a0d16877aaf8e9a2d0dfc31cd48378bd17720ba840
+  char_count: 21320
+  text: "# FreeCAD Scripts\n\nExpert skill for generating production-quality Python\
+    \ scripts for the FreeCAD CAD application. Interprets shorthand, quasi-code, and\
+    \ natural language descriptions of 3D modeling tasks and translates them into\
+    \ correct FreeCAD Python API calls.\n\n## When to Use This Skill\n\n- Writing\
+    \ Python scripts for FreeCAD's built-in console or macro system\n- Creating or\
+    \ manipulating 3D geometry (Part, Mesh, Sketcher, Path, FEM)\n- Building parametric\
+    \ FeaturePython objects with custom properties\n- Developing GUI tools using PySide/Qt\
+    \ within FreeCAD\n- Manipulating the Coin3D scenegraph via Pivy\n- Creating custom\
+    \ workbenches or Gui Commands\n- Automating repetitive CAD operations with macros\n\
+    - Converting between mesh and solid representations\n- Scripting FEM analyses,\
+    \ raytracing, or drawing exports\n\n## Prerequisites\n\n- FreeCAD installed (0.19+\
+    \ recommended; 0.21+/1.0+ for latest API)\n- Python 3.x (bundled with FreeCAD)\n\
+    - For GUI work: PySide2 (bundled with FreeCAD)\n- For scenegraph: Pivy (bundled\
+    \ with FreeCAD)\n\n## FreeCAD Python Environment\n\nFreeCAD embeds a Python interpreter.\
+    \ Scripts run in an environment where these key modules are available:\n\n```python\n\
+    import FreeCAD          # Core module (also aliased as 'App')\nimport FreeCADGui\
+    \       # GUI module (also aliased as 'Gui') \u2014 only in GUI mode\nimport Part\
+    \             # Part workbench \u2014 BRep/OpenCASCADE shapes\nimport Mesh   \
+    \          # Mesh workbench \u2014 triangulated meshes\nimport Sketcher      \
+    \   # Sketcher workbench \u2014 2D constrained sketches\nimport Draft        \
+    \    # Draft workbench \u2014 2D drawing tools\nimport Arch             # Arch/BIM\
+    \ workbench\nimport Path             # Path/CAM workbench\nimport FEM        \
+    \      # FEM workbench\nimport TechDraw         # TechDraw workbench (replaces\
+    \ Drawing)\nimport BOPTools         # Boolean operations\nimport CompoundTools\
+    \    # Compound shape utilities\n```\n\n### The FreeCAD Document Model\n\n```python\n\
+    # Create or access a document\ndoc = FreeCAD.newDocument(\"MyDoc\")\ndoc = FreeCAD.ActiveDocument\n\
+    \n# Add objects\nbox = doc.addObject(\"Part::Box\", \"MyBox\")\nbox.Length = 10.0\n\
+    box.Width = 10.0\nbox.Height = 10.0\n\n# Recompute\ndoc.recompute()\n\n# Access\
+    \ objects\nobj = doc.getObject(\"MyBox\")\nobj = doc.MyBox  # Attribute access\
+    \ also works\n\n# Remove objects\ndoc.removeObject(\"MyBox\")\n```\n\n## Core\
+    \ Concepts\n\n### Vectors and Placements\n\n```python\nimport FreeCAD\n\n# Vectors\n\
+    v1 = FreeCAD.Vector(1, 0, 0)\nv2 = FreeCAD.Vector(0, 1, 0)\nv3 = v1.cross(v2)\
+    \          # Cross product\nd = v1.dot(v2)              # Dot product\nv4 = v1\
+    \ + v2                # Addition\nlength = v1.Length           # Magnitude\nv_norm\
+    \ = FreeCAD.Vector(v1)\nv_norm.normalize()           # In-place normalize\n\n\
+    # Rotations\nrot = FreeCAD.Rotation(FreeCAD.Vector(0, 0, 1), 45)  # axis, angle(deg)\n\
+    rot = FreeCAD.Rotation(0, 0, 45)                       # Euler angles (yaw, pitch,\
+    \ roll)\n\n# Placements (position + orientation)\nplacement = FreeCAD.Placement(\n\
+    \    FreeCAD.Vector(10, 20, 0),    # translation\n    FreeCAD.Rotation(0, 0, 45),\
+    \   # rotation\n    FreeCAD.Vector(0, 0, 0)       # center of rotation\n)\nobj.Placement\
+    \ = placement\n\n# Matrix (4x4 transformation)\nimport math\nmat = FreeCAD.Matrix()\n\
+    mat.move(FreeCAD.Vector(10, 0, 0))\nmat.rotateZ(math.radians(45))\n```\n\n###\
+    \ Creating and Manipulating Geometry (Part Module)\n\nThe Part module wraps OpenCASCADE\
+    \ and provides BRep solid modeling:\n\n```python\nimport FreeCAD\nimport Part\n\
+    \n# --- Primitive Shapes ---\nbox = Part.makeBox(10, 10, 10)               # length,\
+    \ width, height\ncyl = Part.makeCylinder(5, 20)               # radius, height\n\
+    sphere = Part.makeSphere(10)                  # radius\ncone = Part.makeCone(5,\
+    \ 2, 10)               # r1, r2, height\ntorus = Part.makeTorus(10, 2)       \
+    \          # major_r, minor_r\n\n# --- Wires and Edges ---\nedge1 = Part.makeLine((0,\
+    \ 0, 0), (10, 0, 0))\nedge2 = Part.makeLine((10, 0, 0), (10, 10, 0))\nedge3 =\
+    \ Part.makeLine((10, 10, 0), (0, 0, 0))\nwire = Part.Wire([edge1, edge2, edge3])\n\
+    \n# Circles and arcs\ncircle = Part.makeCircle(5)                   # radius\n\
+    arc = Part.makeCircle(5, FreeCAD.Vector(0, 0, 0),\n                       FreeCAD.Vector(0,\
+    \ 0, 1), 0, 180)  # start/end angle\n\n# --- Faces ---\nface = Part.Face(wire)\
+    \                        # From a closed wire\n\n# --- Solids from Faces/Wires\
+    \ ---\nextrusion = face.extrude(FreeCAD.Vector(0, 0, 10))       # Extrude\nrevolved\
+    \ = face.revolve(FreeCAD.Vector(0, 0, 0),\n                         FreeCAD.Vector(0,\
+    \ 0, 1), 360)    # Revolve\n\n# --- Boolean Operations ---\nfused = box.fuse(cyl)\
+    \           # Union\ncut = box.cut(cyl)              # Subtraction\ncommon = box.common(cyl)\
+    \        # Intersection\nfused_clean = fused.removeSplitter()  # Clean up seams\n\
+    \n# --- Fillets and Chamfers ---\nfilleted = box.makeFillet(1.0, box.Edges)  \
+    \        # radius, edges\nchamfered = box.makeChamfer(1.0, box.Edges)        #\
+    \ dist, edges\n\n# --- Loft and Sweep ---\nloft = Part.makeLoft([wire1, wire2],\
+    \ True)          # wires, solid\nswept = Part.Wire([path_edge]).makePipeShell([profile_wire],\n\
+    \                                              True, False)  # solid, frenet\n\
+    \n# --- BSpline Curves ---\nfrom FreeCAD import Vector\npoints = [Vector(0,0,0),\
+    \ Vector(1,2,0), Vector(3,1,0), Vector(4,3,0)]\nbspline = Part.BSplineCurve()\n\
+    bspline.interpolate(points)\nedge = bspline.toShape()\n\n# --- Show in document\
+    \ ---\nPart.show(box, \"MyBox\")    # Quick display (adds to active doc)\n# Or\
+    \ explicitly:\ndoc = FreeCAD.ActiveDocument or FreeCAD.newDocument()\nobj = doc.addObject(\"\
+    Part::Feature\", \"MyShape\")\nobj.Shape = box\ndoc.recompute()\n```\n\n### Topological\
+    \ Exploration\n\n```python\nshape = obj.Shape\n\n# Access sub-elements\nshape.Vertexes\
+    \    # List of Vertex objects\nshape.Edges       # List of Edge objects\nshape.Wires\
+    \       # List of Wire objects\nshape.Faces       # List of Face objects\nshape.Shells\
+    \      # List of Shell objects\nshape.Solids      # List of Solid objects\n\n\
+    # Bounding box\nbb = shape.BoundBox\nprint(bb.XMin, bb.XMax, bb.YMin, bb.YMax,\
+    \ bb.ZMin, bb.ZMax)\nprint(bb.Center)\n\n# Properties\nshape.Volume\nshape.Area\n\
+    shape.Length       # For edges/wires\nface.Surface       # Underlying geometric\
+    \ surface\nedge.Curve         # Underlying geometric curve\n\n# Shape type\nshape.ShapeType\
+    \    # \"Solid\", \"Shell\", \"Face\", \"Wire\", \"Edge\", \"Vertex\", \"Compound\"\
+    \n```\n\n### Mesh Module\n\n```python\nimport Mesh\n\n# Create mesh from vertices\
+    \ and facets\nmesh = Mesh.Mesh()\nmesh.addFacet(\n    0.0, 0.0, 0.0,   # vertex\
+    \ 1\n    1.0, 0.0, 0.0,   # vertex 2\n    0.0, 1.0, 0.0    # vertex 3\n)\n\n#\
+    \ Import/Export\nmesh = Mesh.Mesh(\"/path/to/file.stl\")\nmesh.write(\"/path/to/output.stl\"\
+    )\n\n# Convert Part shape to Mesh\nimport Part\nimport MeshPart\nshape = Part.makeBox(1,\
+    \ 1, 1)\nmesh = MeshPart.meshFromShape(Shape=shape, LinearDeflection=0.1,\n  \
+    \                              AngularDeflection=0.5)\n\n# Convert Mesh to Part\
+    \ shape\nshape = Part.Shape()\nshape.makeShapeFromMesh(mesh.Topology, 0.05)  #\
+    \ tolerance\nsolid = Part.makeSolid(shape)\n```\n\n### Sketcher Module\n\n# Create\
+    \ a sketch on XY plane\nsketch = doc.addObject(\"Sketcher::SketchObject\", \"\
+    MySketch\")\nsketch.Placement = FreeCAD.Placement(\n    FreeCAD.Vector(0, 0, 0),\n\
+    \    FreeCAD.Rotation(0, 0, 0, 1)\n)\n\n# Add geometry (returns geometry index)\n\
+    idx_line = sketch.addGeometry(Part.LineSegment(\n    FreeCAD.Vector(0, 0, 0),\
+    \ FreeCAD.Vector(10, 0, 0)))\nidx_circle = sketch.addGeometry(Part.Circle(\n \
+    \   FreeCAD.Vector(5, 5, 0), FreeCAD.Vector(0, 0, 1), 3))\n\n# Add constraints\n\
+    sketch.addConstraint(Sketcher.Constraint(\"Coincident\", 0, 2, 1, 1))\nsketch.addConstraint(Sketcher.Constraint(\"\
+    Horizontal\", 0))\nsketch.addConstraint(Sketcher.Constraint(\"DistanceX\", 0,\
+    \ 1, 0, 2, 10.0))\nsketch.addConstraint(Sketcher.Constraint(\"Radius\", 1, 3.0))\n\
+    sketch.addConstraint(Sketcher.Constraint(\"Fixed\", 0, 1))\n# Constraint types:\
+    \ Coincident, Horizontal, Vertical, Parallel, Perpendicular,\n#   Tangent, Equal,\
+    \ Symmetric, Distance, DistanceX, DistanceY, Radius, Angle,\n#   Fixed (Block),\
+    \ InternalAlignment\n\ndoc.recompute()\n```\n\n### Draft Module\n\n```python\n\
+    import Draft\nimport FreeCAD\n\n# 2D shapes\nline = Draft.makeLine(FreeCAD.Vector(0,0,0),\
+    \ FreeCAD.Vector(10,0,0))\ncircle = Draft.makeCircle(5)\nrect = Draft.makeRectangle(10,\
+    \ 5)\npoly = Draft.makePolygon(6, radius=5)   # hexagon\n\n# Operations\nmoved\
+    \ = Draft.move(obj, FreeCAD.Vector(10, 0, 0), copy=True)\nrotated = Draft.rotate(obj,\
+    \ 45, FreeCAD.Vector(0,0,0),\n                        axis=FreeCAD.Vector(0,0,1),\
+    \ copy=True)\nscaled = Draft.scale(obj, FreeCAD.Vector(2,2,2), center=FreeCAD.Vector(0,0,0),\n\
+    \                      copy=True)\noffset = Draft.offset(obj, FreeCAD.Vector(1,0,0))\n\
+    array = Draft.makeArray(obj, FreeCAD.Vector(15,0,0),\n                       \
+    \  FreeCAD.Vector(0,15,0), 3, 3)\n```\n\n## Creating Parametric Objects (FeaturePython)\n\
+    \nFeaturePython objects are custom parametric objects with properties that trigger\
+    \ recomputation:\n\n```python\nimport FreeCAD\nimport Part\n\nclass MyBox:\n \
+    \   \"\"\"A custom parametric box.\"\"\"\n\n    def __init__(self, obj):\n   \
+    \     obj.Proxy = self\n        obj.addProperty(\"App::PropertyLength\", \"Length\"\
+    , \"Dimensions\",\n                         \"Box length\").Length = 10.0\n  \
+    \      obj.addProperty(\"App::PropertyLength\", \"Width\", \"Dimensions\",\n \
+    \                        \"Box width\").Width = 10.0\n        obj.addProperty(\"\
+    App::PropertyLength\", \"Height\", \"Dimensions\",\n                         \"\
+    Box height\").Height = 10.0\n\n    def execute(self, obj):\n        \"\"\"Called\
+    \ on document recompute.\"\"\"\n        obj.Shape = Part.makeBox(obj.Length, obj.Width,\
+    \ obj.Height)\n\n    def onChanged(self, obj, prop):\n        \"\"\"Called when\
+    \ a property changes.\"\"\"\n        pass\n\n    def __getstate__(self):\n   \
+    \     return None\n\n    def __setstate__(self, state):\n        return None\n\
+    \n\nclass ViewProviderMyBox:\n    \"\"\"View provider for custom icon and display\
+    \ settings.\"\"\"\n\n    def __init__(self, vobj):\n        vobj.Proxy = self\n\
+    \n    def getIcon(self):\n        return \":/icons/Part_Box.svg\"\n\n    def attach(self,\
+    \ vobj):\n        self.Object = vobj.Object\n\n    def updateData(self, obj, prop):\n\
+    \        pass\n\n    def onChanged(self, vobj, prop):\n        pass\n\n    def\
+    \ __getstate__(self):\n        return None\n\n    def __setstate__(self, state):\n\
+    \        return None\n\n\n# --- Usage ---\ndoc = FreeCAD.ActiveDocument or FreeCAD.newDocument(\"\
+    Test\")\nobj = doc.addObject(\"Part::FeaturePython\", \"CustomBox\")\nMyBox(obj)\n\
+    ViewProviderMyBox(obj.ViewObject)\ndoc.recompute()\n```\n\n### Common Property\
+    \ Types\n\n| Property Type | Python Type | Description |\n|---|---|---|\n| `App::PropertyBool`\
+    \ | `bool` | Boolean |\n| `App::PropertyInteger` | `int` | Integer |\n| `App::PropertyFloat`\
+    \ | `float` | Float |\n| `App::PropertyString` | `str` | String |\n| `App::PropertyLength`\
+    \ | `float` (units) | Length with units |\n| `App::PropertyAngle` | `float` (deg)\
+    \ | Angle in degrees |\n| `App::PropertyVector` | `FreeCAD.Vector` | 3D vector\
+    \ |\n| `App::PropertyPlacement` | `FreeCAD.Placement` | Position + rotation |\n\
+    | `App::PropertyLink` | object ref | Link to another object |\n| `App::PropertyLinkList`\
+    \ | list of refs | Links to multiple objects |\n| `App::PropertyEnumeration` |\
+    \ `list`/`str` | Dropdown selection |\n| `App::PropertyFile` | `str` | File path\
+    \ |\n| `App::PropertyColor` | `tuple` | RGB color (0.0-1.0) |\n| `App::PropertyPythonObject`\
+    \ | any | Serializable Python object |\n\n## Creating GUI Tools\n\n### Gui Commands\n\
+    \n```python\nimport FreeCAD\nimport FreeCADGui\n\nclass MyCommand:\n    \"\"\"\
+    A custom toolbar/menu command.\"\"\"\n\n    def GetResources(self):\n        return\
+    \ {\n            \"Pixmap\": \":/icons/Part_Box.svg\",\n            \"MenuText\"\
+    : \"My Custom Command\",\n            \"ToolTip\": \"Creates a custom box\",\n\
+    \            \"Accel\": \"Ctrl+Shift+B\"\n        }\n\n    def IsActive(self):\n\
+    \        return FreeCAD.ActiveDocument is not None\n\n    def Activated(self):\n\
+    \        # Command logic here\n        FreeCAD.Console.PrintMessage(\"Command\
+    \ activated\\n\")\n\nFreeCADGui.addCommand(\"My_CustomCommand\", MyCommand())\n\
+    ```\n\n### PySide Dialogs\n\n```python\nfrom PySide2 import QtWidgets, QtCore,\
+    \ QtGui\n\nclass MyDialog(QtWidgets.QDialog):\n    def __init__(self, parent=None):\n\
+    \        super().__init__(parent or FreeCADGui.getMainWindow())\n        self.setWindowTitle(\"\
+    My Tool\")\n        self.setMinimumWidth(300)\n\n        layout = QtWidgets.QVBoxLayout(self)\n\
+    \n        # Input fields\n        self.label = QtWidgets.QLabel(\"Length:\")\n\
+    \        self.spinbox = QtWidgets.QDoubleSpinBox()\n        self.spinbox.setRange(0.1,\
+    \ 1000.0)\n        self.spinbox.setValue(10.0)\n        self.spinbox.setSuffix(\"\
+    \ mm\")\n\n        form = QtWidgets.QFormLayout()\n        form.addRow(self.label,\
+    \ self.spinbox)\n        layout.addLayout(form)\n\n        # Buttons\n       \
+    \ btn_layout = QtWidgets.QHBoxLayout()\n        self.btn_ok = QtWidgets.QPushButton(\"\
+    OK\")\n        self.btn_cancel = QtWidgets.QPushButton(\"Cancel\")\n        btn_layout.addWidget(self.btn_ok)\n\
+    \        btn_layout.addWidget(self.btn_cancel)\n        layout.addLayout(btn_layout)\n\
+    \n        self.btn_ok.clicked.connect(self.accept)\n        self.btn_cancel.clicked.connect(self.reject)\n\
+    \n# Usage\ndialog = MyDialog()\nif dialog.exec_() == QtWidgets.QDialog.Accepted:\n\
+    \    length = dialog.spinbox.value()\n    FreeCAD.Console.PrintMessage(f\"Length:\
+    \ {length}\\n\")\n```\n\n### Task Panel (Recommended for FreeCAD integration)\n\
+    \n```python\nclass MyTaskPanel:\n    \"\"\"Task panel shown in the left sidebar.\"\
+    \"\"\n\n    def __init__(self):\n        self.form = QtWidgets.QWidget()\n   \
+    \     layout = QtWidgets.QVBoxLayout(self.form)\n        self.spinbox = QtWidgets.QDoubleSpinBox()\n\
+    \        self.spinbox.setValue(10.0)\n        layout.addWidget(QtWidgets.QLabel(\"\
+    Length:\"))\n        layout.addWidget(self.spinbox)\n\n    def accept(self):\n\
+    \        # Called when user clicks OK\n        length = self.spinbox.value()\n\
+    \        FreeCAD.Console.PrintMessage(f\"Accepted: {length}\\n\")\n        FreeCADGui.Control.closeDialog()\n\
+    \        return True\n\n    def reject(self):\n        FreeCADGui.Control.closeDialog()\n\
+    \        return True\n\n    def getStandardButtons(self):\n        return int(QtWidgets.QDialogButtonBox.Ok\
+    \ |\n                   QtWidgets.QDialogButtonBox.Cancel)\n\n# Show the panel\n\
+    panel = MyTaskPanel()\nFreeCADGui.Control.showDialog(panel)\n```\n\n## Coin3D\
+    \ Scenegraph (Pivy)\n\n```python\nfrom pivy import coin\nimport FreeCADGui\n\n\
+    # Access the scenegraph root\nsg = FreeCADGui.ActiveDocument.ActiveView.getSceneGraph()\n\
+    \n# Add a custom separator with a sphere\nsep = coin.SoSeparator()\nmat = coin.SoMaterial()\n\
+    mat.diffuseColor.setValue(1.0, 0.0, 0.0)  # Red\ntrans = coin.SoTranslation()\n\
+    trans.translation.setValue(10, 10, 10)\nsphere = coin.SoSphere()\nsphere.radius.setValue(2.0)\n\
+    sep.addChild(mat)\nsep.addChild(trans)\nsep.addChild(sphere)\nsg.addChild(sep)\n\
+    \n# Remove later\nsg.removeChild(sep)\n```\n\n## Custom Workbench Creation\n\n\
+    ```python\nimport FreeCADGui\n\nclass MyWorkbench(FreeCADGui.Workbench):\n   \
+    \ MenuText = \"My Workbench\"\n    ToolTip = \"A custom workbench\"\n    Icon\
+    \ = \":/icons/freecad.svg\"\n\n    def Initialize(self):\n        \"\"\"Called\
+    \ at workbench activation.\"\"\"\n        import MyCommands  # Import your command\
+    \ module\n        self.appendToolbar(\"My Tools\", [\"My_CustomCommand\"])\n \
+    \       self.appendMenu(\"My Menu\", [\"My_CustomCommand\"])\n\n    def Activated(self):\n\
+    \        pass\n\n    def Deactivated(self):\n        pass\n\n    def GetClassName(self):\n\
+    \        return \"Gui::PythonWorkbench\"\n\nFreeCADGui.addWorkbench(MyWorkbench)\n\
+    ```\n\n## Macro Best Practices\n\n```python\n# Standard macro header\n# -*- coding:\
+    \ utf-8 -*-\n# FreeCAD Macro: MyMacro\n# Description: Brief description of what\
+    \ the macro does\n# Author: YourName\n# Version: 1.0\n# Date: 2026-04-07\n\nimport\
+    \ FreeCAD\nimport Part\nfrom FreeCAD import Base\n\n# Guard for GUI availability\n\
+    if FreeCAD.GuiUp:\n    import FreeCADGui\n    from PySide2 import QtWidgets, QtCore\n\
+    \ndef main():\n    doc = FreeCAD.ActiveDocument\n    if doc is None:\n       \
+    \ FreeCAD.Console.PrintError(\"No active document\\n\")\n        return\n\n  \
+    \  if FreeCAD.GuiUp:\n        sel = FreeCADGui.Selection.getSelection()\n    \
+    \    if not sel:\n            FreeCAD.Console.PrintWarning(\"No objects selected\\\
+    n\")\n\n    # ... macro logic ...\n\n    doc.recompute()\n    FreeCAD.Console.PrintMessage(\"\
+    Macro completed\\n\")\n\nif __name__ == \"__main__\":\n    main()\n```\n\n###\
+    \ Selection Handling\n\n```python\n# Get selected objects\nsel = FreeCADGui.Selection.getSelection()\
+    \           # List of objects\nsel_ex = FreeCADGui.Selection.getSelectionEx()\
+    \       # Extended (sub-elements)\n\nfor selobj in sel_ex:\n    obj = selobj.Object\n\
+    \    for sub in selobj.SubElementNames:\n        print(f\"{obj.Name}.{sub}\")\n\
+    \        shape = obj.getSubObject(sub)  # Get sub-shape\n\n# Select programmatically\n\
+    FreeCADGui.Selection.addSelection(doc.MyBox)\nFreeCADGui.Selection.addSelection(doc.MyBox,\
+    \ \"Face1\")\nFreeCADGui.Selection.clearSelection()\n```\n\n### Console Output\n\
+    \n```python\nFreeCAD.Console.PrintMessage(\"Info message\\n\")\nFreeCAD.Console.PrintWarning(\"\
+    Warning message\\n\")\nFreeCAD.Console.PrintError(\"Error message\\n\")\nFreeCAD.Console.PrintLog(\"\
+    Debug/log message\\n\")\n```\n\n## Common Patterns\n\n### Parametric Pad from\
+    \ Sketch\n\n```python\ndoc = FreeCAD.ActiveDocument\n\n# Create sketch\nsketch\
+    \ = doc.addObject(\"Sketcher::SketchObject\", \"Sketch\")\nsketch.addGeometry(Part.LineSegment(FreeCAD.Vector(0,0,0),\
+    \ FreeCAD.Vector(10,0,0)))\nsketch.addGeometry(Part.LineSegment(FreeCAD.Vector(10,0,0),\
+    \ FreeCAD.Vector(10,10,0)))\nsketch.addGeometry(Part.LineSegment(FreeCAD.Vector(10,10,0),\
+    \ FreeCAD.Vector(0,10,0)))\nsketch.addGeometry(Part.LineSegment(FreeCAD.Vector(0,10,0),\
+    \ FreeCAD.Vector(0,0,0)))\n# Close with coincident constraints\nfor i in range(3):\n\
+    \    sketch.addConstraint(Sketcher.Constraint(\"Coincident\", i, 2, i+1, 1))\n\
+    sketch.addConstraint(Sketcher.Constraint(\"Coincident\", 3, 2, 0, 1))\n\n# Pad\
+    \ (PartDesign)\npad = doc.addObject(\"PartDesign::Pad\", \"Pad\")\npad.Profile\
+    \ = sketch\npad.Length = 5.0\nsketch.Visibility = False\ndoc.recompute()\n```\n\
+    \n### Export Shapes\n\n```python\n# STEP export\nPart.export([doc.MyBox], \"/path/to/output.step\"\
+    )\n\n# STL export (mesh)\nimport Mesh\nMesh.export([doc.MyBox], \"/path/to/output.stl\"\
+    )\n\n# IGES export\nPart.export([doc.MyBox], \"/path/to/output.iges\")\n\n# Multiple\
+    \ formats via importlib\nimport importlib\nimportlib.import_module(\"importOBJ\"\
+    ).export([doc.MyBox], \"/path/to/output.obj\")\n```\n\n### Units and Quantities\n\
+    \n```python\n# FreeCAD uses mm internally\nq = FreeCAD.Units.Quantity(\"10 mm\"\
+    )\nq_inch = FreeCAD.Units.Quantity(\"1 in\")\nprint(q_inch.getValueAs(\"mm\"))\
+    \  # 25.4\n\n# Parse user input with units\nq = FreeCAD.Units.parseQuantity(\"\
+    2.5 in\")\nvalue_mm = float(q)  # Value in mm (internal unit)\n```\n\n## Compensation\
+    \ Rules (Quasi-Coder Integration)\n\nWhen interpreting shorthand or quasi-code\
+    \ for FreeCAD scripts:\n\n1. **Terminology mapping**: \"box\" \u2192 `Part.makeBox()`,\
+    \ \"cylinder\" \u2192 `Part.makeCylinder()`, \"sphere\" \u2192 `Part.makeSphere()`,\
+    \ \"merge/combine/join\" \u2192 `.fuse()`, \"subtract/cut/remove\" \u2192 `.cut()`,\
+    \ \"intersect\" \u2192 `.common()`, \"round edges/fillet\" \u2192 `.makeFillet()`,\
+    \ \"bevel/chamfer\" \u2192 `.makeChamfer()`\n2. **Implicit document**: If no document\
+    \ handling is mentioned, wrap in standard `doc = FreeCAD.ActiveDocument or FreeCAD.newDocument()`\n\
+    3. **Units assumption**: Default to millimeters unless stated otherwise\n4. **Recompute**:\
+    \ Always call `doc.recompute()` after modifications\n5. **GUI guard**: Wrap GUI-dependent\
+    \ code in `if FreeCAD.GuiUp:` when the script may run headless\n6. **Part.show()**:\
+    \ Use `Part.show(shape, \"Name\")` for quick display, or `doc.addObject(\"Part::Feature\"\
+    , \"Name\")` for named persistent objects\n\n## References\n\n### Primary Links\n\
+    \n- [Writing Python code](https://wiki.freecad.org/Manual:A_gentle_introduction#Writing_Python_code)\n\
+    - [Manipulating FreeCAD objects](https://wiki.freecad.org/Manual:A_gentle_introduction#Manipulating_FreeCAD_objects)\n\
+    - [Vectors and Placements](https://wiki.freecad.org/Manual:A_gentle_introduction#Vectors_and_Placements)\n\
+    - [Creating and manipulating geometry](https://wiki.freecad.org/Manual:Creating_and_manipulating_geometry)\n\
+    - [Creating parametric objects](https://wiki.freecad.org/Manual:Creating_parametric_objects)\n\
+    - [Creating interface tools](https://wiki.freecad.org/Manual:Creating_interface_tools)\n\
+    - [Python](https://en.wikipedia.org/wiki/Python_%28programming_language%29)\n\
+    - [Introduction to Python](https://wiki.freecad.org/Introduction_to_Python)\n\
+    - [Python scripting tutorial](https://wiki.freecad.org/Python_scripting_tutorial)\n\
+    - [FreeCAD scripting basics](https://wiki.freecad.org/FreeCAD_Scripting_Basics)\n\
+    - [Gui Command](https://wiki.freecad.org/Gui_Command)\n\n### Bundled Reference\
+    \ Documents\n\nSee the [references/](references/) directory for topic-organized\
+    \ guides:\n\n1. [scripting-fundamentals.md](references/scripting-fundamentals.md)\
+    \ \u2014 Core scripting, document model, console\n2. [geometry-and-shapes.md](references/geometry-and-shapes.md)\
+    \ \u2014 Part, Mesh, Sketcher, topology\n3. [parametric-objects.md](references/parametric-objects.md)\
+    \ \u2014 FeaturePython, properties, scripted objects\n4. [gui-and-interface.md](references/gui-and-interface.md)\
+    \ \u2014 PySide, dialogs, task panels, Coin3D\n5. [workbenches-and-advanced.md](references/workbenches-and-advanced.md)\
+    \ \u2014 Workbenches, macros, FEM, Path, recipes"

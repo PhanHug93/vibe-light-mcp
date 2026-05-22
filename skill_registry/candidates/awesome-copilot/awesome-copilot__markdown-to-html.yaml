@@ -1,0 +1,337 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__markdown-to-html
+name: markdown-to-html
+description: Convert Markdown files to HTML similar to `marked.js`, `pandoc`, `gomarkdown/markdown`,
+  or similar tools; or writing custom script to convert markdown to html and/or working
+  on web template systems like `jekyll/jekyll`, `gohugoio/hugo`, or similar web templating
+  systems that utilize markdown documents, converting them to html. Use when asked
+  to "convert markdown to html", "transform md to html", "render markdown", "generate
+  html from markdown", or when working with .md files and/or web a templating system
+  that converts markdown to HTML output. Supports CLI and Node.js workflows with GFM,
+  CommonMark, and standard Markdown flavors.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/markdown-to-html/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- typescript
+languages: []
+platforms: []
+aliases:
+- markdown-to-html
+content:
+  kind: skill_markdown
+  sha256: a51376b7c8e88e009c60f20af5b9c1157d4e5c3b40dd62f43abc0e873381e0e4
+  char_count: 24602
+  text: "# Markdown to HTML Conversion\n\nExpert skill for converting Markdown documents\
+    \ to HTML using the marked.js library, or writing data conversion scripts; in\
+    \ this case scripts similar to [markedJS/marked](https://github.com/markedjs/marked)\
+    \ repository. For custom scripts knowledge is not confined to `marked.js`, but\
+    \ data conversion methods are utilized from tools like [pandoc](https://github.com/jgm/pandoc)\
+    \ and [gomarkdown/markdown](https://github.com/gomarkdown/markdown) for data conversion;\
+    \ [jekyll/jekyll](https://github.com/jekyll/jekyll) and [gohugoio/hugo](https://github.com/gohugoio/hugo)\
+    \ for templating systems.\n\nThe conversion script or tool should handle single\
+    \ files, batch conversions, and advanced configurations.\n\n## When to Use This\
+    \ Skill\n\n- User asks to \"convert markdown to html\" or \"transform md files\"\
+    \n- User wants to \"render markdown\" as HTML output\n- User needs to generate\
+    \ HTML documentation from .md files\n- User is building static sites from Markdown\
+    \ content\n- User is building template system that converts markdown to html\n\
+    - User is working on a tool, widget, or custom template for an existing templating\
+    \ system\n- User wants to preview Markdown as rendered HTML\n\n## Converting Markdown\
+    \ to HTML\n\n### Essential Basic Conversions\n\nFor more see [basic-markdown-to-html.md](references/basic-markdown-to-html.md)\n\
+    \n```text\n    ```markdown\n    # Level 1\n    ## Level 2\n\n    One sentence\
+    \ with a [link](https://example.com), and a HTML snippet like `<p>paragraph tag</p>`.\n\
+    \n    - `ul` list item 1\n    - `ul` list item 2\n\n    1. `ol` list item 1\n\
+    \    2. `ol` list item 1\n\n    | Table Item | Description |\n    | One | One\
+    \ is the spelling of the number `1`. |\n    | Two | Two is the spelling of the\
+    \ number `2`. |\n\n    ```js\n    var one = 1;\n    var two = 2;\n\n    function\
+    \ simpleMath(x, y) {\n     return x + y;\n    }\n    console.log(simpleMath(one,\
+    \ two));\n    ```\n    ```\n\n    ```html\n    <h1>Level 1</h1>\n    <h2>Level\
+    \ 2</h2>\n\n    <p>One sentence with a <a href=\"https://example.com\">link</a>,\
+    \ and a HTML snippet like <code>&lt;p&gt;paragraph tag&lt;/p&gt;</code>.</p>\n\
+    \n    <ul>\n     <li>`ul` list item 1</li>\n     <li>`ul` list item 2</li>\n \
+    \   </ul>\n\n    <ol>\n     <li>`ol` list item 1</li>\n     <li>`ol` list item\
+    \ 2</li>\n    </ol>\n\n    <table>\n     <thead>\n      <tr>\n       <th>Table\
+    \ Item</th>\n       <th>Description</th>\n      </tr>\n     </thead>\n     <tbody>\n\
+    \      <tr>\n       <td>One</td>\n       <td>One is the spelling of the number\
+    \ `1`.</td>\n      </tr>\n      <tr>\n       <td>Two</td>\n       <td>Two is the\
+    \ spelling of the number `2`.</td>\n      </tr>\n     </tbody>\n    </table>\n\
+    \n    <pre>\n     <code>var one = 1;\n     var two = 2;\n\n     function simpleMath(x,\
+    \ y) {\n      return x + y;\n     }\n     console.log(simpleMath(one, two));</code>\n\
+    \    </pre>\n    ```\n```\n\n### Code Block Conversions\n\nFor more see [code-blocks-to-html.md](references/code-blocks-to-html.md)\n\
+    \n```text\n\n    ```markdown\n    your code here\n    ```\n\n    ```html\n   \
+    \ <pre><code class=\"language-md\">\n    your code here\n    </code></pre>\n \
+    \   ```\n\n    ```js\n    console.log(\"Hello world\");\n    ```\n\n    ```html\n\
+    \    <pre><code class=\"language-js\">\n    console.log(\"Hello world\");\n  \
+    \  </code></pre>\n    ```\n\n    ```markdown\n      ```\n\n      ```\n      visible\
+    \ backticks\n      ```\n\n      ```\n    ```\n\n    ```html\n      <pre><code>\n\
+    \      ```\n\n      visible backticks\n\n      ```\n      </code></pre>\n    ```\n\
+    ```\n\n### Collapsed Section Conversions\n\nFor more see [collapsed-sections-to-html.md](references/collapsed-sections-to-html.md)\n\
+    \n```text\n    ```markdown\n    <details>\n    <summary>More info</summary>\n\n\
+    \    ### Header inside\n\n    - Lists\n    - **Formatting**\n    - Code blocks\n\
+    \n        ```js\n        console.log(\"Hello\");\n        ```\n\n    </details>\n\
+    \    ```\n\n    ```html\n    <details>\n    <summary>More info</summary>\n\n \
+    \   <h3>Header inside</h3>\n\n    <ul>\n     <li>Lists</li>\n     <li><strong>Formatting</strong></li>\n\
+    \     <li>Code blocks</li>\n    </ul>\n\n    <pre>\n     <code class=\"language-js\"\
+    >console.log(\"Hello\");</code>\n    </pre>\n\n    </details>\n    ```\n```\n\n\
+    ### Mathematical Expression Conversions\n\nFor more see [writing-mathematical-expressions-to-html.md](references/writing-mathematical-expressions-to-html.md)\n\
+    \n```text\n    ```markdown\n    This sentence uses `$` delimiters to show math\
+    \ inline: $\\sqrt{3x-1}+(1+x)^2$\n    ```\n\n    ```html\n    <p>This sentence\
+    \ uses <code>$</code> delimiters to show math inline:\n     <math-renderer><math\
+    \ xmlns=\"http://www.w3.org/1998/Math/MathML\">\n      <msqrt><mn>3</mn><mi>x</mi><mo>\u2212\
+    </mo><mn>1</mn></msqrt>\n      <mo>+</mo><mo>(</mo><mn>1</mn><mo>+</mo><mi>x</mi>\n\
+    \      <msup><mo>)</mo><mn>2</mn></msup>\n     </math>\n    </math-renderer>\n\
+    \    </p>\n    ```\n\n    ```markdown\n    **The Cauchy-Schwarz Inequality**\\\
+    \n    $$\\left( \\sum_{k=1}^n a_k b_k \\right)^2 \\leq \\left( \\sum_{k=1}^n a_k^2\
+    \ \\right) \\left( \\sum_{k=1}^n b_k^2 \\right)$$\n    ```\n\n    ```html\n  \
+    \  <p><strong>The Cauchy-Schwarz Inequality</strong><br>\n     <math-renderer>\n\
+    \      <math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n       <msup>\n  \
+    \      <mrow><mo>(</mo>\n         <munderover><mo data-mjx-texclass=\"OP\">\u2211\
+    </mo>\n          <mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi>\n     \
+    \    </munderover>\n         <msub><mi>a</mi><mi>k</mi></msub>\n         <msub><mi>b</mi><mi>k</mi></msub>\n\
+    \         <mo>)</mo>\n        </mrow>\n        <mn>2</mn>\n       </msup>\n  \
+    \     <mo>\u2264</mo>\n       <mrow><mo>(</mo>\n        <munderover><mo>\u2211\
+    </mo>\n         <mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow>\n         <mi>n</mi>\n\
+    \        </munderover>\n        <msubsup><mi>a</mi><mi>k</mi><mn>2</mn></msubsup>\n\
+    \        <mo>)</mo>\n       </mrow>\n       <mrow><mo>(</mo>\n         <munderover><mo>\u2211\
+    </mo>\n          <mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow>\n          <mi>n</mi>\n\
+    \         </munderover>\n         <msubsup><mi>b</mi><mi>k</mi><mn>2</mn></msubsup>\n\
+    \         <mo>)</mo>\n       </mrow>\n      </math>\n     </math-renderer></p>\n\
+    \    ```\n```\n\n### Table Conversions\n\nFor more see [tables-to-html.md](references/tables-to-html.md)\n\
+    \n```text\n    ```markdown\n    | First Header  | Second Header |\n    | -------------\
+    \ | ------------- |\n    | Content Cell  | Content Cell  |\n    | Content Cell\
+    \  | Content Cell  |\n    ```\n\n    ```html\n    <table>\n     <thead><tr><th>First\
+    \ Header</th><th>Second Header</th></tr></thead>\n     <tbody>\n      <tr><td>Content\
+    \ Cell</td><td>Content Cell</td></tr>\n      <tr><td>Content Cell</td><td>Content\
+    \ Cell</td></tr>\n     </tbody>\n    </table>\n    ```\n\n    ```markdown\n  \
+    \  | Left-aligned | Center-aligned | Right-aligned |\n    | :---         |   \
+    \  :---:      |          ---: |\n    | git status   | git status     | git status\
+    \    |\n    | git diff     | git diff       | git diff      |\n    ```\n\n   \
+    \ ```html\n    <table>\n      <thead>\n       <tr>\n        <th align=\"left\"\
+    >Left-aligned</th>\n        <th align=\"center\">Center-aligned</th>\n       \
+    \ <th align=\"right\">Right-aligned</th>\n       </tr>\n      </thead>\n     \
+    \ <tbody>\n       <tr>\n        <td align=\"left\">git status</td>\n        <td\
+    \ align=\"center\">git status</td>\n        <td align=\"right\">git status</td>\n\
+    \       </tr>\n       <tr>\n        <td align=\"left\">git diff</td>\n       \
+    \ <td align=\"center\">git diff</td>\n        <td align=\"right\">git diff</td>\n\
+    \       </tr>\n      </tbody>\n    </table>\n    ```\n```\n\n## Working with [`markedJS/marked`](references/marked.md)\n\
+    \n### Prerequisites\n\n- Node.js installed (for CLI or programmatic usage)\n-\
+    \ Install marked globally for CLI: `npm install -g marked`\n- Or install locally:\
+    \ `npm install marked`\n\n### Quick Conversion Methods\n\nSee [marked.md](references/marked.md)\
+    \ **Quick Conversion Methods**\n\n### Step-by-Step Workflows\n\nSee [marked.md](references/marked.md)\
+    \ **Step-by-Step Workflows**\n\n### CLI Configuration\n\n### Using Config Files\n\
+    \nCreate `~/.marked.json` for persistent options:\n\n```json\n{\n  \"gfm\": true,\n\
+    \  \"breaks\": true\n}\n```\n\nOr use a custom config:\n\n```bash\nmarked -i input.md\
+    \ -o output.html -c config.json\n```\n\n### CLI Options Reference\n\n| Option\
+    \ | Description |\n|--------|-------------|\n| `-i, --input <file>` | Input Markdown\
+    \ file |\n| `-o, --output <file>` | Output HTML file |\n| `-s, --string <string>`\
+    \ | Parse string instead of file |\n| `-c, --config <file>` | Use custom config\
+    \ file |\n| `--gfm` | Enable GitHub Flavored Markdown |\n| `--breaks` | Convert\
+    \ newlines to `<br>` |\n| `--help` | Show all options |\n\n### Security Warning\n\
+    \n\u26A0\uFE0F **Marked does NOT sanitize output HTML.** For untrusted input,\
+    \ use a sanitizer:\n\n```javascript\nimport { marked } from 'marked';\nimport\
+    \ DOMPurify from 'dompurify';\n\nconst unsafeHtml = marked.parse(untrustedMarkdown);\n\
+    const safeHtml = DOMPurify.sanitize(unsafeHtml);\n```\n\nRecommended sanitizers:\n\
+    \n- [DOMPurify](https://github.com/cure53/DOMPurify) (recommended)\n- [sanitize-html](https://github.com/apostrophecms/sanitize-html)\n\
+    - [js-xss](https://github.com/leizongmin/js-xss)\n\n### Supported Markdown Flavors\n\
+    \n| Flavor | Support |\n|--------|---------|\n| Original Markdown | 100% |\n|\
+    \ CommonMark 0.31 | 98% |\n| GitHub Flavored Markdown | 97% |\n\n### Troubleshooting\n\
+    \n| Issue | Solution |\n|-------|----------|\n| Special characters at file start\
+    \ | Strip zero-width chars: `content.replace(/^[\\u200B\\u200C\\u200D\\uFEFF]/,\"\
+    \")` |\n| Code blocks not highlighting | Add a syntax highlighter like highlight.js\
+    \ |\n| Tables not rendering | Ensure `gfm: true` option is set |\n| Line breaks\
+    \ ignored | Set `breaks: true` in options |\n| XSS vulnerability concerns | Use\
+    \ DOMPurify to sanitize output |\n\n## Working with [`pandoc`](references/pandoc.md)\n\
+    \n### Prerequisites\n\n- Pandoc installed (download from <https://pandoc.org/installing.html>)\n\
+    - For PDF output: LaTeX installation (MacTeX on macOS, MiKTeX on Windows, texlive\
+    \ on Linux)\n- Terminal/command prompt access\n\n### Quick Conversion Methods\n\
+    \n#### Method 1: CLI Basic Conversion\n\n```bash\n# Convert markdown to HTML\n\
+    pandoc input.md -o output.html\n\n# Convert with standalone document (includes\
+    \ header/footer)\npandoc input.md -s -o output.html\n\n# Explicit format specification\n\
+    pandoc input.md -f markdown -t html -s -o output.html\n```\n\n#### Method 2: Filter\
+    \ Mode (Interactive)\n\n```bash\n# Start pandoc as a filter\npandoc\n\n# Type\
+    \ markdown, then Ctrl-D (Linux/macOS) or Ctrl-Z+Enter (Windows)\nHello *pandoc*!\n\
+    # Output: <p>Hello <em>pandoc</em>!</p>\n```\n\n#### Method 3: Format Conversion\n\
+    \n```bash\n# HTML to Markdown\npandoc -f html -t markdown input.html -o output.md\n\
+    \n# Markdown to LaTeX\npandoc input.md -s -o output.tex\n\n# Markdown to PDF (requires\
+    \ LaTeX)\npandoc input.md -s -o output.pdf\n\n# Markdown to Word\npandoc input.md\
+    \ -s -o output.docx\n```\n\n### CLI Configuration\n\n| Option | Description |\n\
+    |--------|-------------|\n| `-f, --from <format>` | Input format (markdown, html,\
+    \ latex, etc.) |\n| `-t, --to <format>` | Output format (html, latex, pdf, docx,\
+    \ etc.) |\n| `-s, --standalone` | Produce standalone document with header/footer\
+    \ |\n| `-o, --output <file>` | Output file (inferred from extension) |\n| `--mathml`\
+    \ | Convert TeX math to MathML |\n| `--metadata title=\"Title\"` | Set document\
+    \ metadata |\n| `--toc` | Include table of contents |\n| `--template <file>` |\
+    \ Use custom template |\n| `--help` | Show all options |\n\n### Security Warning\n\
+    \n\u26A0\uFE0F **Pandoc processes input faithfully.** When converting untrusted\
+    \ markdown:\n\n- Use `--sandbox` mode to disable external file access\n- Validate\
+    \ input before processing\n- Sanitize HTML output if displayed in browsers\n\n\
+    ```bash\n# Run in sandbox mode for untrusted input\npandoc --sandbox input.md\
+    \ -o output.html\n```\n\n### Supported Markdown Flavors\n\n| Flavor | Support\
+    \ |\n|--------|---------|\n| Pandoc Markdown | 100% (native) |\n| CommonMark |\
+    \ Full (use `-f commonmark`) |\n| GitHub Flavored Markdown | Full (use `-f gfm`)\
+    \ |\n| MultiMarkdown | Partial |\n\n### Troubleshooting\n\n| Issue | Solution\
+    \ |\n|-------|----------|\n| PDF generation fails | Install LaTeX (MacTeX, MiKTeX,\
+    \ or texlive) |\n| Encoding issues on Windows | Run `chcp 65001` before using\
+    \ pandoc |\n| Missing standalone headers | Add `-s` flag for complete documents\
+    \ |\n| Math not rendering | Use `--mathml` or `--mathjax` option |\n| Tables not\
+    \ rendering | Ensure proper table syntax with pipes and dashes |\n\n## Working\
+    \ with [`gomarkdown/markdown`](references/gomarkdown.md)\n\n### Prerequisites\n\
+    \n- Go 1.18 or higher installed\n- Install the library: `go get github.com/gomarkdown/markdown`\n\
+    - For CLI tool: `go install github.com/gomarkdown/mdtohtml@latest`\n\n### Quick\
+    \ Conversion Methods\n\n#### Method 1: Simple Conversion (Go)\n\n```go\npackage\
+    \ main\n\nimport (\n    \"fmt\"\n    \"github.com/gomarkdown/markdown\"\n)\n\n\
+    func main() {\n    md := []byte(\"# Hello World\\n\\nThis is **bold** text.\"\
+    )\n    html := markdown.ToHTML(md, nil, nil)\n    fmt.Println(string(html))\n\
+    }\n```\n\n#### Method 2: CLI Tool\n\n```bash\n# Install mdtohtml\ngo install github.com/gomarkdown/mdtohtml@latest\n\
+    \n# Convert file\nmdtohtml input.md output.html\n\n# Convert file (output to stdout)\n\
+    mdtohtml input.md\n```\n\n#### Method 3: Custom Parser and Renderer\n\n```go\n\
+    package main\n\nimport (\n    \"github.com/gomarkdown/markdown\"\n    \"github.com/gomarkdown/markdown/html\"\
+    \n    \"github.com/gomarkdown/markdown/parser\"\n)\n\nfunc mdToHTML(md []byte)\
+    \ []byte {\n    // Create parser with extensions\n    extensions := parser.CommonExtensions\
+    \ | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock\n    p := parser.NewWithExtensions(extensions)\n\
+    \    doc := p.Parse(md)\n\n    // Create HTML renderer with extensions\n    htmlFlags\
+    \ := html.CommonFlags | html.HrefTargetBlank\n    opts := html.RendererOptions{Flags:\
+    \ htmlFlags}\n    renderer := html.NewRenderer(opts)\n\n    return markdown.Render(doc,\
+    \ renderer)\n}\n```\n\n### CLI Configuration\n\nThe `mdtohtml` CLI tool has minimal\
+    \ options:\n\n```bash\nmdtohtml input-file [output-file]\n```\n\nFor advanced\
+    \ configuration, use the Go library programmatically with parser and renderer\
+    \ options:\n\n| Parser Extension | Description |\n|------------------|-------------|\n\
+    | `parser.CommonExtensions` | Tables, fenced code, autolinks, strikethrough, etc.\
+    \ |\n| `parser.AutoHeadingIDs` | Generate IDs for headings |\n| `parser.NoEmptyLineBeforeBlock`\
+    \ | No blank line needed before blocks |\n| `parser.MathJax` | MathJax support\
+    \ for LaTeX math |\n\n| HTML Flag | Description |\n|-----------|-------------|\n\
+    | `html.CommonFlags` | Common HTML output flags |\n| `html.HrefTargetBlank` |\
+    \ Add `target=\"_blank\"` to links |\n| `html.CompletePage` | Generate complete\
+    \ HTML page |\n| `html.UseXHTML` | Generate XHTML output |\n\n### Security Warning\n\
+    \n\u26A0\uFE0F **gomarkdown does NOT sanitize output HTML.** For untrusted input,\
+    \ use Bluemonday:\n\n```go\nimport (\n    \"github.com/microcosm-cc/bluemonday\"\
+    \n    \"github.com/gomarkdown/markdown\"\n)\n\nmaybeUnsafeHTML := markdown.ToHTML(md,\
+    \ nil, nil)\nhtml := bluemonday.UGCPolicy().SanitizeBytes(maybeUnsafeHTML)\n```\n\
+    \nRecommended sanitizer: [Bluemonday](https://github.com/microcosm-cc/bluemonday)\n\
+    \n### Supported Markdown Flavors\n\n| Flavor | Support |\n|--------|---------|\n\
+    | Original Markdown | 100% |\n| CommonMark | High (with extensions) |\n| GitHub\
+    \ Flavored Markdown | High (tables, fenced code, strikethrough) |\n| MathJax/LaTeX\
+    \ Math | Supported via extension |\n| Mmark | Supported |\n\n### Troubleshooting\n\
+    \n| Issue | Solution |\n|-------|----------|\n| Windows/Mac newlines not parsed\
+    \ | Use `parser.NormalizeNewlines(input)` |\n| Tables not rendering | Enable `parser.Tables`\
+    \ extension |\n| Code blocks without highlighting | Integrate with syntax highlighter\
+    \ like Chroma |\n| Math not rendering | Enable `parser.MathJax` extension |\n\
+    | XSS vulnerabilities | Use Bluemonday to sanitize output |\n\n## Working with\
+    \ [`jekyll`](references/jekyll.md)\n\n### Prerequisites\n\n- Ruby version 2.7.0\
+    \ or higher\n- RubyGems\n- GCC and Make (for native extensions)\n- Install Jekyll\
+    \ and Bundler: `gem install jekyll bundler`\n\n### Quick Conversion Methods\n\n\
+    #### Method 1: Create New Site\n\n```bash\n# Create a new Jekyll site\njekyll\
+    \ new myblog\n\n# Change to site directory\ncd myblog\n\n# Build and serve locally\n\
+    bundle exec jekyll serve\n\n# Access at http://localhost:4000\n```\n\n#### Method\
+    \ 2: Build Static Site\n\n```bash\n# Build site to _site directory\nbundle exec\
+    \ jekyll build\n\n# Build with production environment\nJEKYLL_ENV=production bundle\
+    \ exec jekyll build\n```\n\n#### Method 3: Live Reload Development\n\n```bash\n\
+    # Serve with live reload\nbundle exec jekyll serve --livereload\n\n# Serve with\
+    \ drafts\nbundle exec jekyll serve --drafts\n```\n\n### CLI Configuration\n\n\
+    | Command | Description |\n|---------|-------------|\n| `jekyll new <path>` |\
+    \ Create new Jekyll site |\n| `jekyll build` | Build site to `_site` directory\
+    \ |\n| `jekyll serve` | Build and serve locally |\n| `jekyll clean` | Remove generated\
+    \ files |\n| `jekyll doctor` | Check for configuration issues |\n\n| Serve Options\
+    \ | Description |\n|---------------|-------------|\n| `--livereload` | Reload\
+    \ browser on changes |\n| `--drafts` | Include draft posts |\n| `--port <port>`\
+    \ | Set server port (default: 4000) |\n| `--host <host>` | Set server host (default:\
+    \ localhost) |\n| `--baseurl <url>` | Set base URL |\n\n### Security Warning\n\
+    \n\u26A0\uFE0F **Jekyll security considerations:**\n\n- Avoid using `safe: false`\
+    \ in production\n- Use `exclude` in `_config.yml` to prevent sensitive files from\
+    \ being published\n- Sanitize user-generated content if accepting external input\n\
+    - Keep Jekyll and plugins updated\n\n```yaml\n# _config.yml security settings\n\
+    exclude:\n  - Gemfile\n  - Gemfile.lock\n  - node_modules\n  - vendor\n```\n\n\
+    ### Supported Markdown Flavors\n\n| Flavor | Support |\n|--------|---------|\n\
+    | Kramdown (default) | 100% |\n| CommonMark | Via plugin (jekyll-commonmark) |\n\
+    | GitHub Flavored Markdown | Via plugin (jekyll-commonmark-ghpages) |\n| RedCarpet\
+    \ | Via plugin (deprecated) |\n\nConfigure markdown processor in `_config.yml`:\n\
+    \n```yaml\nmarkdown: kramdown\nkramdown:\n  input: GFM\n  syntax_highlighter:\
+    \ rouge\n```\n\n### Troubleshooting\n\n| Issue | Solution |\n|-------|----------|\n\
+    | Ruby 3.0+ fails to serve | Run `bundle add webrick` |\n| Gem dependency errors\
+    \ | Run `bundle install` |\n| Slow builds | Use `--incremental` flag |\n| Liquid\
+    \ syntax errors | Check for unescaped `{` in content |\n| Plugin not loading |\
+    \ Add to `_config.yml` plugins list |\n\n## Working with [`hugo`](references/hugo.md)\n\
+    \n### Prerequisites\n\n- Hugo installed (download from <https://gohugo.io/installation/>)\n\
+    - Git (recommended for themes and modules)\n- Go (optional, for Hugo Modules)\n\
+    \n### Quick Conversion Methods\n\n#### Method 1: Create New Site\n\n```bash\n\
+    # Create a new Hugo site\nhugo new site mysite\n\n# Change to site directory\n\
+    cd mysite\n\n# Add a theme\ngit init\ngit submodule add https://github.com/theNewDynamic/gohugo-theme-ananke\
+    \ themes/ananke\necho \"theme = 'ananke'\" >> hugo.toml\n\n# Create content\n\
+    hugo new content posts/my-first-post.md\n\n# Start development server\nhugo server\
+    \ -D\n```\n\n#### Method 2: Build Static Site\n\n```bash\n# Build site to public\
+    \ directory\nhugo\n\n# Build with minification\nhugo --minify\n\n# Build for specific\
+    \ environment\nhugo --environment production\n```\n\n#### Method 3: Development\
+    \ Server\n\n```bash\n# Start server with drafts\nhugo server -D\n\n# Start with\
+    \ live reload and bind to all interfaces\nhugo server --bind 0.0.0.0 --baseURL\
+    \ http://localhost:1313/\n\n# Start with specific port\nhugo server --port 8080\n\
+    ```\n\n### CLI Configuration\n\n| Command | Description |\n|---------|-------------|\n\
+    | `hugo new site <name>` | Create new Hugo site |\n| `hugo new content <path>`\
+    \ | Create new content file |\n| `hugo` | Build site to `public` directory |\n\
+    | `hugo server` | Start development server |\n| `hugo mod init` | Initialize Hugo\
+    \ Modules |\n\n| Build Options | Description |\n|---------------|-------------|\n\
+    | `-D, --buildDrafts` | Include draft content |\n| `-E, --buildExpired` | Include\
+    \ expired content |\n| `-F, --buildFuture` | Include future-dated content |\n\
+    | `--minify` | Minify output |\n| `--gc` | Run garbage collection after build\
+    \ |\n| `-d, --destination <path>` | Output directory |\n\n| Server Options | Description\
+    \ |\n|----------------|-------------|\n| `--bind <ip>` | Interface to bind to\
+    \ |\n| `-p, --port <port>` | Port number (default: 1313) |\n| `--liveReloadPort\
+    \ <port>` | Live reload port |\n| `--disableLiveReload` | Disable live reload\
+    \ |\n| `--navigateToChanged` | Navigate to changed content |\n\n### Security Warning\n\
+    \n\u26A0\uFE0F **Hugo security considerations:**\n\n- Configure security policy\
+    \ in `hugo.toml` for external commands\n- Use `--enableGitInfo` carefully with\
+    \ public repositories\n- Validate shortcode parameters for user-generated content\n\
+    \n```toml\n# hugo.toml security settings\n[security]\n  enableInlineShortcodes\
+    \ = false\n  [security.exec]\n    allow = ['^go$', '^npx$', '^postcss$']\n  [security.funcs]\n\
+    \    getenv = ['^HUGO_', '^CI$']\n  [security.http]\n    methods = ['(?i)GET|POST']\n\
+    \    urls = ['.*']\n```\n\n### Supported Markdown Flavors\n\n| Flavor | Support\
+    \ |\n|--------|---------|\n| Goldmark (default) | 100% (CommonMark compliant)\
+    \ |\n| GitHub Flavored Markdown | Full (tables, strikethrough, autolinks) |\n\
+    | CommonMark | 100% |\n| Blackfriday (legacy) | Deprecated, not recommended |\n\
+    \nConfigure markdown in `hugo.toml`:\n\n```toml\n[markup]\n  [markup.goldmark]\n\
+    \    [markup.goldmark.extensions]\n      definitionList = true\n      footnote\
+    \ = true\n      linkify = true\n      strikethrough = true\n      table = true\n\
+    \      taskList = true\n    [markup.goldmark.renderer]\n      unsafe = false \
+    \ # Set true to allow raw HTML\n```\n\n### Troubleshooting\n\n| Issue | Solution\
+    \ |\n|-------|----------|\n| \"Page not found\" on paths | Check `baseURL` in\
+    \ config |\n| Theme not loading | Verify theme in `themes/` or Hugo Modules |\n\
+    | Slow builds | Use `--templateMetrics` to identify bottlenecks |\n| Raw HTML\
+    \ not rendering | Set `unsafe = true` in goldmark config |\n| Images not loading\
+    \ | Check `static/` folder structure |\n| Module errors | Run `hugo mod tidy`\
+    \ |\n\n## References\n\n### Writing and Styling Markdown\n\n- [basic-markdown.md](references/basic-markdown.md)\n\
+    - [code-blocks.md](references/code-blocks.md)\n- [collapsed-sections.md](references/collapsed-sections.md)\n\
+    - [tables.md](references/tables.md)\n- [writing-mathematical-expressions.md](references/writing-mathematical-expressions.md)\n\
+    - Markdown Guide: <https://www.markdownguide.org/basic-syntax/>\n- Styling Markdown:\
+    \ <https://github.com/sindresorhus/github-markdown-css>\n\n### [`markedJS/marked`](references/marked.md)\n\
+    \n- Official documentation: <https://marked.js.org/>\n- Advanced options: <https://marked.js.org/using_advanced>\n\
+    - Extensibility: <https://marked.js.org/using_pro>\n- GitHub repository: <https://github.com/markedjs/marked>\n\
+    \n### [`pandoc`](references/pandoc.md)\n\n- Getting started: <https://pandoc.org/getting-started.html>\n\
+    - Official documentation: <https://pandoc.org/MANUAL.html>\n- Extensibility: <https://pandoc.org/extras.html>\n\
+    - GitHub repository: <https://github.com/jgm/pandoc>\n\n### [`gomarkdown/markdown`](references/gomarkdown.md)\n\
+    \n- Official documentation: <https://pkg.go.dev/github.com/gomarkdown/markdown>\n\
+    - Advanced configuration: <https://pkg.go.dev/github.com/gomarkdown/markdown@v0.0.0-20250810172220-2e2c11897d1a/html>\n\
+    - Markdown processing: <https://blog.kowalczyk.info/article/cxn3/advanced-markdown-processing-in-go.html>\n\
+    - GitHub repository: <https://github.com/gomarkdown/markdown>\n\n### [`jekyll`](references/jekyll.md)\n\
+    \n- Official documentation: <https://jekyllrb.com/docs/>\n- Configuration options:\
+    \ <https://jekyllrb.com/docs/configuration/options/>\n- Plugins: <https://jekyllrb.com/docs/plugins/>\n\
+    \  - [Installation](https://jekyllrb.com/docs/plugins/installation/)\n  - [Generators](https://jekyllrb.com/docs/plugins/generators/)\n\
+    \  - [Converters](https://jekyllrb.com/docs/plugins/converters/)\n  - [Commands](https://jekyllrb.com/docs/plugins/commands/)\n\
+    \  - [Tags](https://jekyllrb.com/docs/plugins/tags/)\n  - [Filters](https://jekyllrb.com/docs/plugins/filters/)\n\
+    \  - [Hooks](https://jekyllrb.com/docs/plugins/hooks/)\n- GitHub repository: <https://github.com/jekyll/jekyll>\n\
+    \n### [`hugo`](references/hugo.md)\n\n- Official documentation: <https://gohugo.io/documentation/>\n\
+    - All Settings: <https://gohugo.io/configuration/all/>\n- Editor Plugins: <https://gohugo.io/tools/editors/>\n\
+    - GitHub repository: <https://github.com/gohugoio/hugo>"

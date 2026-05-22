@@ -1,0 +1,76 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__optimize-simplicite-logs
+name: optimize-simplicite-logs
+description: "capability to parse Simplicit\xE9 logs from a raw `.txt` file, filter\
+  \ fields to reduce noise, and output the result as structured JSON."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/optimize-simplicite-logs/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- optimize-simplicite-logs
+content:
+  kind: skill_markdown
+  sha256: 536f90efa4d056fe6e2012d056722f3a8f88f57a865cced77d3a0b9e963cece1
+  char_count: 3737
+  text: "# Optimize Simplicite Logs\n\nThis skill provides the capability to parse\
+    \ Simplicit\xE9 logs from a raw `.txt` file, filter fields to reduce noise, and\
+    \ output the result as structured JSON. This is critical for optimizing AI context\
+    \ size (saving ~56% of tokens) and providing structured, predictable data for\
+    \ troubleshooting.\n\n## When to Use This Skill\n\nUse this skill when you need\
+    \ to:\n- Analyze user-provided Simplicit\xE9 log files in `.txt` format.\n- Avoid\
+    \ ingesting massive raw log files into your context window.\n- Extract structured\
+    \ fields (like `timestamp`, `level`, `body`) from verbose multi-line log output.\n\
+    \n**IMPORTANT:** Instead of directly reading a raw `.txt` log file provided by\
+    \ the user using file read tools, you **must** use one of the log converter scripts\
+    \ (PowerShell or Python) to parse the file into a JSON format first, optionally\
+    \ extracting only the fields needed.\n\n## Prerequisites\n\n- Access to either\
+    \ the PowerShell script (`/scripts/SimpliciteLog2Json.ps1`) or the Python script\
+    \ (`/scripts/simplicite-log2json.py`).\n\n## Core Capabilities\n\n### 1. Context\
+    \ Optimization\nReduces the tokens consumed by large Simplicit\xE9 logs by extracting\
+    \ only relevant log fields (e.g. `body`, `timestamp`, `level`) and discarding\
+    \ non-relevant structural log data (like `app`, `endpoint`, `contextPath`).\n\n\
+    ### 2. Multi-line Support\nProperly captures stack traces and multiline errors\
+    \ inside the `body` field of the JSON structure, which a simple text search might\
+    \ miss.\n\n### 3. Stdout Support\nIf no output path is provided for the JSON file\
+    \ (e.g. omitting `--output` or `-Output`), the parsed JSON will be printed directly\
+    \ to stdout, allowing you to pipe the output to other tools.\n\n## Output Summary\n\
+    \nAfter processing, the tool prints a summary to stderr (or console):\n```\nProcessed:\
+    \ 123 entries, Skipped: 2 entries\n```\n\n## Usage Examples\n\n### Example 1:\
+    \ Python Version (Recommended)\nConvert a log file to JSON, keeping only the most\
+    \ important fields:\n```sh\npython /absolute/path/to/skills/optimize-simplicite-logs/scripts/simplicite-log2json.py\
+    \ <input.txt> --include timestamp,level,body --output <output.json>\n```\n\n###\
+    \ Example 2: PowerShell Version\n```powershell\n/python /absolute/path/to/skills/optimize-simplicite-logs/scripts/SimpliciteLog2Json.ps1\
+    \ -InputPath \"<input.txt>\" -Output \"<output.json>\" -Include \"body,timestamp,level\"\
+    \n```\n\nAfter generating the `<output.json>`, you can safely read the resulting\
+    \ file to perform your analysis.\n\n## Guidelines\n\n1. **Always Convert First:**\
+    \ Never directly read `.txt` log files from Simplicit\xE9 using standard text\
+    \ reading tools. Always convert them to JSON using the available scripts.\n2.\
+    \ **Filter Fields:** Use `--include` (Python) or `-Include` (PowerShell) to restrict\
+    \ fields to what is absolutely necessary to diagnose the issue (usually `timestamp,level,body`).\n\
+    3. **Available Fields:** The fields you can filter include: `timestamp`, `app`,\
+    \ `level`, `endpoint`, `contextPath`, `event`, `user`, `class`, `function`, `rowId`,\
+    \ `body`.\n\n## Common Patterns\n\n### Pattern: Fast Contextual Troubleshooting\n\
+    ```sh\n# 1. Run the script to generate a minified JSON output in the current directory\n\
+    python /absolute/path/to/skills/optimize-simplicite-logs/scripts/simplicite-log2json.py\
+    \ logs.txt --include timestamp,level,body --output logs_minified.json\n\n# 2.\
+    \ Then read logs_minified.json to understand the context.\n```\n\n## Limitations\n\
+    \n- The parser depends on a fixed regex pattern that matches the standard Simplicit\xE9\
+    \ log output. If the log format has been heavily customized, parsing might fail\
+    \ or degrade."

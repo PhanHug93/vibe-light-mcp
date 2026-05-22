@@ -1,0 +1,147 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__aspire
+name: aspire
+description: Aspire skill covering the Aspire CLI, AppHost orchestration, service
+  discovery, integrations, MCP server, VS Code extension, Dev Containers, GitHub Codespaces,
+  templates, dashboard, and deployment. Use when the user asks to create, run, debug,
+  configure, deploy, or troubleshoot an Aspire distributed application.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/aspire/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_network_install
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- aspire
+content:
+  kind: skill_markdown
+  sha256: f4cb7a6c3d437edd447a097d984ed43e519c8c53433ddf131a3061c477753542
+  char_count: 9337
+  text: "# Aspire \u2014 Polyglot Distributed-App Orchestration\n\nAspire is a **code-first,\
+    \ polyglot toolchain** for building observable, production-ready distributed applications.\
+    \ It orchestrates containers, executables, and cloud resources from a single AppHost\
+    \ project \u2014 regardless of whether the workloads are C#, Python, JavaScript/TypeScript,\
+    \ Go, Java, Rust, Bun, Deno, or PowerShell.\n\n> **Mental model:** The AppHost\
+    \ is a *conductor* \u2014 it doesn't play the instruments, it tells every service\
+    \ when to start, how to find each other, and watches for problems.\n\nDetailed\
+    \ reference material lives in the `references/` folder \u2014 load on demand.\n\
+    \n---\n\n## References\n\n| Reference | When to load |\n|---|---|\n| [CLI Reference](references/cli-reference.md)\
+    \ | Command flags, options, or detailed usage |\n| [MCP Server](references/mcp-server.md)\
+    \ | Setting up MCP for AI assistants, available tools |\n| [Integrations Catalog](references/integrations-catalog.md)\
+    \ | Discovering integrations via MCP tools, wiring patterns |\n| [Polyglot APIs](references/polyglot-apis.md)\
+    \ | Method signatures, chaining options, language-specific patterns |\n| [Architecture](references/architecture.md)\
+    \ | DCP internals, resource model, service discovery, networking, telemetry |\n\
+    | [Dashboard](references/dashboard.md) | Dashboard features, standalone mode,\
+    \ GenAI Visualizer |\n| [Deployment](references/deployment.md) | Docker, Kubernetes,\
+    \ Azure Container Apps, App Service |\n| [Testing](references/testing.md) | Integration\
+    \ tests against the AppHost |\n| [Troubleshooting](references/troubleshooting.md)\
+    \ | Diagnostic codes, common errors, and fixes |\n\n---\n\n## 1. Researching Aspire\
+    \ Documentation\n\nThe Aspire team ships an **MCP server** that provides documentation\
+    \ tools directly inside your AI assistant. See [MCP Server](references/mcp-server.md)\
+    \ for setup details.\n\n### Aspire CLI 13.2+ (recommended \u2014 has built-in\
+    \ docs search)\n\nIf running Aspire CLI **13.2 or later** (`aspire --version`),\
+    \ the MCP server includes docs search tools:\n\n| Tool | Description |\n|---|---|\n\
+    | `list_docs` | Lists all available documentation from aspire.dev |\n| `search_docs`\
+    \ | Performs weighted lexical search across indexed documentation |\n| `get_doc`\
+    \ | Retrieves a specific document by its slug |\n\nThese tools were added in [PR\
+    \ #14028](https://github.com/dotnet/aspire/pull/14028). To update: `aspire update\
+    \ --self --channel daily`.\n\nFor more on this approach, see David Pine's post:\
+    \ https://davidpine.dev/posts/aspire-docs-mcp-tools/\n\n### Aspire CLI 13.1 (integration\
+    \ tools only)\n\nOn 13.1, the MCP server provides integration lookup but **not**\
+    \ docs search:\n\n| Tool | Description |\n|---|---|\n| `list_integrations` | Lists\
+    \ available Aspire hosting integrations |\n| `get_integration_docs` | Gets documentation\
+    \ for a specific integration package |\n\nFor general docs queries on 13.1, use\
+    \ **Context7** as your primary source (see below).\n\n### Fallback: Context7\n\
+    \nUse **Context7** (`mcp_context7`) when the Aspire MCP docs tools are unavailable\
+    \ (13.1) or the MCP server isn't running:\n\n**Step 1 \u2014 Resolve the library\
+    \ ID** (one-time per session):\n\nCall `mcp_context7_resolve-library-id` with\
+    \ `libraryName: \".NET Aspire\"`.\n\n| Rank | Library ID | Use when |\n|---|---|---|\n\
+    | 1 | `/microsoft/aspire.dev` | Primary source. Guides, integrations, CLI reference,\
+    \ deployment. |\n| 2 | `/dotnet/aspire` | API internals, source-level implementation\
+    \ details. |\n| 3 | `/communitytoolkit/aspire` | Non-Microsoft polyglot integrations\
+    \ (Go, Java, Node.js, Ollama). |\n\n**Step 2 \u2014 Query docs:**\n\n```\nlibraryId:\
+    \ \"/microsoft/aspire.dev\", query: \"Python integration AddPythonApp service\
+    \ discovery\"\nlibraryId: \"/communitytoolkit/aspire\", query: \"Golang Java Node.js\
+    \ community integrations\"\n```\n\n### Fallback: GitHub search (when Context7\
+    \ is also unavailable)\n\nSearch the official docs repo on GitHub:\n- **Docs repo:**\
+    \ `microsoft/aspire.dev` \u2014 path: `src/frontend/src/content/docs/`\n- **Source\
+    \ repo:** `dotnet/aspire`\n- **Samples repo:** `dotnet/aspire-samples`\n- **Community\
+    \ integrations:** `CommunityToolkit/Aspire`\n\n---\n\n## 2. Prerequisites & Install\n\
+    \n| Requirement | Details |\n|---|---|\n| **.NET SDK** | 10.0+ (required even\
+    \ for non-.NET workloads \u2014 the AppHost is .NET) |\n| **Container runtime**\
+    \ | Docker Desktop, Podman, or Rancher Desktop |\n| **IDE (optional)** | VS Code\
+    \ + C# Dev Kit, Visual Studio 2022, JetBrains Rider |\n\n```bash\n# Linux / macOS\n\
+    curl -sSL https://aspire.dev/install.sh | bash\n\n# Windows PowerShell\nirm https://aspire.dev/install.ps1\
+    \ | iex\n\n# Verify\naspire --version\n\n# Install templates\ndotnet new install\
+    \ Aspire.ProjectTemplates\n```\n\n---\n\n## 3. Project Templates\n\n| Template\
+    \ | Command | Description |\n|---|---|---|\n| **aspire-starter** | `aspire new\
+    \ aspire-starter` | ASP.NET Core/Blazor starter + AppHost + tests |\n| **aspire-ts-cs-starter**\
+    \ | `aspire new aspire-ts-cs-starter` | ASP.NET Core/React starter + AppHost |\n\
+    | **aspire-py-starter** | `aspire new aspire-py-starter` | FastAPI/React starter\
+    \ + AppHost |\n| **aspire-apphost-singlefile** | `aspire new aspire-apphost-singlefile`\
+    \ | Empty single-file AppHost |\n\n---\n\n## 4. AppHost Quick Start (Polyglot)\n\
+    \nThe AppHost orchestrates all services. Non-.NET workloads run as containers\
+    \ or executables.\n\n```csharp\nvar builder = DistributedApplication.CreateBuilder(args);\n\
+    \n// Infrastructure\nvar redis = builder.AddRedis(\"cache\");\nvar postgres =\
+    \ builder.AddPostgres(\"pg\").AddDatabase(\"catalog\");\n\n// .NET API\nvar api\
+    \ = builder.AddProject<Projects.CatalogApi>(\"api\")\n    .WithReference(postgres).WithReference(redis);\n\
+    \n// Python ML service\nvar ml = builder.AddPythonApp(\"ml-service\", \"../ml-service\"\
+    , \"main.py\")\n    .WithHttpEndpoint(targetPort: 8000).WithReference(redis);\n\
+    \n// React frontend (Vite)\nvar web = builder.AddViteApp(\"web\", \"../frontend\"\
+    )\n    .WithHttpEndpoint(targetPort: 5173).WithReference(api);\n\n// Go worker\n\
+    var worker = builder.AddGolangApp(\"worker\", \"../go-worker\")\n    .WithReference(redis);\n\
+    \nbuilder.Build().Run();\n```\n\nFor complete API signatures, see [Polyglot APIs](references/polyglot-apis.md).\n\
+    \n---\n\n## 5. Core Concepts (Summary)\n\n| Concept | Key point |\n|---|---|\n\
+    | **Run vs Publish** | `aspire run` = local dev (DCP engine). `aspire publish`\
+    \ = generate deployment manifests. |\n| **Service discovery** | Automatic via\
+    \ env vars: `ConnectionStrings__<name>`, `services__<name>__http__0` |\n| **Resource\
+    \ lifecycle** | DAG ordering \u2014 dependencies start first. `.WaitFor()` gates\
+    \ on health checks. |\n| **Resource types** | `ProjectResource`, `ContainerResource`,\
+    \ `ExecutableResource`, `ParameterResource` |\n| **Integrations** | 144+ across\
+    \ 13 categories. Hosting package (AppHost) + Client package (service). |\n| **Dashboard**\
+    \ | Real-time logs, traces, metrics, GenAI visualizer. Runs automatically with\
+    \ `aspire run`. |\n| **MCP Server** | AI assistants can query running apps and\
+    \ search docs via CLI (STDIO). |\n| **Testing** | `Aspire.Hosting.Testing` \u2014\
+    \ spin up full AppHost in xUnit/MSTest/NUnit. |\n| **Deployment** | Docker, Kubernetes,\
+    \ Azure Container Apps, Azure App Service. |\n\n---\n\n## 6. CLI Quick Reference\n\
+    \nValid commands in Aspire CLI 13.1:\n\n| Command | Description | Status |\n|---|---|---|\n\
+    | `aspire new <template>` | Create from template | Stable |\n| `aspire init` |\
+    \ Initialize in existing project | Stable |\n| `aspire run` | Start all resources\
+    \ locally | Stable |\n| `aspire add <integration>` | Add an integration | Stable\
+    \ |\n| `aspire publish` | Generate deployment manifests | Preview |\n| `aspire\
+    \ config` | Manage configuration settings | Stable |\n| `aspire cache` | Manage\
+    \ disk cache | Stable |\n| `aspire deploy` | Deploy to defined targets | Preview\
+    \ |\n| `aspire do <step>` | Execute a pipeline step | Preview |\n| `aspire update`\
+    \ | Update integrations (or `--self` for CLI) | Preview |\n| `aspire mcp init`\
+    \ | Configure MCP for AI assistants | Stable |\n| `aspire mcp start` | Start the\
+    \ MCP server | Stable |\n\nFull command reference with flags: [CLI Reference](references/cli-reference.md).\n\
+    \n---\n\n## 7. Common Patterns\n\n### Adding a new service\n\n1. Create your service\
+    \ directory (any language)\n2. Add to AppHost: `Add*App()` or `AddProject<T>()`\n\
+    3. Wire dependencies: `.WithReference()`\n4. Gate on health: `.WaitFor()` if needed\n\
+    5. Run: `aspire run`\n\n### Migrating from Docker Compose\n\n1. `aspire new aspire-apphost-singlefile`\
+    \ (empty AppHost)\n2. Replace each `docker-compose` service with an Aspire resource\n\
+    3. `depends_on` \u2192 `.WithReference()` + `.WaitFor()`\n4. `ports` \u2192 `.WithHttpEndpoint()`\n\
+    5. `environment` \u2192 `.WithEnvironment()` or `.WithReference()`\n\n---\n\n\
+    ## 8. Key URLs\n\n| Resource | URL |\n|---|---|\n| **Documentation** | https://aspire.dev\
+    \ |\n| **Runtime repo** | https://github.com/dotnet/aspire |\n| **Docs repo**\
+    \ | https://github.com/microsoft/aspire.dev |\n| **Samples** | https://github.com/dotnet/aspire-samples\
+    \ |\n| **Community Toolkit** | https://github.com/CommunityToolkit/Aspire |\n\
+    | **Dashboard image** | `mcr.microsoft.com/dotnet/aspire-dashboard` |\n| **Discord**\
+    \ | https://aka.ms/aspire/discord |\n| **Reddit** | https://www.reddit.com/r/aspiredotdev/\
+    \ |"

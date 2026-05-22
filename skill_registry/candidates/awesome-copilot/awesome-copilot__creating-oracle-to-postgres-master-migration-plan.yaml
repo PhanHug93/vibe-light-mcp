@@ -1,0 +1,67 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__creating-oracle-to-postgres-master-migration-plan
+name: creating-oracle-to-postgres-master-migration-plan
+description: Discovers all projects in a .NET solution, classifies each for Oracle-to-PostgreSQL
+  migration eligibility, and produces a persistent master migration plan. Use when
+  starting a multi-project Oracle-to-PostgreSQL migration, creating a migration inventory,
+  or assessing which .NET projects contain Oracle dependencies.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/creating-oracle-to-postgres-master-migration-plan/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- creating-oracle-to-postgres-master-migration-plan
+content:
+  kind: skill_markdown
+  sha256: 401eb4f0a7b6617304bbf299b16bfcf73aada44c24006c2ca34c8983195f7f47
+  char_count: 3160
+  text: "# Creating an Oracle-to-PostgreSQL Master Migration Plan\n\nAnalyze a .NET\
+    \ solution, classify every project for Oracle\u2192PostgreSQL migration eligibility,\
+    \ and write a structured plan that downstream agents and skills can parse.\n\n\
+    ## Workflow\n\n```\nProgress:\n- [ ] Step 1: Discover projects in the solution\n\
+    - [ ] Step 2: Classify each project\n- [ ] Step 3: Confirm with user\n- [ ] Step\
+    \ 4: Write the plan file\n```\n\n**Step 1: Discover projects**\n\nFind the Solution\
+    \ File (it has a `.sln` or `.slnx` extension) in the workspace root (ask the user\
+    \ if multiple exist). Parse it to extract all `.csproj` project references. For\
+    \ each project, note the name, path, and type (class library, web API, console,\
+    \ test, etc.).\n\n**Step 2: Classify each project**\n\nScan every non-test project\
+    \ for Oracle indicators:\n\n- NuGet references: `Oracle.ManagedDataAccess`, `Oracle.EntityFrameworkCore`\
+    \ (check `.csproj` and `packages.config`)\n- Config entries: Oracle connection\
+    \ strings in `appsettings.json`, `web.config`, `app.config`\n- Code usage: `OracleConnection`,\
+    \ `OracleCommand`, `OracleDataReader`\n- DDL cross-references under `.github/oracle-to-postgres-migration/DDL/Oracle/`\
+    \ (if present)\n\nAssign one classification per project:\n\n| Classification |\
+    \ Meaning |\n|---|---|\n| **MIGRATE** | Has Oracle interactions requiring conversion\
+    \ |\n| **SKIP** | No Oracle indicators (UI-only, shared utility, etc.) |\n| **ALREADY_MIGRATED**\
+    \ | A `-postgres` or `.Postgres` duplicate exists and appears processed |\n| **TEST_PROJECT**\
+    \ | Test project; handled by the testing workflow |\n\n**Step 3: Confirm with\
+    \ user**\n\nPresent the classified list. Let the user adjust classifications or\
+    \ migration ordering before finalizing.\n\n**Step 4: Write the plan file**\n\n\
+    Save to: `.github/oracle-to-postgres-migration/Reports/Master Migration Plan.md`\n\
+    \nUse this exact template \u2014 downstream consumers depend on the structure:\n\
+    \n````markdown\n# Master Migration Plan\n\n**Solution:** {solution file name}\n\
+    **Solution Root:** {REPOSITORY_ROOT}\n**Created:** {timestamp}\n**Last Updated:**\
+    \ {timestamp}\n\n## Solution Summary\n\n| Metric | Count |\n|--------|-------|\n\
+    | Total projects in solution | {n} |\n| Projects requiring migration | {n} |\n\
+    | Projects already migrated | {n} |\n| Projects skipped (no Oracle usage) | {n}\
+    \ |\n| Test projects (handled separately) | {n} |\n\n## Project Inventory\n\n\
+    | # | Project Name | Path | Classification | Notes |\n|---|---|---|---|---|\n\
+    | 1 | {name} | {relative path} | MIGRATE | {notes} |\n| 2 | {name} | {relative\
+    \ path} | SKIP | No Oracle dependencies |\n\n## Migration Order\n\n1. **{ProjectName}**\
+    \ \u2014 {rationale, e.g., \"Core data access library; other projects depend on\
+    \ it.\"}\n2. **{ProjectName}** \u2014 {rationale}\n````\n\nOrder projects so that\
+    \ shared/foundational libraries are migrated before their dependents."

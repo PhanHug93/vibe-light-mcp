@@ -1,0 +1,184 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__sponsor-finder
+name: sponsor-finder
+description: Find which of a GitHub repository's dependencies are sponsorable via
+  GitHub Sponsors. Uses deps.dev API for dependency resolution across npm, PyPI, Cargo,
+  Go, RubyGems, Maven, and NuGet. Checks npm funding metadata, FUNDING.yml files,
+  and web search. Verifies every link. Shows direct and transitive dependencies with
+  OSSF Scorecard health data. Invoke with /sponsor followed by a GitHub owner/repo
+  (e.g. "/sponsor expressjs/express").
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/sponsor-finder/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- sponsor-finder
+content:
+  kind: skill_markdown
+  sha256: f150e859624fec421a0c93d582a154891dab14c052ce67399c8df0ff12f93aee
+  char_count: 11948
+  text: "# Sponsor Finder\n\nDiscover opportunities to support the open source maintainers\
+    \ behind your project's dependencies. Accepts a GitHub `owner/repo` (e.g. `/sponsor\
+    \ expressjs/express`), uses the deps.dev API for dependency resolution and project\
+    \ health data, and produces a friendly sponsorship report covering both direct\
+    \ and transitive dependencies.\n\n## Your Workflow\n\nWhen the user types `/sponsor\
+    \ {owner/repo}` or provides a repository in `owner/repo` format:\n\n1. **Parse\
+    \ the input** \u2014 Extract `owner` and `repo`.\n2. **Detect the ecosystem**\
+    \ \u2014 Fetch manifest to determine package name + version.\n3. **Get full dependency\
+    \ tree** \u2014 deps.dev `GetDependencies` (one call).\n4. **Resolve repos** \u2014\
+    \ deps.dev `GetVersion` for each dep \u2192 `relatedProjects` gives GitHub repo.\n\
+    5. **Get project health** \u2014 deps.dev `GetProject` for unique repos \u2192\
+    \ OSSF Scorecard.\n6. **Find funding links** \u2014 npm `funding` field, FUNDING.yml,\
+    \ web search fallback.\n7. **Verify every link** \u2014 fetch each URL to confirm\
+    \ it's live.\n8. **Group and report** \u2014 by funding destination, sorted by\
+    \ impact.\n\n---\n\n## Step 1: Detect Ecosystem and Package\n\nUse `get_file_contents`\
+    \ to fetch the manifest from the target repo. Determine the ecosystem and extract\
+    \ the package name + latest version:\n\n| File | Ecosystem | Package name from\
+    \ | Version from |\n|------|-----------|-------------------|--------------|\n\
+    | `package.json` | NPM | `name` field | `version` field |\n| `requirements.txt`\
+    \ | PYPI | list of package names | use latest (omit version in deps.dev call)\
+    \ |\n| `pyproject.toml` | PYPI | `[project.dependencies]` | use latest |\n| `Cargo.toml`\
+    \ | CARGO | `[package] name` | `[package] version` |\n| `go.mod` | GO | `module`\
+    \ path | extract from go.mod |\n| `Gemfile` | RUBYGEMS | gem names | use latest\
+    \ |\n| `pom.xml` | MAVEN | `groupId:artifactId` | `version` |\n\n---\n\n## Step\
+    \ 2: Get Full Dependency Tree (deps.dev)\n\n**This is the key step.** Use `web_fetch`\
+    \ to call the deps.dev API:\n\n```\nhttps://api.deps.dev/v3/systems/{ECOSYSTEM}/packages/{PACKAGE}/versions/{VERSION}:dependencies\n\
+    ```\n\nFor example:\n```\nhttps://api.deps.dev/v3/systems/npm/packages/express/versions/5.2.1:dependencies\n\
+    ```\n\nThis returns a `nodes` array where each node has:\n- `versionKey.name`\
+    \ \u2014 package name\n- `versionKey.version` \u2014 resolved version\n- `relation`\
+    \ \u2014 `\"SELF\"`, `\"DIRECT\"`, or `\"INDIRECT\"`\n\n**This single call gives\
+    \ you the entire dependency tree** \u2014 both direct and transitive \u2014 with\
+    \ exact resolved versions. No need to parse lockfiles.\n\n### URL encoding\nPackage\
+    \ names containing special characters must be percent-encoded:\n- `@colors/colors`\
+    \ \u2192 `%40colors%2Fcolors`\n- Encode `@` as `%40`, `/` as `%2F`\n\n### For\
+    \ repos without a single root package\nIf the repo doesn't publish a package (e.g.,\
+    \ it's an app not a library), fall back to reading `package.json` dependencies\
+    \ directly and calling deps.dev `GetVersion` for each.\n\n---\n\n## Step 3: Resolve\
+    \ Each Dependency to a GitHub Repo (deps.dev)\n\nFor each dependency from the\
+    \ tree, call deps.dev `GetVersion`:\n\n```\nhttps://api.deps.dev/v3/systems/{ECOSYSTEM}/packages/{NAME}/versions/{VERSION}\n\
+    ```\n\nFrom the response, extract:\n- **`relatedProjects`** \u2192 look for `relationType:\
+    \ \"SOURCE_REPO\"` \u2192 `projectKey.id` gives `github.com/{owner}/{repo}`\n\
+    - **`links`** \u2192 look for `label: \"SOURCE_REPO\"` \u2192 `url` field\n\n\
+    This works across **all ecosystems** \u2014 npm, PyPI, Cargo, Go, RubyGems, Maven,\
+    \ NuGet \u2014 with the same field structure.\n\n### Efficiency rules\n- Process\
+    \ in batches of **10 at a time**.\n- Deduplicate \u2014 multiple packages may\
+    \ map to the same repo.\n- Skip deps where no GitHub project is found (count as\
+    \ \"unresolvable\").\n\n---\n\n## Step 4: Get Project Health Data (deps.dev)\n\
+    \nFor each unique GitHub repo, call deps.dev `GetProject`:\n\n```\nhttps://api.deps.dev/v3/projects/github.com%2F{owner}%2F{repo}\n\
+    ```\n\nFrom the response, extract:\n- **`scorecard.checks`** \u2192 find the `\"\
+    Maintained\"` check \u2192 `score` (0\u201310)\n- **`starsCount`** \u2014 popularity\
+    \ indicator\n- **`license`** \u2014 project license\n- **`openIssuesCount`** \u2014\
+    \ activity indicator\n\nUse the Maintained score to label project health:\n- Score\
+    \ 7\u201310 \u2192 \u2B50 Actively maintained\n- Score 4\u20136 \u2192 \u26A0\uFE0F\
+    \ Partially maintained\n- Score 0\u20133 \u2192 \U0001F4A4 Possibly unmaintained\n\
+    \n### Efficiency rules\n- Only fetch for **unique repos** (not per-package).\n\
+    - Process in batches of **10 at a time**.\n- This step is optional \u2014 skip\
+    \ if rate-limited and note in output.\n\n---\n\n## Step 5: Find Funding Links\n\
+    \nFor each unique GitHub repo, check for funding information using three sources\
+    \ in order:\n\n### 5a: npm `funding` field (npm ecosystem only)\nUse `web_fetch`\
+    \ on `https://registry.npmjs.org/{package-name}/latest` and check for a `funding`\
+    \ field:\n- **String:** `\"https://github.com/sponsors/sindresorhus\"` \u2192\
+    \ use as URL\n- **Object:** `{\"type\": \"opencollective\", \"url\": \"https://opencollective.com/express\"\
+    }` \u2192 use `url`\n- **Array:** collect all URLs\n\n### 5b: `.github/FUNDING.yml`\
+    \ (repo-level, then org-level fallback)\n\n**Step 5b-i \u2014 Per-repo check:**\n\
+    Use `get_file_contents` to fetch `{owner}/{repo}` path `.github/FUNDING.yml`.\n\
+    \n**Step 5b-ii \u2014 Org/user-level fallback:**\nIf 5b-i returned 404 (no FUNDING.yml\
+    \ in the repo itself), check the owner's default community health repo:\nUse `get_file_contents`\
+    \ to fetch `{owner}/.github` path `FUNDING.yml`.\n\nGitHub supports a [default\
+    \ community health files](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)\
+    \ convention: a `.github` repository at the user/org level provides defaults for\
+    \ all repos that lack their own. For example, `isaacs/.github/FUNDING.yml` applies\
+    \ to all `isaacs/*` repos.\n\nOnly look up each unique `{owner}/.github` repo\
+    \ **once** \u2014 reuse the result for all repos under that owner. Process in\
+    \ batches of **10 owners at a time**.\n\nParse the YAML (same for both 5b-i and\
+    \ 5b-ii):\n- `github: [username]` \u2192 `https://github.com/sponsors/{username}`\n\
+    - `open_collective: slug` \u2192 `https://opencollective.com/{slug}`\n- `ko_fi:\
+    \ username` \u2192 `https://ko-fi.com/{username}`\n- `patreon: username` \u2192\
+    \ `https://patreon.com/{username}`\n- `tidelift: platform/package` \u2192 `https://tidelift.com/subscription/pkg/{platform-package}`\n\
+    - `custom: [urls]` \u2192 use as-is\n\n### 5c: Web search fallback\nFor the **top\
+    \ 10 unfunded dependencies** (by number of transitive dependents), use `web_search`:\n\
+    ```\n\"{package name}\" github sponsors OR open collective OR funding\n```\nSkip\
+    \ packages known to be corporate-maintained (React/Meta, TypeScript/Microsoft,\
+    \ @types/DefinitelyTyped).\n\n### Efficiency rules\n- **Check 5a and 5b for all\
+    \ deps.** Only use 5c for top unfunded ones.\n- Skip npm registry calls for non-npm\
+    \ ecosystems.\n- Deduplicate repos \u2014 check each repo only once.\n- **One\
+    \ `{owner}/.github` check per unique owner** \u2014 reuse the result for all their\
+    \ repos.\n- Process org-level lookups in batches of **10 owners at a time**.\n\
+    \n---\n\n## Step 6: Verify Every Link (CRITICAL)\n\n**Before including ANY funding\
+    \ link, verify it exists.**\n\nUse `web_fetch` on each funding URL:\n- **Valid\
+    \ page** \u2192 \u2705 Include\n- **404 / \"not found\" / \"not enrolled\"** \u2192\
+    \ \u274C Exclude\n- **Redirect to valid page** \u2192 \u2705 Include final URL\n\
+    \nVerify in batches of **5 at a time**. Never present unverified links.\n\n---\n\
+    \n## Step 7: Output the Report\n\n### Output discipline\n\n**Minimize intermediate\
+    \ output during data gathering.** Do NOT announce each batch (\"Batch 3 of 7\u2026\
+    \", \"Now checking funding\u2026\"). Instead:\n- Show **one brief status line**\
+    \ when starting each major phase (e.g., \"Resolving 67 dependencies\u2026\", \"\
+    Checking funding links\u2026\")\n- **Collect ALL data before producing the report.**\
+    \ Never drip-feed partial tables.\n- Output the final report as a **single cohesive\
+    \ block** at the end.\n\n### Report template\n\n```\n## \U0001F49C Sponsor Finder\
+    \ Report\n\n**Repository:** {owner}/{repo} \xB7 {ecosystem} \xB7 {package}@{version}\n\
+    **Scanned:** {date} \xB7 {total} deps ({direct} direct + {transitive} transitive)\n\
+    \n---\n\n### \U0001F3AF Ways to Give Back\n\nSponsoring just {N} people/orgs supports\
+    \ {sponsorable} of your {total} dependencies \u2014 a great way to invest in the\
+    \ open source your project depends on.\n\n1. **\U0001F49C @{user}** \u2014 {N}\
+    \ direct + {M} transitive deps \xB7 \u2B50 Maintained\n   {dep1}, {dep2}, {dep3},\
+    \ ...\n   https://github.com/sponsors/{user}\n\n2. **\U0001F7E0 Open Collective:\
+    \ {name}** \u2014 {N} direct + {M} transitive deps \xB7 \u2B50 Maintained\n  \
+    \ {dep1}, {dep2}, {dep3}, ...\n   https://opencollective.com/{name}\n\n3. **\U0001F49C\
+    \ @{user2}** \u2014 {N} direct dep \xB7 \U0001F4A4 Low activity\n   {dep1}\n \
+    \  https://github.com/sponsors/{user2}\n\n---\n\n### \U0001F4CA Coverage\n\n-\
+    \ **{sponsorable}/{total}** dependencies have funding options ({percentage}%)\n\
+    - **{destinations}** unique funding destinations\n- **{unfunded_direct}** direct\
+    \ deps don't have funding set up yet ({top_names}, ...)\n- All links verified\
+    \ \u2705\n```\n\n### Report format rules\n\n- **Lead with \"\U0001F3AF Ways to\
+    \ Give Back\"** \u2014 this is the primary output. Numbered list, sorted by total\
+    \ deps covered (descending).\n- **Bare URLs on their own line** \u2014 not wrapped\
+    \ in markdown link syntax. This ensures they're clickable in any terminal emulator.\n\
+    - **Inline dep names** \u2014 list the covered dependency names in a comma-separated\
+    \ line under each sponsor, so the user sees exactly what they're funding.\n- **Health\
+    \ indicator inline** \u2014 show \u2B50/\u26A0\uFE0F/\U0001F4A4 next to each destination,\
+    \ not in a separate table column.\n- **One \"\U0001F4CA Coverage\" section** \u2014\
+    \ compact stats. No separate \"Verified Funding Links\" table, no \"No Funding\
+    \ Found\" table.\n- **Unfunded deps as a brief note** \u2014 just the count +\
+    \ top names. Frame as \"don't have funding set up yet\" rather than highlighting\
+    \ a gap. Never shame projects for not having funding \u2014 many maintainers prefer\
+    \ other forms of contribution.\n- \U0001F49C GitHub Sponsors, \U0001F7E0 Open\
+    \ Collective, \u2615 Ko-fi, \U0001F517 Other\n- Prioritize GitHub Sponsors links\
+    \ when multiple funding sources exist for the same maintainer.\n\n---\n\n## Error\
+    \ Handling\n\n- If deps.dev returns 404 for the package \u2192 fall back to reading\
+    \ the manifest directly and resolving via registry APIs.\n- If deps.dev is rate-limited\
+    \ \u2192 note partial results, continue with what was fetched.\n- If `get_file_contents`\
+    \ returns 404 for the repo \u2192 inform user repo may not exist or is private.\n\
+    - If link verification fails \u2192 exclude the link silently.\n- Always produce\
+    \ a report even if partial \u2014 never fail silently.\n\n---\n\n## Critical Rules\n\
+    \n1. **NEVER present unverified links.** Fetch every URL before showing it. 5\
+    \ verified links > 20 guessed links.\n2. **NEVER guess from training knowledge.**\
+    \ Always check \u2014 funding pages change over time.\n3. **Always be encouraging,\
+    \ never shaming.** Frame results positively \u2014 celebrate what IS funded, and\
+    \ treat unfunded deps as an opportunity, not a failing. Not every project needs\
+    \ or wants financial sponsorship.\n4. **Lead with action.** The \"\U0001F3AF Ways\
+    \ to Give Back\" section is the primary output \u2014 bare clickable URLs, grouped\
+    \ by destination.\n5. **Use deps.dev as primary resolver.** Fall back to registry\
+    \ APIs only if deps.dev is unavailable.\n6. **Always use GitHub MCP tools** (`get_file_contents`),\
+    \ `web_fetch`, and `web_search` \u2014 never clone or shell out.\n7. **Be efficient.**\
+    \ Batch API calls, deduplicate repos, check each owner's `.github` repo only once.\n\
+    8. **Focus on GitHub Sponsors.** Most actionable platform \u2014 show others but\
+    \ prioritize GitHub.\n9. **Deduplicate by maintainer.** Group to show real impact\
+    \ of sponsoring one person.\n10. **Show the actionable minimum.** Tell users the\
+    \ fewest sponsorships to support the most deps.\n11. **Minimize intermediate output.**\
+    \ Don't announce each batch. Collect all data, then output one cohesive report."

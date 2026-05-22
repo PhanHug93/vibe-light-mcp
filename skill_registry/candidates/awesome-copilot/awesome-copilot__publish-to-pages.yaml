@@ -1,0 +1,86 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__publish-to-pages
+name: publish-to-pages
+description: Publish presentations and web content to GitHub Pages. Converts PPTX,
+  PDF, HTML, or Google Slides to a live GitHub Pages URL. Handles repo creation, file
+  conversion, Pages enablement, and returns the live URL. Use when the user wants
+  to publish, deploy, or share a presentation or HTML file via GitHub Pages.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/publish-to-pages/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- publish-to-pages
+content:
+  kind: skill_markdown
+  sha256: 0f970c26b1c167f3d230258d6c32530fd5c32bfd2c9da439c1d9ad376f7f23cc
+  char_count: 4530
+  text: "# publish-to-pages\n\nPublish any presentation or web content to GitHub Pages\
+    \ in one shot.\n\n## 1. Prerequisites Check\n\nRun these silently. Only surface\
+    \ errors:\n\n```bash\ncommand -v gh >/dev/null || echo \"MISSING: gh CLI \u2014\
+    \ install from https://cli.github.com\"\ngh auth status &>/dev/null || echo \"\
+    MISSING: gh not authenticated \u2014 run 'gh auth login'\"\ncommand -v python3\
+    \ >/dev/null || echo \"MISSING: python3 (needed for PPTX conversion)\"\n```\n\n\
+    `poppler-utils` is optional (PDF conversion via `pdftoppm`). Don't block on it.\n\
+    \n## 2. Input Detection\n\nDetermine input type from what the user provides:\n\
+    \n| Input | Detection |\n|-------|-----------|\n| HTML file | Extension `.html`\
+    \ or `.htm` |\n| PPTX file | Extension `.pptx` |\n| PDF file | Extension `.pdf`\
+    \ |\n| Google Slides URL | URL contains `docs.google.com/presentation` |\n\nAsk\
+    \ the user for a **repo name** if not provided. Default: filename without extension.\n\
+    \n## 3. Conversion\n\n### Large File Handling\n\nBoth conversion scripts automatically\
+    \ detect large files and switch to **external assets mode**:\n- **PPTX:** Files\
+    \ >20MB or with >50 images \u2192 images saved as separate files in `assets/`\n\
+    - **PDF:** Files >20MB or with >50 pages \u2192 page PNGs saved in `assets/`\n\
+    - Files >150MB print a warning (PPTX suggests PDF path instead)\n\nThis keeps\
+    \ individual files well under GitHub's 100MB limit. Small files still produce\
+    \ a single self-contained HTML.\n\nYou can force the behavior with `--external-assets`\
+    \ or `--no-external-assets`.\n\n### HTML\nNo conversion needed. Use the file directly\
+    \ as `index.html`.\n\n### PPTX\nRun the conversion script:\n```bash\npython3 SKILL_DIR/scripts/convert-pptx.py\
+    \ INPUT_FILE /tmp/output.html\n# For large files, force external assets:\npython3\
+    \ SKILL_DIR/scripts/convert-pptx.py INPUT_FILE /tmp/output.html --external-assets\n\
+    ```\nIf `python-pptx` is missing, tell the user: `pip install python-pptx`\n\n\
+    ### PDF\nConvert with the included script (requires `poppler-utils` for `pdftoppm`):\n\
+    ```bash\npython3 SKILL_DIR/scripts/convert-pdf.py INPUT_FILE /tmp/output.html\n\
+    # For large files, force external assets:\npython3 SKILL_DIR/scripts/convert-pdf.py\
+    \ INPUT_FILE /tmp/output.html --external-assets\n```\nEach page is rendered as\
+    \ a PNG and embedded into HTML with slide navigation.\nIf `pdftoppm` is missing,\
+    \ tell the user: `apt install poppler-utils` (or `brew install poppler` on macOS).\n\
+    \n### Google Slides\n1. Extract the presentation ID from the URL (the long string\
+    \ between `/d/` and `/`)\n2. Download as PPTX:\n```bash\ncurl -L \"https://docs.google.com/presentation/d/PRESENTATION_ID/export/pptx\"\
+    \ -o /tmp/slides.pptx\n```\n3. Then convert the PPTX using the convert script\
+    \ above.\n\n## 4. Publishing\n\n### Visibility\nRepos are created **public** by\
+    \ default. If the user specifies `private` (or wants a private repo), use `--private`\
+    \ \u2014 but note that GitHub Pages on private repos requires a Pro, Team, or\
+    \ Enterprise plan.\n\n### Publish\n```bash\nbash SKILL_DIR/scripts/publish.sh\
+    \ /path/to/index.html REPO_NAME public \"Description\"\n```\n\nPass `private`\
+    \ instead of `public` if the user requests it.\n\nThe script creates the repo,\
+    \ pushes `index.html` (plus `assets/` if present), and enables GitHub Pages.\n\
+    \n**Note:** When external assets mode is used, the output HTML references files\
+    \ in `assets/`. The publish script automatically detects and copies the `assets/`\
+    \ directory alongside the HTML file. Make sure the HTML file and its `assets/`\
+    \ directory are in the same parent directory.\n\n## 5. Output\n\nTell the user:\n\
+    - **Repository:** `https://github.com/USERNAME/REPO_NAME`\n- **Live URL:** `https://USERNAME.github.io/REPO_NAME/`\n\
+    - **Note:** Pages takes 1-2 minutes to go live.\n\n## Error Handling\n\n- **Repo\
+    \ already exists:** Suggest appending a number (`my-slides-2`) or a date (`my-slides-2026`).\n\
+    - **Pages enablement fails:** Still return the repo URL. User can enable Pages\
+    \ manually in repo Settings.\n- **PPTX conversion fails:** Tell user to run `pip\
+    \ install python-pptx`.\n- **PDF conversion fails:** Suggest installing `poppler-utils`\
+    \ (`apt install poppler-utils` or `brew install poppler`).\n- **Google Slides\
+    \ download fails:** The presentation may not be publicly accessible. Ask user\
+    \ to make it viewable or download the PPTX manually."

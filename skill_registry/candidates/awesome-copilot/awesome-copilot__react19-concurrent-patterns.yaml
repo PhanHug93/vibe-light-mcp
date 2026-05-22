@@ -1,0 +1,67 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react19-concurrent-patterns
+name: react19-concurrent-patterns
+description: Preserve React 18 concurrent patterns and adopt React 19 APIs (useTransition,
+  useDeferredValue, Suspense, use(), useOptimistic, Actions) during migration.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react19-concurrent-patterns/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- react19-concurrent-patterns
+content:
+  kind: skill_markdown
+  sha256: f953aa23d213b4a7f7800f8f59529c3d1321e12f49ef7f7bf7ab7a5e0235fbc3
+  char_count: 2888
+  text: "# React 19 Concurrent Patterns\n\nReact 19 introduced new APIs that complement\
+    \ the migration work. This skill covers two concerns:\n\n1. **Preserve**  existing\
+    \ React 18 concurrent patterns that must not be broken during migration\n2. **Adopt**\
+    \  new React 19 APIs worth introducing after migration stabilizes\n\n## Part 1\
+    \  Preserve: React 18 Concurrent Patterns That Must Survive the Migration\n\n\
+    These patterns exist in React 18 codebases and must not be accidentally removed\
+    \ or broken:\n\n### createRoot  Already Migrated by the R18 Orchestra\n\nIf the\
+    \ R18 orchestra already ran, `ReactDOM.render` \u2192 `createRoot` is done. Verify\
+    \ it's correct:\n\n```jsx\n// CORRECT React 19 root (same as React 18):\nimport\
+    \ { createRoot } from 'react-dom/client';\nconst root = createRoot(document.getElementById('root'));\n\
+    root.render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n);\n```\n\
+    \n### useTransition  No Migration Needed\n\n`useTransition` from React 18 works\
+    \ identically in React 19. Do not touch these patterns during migration:\n\n```jsx\n\
+    // React 18 useTransition  unchanged in React 19:\nconst [isPending, startTransition]\
+    \ = useTransition();\n\nfunction handleClick() {\n  startTransition(() => {\n\
+    \    setFilteredResults(computeExpensiveFilter(input));\n  });\n}\n```\n\n###\
+    \ useDeferredValue  No Migration Needed\n\n```jsx\n// React 18 useDeferredValue\
+    \  unchanged in React 19:\nconst deferredQuery = useDeferredValue(query);\n```\n\
+    \n### Suspense for Code Splitting  No Migration Needed\n\n```jsx\n// React 18\
+    \ Suspense with lazy  unchanged in React 19:\nconst LazyComponent = React.lazy(()\
+    \ => import('./LazyComponent'));\n\nfunction App() {\n  return (\n    <Suspense\
+    \ fallback={<Spinner />}>\n      <LazyComponent />\n    </Suspense>\n  );\n}\n\
+    ```\n\n---\n\n## Part 2  React 19 New APIs\n\nThese are worth adopting in a post-migration\
+    \ cleanup sprint. Do not introduce these DURING the migration  stabilize first.\n\
+    \nFor full patterns on each new API, read:\n- **`references/react19-use.md`**\
+    \  the `use()` hook for promises and context\n- **`references/react19-actions.md`**\
+    \  Actions, useActionState, useFormStatus, useOptimistic\n- **`references/react19-suspense.md`**\
+    \  Suspense for data fetching (the new pattern)\n\n## Migration Safety Rules\n\
+    \nDuring the React 19 migration itself, these concurrent-mode patterns must be\
+    \ **left completely untouched**:\n\n```bash\n# Verify nothing touched these during\
+    \ migration:\ngrep -rn \"useTransition\\|useDeferredValue\\|Suspense\\|startTransition\"\
+    \ \\\n  src/ --include=\"*.js\" --include=\"*.jsx\" | grep -v \"\\.test\\.\"\n\
+    ```\n\nIf the migrator touched any of these files, review the changes  the migration\
+    \ should only have modified React API surface (forwardRef, defaultProps, etc.),\
+    \ never concurrent mode logic."

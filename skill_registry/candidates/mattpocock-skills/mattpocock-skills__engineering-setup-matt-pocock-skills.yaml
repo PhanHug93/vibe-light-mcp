@@ -1,0 +1,117 @@
+schema_version: local-skill-candidate/v0.0.1
+id: mattpocock-skills__engineering-setup-matt-pocock-skills
+name: setup-matt-pocock-skills
+description: "Sets up an `## Agent skills` block in AGENTS.md/CLAUDE.md and `docs/agents/`\
+  \ so the engineering skills know this repo's issue tracker (GitHub or local markdown),\
+  \ triage label vocabulary, and domain doc layout. Run before first use of `to-issues`,\
+  \ `to-prd`, `triage`, `diagnose`, `tdd`, `improve-codebase-architecture`, or `zoom-out`\
+  \ \u2014 or if those skills appear to be missing context about the issue tracker,\
+  \ triage labels, or domain docs."
+status: candidate
+source_tier: community
+source:
+  source_id: mattpocock-skills
+  repo: mattpocock/skills
+  url: https://github.com/mattpocock/skills.git
+  ref: main
+  commit: b8be62ffacb0118fa3eaa29a0923c87c8c11985c
+  path: skills/engineering/setup-matt-pocock-skills/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- setup-matt-pocock-skills
+content:
+  kind: skill_markdown
+  sha256: c778d4e3d86ecc9125c357279a86780657b5db23110e1f7acf4f46d2441e7204
+  char_count: 6793
+  text: "# Setup Matt Pocock's Skills\n\nScaffold the per-repo configuration that\
+    \ the engineering skills assume:\n\n- **Issue tracker** \u2014 where issues live\
+    \ (GitHub by default; local markdown is also supported out of the box)\n- **Triage\
+    \ labels** \u2014 the strings used for the five canonical triage roles\n- **Domain\
+    \ docs** \u2014 where `CONTEXT.md` and ADRs live, and the consumer rules for reading\
+    \ them\n\nThis is a prompt-driven skill, not a deterministic script. Explore,\
+    \ present what you found, confirm with the user, then write.\n\n## Process\n\n\
+    ### 1. Explore\n\nLook at the current repo to understand its starting state. Read\
+    \ whatever exists; don't assume:\n\n- `git remote -v` and `.git/config` \u2014\
+    \ is this a GitHub repo? Which one?\n- `AGENTS.md` and `CLAUDE.md` at the repo\
+    \ root \u2014 does either exist? Is there already an `## Agent skills` section\
+    \ in either?\n- `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root\n- `docs/adr/`\
+    \ and any `src/*/docs/adr/` directories\n- `docs/agents/` \u2014 does this skill's\
+    \ prior output already exist?\n- `.scratch/` \u2014 sign that a local-markdown\
+    \ issue tracker convention is already in use\n\n### 2. Present findings and ask\n\
+    \nSummarise what's present and what's missing. Then walk the user through the\
+    \ three decisions **one at a time** \u2014 present a section, get the user's answer,\
+    \ then move to the next. Don't dump all three at once.\n\nAssume the user does\
+    \ not know what these terms mean. Each section starts with a short explainer (what\
+    \ it is, why these skills need it, what changes if they pick differently). Then\
+    \ show the choices and the default.\n\n**Section A \u2014 Issue tracker.**\n\n\
+    > Explainer: The \"issue tracker\" is where issues live for this repo. Skills\
+    \ like `to-issues`, `triage`, `to-prd`, and `qa` read from and write to it \u2014\
+    \ they need to know whether to call `gh issue create`, write a markdown file under\
+    \ `.scratch/`, or follow some other workflow you describe. Pick the place you\
+    \ actually track work for this repo.\n\nDefault posture: these skills were designed\
+    \ for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote`\
+    \ points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise\
+    \ (or if the user prefers), offer:\n\n- **GitHub** \u2014 issues live in the repo's\
+    \ GitHub Issues (uses the `gh` CLI)\n- **GitLab** \u2014 issues live in the repo's\
+    \ GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)\n-\
+    \ **Local markdown** \u2014 issues live as files under `.scratch/<feature>/` in\
+    \ this repo (good for solo projects or repos without a remote)\n- **Other** (Jira,\
+    \ Linear, etc.) \u2014 ask the user to describe the workflow in one paragraph;\
+    \ the skill will record it as freeform prose\n\n**Section B \u2014 Triage label\
+    \ vocabulary.**\n\n> Explainer: When the `triage` skill processes an incoming\
+    \ issue, it moves it through a state machine \u2014 needs evaluation, waiting\
+    \ on reporter, ready for an AFK agent to pick up, ready for a human, or won't\
+    \ fix. To do that, it needs to apply labels (or the equivalent in your issue tracker)\
+    \ that match strings *you've actually configured*. If your repo already uses different\
+    \ label names (e.g. `bug:triage` instead of `needs-triage`), map them here so\
+    \ the skill applies the right ones instead of creating duplicates.\n\nThe five\
+    \ canonical roles:\n\n- `needs-triage` \u2014 maintainer needs to evaluate\n-\
+    \ `needs-info` \u2014 waiting on reporter\n- `ready-for-agent` \u2014 fully specified,\
+    \ AFK-ready (an agent can pick it up with no human context)\n- `ready-for-human`\
+    \ \u2014 needs human implementation\n- `wontfix` \u2014 will not be actioned\n\
+    \nDefault: each role's string equals its name. Ask the user if they want to override\
+    \ any. If their issue tracker has no existing labels, the defaults are fine.\n\
+    \n**Section C \u2014 Domain docs.**\n\n> Explainer: Some skills (`improve-codebase-architecture`,\
+    \ `diagnose`, `tdd`) read a `CONTEXT.md` file to learn the project's domain language,\
+    \ and `docs/adr/` for past architectural decisions. They need to know whether\
+    \ the repo has one global context or multiple (e.g. a monorepo with separate frontend/backend\
+    \ contexts) so they look in the right place.\n\nConfirm the layout:\n\n- **Single-context**\
+    \ \u2014 one `CONTEXT.md` + `docs/adr/` at the repo root. Most repos are this.\n\
+    - **Multi-context** \u2014 `CONTEXT-MAP.md` at the root pointing to per-context\
+    \ `CONTEXT.md` files (typically a monorepo).\n\n### 3. Confirm and edit\n\nShow\
+    \ the user a draft of:\n\n- The `## Agent skills` block to add to whichever of\
+    \ `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)\n\
+    - The contents of `docs/agents/issue-tracker.md`, `docs/agents/triage-labels.md`,\
+    \ `docs/agents/domain.md`\n\nLet them edit before writing.\n\n### 4. Write\n\n\
+    **Pick the file to edit:**\n\n- If `CLAUDE.md` exists, edit it.\n- Else if `AGENTS.md`\
+    \ exists, edit it.\n- If neither exists, ask the user which one to create \u2014\
+    \ don't pick for them.\n\nNever create `AGENTS.md` when `CLAUDE.md` already exists\
+    \ (or vice versa) \u2014 always edit the one that's already there.\n\nIf an `##\
+    \ Agent skills` block already exists in the chosen file, update its contents in-place\
+    \ rather than appending a duplicate. Don't overwrite user edits to the surrounding\
+    \ sections.\n\nThe block:\n\n```markdown\n## Agent skills\n\n### Issue tracker\n\
+    \n[one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.\n\
+    \n### Triage labels\n\n[one-line summary of the label vocabulary]. See `docs/agents/triage-labels.md`.\n\
+    \n### Domain docs\n\n[one-line summary of layout \u2014 \"single-context\" or\
+    \ \"multi-context\"]. See `docs/agents/domain.md`.\n```\n\nThen write the three\
+    \ docs files using the seed templates in this skill folder as a starting point:\n\
+    \n- [issue-tracker-github.md](./issue-tracker-github.md) \u2014 GitHub issue tracker\n\
+    - [issue-tracker-gitlab.md](./issue-tracker-gitlab.md) \u2014 GitLab issue tracker\n\
+    - [issue-tracker-local.md](./issue-tracker-local.md) \u2014 local-markdown issue\
+    \ tracker\n- [triage-labels.md](./triage-labels.md) \u2014 label mapping\n- [domain.md](./domain.md)\
+    \ \u2014 domain doc consumer rules + layout\n\nFor \"other\" issue trackers, write\
+    \ `docs/agents/issue-tracker.md` from scratch using the user's description.\n\n\
+    ### 5. Done\n\nTell the user the setup is complete and which engineering skills\
+    \ will now read from these files. Mention they can edit `docs/agents/*.md` directly\
+    \ later \u2014 re-running this skill is only necessary if they want to switch\
+    \ issue trackers or restart from scratch."

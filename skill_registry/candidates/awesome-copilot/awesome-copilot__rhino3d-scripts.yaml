@@ -1,0 +1,141 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__rhino3d-scripts
+name: rhino3d-scripts
+description: Authoring and debugging scripts for Rhinoceros 3D (Rhino 8 and later).
+  Use when asked to write RhinoScript (VBScript / .rvb / .vbs), RhinoPython, or RhinoCommon-based
+  scripts; automate Rhino modeling tasks; build command macros; manipulate Rhino geometry,
+  layers, blocks, or document objects; pick objects from the viewport; control redraw
+  and undo; or load and run scripts from the Rhino Script Editor. Covers `rhinoscriptsyntax`,
+  `scriptcontext`, the `Rhino.*` RhinoCommon namespaces (`Rhino.Geometry`, `Rhino.DocObjects`,
+  `Rhino.Input`, `Rhino.UI`, `Rhino.Display`, `Rhino.FileIO`), and the Rhino 8 unified
+  Script Editor.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/rhino3d-scripts/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+- python
+languages: []
+platforms: []
+aliases:
+- rhino3d-scripts
+content:
+  kind: skill_markdown
+  sha256: df79eeb171c4ae2449ac5aed7a043a4b3d66f7e795ee6cee012e3d1018aa0bf3
+  char_count: 8832
+  text: "# Rhino 3D Scripting Skill\n\nWrite production-quality scripts for Rhinoceros\
+    \ 3D. Covers the three scripting surfaces (RhinoScript/VBScript, RhinoPython,\
+    \ direct RhinoCommon .NET) and the Rhino 8+ Script Editor.\n\n## When to Use This\
+    \ Skill\n\n- User asks to write, edit, or debug a `.rvb`, `.vbs`, or `.py` Rhino\
+    \ script\n- User wants a Rhino **command macro** or wants to automate a sequence\
+    \ of Rhino commands\n- User wants to manipulate geometry, layers, blocks, materials,\
+    \ viewports, or annotations from code\n- User mentions `rhinoscriptsyntax`, `scriptcontext`,\
+    \ `RhinoCommon`, `Rhino.Geometry`, `RhinoDoc`, or the Script Editor\n- User wants\
+    \ to pick objects, prompt for input, or build a small UI inside Rhino\n- User\
+    \ asks how to load, run, or distribute a script (startup scripts, aliases, toolbar\
+    \ buttons)\n\n## Choosing a Scripting Surface\n\nPick the surface based on the\
+    \ task, not preference. Recommend Python by default for new work.\n\n| Surface\
+    \ | When to choose | File ext |\n|---|---|---|\n| **RhinoPython** (`rhinoscriptsyntax`\
+    \ + RhinoCommon) | Default for new scripts. Best ecosystem, readable, full RhinoCommon\
+    \ access. | `.py` |\n| **RhinoScript** (VBScript) | Maintaining legacy `.rvb`/`.vbs`\
+    \ files; integrating with VBA/COM. | `.rvb`, `.vbs` |\n| **RhinoCommon (C#/.NET)\
+    \ via Script Editor** | Performance-critical loops, complex geometry, leveraging\
+    \ .NET libraries. | `.cs` |\n| **Command macro** | Pure sequence of existing Rhino\
+    \ commands; no logic. | toolbar/alias |\n\nA macro is **not** a script \u2014\
+    \ it is a string of command-line input (e.g. `! _-Line 0,0,0 10,0,0 _Enter`).\
+    \ Use a script the moment you need a variable, loop, or conditional.\n\n## Prerequisites\n\
+    \n- Rhino 7 or later (Rhino 8 strongly recommended \u2014 unified Script Editor\
+    \ supports Python 3, VB, and C# in one window).\n- Script Editor: type `_ScriptEditor`\
+    \ (Rhino 8) or `_EditPythonScript` / `_EditScript` (older).\n- Run a saved file\
+    \ from the command line with `_-RunPythonScript` or `_LoadScript` + `_RunScript`.\n\
+    \n## Core Patterns\n\n### Python: minimal scaffold\n\n```python\nimport rhinoscriptsyntax\
+    \ as rs\nimport scriptcontext as sc\nimport Rhino\n\ndef main():\n    obj_id =\
+    \ rs.GetObject(\"Select a curve\", filter=rs.filter.curve, preselect=True)\n \
+    \   if not obj_id:\n        return\n    length = rs.CurveLength(obj_id)\n    print(\"\
+    Length: {0:.4f}\".format(length))\n\nif __name__ == \"__main__\":\n    main()\n\
+    ```\n\n### Python: working with RhinoCommon directly\n\n```python\nimport Rhino\n\
+    import scriptcontext as sc\n\ndoc = sc.doc  # Rhino.RhinoDoc.ActiveDoc\ntol =\
+    \ doc.ModelAbsoluteTolerance\n\ncircle = Rhino.Geometry.Circle(Rhino.Geometry.Point3d(0,\
+    \ 0, 0), 5.0)\ncurve_id = doc.Objects.AddCircle(circle)\ndoc.Views.Redraw()\n\
+    ```\n\n### VBScript: minimal scaffold\n\n```vbscript\nOption Explicit\n\nCall\
+    \ Main()\n\nSub Main()\n    Dim strObject\n    strObject = Rhino.GetObject(\"\
+    Select a curve\", 4)  ' 4 = curve filter\n    If IsNull(strObject) Then Exit Sub\n\
+    \    Rhino.Print \"Length: \" & Rhino.CurveLength(strObject)\nEnd Sub\n```\n\n\
+    ### Picking objects with a custom filter (Python, RhinoCommon)\n\n```python\n\
+    import Rhino\nimport scriptcontext as sc\n\ngo = Rhino.Input.Custom.GetObject()\n\
+    go.SetCommandPrompt(\"Select breps\")\ngo.GeometryFilter = Rhino.DocObjects.ObjectType.Brep\n\
+    go.SubObjectSelect = False\ngo.GetMultiple(1, 0)\nif go.CommandResult() != Rhino.Commands.Result.Success:\n\
+    \    pass\nelse:\n    ids = [go.Object(i).ObjectId for i in range(go.ObjectCount)]\n\
+    ```\n\n## Step-by-Step Workflows\n\n### Bulk-modify many objects fast\n\n1. Disable\
+    \ redraw: `rs.EnableRedraw(False)`.\n2. Wrap mutations in a single undo record:\
+    \ `undo = doc.BeginUndoRecord(\"My Op\")` \u2026 `doc.EndUndoRecord(undo)`.\n\
+    3. Use RhinoCommon directly inside the loop (skip `rhinoscriptsyntax` overhead).\n\
+    4. Re-enable redraw and call `doc.Views.Redraw()` in a `try`/`finally` so a crash\
+    \ never leaves the viewport frozen.\n\n### Distribute a script to a teammate\n\
+    \n1. Save the `.py` / `.rvb` somewhere on disk.\n2. Add the folder to `Options\
+    \ \u2192 Files \u2192 Search paths` so Rhino can find it by name.\n3. Create a\
+    \ toolbar button or alias whose macro is:\n   - Python: `! _-RunPythonScript \"\
+    MyScript.py\"`\n   - RhinoScript: `! _-LoadScript \"MyScript.rvb\" _-RunScript\
+    \ MySubName`\n4. The leading `!` cancels any running command; `-` runs the command\
+    \ in script (no-dialog) mode.\n\n### Run code at Rhino startup\n\n1. Place a `.rvb`/`.py`\
+    \ in a search path.\n2. `Tools \u2192 Options \u2192 RhinoScript` (or `Python`)\
+    \ \u2192 add to **Startup** list. The file executes once per session.\n\n## Gotchas\n\
+    \n- **`rhinoscriptsyntax` returns GUIDs, RhinoCommon returns objects.** Mixing\
+    \ them is fine, but `doc.Objects.Find(guid)` is the bridge from a `rs.*` id to\
+    \ a `RhinoObject`.\n- **Coordinates differ by surface.** Python uses `(x, y, z)`\
+    \ tuples *or* `Rhino.Geometry.Point3d`; VBScript uses 3-element `Array(x, y, z)`.\
+    \ Never pass a Python list to a VBScript helper through COM.\n- **`Option Explicit`\
+    \ is off by default in VBScript.** Typos silently create new variables. Always\
+    \ add `Option Explicit` at the top of `.rvb` files.\n- **VBScript has no block\
+    \ scope.** All `Dim`s inside a `Sub` are hoisted to the top of the procedure.\
+    \ Loop counters leak.\n- **`Nothing`, `Empty`, and `Null` are different** in VBScript.\
+    \ Use `IsNull` for `Rhino.GetObject` failure, `IsEmpty` for uninitialized `Variant`,\
+    \ `Is Nothing` for object refs.\n- **Parentheses change calling semantics in VBScript.**\
+    \ `Call Foo(a, b)` and `Foo a, b` are valid; `Foo(a, b)` (no `Call`, with parens)\
+    \ is **not** a call to a Sub \u2014 it\u2019s a syntax error for multi-arg subs\
+    \ and a forced `ByVal` for single-arg.\n- **Tolerance is per-document.** Always\
+    \ read `doc.ModelAbsoluteTolerance` rather than hardcoding `0.001`; users work\
+    \ in mm, m, inches, etc.\n- **Long loops should poll `Rhino.RhinoApp.EscapeKeyPressed`**\
+    \ so the user can cancel. Otherwise Rhino appears frozen.\n- **GUID strings vs\
+    \ `System.Guid`.** `rhinoscriptsyntax` accepts either; RhinoCommon wants `System.Guid`.\
+    \ Convert with `System.Guid(str_id)` if needed.\n- **Don\u2019t call `doc.Views.Redraw()`\
+    \ inside a tight loop.** Toggle redraw once outside the loop.\n- **`.rvb` is just\
+    \ `.vbs` renamed** with a Rhino-specific extension so Rhino\u2019s `LoadScript`\
+    \ recognizes it. Same VBScript engine.\n\n## Troubleshooting\n\n| Symptom | Fix\
+    \ |\n|---|---|\n| `rs.GetObject` returns `None` immediately | The user pressed\
+    \ Escape, or your `filter` excludes everything. Re-check `rs.filter.*` flags.\
+    \ |\n| \u201CUnable to find script\u201D when running by name | The folder isn\u2019\
+    t in `Options \u2192 Files \u2192 Search paths`. |\n| VBScript `Type mismatch`\
+    \ on coordinates | You passed a 2-element array. Rhino requires 3-element `Array(x,\
+    \ y, z)`. |\n| Python `ImportError: No module named Rhino` | You\u2019re running\
+    \ CPython outside Rhino. RhinoCommon is only available in Rhino\u2019s embedded\
+    \ Python (or via `rhino3dm` for read-only file work). |\n| Created geometry doesn\u2019\
+    t appear | You forgot `doc.Views.Redraw()`, or `rs.EnableRedraw(False)` was never\
+    \ re-enabled. |\n| Undo undoes only the last object of a batch | Wrap the batch\
+    \ in `BeginUndoRecord` / `EndUndoRecord`. |\n| Script works alone but fails as\
+    \ a startup script | Startup runs before any document is open \u2014 return early\
+    \ or skip document-dependent work when `sc.doc is None`. |\n| `rs.Command(\"...\"\
+    )` returns `False` | The macro string is malformed. Prefix with `!` and `-`, end\
+    \ every prompt with `_Enter` or a value. |\n\n## References\n\n- [references/rhinoscriptsyntax-cheatsheet.md](references/rhinoscriptsyntax-cheatsheet.md)\
+    \ \u2014 most-used `rs.*` functions by category.\n- [references/rhinocommon-map.md](references/rhinocommon-map.md)\
+    \ \u2014 which namespace to import for which task.\n- [references/macros-and-loading.md](references/macros-and-loading.md)\
+    \ \u2014 command-line macro syntax, `LoadScript` / `RunScript`, search paths.\n\
+    - [references/vbscript-quirks.md](references/vbscript-quirks.md) \u2014 VBScript-only\
+    \ traps relevant to RhinoScript.\n\n### Upstream docs\n\n- RhinoScript landing:\
+    \ <https://docs.mcneel.com/rhino/8/help/en-us/information/rhinoscripting.htm>\n\
+    - Developer hub: <https://developer.rhino3d.com/>\n- RhinoCommon API index: <https://mcneel.github.io/rhinocommon-api-docs/api/RhinoCommon/html/R_Project_RhinoCommon.htm>\n\
+    - Example scripts repo: <https://github.com/mcneel/rhino-developer-samples/tree/8/rhinoscript>"

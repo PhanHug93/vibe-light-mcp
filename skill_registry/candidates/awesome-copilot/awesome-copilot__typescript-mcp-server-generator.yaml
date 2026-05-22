@@ -1,0 +1,77 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__typescript-mcp-server-generator
+name: typescript-mcp-server-generator
+description: Generate a complete MCP server project in TypeScript with tools, resources,
+  and proper configuration
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/typescript-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+- typescript
+languages: []
+platforms: []
+aliases:
+- typescript-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: 3a39ecdfd4ddc2886baa10cdb12b5117484ea6d40b14309304c6d7908d79655a
+  char_count: 3700
+  text: "# Generate TypeScript MCP Server\n\nCreate a complete Model Context Protocol\
+    \ (MCP) server in TypeScript with the following specifications:\n\n## Requirements\n\
+    \n1. **Project Structure**: Create a new TypeScript/Node.js project with proper\
+    \ directory structure\n2. **NPM Packages**: Include @modelcontextprotocol/sdk,\
+    \ zod@3, and either express (for HTTP) or stdio support\n3. **TypeScript Configuration**:\
+    \ Proper tsconfig.json with ES modules support\n4. **Server Type**: Choose between\
+    \ HTTP (with Streamable HTTP transport) or stdio-based server\n5. **Tools**: Create\
+    \ at least one useful tool with proper schema validation\n6. **Error Handling**:\
+    \ Include comprehensive error handling and validation\n\n## Implementation Details\n\
+    \n### Project Setup\n- Initialize with `npm init` and create package.json\n- Install\
+    \ dependencies: `@modelcontextprotocol/sdk`, `zod@3`, and transport-specific packages\n\
+    - Configure TypeScript with ES modules: `\"type\": \"module\"` in package.json\n\
+    - Add dev dependencies: `tsx` or `ts-node` for development\n- Create proper .gitignore\
+    \ file\n\n### Server Configuration\n- Use `McpServer` class for high-level implementation\n\
+    - Set server name and version\n- Choose appropriate transport (StreamableHTTPServerTransport\
+    \ or StdioServerTransport)\n- For HTTP: set up Express with proper middleware\
+    \ and error handling\n- For stdio: use StdioServerTransport directly\n\n### Tool\
+    \ Implementation\n- Use `registerTool()` method with descriptive names\n- Define\
+    \ schemas using zod for input and output validation\n- Provide clear `title` and\
+    \ `description` fields\n- Return both `content` and `structuredContent` in results\n\
+    - Implement proper error handling with try-catch blocks\n- Support async operations\
+    \ where appropriate\n\n### Resource/Prompt Setup (Optional)\n- Add resources using\
+    \ `registerResource()` with ResourceTemplate for dynamic URIs\n- Add prompts using\
+    \ `registerPrompt()` with argument schemas\n- Consider adding completion support\
+    \ for better UX\n\n### Code Quality\n- Use TypeScript for type safety\n- Follow\
+    \ async/await patterns consistently\n- Implement proper cleanup on transport close\
+    \ events\n- Use environment variables for configuration\n- Add inline comments\
+    \ for complex logic\n- Structure code with clear separation of concerns\n\n##\
+    \ Example Tool Types to Consider\n- Data processing and transformation\n- External\
+    \ API integrations\n- File system operations (read, search, analyze)\n- Database\
+    \ queries\n- Text analysis or summarization (with sampling)\n- System information\
+    \ retrieval\n\n## Configuration Options\n- **For HTTP Servers**: \n  - Port configuration\
+    \ via environment variables\n  - CORS setup for browser clients\n  - Session management\
+    \ (stateless vs stateful)\n  - DNS rebinding protection for local servers\n  \n\
+    - **For stdio Servers**:\n  - Proper stdin/stdout handling\n  - Environment-based\
+    \ configuration\n  - Process lifecycle management\n\n## Testing Guidance\n- Explain\
+    \ how to run the server (`npm start` or `npx tsx server.ts`)\n- Provide MCP Inspector\
+    \ command: `npx @modelcontextprotocol/inspector`\n- For HTTP servers, include\
+    \ connection URL: `http://localhost:PORT/mcp`\n- Include example tool invocations\n\
+    - Add troubleshooting tips for common issues\n\n## Additional Features to Consider\n\
+    - Sampling support for LLM-powered tools\n- User input elicitation for interactive\
+    \ workflows\n- Dynamic tool registration with enable/disable capabilities\n- Notification\
+    \ debouncing for bulk updates\n- Resource links for efficient data references\n\
+    \nGenerate a complete, production-ready MCP server with comprehensive documentation,\
+    \ type safety, and error handling."

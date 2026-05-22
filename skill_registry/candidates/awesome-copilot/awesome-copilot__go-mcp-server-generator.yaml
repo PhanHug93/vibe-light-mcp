@@ -1,0 +1,122 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__go-mcp-server-generator
+name: go-mcp-server-generator
+description: Generate a complete Go MCP server project with proper structure, dependencies,
+  and implementation using the official github.com/modelcontextprotocol/go-sdk.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/go-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- go-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: 70d1f1f45ab175da155c5d1109394a8eab074bdd85fa01e452d68347cf132ccb
+  char_count: 7035
+  text: "# Go MCP Server Project Generator\n\nGenerate a complete, production-ready\
+    \ Model Context Protocol (MCP) server project in Go.\n\n## Project Requirements\n\
+    \nYou will create a Go MCP server with:\n\n1. **Project Structure**: Proper Go\
+    \ module layout\n2. **Dependencies**: Official MCP SDK and necessary packages\n\
+    3. **Server Setup**: Configured MCP server with transports\n4. **Tools**: At least\
+    \ 2-3 useful tools with typed inputs/outputs\n5. **Error Handling**: Proper error\
+    \ handling and context usage\n6. **Documentation**: README with setup and usage\
+    \ instructions\n7. **Testing**: Basic test structure\n\n## Template Structure\n\
+    \n```\nmyserver/\n\u251C\u2500\u2500 go.mod\n\u251C\u2500\u2500 go.sum\n\u251C\
+    \u2500\u2500 main.go\n\u251C\u2500\u2500 tools/\n\u2502   \u251C\u2500\u2500 tool1.go\n\
+    \u2502   \u2514\u2500\u2500 tool2.go\n\u251C\u2500\u2500 resources/\n\u2502  \
+    \ \u2514\u2500\u2500 resource1.go\n\u251C\u2500\u2500 config/\n\u2502   \u2514\
+    \u2500\u2500 config.go\n\u251C\u2500\u2500 README.md\n\u2514\u2500\u2500 main_test.go\n\
+    ```\n\n## go.mod Template\n\n```go\nmodule github.com/yourusername/{{PROJECT_NAME}}\n\
+    \ngo 1.23\n\nrequire (\n    github.com/modelcontextprotocol/go-sdk v1.0.0\n)\n\
+    ```\n\n## main.go Template\n\n```go\npackage main\n\nimport (\n    \"context\"\
+    \n    \"log\"\n    \"os\"\n    \"os/signal\"\n    \"syscall\"\n\n    \"github.com/modelcontextprotocol/go-sdk/mcp\"\
+    \n    \"github.com/yourusername/{{PROJECT_NAME}}/config\"\n    \"github.com/yourusername/{{PROJECT_NAME}}/tools\"\
+    \n)\n\nfunc main() {\n    cfg := config.Load()\n    \n    ctx, cancel := context.WithCancel(context.Background())\n\
+    \    defer cancel()\n\n    // Handle graceful shutdown\n    sigCh := make(chan\
+    \ os.Signal, 1)\n    signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)\n   \
+    \ go func() {\n        <-sigCh\n        log.Println(\"Shutting down...\")\n  \
+    \      cancel()\n    }()\n\n    // Create server\n    server := mcp.NewServer(\n\
+    \        &mcp.Implementation{\n            Name:    cfg.ServerName,\n        \
+    \    Version: cfg.Version,\n        },\n        &mcp.Options{\n            Capabilities:\
+    \ &mcp.ServerCapabilities{\n                Tools:     &mcp.ToolsCapability{},\n\
+    \                Resources: &mcp.ResourcesCapability{},\n                Prompts:\
+    \   &mcp.PromptsCapability{},\n            },\n        },\n    )\n\n    // Register\
+    \ tools\n    tools.RegisterTools(server)\n\n    // Run server\n    transport :=\
+    \ &mcp.StdioTransport{}\n    if err := server.Run(ctx, transport); err != nil\
+    \ {\n        log.Fatalf(\"Server error: %v\", err)\n    }\n}\n```\n\n## tools/tool1.go\
+    \ Template\n\n```go\npackage tools\n\nimport (\n    \"context\"\n    \"fmt\"\n\
+    \n    \"github.com/modelcontextprotocol/go-sdk/mcp\"\n)\n\ntype Tool1Input struct\
+    \ {\n    Param1 string `json:\"param1\" jsonschema:\"required,description=First\
+    \ parameter\"`\n    Param2 int    `json:\"param2,omitempty\" jsonschema:\"description=Optional\
+    \ second parameter\"`\n}\n\ntype Tool1Output struct {\n    Result string `json:\"\
+    result\" jsonschema:\"description=The result of the operation\"`\n    Status string\
+    \ `json:\"status\" jsonschema:\"description=Operation status\"`\n}\n\nfunc Tool1Handler(ctx\
+    \ context.Context, req *mcp.CallToolRequest, input Tool1Input) (\n    *mcp.CallToolResult,\n\
+    \    Tool1Output,\n    error,\n) {\n    // Validate input\n    if input.Param1\
+    \ == \"\" {\n        return nil, Tool1Output{}, fmt.Errorf(\"param1 is required\"\
+    )\n    }\n\n    // Check context\n    if ctx.Err() != nil {\n        return nil,\
+    \ Tool1Output{}, ctx.Err()\n    }\n\n    // Perform operation\n    result := fmt.Sprintf(\"\
+    Processed: %s\", input.Param1)\n\n    return nil, Tool1Output{\n        Result:\
+    \ result,\n        Status: \"success\",\n    }, nil\n}\n\nfunc RegisterTool1(server\
+    \ *mcp.Server) {\n    mcp.AddTool(server,\n        &mcp.Tool{\n            Name:\
+    \        \"tool1\",\n            Description: \"Description of what tool1 does\"\
+    ,\n        },\n        Tool1Handler,\n    )\n}\n```\n\n## tools/registry.go Template\n\
+    \n```go\npackage tools\n\nimport \"github.com/modelcontextprotocol/go-sdk/mcp\"\
+    \n\nfunc RegisterTools(server *mcp.Server) {\n    RegisterTool1(server)\n    RegisterTool2(server)\n\
+    \    // Register additional tools here\n}\n```\n\n## config/config.go Template\n\
+    \n```go\npackage config\n\nimport \"os\"\n\ntype Config struct {\n    ServerName\
+    \ string\n    Version    string\n    LogLevel   string\n}\n\nfunc Load() *Config\
+    \ {\n    return &Config{\n        ServerName: getEnv(\"SERVER_NAME\", \"{{PROJECT_NAME}}\"\
+    ),\n        Version:    getEnv(\"VERSION\", \"v1.0.0\"),\n        LogLevel:  \
+    \ getEnv(\"LOG_LEVEL\", \"info\"),\n    }\n}\n\nfunc getEnv(key, defaultValue\
+    \ string) string {\n    if value := os.Getenv(key); value != \"\" {\n        return\
+    \ value\n    }\n    return defaultValue\n}\n```\n\n## main_test.go Template\n\n\
+    ```go\npackage main\n\nimport (\n    \"context\"\n    \"testing\"\n\n    \"github.com/yourusername/{{PROJECT_NAME}}/tools\"\
+    \n)\n\nfunc TestTool1Handler(t *testing.T) {\n    ctx := context.Background()\n\
+    \    input := tools.Tool1Input{\n        Param1: \"test\",\n        Param2: 42,\n\
+    \    }\n\n    result, output, err := tools.Tool1Handler(ctx, nil, input)\n   \
+    \ if err != nil {\n        t.Fatalf(\"Tool1Handler failed: %v\", err)\n    }\n\
+    \n    if output.Status != \"success\" {\n        t.Errorf(\"Expected status 'success',\
+    \ got '%s'\", output.Status)\n    }\n\n    if result != nil {\n        t.Error(\"\
+    Expected result to be nil\")\n    }\n}\n```\n\n## README.md Template\n\n```markdown\n\
+    # {{PROJECT_NAME}}\n\nA Model Context Protocol (MCP) server built with Go.\n\n\
+    ## Description\n\n{{PROJECT_DESCRIPTION}}\n\n## Installation\n\n\\`\\`\\`bash\n\
+    go mod download\ngo build -o {{PROJECT_NAME}}\n\\`\\`\\`\n\n## Usage\n\nRun the\
+    \ server with stdio transport:\n\n\\`\\`\\`bash\n./{{PROJECT_NAME}}\n\\`\\`\\\
+    `\n\n## Configuration\n\nConfigure via environment variables:\n\n- `SERVER_NAME`:\
+    \ Server name (default: \"{{PROJECT_NAME}}\")\n- `VERSION`: Server version (default:\
+    \ \"v1.0.0\")\n- `LOG_LEVEL`: Logging level (default: \"info\")\n\n## Available\
+    \ Tools\n\n### tool1\n{{TOOL1_DESCRIPTION}}\n\n**Input:**\n- `param1` (string,\
+    \ required): First parameter\n- `param2` (int, optional): Second parameter\n\n\
+    **Output:**\n- `result` (string): Operation result\n- `status` (string): Status\
+    \ of the operation\n\n## Development\n\nRun tests:\n\n\\`\\`\\`bash\ngo test ./...\n\
+    \\`\\`\\`\n\nBuild:\n\n\\`\\`\\`bash\ngo build -o {{PROJECT_NAME}}\n\\`\\`\\`\n\
+    \n## License\n\nMIT\n```\n\n## Generation Instructions\n\nWhen generating a Go\
+    \ MCP server:\n\n1. **Initialize Module**: Create `go.mod` with proper module\
+    \ path\n2. **Structure**: Follow the template directory structure\n3. **Type Safety**:\
+    \ Use structs with JSON schema tags for all inputs/outputs\n4. **Error Handling**:\
+    \ Validate inputs, check context, wrap errors\n5. **Documentation**: Add clear\
+    \ descriptions and examples\n6. **Testing**: Include at least one test per tool\n\
+    7. **Configuration**: Use environment variables for config\n8. **Logging**: Use\
+    \ structured logging (log/slog)\n9. **Graceful Shutdown**: Handle signals properly\n\
+    10. **Transport**: Default to stdio, document alternatives\n\n## Best Practices\n\
+    \n- Keep tools focused and single-purpose\n- Use descriptive names for types and\
+    \ functions\n- Include JSON schema documentation in struct tags\n- Always respect\
+    \ context cancellation\n- Return descriptive errors\n- Keep main.go minimal, logic\
+    \ in packages\n- Write tests for tool handlers\n- Document all exported functions"

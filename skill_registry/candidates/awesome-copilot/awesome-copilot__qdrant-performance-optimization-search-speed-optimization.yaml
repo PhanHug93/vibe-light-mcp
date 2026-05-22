@@ -1,0 +1,78 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-performance-optimization-search-speed-optimization
+name: qdrant-search-speed-optimization
+description: Diagnoses and fixes slow Qdrant search. Use when someone reports 'search
+  is slow', 'high latency', 'queries take too long', 'low QPS', 'throughput too low',
+  'filtered search is slow', or 'search was fast but now it's slow'. Also use when
+  search performance degrades after config changes or data growth.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-performance-optimization/search-speed-optimization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- qdrant-search-speed-optimization
+content:
+  kind: skill_markdown
+  sha256: ede068e053005c19718bf11853e99ab94b337db2769f74e52fe63f81fc525131
+  char_count: 4726
+  text: "# Diagnose a problem\n\nThere the multiple possible reasons for search performance\
+    \ degradation. The most common ones are:\n\n* Memory pressure: if the working\
+    \ set exceeds available RAM\n* Complex requests (e.g. high `hnsw_ef`, complex\
+    \ filters without payload index)\n* Competing background processes (e.g. optimizer\
+    \ still running after bulk upload)\n* Problem with the cluster (e.g. network issues,\
+    \ hardware degradation)\n\n\n## Single Query Too Slow (Latency)\n\nUse when: individual\
+    \ queries take too long regardless of load.\n\n### Diagnostic steps:\n\n- Check\
+    \ if second run of the same request is significantly faster (indicates memory\
+    \ pressure)\n- Try the same query with `with_payload: false` and `with_vectors:\
+    \ false` to see if payload retrieval is the bottleneck\n- If request uses filters,\
+    \ try to remove them one by one to identify if a specific filter condition is\
+    \ the bottleneck\n\n### Common fixes:\n\n- Tune HNSW parameters: [Fine-tuning\
+    \ search](https://search.qdrant.tech/md/documentation/operations/optimize/?s=fine-tuning-search-parameters)\n\
+    - Enable in-memory quantization: [Scalar quantization](https://search.qdrant.tech/md/documentation/manage-data/quantization/?s=scalar-quantization)\n\
+    - Reduce Vector Dimensionality with Matryoshka Models: [Matryoshka Models](https://search.qdrant.tech/md/documentation/inference/?s=reduce-vector-dimensionality-with-matryoshka-models)\n\
+    - Use oversampling + rescore for high-dimensional vectors [Search with quantization](https://search.qdrant.tech/md/documentation/manage-data/quantization/?s=searching-with-quantization)\n\
+    - Enable io_uring for disk-heavy workloads on Linux [io_uring](https://qdrant.tech/articles/io_uring/)\n\
+    \n\n## Can't Handle Enough QPS (Throughput)\n\nUse when: system can't serve enough\
+    \ queries per second under load.\n\n- Reduce segment count (`default_segment_number`\
+    \ to 2) [Maximizing throughput](https://search.qdrant.tech/md/documentation/operations/optimize/?s=maximizing-throughput)\n\
+    - Use batch search API instead of single queries [Batch search](https://search.qdrant.tech/md/documentation/search/search/?s=batch-search-api)\n\
+    - Enable quantization to reduce CPU cost [Scalar quantization](https://search.qdrant.tech/md/documentation/manage-data/quantization/?s=scalar-quantization)\n\
+    - Add replicas to distribute read load [Replication](https://search.qdrant.tech/md/documentation/operations/distributed_deployment/?s=replication)\n\
+    \n\n## Filtered Search Is Slow\n\nUse when: filtered search is significantly slower\
+    \ than unfiltered. Most common SA complaint after memory.\n\n- Create payload\
+    \ index on the filtered field [Payload index](https://search.qdrant.tech/md/documentation/manage-data/indexing/?s=payload-index)\n\
+    - Use `is_tenant=true` for primary filtering condition: [Tenant index](https://search.qdrant.tech/md/documentation/manage-data/indexing/?s=tenant-index)\n\
+    - Try ACORN algorithm for complex filters: [ACORN](https://search.qdrant.tech/md/documentation/search/search/?s=acorn-search-algorithm)\n\
+    - Avoid using `nested` filtering conditions as a primary filter. It might force\
+    \ qdrant to read raw payload values instead of using index.\n- If payload index\
+    \ was added after HNSW build, trigger re-index to create filterable subgraph links\n\
+    \n\n## Optimize search performance with parallel updates\n\n### Diagnostic steps\n\
+    \n- Try to run the same query with `indexed_only=true` parameter, if the query\
+    \ is significantly faster, it means that the optimizer is still running and has\
+    \ not yet indexed all segments.\n- If CPU or IO usage is high even with no queries,\
+    \ it also indicates that the optimizer is still running.\n\n### Recommended configuration\
+    \ changes\n\n- reduce `optimizer_cpu_budget` to reserve more CPU for queries\n\
+    - Use `prevent_unoptimized=true` to prevent creating segments with a large amount\
+    \ of unindexed data for searches. Instead, once a segment reaches the so called\
+    \ indexing_threshold, all additional points will be added in \u2018deferred state\u2019\
+    . \n\nLearn more [here](https://search.qdrant.tech/md/documentation/search/low-latency-search/?s=query-indexed-data-only)\n\
+    \n\n## What NOT to Do\n\n- Set `always_ram=false` on quantization (disk thrashing\
+    \ on every search)\n- Put HNSW on disk for latency-sensitive production (only\
+    \ for cold storage)\n- Increase segment count for throughput (opposite: fewer\
+    \ = better)\n- Create payload indexes on every field (wastes memory)\n- Blame\
+    \ Qdrant before checking optimizer status"

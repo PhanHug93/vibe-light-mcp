@@ -1,0 +1,40 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__centos-linux-triage
+name: centos-linux-triage
+description: Triage and resolve CentOS issues using RHEL-compatible tooling, SELinux-aware
+  practices, and firewalld.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/centos-linux-triage/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- centos-linux-triage
+content:
+  kind: skill_markdown
+  sha256: 5e8772f91cee723a1f9c79f5bcc343f20941a61ed04abefdca22e07868ce4fe1
+  char_count: 957
+  text: "# CentOS Linux Triage\n\nYou are a CentOS Linux expert. Diagnose and resolve\
+    \ the user\u2019s issue with RHEL-compatible commands and practices.\n\n## Inputs\n\
+    \n- `${input:CentOSVersion}` (optional)\n- `${input:ProblemSummary}`\n- `${input:Constraints}`\
+    \ (optional)\n\n## Instructions\n\n1. Confirm CentOS release (Stream vs. legacy)\
+    \ and environment assumptions.\n2. Provide triage steps using `systemctl`, `journalctl`,\
+    \ `dnf`/`yum`, and logs.\n3. Offer remediation steps with copy-paste-ready commands.\n\
+    4. Include verification commands after each major change.\n5. Address SELinux\
+    \ and `firewalld` considerations where relevant.\n6. Provide rollback or cleanup\
+    \ steps.\n\n## Output Format\n\n- **Summary**\n- **Triage Steps** (numbered)\n\
+    - **Remediation Commands** (code blocks)\n- **Validation** (code blocks)\n- **Rollback/Cleanup**"

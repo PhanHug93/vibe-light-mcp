@@ -1,0 +1,111 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gsap-framer-scroll-animation
+name: gsap-framer-scroll-animation
+description: "Use this skill whenever the user wants to build scroll animations, scroll\
+  \ effects, parallax, scroll-triggered reveals, pinned sections, horizontal scroll,\
+  \ text animations, or any motion tied to scroll position \u2014 in vanilla JS, React,\
+  \ or Next.js. Covers GSAP ScrollTrigger (pinning, scrubbing, snapping, timelines,\
+  \ horizontal scroll, ScrollSmoother, matchMedia) and Framer Motion / Motion v12\
+  \ (useScroll, useTransform, useSpring, whileInView, variants). Use this skill even\
+  \ if the user just says \"animate on scroll\", \"fade in as I scroll\", \"make it\
+  \ scroll like Apple\", \"parallax effect\", \"sticky section\", \"scroll progress\
+  \ bar\", or \"entrance animation\". Also triggers for Copilot prompt patterns for\
+  \ GSAP or Framer Motion code generation. Pairs with the premium-frontend-ui skill\
+  \ for creative philosophy and design-level polish."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gsap-framer-scroll-animation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gsap-framer-scroll-animation
+content:
+  kind: skill_markdown
+  sha256: 1ae197bfe22da3f51b7e77e67af01f87f12b9e797c237ce87e64f644b6528238
+  char_count: 6365
+  text: "# GSAP & Framer Motion \u2014 Scroll Animations Skill\n\nProduction-grade\
+    \ scroll animations with GitHub Copilot prompts, ready-to-use code recipes, and\
+    \ deep API references.\n\n> **Design Companion:** This skill provides the *technical\
+    \ implementation* for scroll-driven motion.\n> For the *creative philosophy*,\
+    \ design principles, and premium aesthetics that should guide **how**\n> and **when**\
+    \ to animate, always cross-reference the **premium-frontend-ui** skill.\n> Together\
+    \ they form a complete approach: premium-frontend-ui decides the **what** and\
+    \ **why**;\n> this skill delivers the **how**.\n\n## Quick Library Selector\n\n\
+    | Need | Use |\n|---|---|\n| Vanilla JS, Webflow, Vue | **GSAP** |\n| Pinning,\
+    \ horizontal scroll, complex timelines | **GSAP** |\n| React / Next.js, declarative\
+    \ style | **Framer Motion** |\n| whileInView entrance animations | **Framer Motion**\
+    \ |\n| Both in same Next.js app | See notes in references |\n\nRead the relevant\
+    \ reference file for full recipes and Copilot prompts:\n\n- **GSAP** \u2192 `references/gsap.md`\
+    \ \u2014 ScrollTrigger API, all recipes, React integration\n- **Framer Motion**\
+    \ \u2192 `references/framer.md` \u2014 useScroll, useTransform, all recipes\n\n\
+    ## Setup (Always Do First)\n\n### GSAP\n```bash\nnpm install gsap\n```\n```js\n\
+    import gsap from 'gsap';\nimport { ScrollTrigger } from 'gsap/ScrollTrigger';\n\
+    gsap.registerPlugin(ScrollTrigger); // MUST call before any ScrollTrigger usage\n\
+    ```\n\n### Framer Motion (Motion v12, 2025)\n```bash\nnpm install motion   # new\
+    \ package name since mid-2025\n# or: npm install framer-motion  \u2014 still works,\
+    \ same API\n```\n```js\nimport { motion, useScroll, useTransform, useSpring }\
+    \ from 'motion/react';\n// legacy: import { motion } from 'framer-motion'  \u2014\
+    \ also valid\n```\n\n## Workflow\n\n1. Interpret the user's intent to identify\
+    \ if GSAP or Framer Motion is the best fit.\n2. Read the relevant reference document\
+    \ in `references/` for detailed APIs and patterns.\n3. Suggest the required package\
+    \ installation if not already present.\n4. Implement the scaffold for the animation\
+    \ structure, adhering to the requested format (React components, hook requirements,\
+    \ or vanilla JS).\n5. Apply the correct tools (scrolling vs in-view elements)\
+    \ ensuring accessibility options are present and hooks don't cause infinite re-renders.\n\
+    \n## The 5 Most Common Scroll Patterns\n\nQuick reference \u2014 full recipes\
+    \ with Copilot prompts are in the reference files.\n\n### 1. Fade-in on enter\
+    \ (GSAP)\n```js\ngsap.from('.card', {\n  opacity: 0, y: 50, stagger: 0.15, duration:\
+    \ 0.8,\n  scrollTrigger: { trigger: '.card', start: 'top 85%' }\n});\n```\n\n\
+    ### 2. Fade-in on enter (Framer Motion)\n```jsx\n<motion.div\n  initial={{ opacity:\
+    \ 0, y: 40 }}\n  whileInView={{ opacity: 1, y: 0 }}\n  viewport={{ once: true,\
+    \ margin: '-80px' }}\n  transition={{ duration: 0.6 }}\n/>\n```\n\n### 3. Scrub\
+    \ / scroll-linked (GSAP)\n```js\ngsap.to('.hero-img', {\n  scale: 1.3, opacity:\
+    \ 0, ease: 'none',\n  scrollTrigger: { trigger: '.hero', start: 'top top', end:\
+    \ 'bottom top', scrub: true }\n});\n```\n\n### 4. Scroll-linked (Framer Motion)\n\
+    ```jsx\nconst { scrollYProgress } = useScroll({ target: ref, offset: ['start end',\
+    \ 'end start'] });\nconst y = useTransform(scrollYProgress, [0, 1], [0, -100]);\n\
+    return <motion.div style={{ y }} />;\n```\n\n### 5. Pinned timeline (GSAP)\n```js\n\
+    const tl = gsap.timeline({\n  scrollTrigger: { trigger: '.section', pin: true,\
+    \ scrub: 1, start: 'top top', end: '+=200%' }\n});\ntl.from('.title', { opacity:\
+    \ 0, y: 60 }).from('.img', { scale: 0.85 });\n```\n\n## Critical Rules (Apply\
+    \ Always)\n\n- **GSAP**: always call `gsap.registerPlugin(ScrollTrigger)` before\
+    \ using it\n- **GSAP scrub**: always use `ease: 'none'` \u2014 easing feels wrong\
+    \ when scrub is active\n- **GSAP React**: use `useGSAP` from `@gsap/react`, never\
+    \ plain `useEffect` \u2014 it auto-cleans ScrollTriggers\n- **GSAP debug**: add\
+    \ `markers: true` during development; remove before production\n- **Framer**:\
+    \ `useTransform` output must go into `style` prop of a `motion.*` element, not\
+    \ a plain div\n- **Framer Next.js**: always add `'use client'` at top of any file\
+    \ using motion hooks\n- **Both**: animate only `transform` and `opacity` \u2014\
+    \ avoid `width`, `height`, `box-shadow`\n- **Accessibility**: always check `prefers-reduced-motion`\
+    \ \u2014 see each reference file for patterns\n- **Premium polish**: follow the\
+    \ **premium-frontend-ui** skill principles for motion timing, easing curves, and\
+    \ restraint \u2014 animation should enhance, never overwhelm\n\n## Copilot Prompting\
+    \ Tips\n\n- Give Copilot the full selector, base image, and scroll range upfront\
+    \ \u2014 vague prompts produce vague code\n- For GSAP, always specify: selector,\
+    \ start/end strings, whether you want scrub or toggleActions\n- For Framer, always\
+    \ specify: which hook (useScroll vs whileInView), offset values, what to transform\n\
+    - Paste the exact error message when asking `/fix` \u2014 Copilot fixes are dramatically\
+    \ better with real errors\n- Use `@workspace` scope in Copilot Chat so it reads\
+    \ your existing component structure\n\n## Reference Files\n\n| File | Contents\
+    \ |\n|---|---|\n| `references/gsap.md` | Full ScrollTrigger API reference, 10\
+    \ recipes, React (useGSAP), Lenis, matchMedia, accessibility |\n| `references/framer.md`\
+    \ | Full useScroll / useTransform API, 8 recipes, variants, Motion v12 notes,\
+    \ Next.js tips |\n\n## Related Skills\n\n| Skill | Relationship |\n|---|---|\n\
+    | **premium-frontend-ui** | Creative philosophy, design principles, and aesthetic\
+    \ guidelines \u2014 defines *when* and *why* to animate |"

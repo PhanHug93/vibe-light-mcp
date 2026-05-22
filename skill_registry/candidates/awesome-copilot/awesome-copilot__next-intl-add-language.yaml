@@ -1,0 +1,37 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__next-intl-add-language
+name: next-intl-add-language
+description: Add new language to a Next.js + next-intl application
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/next-intl-add-language/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- next-intl-add-language
+content:
+  kind: skill_markdown
+  sha256: 67f02613e2001e601e8ac1b07c35af9b8428c50b6abb77218e752d0898735e35
+  char_count: 750
+  text: "This is a guide to add a new language to a Next.js project using next-intl\
+    \ for internationalization,\n\n- For i18n, the application uses next-intl.\n-\
+    \ All translations are in the directory `./messages`.\n- The UI component is `src/components/language-toggle.tsx`.\n\
+    - Routing and middleware configuration are handled in:\n  - `src/i18n/routing.ts`\n\
+    \  - `src/middleware.ts`\n\nWhen adding a new language:\n\n- Translate all the\
+    \ content of `en.json` to the new language. The goal is to have all the JSON entries\
+    \ in the new language for a complete translation.\n- Add the path in `routing.ts`\
+    \ and `middleware.ts`.\n- Add the language to `language-toggle.tsx`."

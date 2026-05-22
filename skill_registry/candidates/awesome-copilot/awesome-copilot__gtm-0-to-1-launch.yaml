@@ -1,0 +1,196 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-0-to-1-launch
+name: gtm-0-to-1-launch
+description: Launch new products from idea to first customers. Use when launching
+  products, finding early adopters, building launch week playbooks, diagnosing why
+  adoption stalls, or learning that press coverage does not equal growth. Includes
+  the three-layer diagnosis, the 2-week experiment cycle, and the launch that got
+  50K impressions and 12 signups.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-0-to-1-launch/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gtm-0-to-1-launch
+content:
+  kind: skill_markdown
+  sha256: 3a919ad65a5537d81dcc245dec8062eb747d08e0f22991f25f87e6bee9f3230e
+  char_count: 12741
+  text: "# 0-to-1 Launch\n\nLaunch new products from idea to first customers. The\
+    \ goal isn't headlines \u2014 it's finding 10 customers who can't live without\
+    \ you.\n\n## When to Use\n\n**Triggers:**\n- \"How do we launch this product?\"\
+    \n- \"First customer acquisition strategy\"\n- \"We launched but nobody's using\
+    \ it\"\n- \"Product Hunt vs direct outreach?\"\n- \"We have awareness but no conversion\"\
+    \n- \"How do I know if this is working?\"\n\n**Context:**\n- New product launches\n\
+    - Feature launches that feel like new products\n- Finding first 10-50 customers\n\
+    - Validating product-market fit\n- Diagnosing why early traction stalls\n\n---\n\
+    \n## Core Frameworks\n\n### 1. Press \u2260 Growth (The Launch That Got 12 Signups)\n\
+    \n**The Pattern:**\n\nCoordinated a feature launch with full press tour. TechCrunch,\
+    \ VentureBeat, product blogs. Big announcement day.\n\n**Result:**\n- 50K impressions\n\
+    - 12 signups\n- 2 conversions\n\n**Why It Failed:**\n\nOptimized for media buzz,\
+    \ not user value. The feature wasn't ready for self-serve. It needed education,\
+    \ context, hand-holding. Press gives you eyeballs. But eyeballs without activation\
+    \ = vanity.\n\n**What Works Better:**\n\nEmail 50 target customers directly. \"\
+    We built [feature] because teams like yours struggle with [problem]. Want early\
+    \ access?\" Walk them through setup personally. Get feedback, iterate.\n\n**Result:**\
+    \ 50 emails \u2192 15 replies (30% reply rate) \u2192 8 trials \u2192 4 conversions\
+    \ (50% trial-to-paid).\n\n**The Lesson:**\n\nEarly customers come from direct\
+    \ outreach, not press coverage. Press matters later (Series A announcement, major\
+    \ milestone). For 0-to-1, it's distraction.\n\n---\n\n### 2. The Three-Layer Diagnosis\
+    \ (Why Launches Stall)\n\n**The Pattern:**\n\nYou launched. You have some awareness.\
+    \ But conversion is weak. The problem lives in one of three layers, and each requires\
+    \ a different intervention.\n\n**Layer 1: Positioning Problem**\n\nSymptoms:\n\
+    - Messaging sounds like competitors\n- Differentiation requires explaining complex\
+    \ technical details\n- Buyers see you as interchangeable with alternatives\n-\
+    \ Sales conversations get derailed by comparison questions\n\nDiagnosis: You're\
+    \ \"fighting an asymmetric war on the wrong front\" \u2014 competing on features\
+    \ against better-funded companies. Map where competitors claim unique value. Find\
+    \ the position they can't easily copy.\n\nFix: Stake a claim you can own structurally\
+    \ (not just through product features). Test with outbound messaging before committing\
+    \ product resources.\n\n**Layer 2: Experience Problem**\n\nSymptoms:\n- Strong\
+    \ awareness but weak activation\n- Users sign up but don't complete first workflow\n\
+    - Multiple entry points creating decision paralysis\n- Documentation is feature-centric,\
+    \ not outcome-centric\n\nDiagnosis: Flexibility without opinionated defaults is\
+    \ a liability, not a feature. Users face the \"paradox of choice\" \u2014 too\
+    \ many options, not enough guidance to the aha moment.\n\nFix: Identify 2-3 \"\
+    undeniable use cases\" that deliver immediate value. Restrict onboarding to those\
+    \ specific use cases. Gate advanced features behind a mastery path. Rewrite help\
+    \ content around jobs-to-be-done, not feature lists.\n\n**Layer 3: Alignment Problem**\n\
+    \nSymptoms:\n- Team reports being \"out of bandwidth\" for customers\n- Different\
+    \ functions optimize for different metrics\n- Every idea has equal weight (no\
+    \ tiebreaker)\n- No clear north star connecting activities to outcomes\n\nDiagnosis:\
+    \ \"Exploratory mode\" \u2014 where every initiative has equal priority \u2014\
+    \ becomes destructive when resources are constrained.\n\nFix: Define a single\
+    \ shared north star. Use it as tiebreaker for every decision: \"Does this help\
+    \ us win a customer?\" Cut activities that don't ladder up. Make progress visible\
+    \ weekly, not quarterly.\n\n**How to Use This:**\n\nWhen a launch stalls, diagnose\
+    \ which layer is broken before throwing resources at it. Fixing experience when\
+    \ the problem is positioning wastes engineering time. Fixing positioning when\
+    \ the problem is internal alignment wastes marketing spend.\n\n---\n\n### 3. The\
+    \ First 10 Customers Framework\n\n**Principle:** First 10 customers are not for\
+    \ revenue. They're for learning.\n\n**What You're Learning:**\n1. Does the product\
+    \ actually solve the problem?\n2. What's the activation flow? (How do they get\
+    \ value?)\n3. What objections come up? (Price, features, integrations?)\n4. Who's\
+    \ the real buyer? (Title, role, budget authority?)\n5. What's the sales cycle?\
+    \ (Days, weeks, months?)\n\n**How to Find Them:**\n\n**Channel 1: Personal Network\
+    \ (first 2-3)**\n- \"I'm building [X], can I get your feedback?\"\n- Convert to\
+    \ paying customers (don't give away for free \u2014 free users give different\
+    \ feedback than paying ones)\n\n**Channel 2: Direct Outreach (customers 3-20)**\n\
+    - Build list of 100 target accounts\n- Personalize to their specific pain\n- Test\
+    \ messaging variants \u2014 which angle gets replies?\n\n**Channel 3: Ceiling\
+    \ Moment Targeting (highest-intent)**\n- The highest-intent prospects are people\
+    \ who've already adopted a comparable solution and hit its limits\n- They've invested\
+    \ in learning a tool, hit its ceiling, and have low switching costs\n- Craft outreach\
+    \ around the limitation: \"We see teams that outgrow [incumbent] when they need\
+    \ [capability]. That's what we built.\"\n- These convert 3-5x better than cold\
+    \ outreach because they already understand the problem\n\n**Channel 4: Community\
+    \ (developer products)**\n- \"Built [X] to solve [problem], looking for early\
+    \ users\"\n- Offer white-glove onboarding\n- Best for products where users congregate\
+    \ in Slack/Discord/forums\n\n---\n\n### 4. The 2-Week Experiment Cycle\n\n**The\
+    \ Pattern:**\n\nSpeed in early stages matters more than perfection. The constraint\
+    \ isn't whether you're right \u2014 it's how quickly you can test assumptions\
+    \ and iterate.\n\n**How to Execute:**\n\n- Frame every test with clear success\
+    \ criteria before starting\n- Test one variable per experiment (messaging, channel,\
+    \ pricing, feature)\n- Run for 2 weeks maximum \u2014 if it's not showing signal\
+    \ by then, it won't\n- If it works, allocate 3x resources within a week\n- If\
+    \ it doesn't, kill it and move to the next test\n- Document what you learned regardless\
+    \ of outcome\n\n**The Playbook Rule:**\n\nEvery successful experiment must become\
+    \ a playbook before scaling. Structure: Goal \u2192 Steps \u2192 Expected output\
+    \ \u2192 Metrics \u2192 Risks. If someone unfamiliar can't execute the playbook,\
+    \ it's not documented well enough.\n\n**Why This Matters:**\n\nOne-off wins don't\
+    \ compound. Systematized experiments do. The goal isn't a single launch \u2014\
+    \ it's building a repeatable machine for testing assumptions at speed.\n\n**Common\
+    \ Mistake:**\n\nOver-planning before testing. Waiting for \"perfect\" conditions\
+    \ before launching. Staying with failing experiments too long because you've invested\
+    \ emotional energy. Make decisions with 70% information.\n\n---\n\n### 5. Partner-Led\
+    \ Market Entry (When You Don't Have Distribution)\n\n**The Pattern:**\n\nRather\
+    \ than entering new markets through direct sales alone, use partnerships with\
+    \ established players to accelerate.\n\n**How to Execute:**\n\n1. Identify market\
+    \ leaders in your target segment\n2. Approach with customer problem, not partnership\
+    \ pitch \u2014 \"What if your users could access [capability]?\" shifts from your\
+    \ need to their need\n3. Start small: Help them solve one specific problem (narrow\
+    \ integration, not full partnership)\n4. Prove value with a 3-6 month pilot before\
+    \ asking for broader commitment\n5. Build reference customers together \u2014\
+    \ reduces their risk\n6. Leverage their GTM: once integrated, they market to their\
+    \ base\n\n**The Supernode Pattern:**\n\nPosition yourself as the integration hub\
+    \ that other tools naturally connect through. You own critical data or workflows\
+    \ that other platforms need. This compounds \u2014 each new partner makes you\
+    \ more valuable to the next.\n\n**Category Sequencing:**\n\nDon't pursue partnerships\
+    \ everywhere. Dominate 2-3 categories per quarter:\n1. Lead with genuine use cases:\
+    \ \"Our users ask for [partner] integration 50x per month\"\n2. Once you partner\
+    \ with a top player, competitors feel urgency to work with you too\n3. After 2-3\
+    \ successful partnerships in a category, create joint customer stories\n\n**Common\
+    \ Mistake:**\n\nLaunching partnerships without clear integration pathways. Expecting\
+    \ partners to drive awareness without support. Treating partnerships as a sales\
+    \ channel rather than platform expansion.\n\n---\n\n### 6. PMF Validation Checklist\n\
+    \n**Product-market fit is when customers pull you forward, not when you push them.**\n\
+    \n**Retention:**\n- [ ] 40%+ of Week 1 users return Week 4\n- [ ] Usage increasing\
+    \ over time\n- [ ] Customers renewing without sales push\n\n**Organic Growth:**\n\
+    - [ ] Word-of-mouth referrals happening\n- [ ] Customers asking \"can I add my\
+    \ team?\"\n- [ ] Inbound interest without paid marketing\n\n**Sales Velocity:**\n\
+    - [ ] Sales cycles shortening\n- [ ] Win rates >30% of trials\n- [ ] Customers\
+    \ saying \"we need this now\"\n\n**Qualitative:**\n- [ ] >40% very disappointed\
+    \ if product went away (Sean Ellis test)\n- [ ] Customers can articulate what\
+    \ it's for (clear use case)\n- [ ] Customers advocating publicly\n\n**If you don't\
+    \ have these, you don't have PMF yet. Don't scale marketing/sales.**\n\n---\n\n\
+    ## Decision Trees\n\n### Why Is Our Launch Stalling?\n\n```\nDo prospects understand\
+    \ what you are?\n\u251C\u2500 No \u2192 Layer 1: Positioning problem\n\u2502 \
+    \        Fix: Test new messaging before changing product\n\u2514\u2500 Yes \u2192\
+    \ Continue...\n    \u2502\n    Do users activate after signing up?\n    \u251C\
+    \u2500 No \u2192 Layer 2: Experience problem\n    \u2502         Fix: Restrict\
+    \ onboarding to 2-3 use cases, guide to aha moment\n    \u2514\u2500 Yes \u2192\
+    \ Continue...\n        \u2502\n        Is the team aligned on what matters?\n\
+    \        \u251C\u2500 No \u2192 Layer 3: Alignment problem\n        \u2502   \
+    \      Fix: Single north star, weekly visibility, cut non-essential\n        \u2514\
+    \u2500 Yes \u2192 Keep iterating, you're on the right track\n```\n\n### Press\
+    \ Launch or Direct Outreach?\n\n```\nSelf-serve ready? (Users get value in <10\
+    \ min)\n\u251C\u2500 No \u2192 Direct outreach only (press won't convert)\n\u2514\
+    \u2500 Yes \u2192 Do you have >$1M funding to announce?\n    \u251C\u2500 Yes\
+    \ \u2192 Both (press for awareness, outreach for conversion)\n    \u2514\u2500\
+    \ No \u2192 Direct outreach first, press later\n```\n\n---\n\n## Common Mistakes\n\
+    \n**1. Optimizing for headlines instead of activation**\n50K impressions and 12\
+    \ signups. Press \u2260 growth.\n\n**2. No target customer list before launch**\n\
+    Spray-and-pray doesn't work at 0-to-1. Build the list of 100 accounts first.\n\
+    \n**3. Flexibility without defaults**\nGiving users every option paralyzes them.\
+    \ Pick 2-3 undeniable use cases and guide hard.\n\n**4. Giving product away for\
+    \ free**\nFree users give polite feedback. Paying users give honest feedback.\n\
+    \n**5. Scaling before learning**\nFirst 10 customers are for learning, not revenue.\
+    \ Document everything.\n\n**6. Over-planning, under-testing**\n2-week experiments\
+    \ with clear kill criteria. Move fast, document learnings.\n\n**7. Diagnosing\
+    \ the wrong layer**\nPositioning fix when the problem is experience = wasted marketing.\
+    \ Experience fix when the problem is positioning = wasted engineering.\n\n---\n\
+    \n## Quick Reference\n\n**Three-layer diagnosis:**\nLayer 1: Positioning (messaging\
+    \ sounds like competitors) \u2192 Test new messaging\nLayer 2: Experience (awareness\
+    \ but no activation) \u2192 Guide to aha moment\nLayer 3: Alignment (team scattered)\
+    \ \u2192 Single north star, weekly visibility\n\n**First 10 customers:**\nPersonal\
+    \ network (2-3) \u2192 Direct outreach (3-20) \u2192 Ceiling moment targeting\
+    \ (highest intent) \u2192 Community (developer products)\n\n**2-week experiment\
+    \ cycle:**\nHypothesis \u2192 Success criteria \u2192 Test (2 weeks max) \u2192\
+    \ Kill or 3x \u2192 Document playbook\n\n**PMF signals:**\n40%+ Week 1\u21924\
+    \ retention + word-of-mouth + shortening sales cycles + >40% very disappointed\n\
+    \n**Partner-led entry:**\nCustomer problem first \u2192 Narrow pilot \u2192 Reference\
+    \ customers together \u2192 Leverage their GTM\n\n---\n\n## Related Skills\n\n\
+    - **product-led-growth**: Scaling after initial traction\n- **positioning-strategy**:\
+    \ Positioning for launch\n- **partnership-architecture**: Partner-led market entry\n\
+    \n---\n\n*Based on launching features that optimized for press and got 12 signups\
+    \ from 50K impressions, diagnosing launch stalls across three companies using\
+    \ the three-layer model, and building the 2-week experiment cycle that turned\
+    \ ad hoc testing into a repeatable machine. Also draws on partner-led market entry\
+    \ across multiple geographies and segments. Not theory \u2014 lessons from mistaking\
+    \ vanity metrics for growth and learning to diagnose the actual problem.*"

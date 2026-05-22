@@ -1,0 +1,92 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__openapi-to-application-code
+name: openapi-to-application-code
+description: Generate a complete, production-ready application from an OpenAPI specification
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/openapi-to-application-code/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- openapi-to-application-code
+content:
+  kind: skill_markdown
+  sha256: 4ac9c35e14140129df922091b62288258887e5d0efc0760ab390b3b248a35c16
+  char_count: 4576
+  text: "# Generate Application from OpenAPI Spec\n\nYour goal is to generate a complete,\
+    \ working application from an OpenAPI specification using the active framework's\
+    \ conventions and best practices.\n\n## Input Requirements\n\n1. **OpenAPI Specification**:\
+    \ Provide either:\n   - A URL to the OpenAPI spec (e.g., `https://api.example.com/openapi.json`)\n\
+    \   - A local file path to the OpenAPI spec\n   - The full OpenAPI specification\
+    \ content pasted directly\n\n2. **Project Details** (if not in spec):\n   - Project\
+    \ name and description\n   - Target framework and version\n   - Package/namespace\
+    \ naming conventions\n   - Authentication method (if not specified in OpenAPI)\n\
+    \n## Generation Process\n\n### Step 1: Analyze the OpenAPI Specification\n- Validate\
+    \ the OpenAPI spec for completeness and correctness\n- Identify all endpoints,\
+    \ HTTP methods, request/response schemas\n- Extract authentication requirements\
+    \ and security schemes\n- Note data model relationships and constraints\n- Flag\
+    \ any ambiguities or incomplete definitions\n\n### Step 2: Design Application\
+    \ Architecture\n- Plan directory structure appropriate for the framework\n- Identify\
+    \ controller/handler grouping by resource or domain\n- Design service layer organization\
+    \ for business logic\n- Plan data models and entity relationships\n- Design configuration\
+    \ and initialization strategy\n\n### Step 3: Generate Application Code\n- Create\
+    \ project structure with build/package configuration files\n- Generate models/DTOs\
+    \ from OpenAPI schemas\n- Generate controllers/handlers with route mappings\n\
+    - Generate service layer with business logic\n- Generate repository/data access\
+    \ layer if applicable\n- Add error handling, validation, and logging\n- Generate\
+    \ configuration and startup code\n\n### Step 4: Add Supporting Files\n- Generate\
+    \ appropriate unit tests for services and controllers\n- Create README with setup\
+    \ and running instructions\n- Add .gitignore and environment configuration templates\n\
+    - Generate API documentation files\n- Create example requests/integration tests\n\
+    \n## Output Structure\n\nThe generated application will include:\n\n```\nproject-name/\n\
+    \u251C\u2500\u2500 README.md                      # Setup and usage instructions\n\
+    \u251C\u2500\u2500 [build-config]                 # Framework-specific build files\
+    \ (pom.xml, build.gradle, package.json, etc.)\n\u251C\u2500\u2500 src/\n\u2502\
+    \   \u251C\u2500\u2500 main/\n\u2502   \u2502   \u251C\u2500\u2500 [language]/\n\
+    \u2502   \u2502   \u2502   \u251C\u2500\u2500 controllers/       # HTTP endpoint\
+    \ handlers\n\u2502   \u2502   \u2502   \u251C\u2500\u2500 services/          #\
+    \ Business logic\n\u2502   \u2502   \u2502   \u251C\u2500\u2500 models/      \
+    \      # Data models and DTOs\n\u2502   \u2502   \u2502   \u251C\u2500\u2500 repositories/\
+    \      # Data access (if applicable)\n\u2502   \u2502   \u2502   \u2514\u2500\u2500\
+    \ config/            # Application configuration\n\u2502   \u2502   \u2514\u2500\
+    \u2500 resources/             # Configuration files\n\u2502   \u2514\u2500\u2500\
+    \ test/\n\u2502       \u251C\u2500\u2500 [language]/\n\u2502       \u2502   \u251C\
+    \u2500\u2500 controllers/       # Controller tests\n\u2502       \u2502   \u2514\
+    \u2500\u2500 services/          # Service tests\n\u2502       \u2514\u2500\u2500\
+    \ resources/             # Test configuration\n\u251C\u2500\u2500 .gitignore\n\
+    \u251C\u2500\u2500 .env.example                   # Environment variables template\n\
+    \u2514\u2500\u2500 docker-compose.yml             # Optional: Docker setup (if\
+    \ applicable)\n```\n\n## Best Practices Applied\n\n- **Framework Conventions**:\
+    \ Follows framework-specific naming, structure, and patterns\n- **Separation of\
+    \ Concerns**: Clear layers with controllers, services, and repositories\n- **Error\
+    \ Handling**: Comprehensive error handling with meaningful responses\n- **Validation**:\
+    \ Input validation and schema validation throughout\n- **Logging**: Structured\
+    \ logging for debugging and monitoring\n- **Testing**: Unit tests for services\
+    \ and controllers\n- **Documentation**: Inline code documentation and setup instructions\n\
+    - **Security**: Implements authentication/authorization from OpenAPI spec\n- **Scalability**:\
+    \ Design patterns support growth and maintenance\n\n## Next Steps\n\nAfter generation:\n\
+    \n1. Review the generated code structure and make customizations as needed\n2.\
+    \ Install dependencies according to framework requirements\n3. Configure environment\
+    \ variables and database connections\n4. Run tests to verify generated code\n\
+    5. Start the development server\n6. Test endpoints using the provided examples\n\
+    \n## Questions to Ask if Needed\n\n- Should the application include database/ORM\
+    \ setup, or just in-memory/mock data?\n- Do you want Docker configuration for\
+    \ containerization?\n- Should authentication be JWT, OAuth2, API keys, or basic\
+    \ auth?\n- Do you need integration tests or just unit tests?\n- Any specific database\
+    \ technology preferences?\n- Should the API include pagination, filtering, and\
+    \ sorting examples?"

@@ -1,0 +1,235 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__msstore-cli
+name: msstore-cli
+description: Microsoft Store Developer CLI (msstore) for publishing Windows applications
+  to the Microsoft Store. Use when asked to configure Store credentials, list Store
+  apps, check submission status, publish submissions, manage package flights, set
+  up CI/CD for Store publishing, or integrate with Partner Center. Supports Windows
+  App SDK/WinUI, UWP, .NET MAUI, Flutter, Electron, React Native, and PWA applications.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/msstore-cli/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- msstore-cli
+content:
+  kind: skill_markdown
+  sha256: 21e91394eba73ae19bea53225da04f9a5273be5cf42df847aea0f839959daf68
+  char_count: 16293
+  text: "# Microsoft Store Developer CLI (msstore)\n\nThe Microsoft Store Developer\
+    \ CLI (`msstore`) is a cross-platform command-line interface for publishing and\
+    \ managing applications in the Microsoft Store. It integrates with Partner Center\
+    \ APIs and supports automated publishing workflows for various application types.\n\
+    \n## When to Use This Skill\n\nUse this skill when you need to:\n\n- Configure\
+    \ Store credentials for API access\n- List applications in your Store account\n\
+    - Check the status of a submission\n- Publish submissions to the Store\n- Package\
+    \ applications for Store submission\n- Initialize projects for Store publishing\n\
+    - Manage package flights (beta testing)\n- Set up CI/CD pipelines for automated\
+    \ Store publishing\n- Manage gradual rollouts of submissions\n- Update submission\
+    \ metadata programmatically\n\n## Prerequisites\n\n- Windows 10+, macOS, or Linux\n\
+    - .NET 9 Desktop Runtime (Windows) or .NET 9 Runtime (macOS/Linux)\n- Partner\
+    \ Center account with appropriate permissions\n- Azure AD app registration with\
+    \ Partner Center API access\n- msstore CLI installed via one of these methods:\n\
+    \  - **Microsoft Store**: [Download](https://www.microsoft.com/store/apps/9P53PC5S0PHJ)\n\
+    \  - **WinGet**: `winget install \"Microsoft Store Developer CLI\"`\n  - **Manual**:\
+    \ Download from [GitHub Releases](https://aka.ms/msstoredevcli/releases)\n\n###\
+    \ Partner Center Setup\n\nBefore using msstore, you need to create an Azure AD\
+    \ application with Partner Center access:\n\n1. Go to [Partner Center](https://partner.microsoft.com/dashboard)\n\
+    2. Navigate to **Account settings** > **User management** > **Azure AD applications**\n\
+    3. Create a new application and note the **Tenant ID**, **Client ID**, and **Client\
+    \ Secret**\n4. Grant the application appropriate permissions (Manager or Developer\
+    \ role)\n\n## Core Commands Reference\n\n### info - Print Configuration\n\nDisplay\
+    \ the current credential configuration.\n\n```bash\nmsstore info\n```\n\n**Options:**\n\
+    \n| Option | Description |\n| ------ | ----------- |\n| `-v, --verbose` | Print\
+    \ verbose output |\n\n### reconfigure - Configure Credentials\n\nConfigure or\
+    \ update Microsoft Store API credentials.\n\n```bash\nmsstore reconfigure [options]\n\
+    ```\n\n**Options:**\n\n| Option | Description |\n| ------ | ----------- |\n| `-t,\
+    \ --tenantId` | Azure AD Tenant ID |\n| `-s, --sellerId` | Partner Center Seller\
+    \ ID |\n| `-c, --clientId` | Azure AD Application Client ID |\n| `-cs, --clientSecret`\
+    \ | Client Secret for authentication |\n| `-ct, --certificateThumbprint` | Certificate\
+    \ thumbprint (alternative to client secret) |\n| `-cfp, --certificateFilePath`\
+    \ | Certificate file path (alternative to client secret) |\n| `-cp, --certificatePassword`\
+    \ | Certificate password |\n| `--reset` | Reset credentials without full reconfiguration\
+    \ |\n\n**Examples:**\n\n```bash\n# Configure with client secret\nmsstore reconfigure\
+    \ --tenantId $TENANT_ID --sellerId $SELLER_ID --clientId $CLIENT_ID --clientSecret\
+    \ $CLIENT_SECRET\n\n# Configure with certificate\nmsstore reconfigure --tenantId\
+    \ $TENANT_ID --sellerId $SELLER_ID --clientId $CLIENT_ID --certificateFilePath\
+    \ ./cert.pfx --certificatePassword MyPassword\n```\n\n### settings - CLI Settings\n\
+    \nChange settings of the Microsoft Store Developer CLI.\n\n```bash\nmsstore settings\
+    \ [options]\n```\n\n**Options:**\n\n| Option | Description |\n| ------ | -----------\
+    \ |\n| `-t, --enableTelemetry` | Enable (true) or disable (false) telemetry |\n\
+    \n#### Set Publisher Display Name\n\n```bash\nmsstore settings setpdn <publisherDisplayName>\n\
+    ```\n\nSets the default Publisher Display Name for the `init` command.\n\n###\
+    \ apps - Application Management\n\nList and retrieve application information.\n\
+    \n#### List Applications\n\n```bash\nmsstore apps list\n```\n\nLists all applications\
+    \ in your Partner Center account.\n\n#### Get Application Details\n\n```bash\n\
+    msstore apps get <productId>\n```\n\n**Arguments:**\n\n| Argument | Description\
+    \ |\n| -------- | ----------- |\n| `productId` | The Store product ID (e.g., 9NBLGGH4R315)\
+    \ |\n\n**Example:**\n\n```bash\n# Get details of a specific app\nmsstore apps\
+    \ get 9NBLGGH4R315\n```\n\n### submission - Submission Management\n\nManage Store\
+    \ submissions.\n\n| Sub-Command | Description |\n| ----------- | ----------- |\n\
+    | `status` | Get submission status |\n| `get` | Get submission metadata and package\
+    \ info |\n| `getListingAssets` | Get listing assets of a submission |\n| `updateMetadata`\
+    \ | Update submission metadata |\n| `poll` | Poll submission status until complete\
+    \ |\n| `publish` | Publish a submission |\n| `delete` | Delete a submission |\n\
+    \n#### Get Submission Status\n\n```bash\nmsstore submission status <productId>\n\
+    ```\n\n#### Get Submission Details\n\n```bash\nmsstore submission get <productId>\n\
+    ```\n\n#### Update Metadata\n\n```bash\nmsstore submission updateMetadata <productId>\
+    \ <metadata>\n```\n\nWhere `<metadata>` is a JSON string with the updated metadata.\
+    \ Because JSON contains characters that shells interpret (quotes, braces, etc.),\
+    \ you must quote and/or escape the value appropriately:\n\n- **Bash/Zsh**: Wrap\
+    \ the JSON in single quotes so the shell passes it through literally.\n  ```bash\n\
+    \  msstore submission updateMetadata 9NBLGGH4R315 '{\"description\":\"My updated\
+    \ app\"}'\n  ```\n- **PowerShell**: Use single quotes (or escape double quotes\
+    \ inside a double-quoted string).\n  ```powershell\n  msstore submission updateMetadata\
+    \ 9NBLGGH4R315 '{\"description\":\"My updated app\"}'\n  ```\n- **cmd.exe**: Escape\
+    \ each inner double quote with a backslash.\n  ```cmd\n  msstore submission updateMetadata\
+    \ 9NBLGGH4R315 \"{\\\"description\\\":\\\"My updated app\\\"}\"\n  ```\n\n> **Tip:**\
+    \ For complex or multi-line metadata, save the JSON to a file and pass its contents\
+    \ instead to avoid quoting issues:\n> ```bash\n> msstore submission updateMetadata\
+    \ 9NBLGGH4R315 \"$(cat metadata.json)\"\n> ```\n\n**Options:**\n\n| Option | Description\
+    \ |\n| ------ | ----------- |\n| `-s, --skipInitialPolling` | Skip initial status\
+    \ polling |\n\n#### Publish Submission\n\n```bash\nmsstore submission publish\
+    \ <productId>\n```\n\n#### Poll Submission\n\n```bash\nmsstore submission poll\
+    \ <productId>\n```\n\nPolls until the submission status is PUBLISHED or FAILED.\n\
+    \n#### Delete Submission\n\n```bash\nmsstore submission delete <productId>\n```\n\
+    \n**Options:**\n\n| Option | Description |\n| ------ | ----------- |\n| `--no-confirm`\
+    \ | Skip confirmation prompt |\n\n### init - Initialize Project for Store\n\n\
+    Initialize a project for Microsoft Store publishing. Automatically detects project\
+    \ type and configures Store identity.\n\n```bash\nmsstore init <pathOrUrl> [options]\n\
+    ```\n\n**Arguments:**\n\n| Argument | Description |\n| -------- | -----------\
+    \ |\n| `pathOrUrl` | Project directory path or PWA URL |\n\n**Options:**\n\n|\
+    \ Option | Description |\n| ------ | ----------- |\n| `-n, --publisherDisplayName`\
+    \ | Publisher Display Name |\n| `--package` | Also package the project |\n| `--publish`\
+    \ | Package and publish (implies --package) |\n| `-f, --flightId` | Publish to\
+    \ a specific flight |\n| `-prp, --packageRolloutPercentage` | Gradual rollout\
+    \ percentage (0-100) |\n| `-a, --arch` | Architecture(s): x86, x64, arm64 |\n\
+    | `-o, --output` | Output directory for packages |\n| `-ver, --version` | Version\
+    \ to use when building |\n\n**Supported Project Types:**\n\n- Windows App SDK\
+    \ / WinUI 3\n- UWP\n- .NET MAUI\n- Flutter\n- Electron\n- React Native for Desktop\n\
+    - PWA (Progressive Web Apps)\n\n**Examples:**\n\n```bash\n# Initialize WinUI project\n\
+    msstore init ./my-winui-app\n\n# Initialize PWA\nmsstore init https://contoso.com\
+    \ --output ./pwa-package\n\n# Initialize and publish\nmsstore init ./my-app --publish\n\
+    ```\n\n### package - Package for Store\n\nPackage an application for Microsoft\
+    \ Store submission.\n\n```bash\nmsstore package <pathOrUrl> [options]\n```\n\n\
+    **Arguments:**\n\n| Argument | Description |\n| -------- | ----------- |\n| `pathOrUrl`\
+    \ | Project directory path or PWA URL |\n\n**Options:**\n\n| Option | Description\
+    \ |\n| ------ | ----------- |\n| `-o, --output` | Output directory for the package\
+    \ |\n| `-a, --arch` | Architecture(s): x86, x64, arm64 |\n| `-ver, --version`\
+    \ | Version for the package |\n\n**Examples:**\n\n```bash\n# Package for default\
+    \ architecture\nmsstore package ./my-app\n\n# Package for multiple architectures\n\
+    msstore package ./my-app --arch x64,arm64 --output ./packages\n\n# Package with\
+    \ specific version\nmsstore package ./my-app --version 1.2.3.0\n```\n\n### publish\
+    \ - Publish to Store\n\nPublish an application to the Microsoft Store.\n\n```bash\n\
+    msstore publish <pathOrUrl> [options]\n```\n\n**Arguments:**\n\n| Argument | Description\
+    \ |\n| -------- | ----------- |\n| `pathOrUrl` | Project directory path or PWA\
+    \ URL |\n\n**Options:**\n\n| Option | Description |\n| ------ | ----------- |\n\
+    | `-i, --inputFile` | Path to existing .msix or .msixupload file |\n| `-id, --appId`\
+    \ | Application ID (if not initialized) |\n| `-nc, --noCommit` | Keep submission\
+    \ in draft state |\n| `-f, --flightId` | Publish to a specific flight |\n| `-prp,\
+    \ --packageRolloutPercentage` | Gradual rollout percentage (0-100) |\n\n**Examples:**\n\
+    \n```bash\n# Publish project\nmsstore publish ./my-app\n\n# Publish existing package\n\
+    msstore publish ./my-app --inputFile ./packages/MyApp.msixupload\n\n# Publish\
+    \ as draft\nmsstore publish ./my-app --noCommit\n\n# Publish with gradual rollout\n\
+    msstore publish ./my-app --packageRolloutPercentage 10\n```\n\n### flights - Package\
+    \ Flight Management\n\nManage package flights (beta testing groups).\n\n| Sub-Command\
+    \ | Description |\n| ----------- | ----------- |\n| `list` | List all flights\
+    \ for an app |\n| `get` | Get flight details |\n| `delete` | Delete a flight |\n\
+    | `create` | Create a new flight |\n| `submission` | Manage flight submissions\
+    \ |\n\n#### List Flights\n\n```bash\nmsstore flights list <productId>\n```\n\n\
+    #### Get Flight Details\n\n```bash\nmsstore flights get <productId> <flightId>\n\
+    ```\n\n#### Create Flight\n\n```bash\nmsstore flights create <productId> <friendlyName>\
+    \ --group-ids <group-ids>\n```\n\n**Options:**\n\n| Option | Description |\n|\
+    \ ------ | ----------- |\n| `-g, --group-ids` | Flight group IDs (comma-separated)\
+    \ |\n| `-r, --rank-higher-than` | Flight ID to rank higher than |\n\n#### Delete\
+    \ Flight\n\n```bash\nmsstore flights delete <productId> <flightId>\n```\n\n####\
+    \ Flight Submissions\n\n```bash\n# Get flight submission\nmsstore flights submission\
+    \ get <productId> <flightId>\n\n# Publish flight submission\nmsstore flights submission\
+    \ publish <productId> <flightId>\n\n# Check flight submission status\nmsstore\
+    \ flights submission status <productId> <flightId>\n\n# Poll flight submission\n\
+    msstore flights submission poll <productId> <flightId>\n\n# Delete flight submission\n\
+    msstore flights submission delete <productId> <flightId>\n```\n\n#### Flight Rollout\
+    \ Management\n\n```bash\n# Get rollout status\nmsstore flights submission rollout\
+    \ get <productId> <flightId>\n\n# Update rollout percentage\nmsstore flights submission\
+    \ rollout update <productId> <flightId> <percentage>\n\n# Halt rollout\nmsstore\
+    \ flights submission rollout halt <productId> <flightId>\n\n# Finalize rollout\
+    \ (100%)\nmsstore flights submission rollout finalize <productId> <flightId>\n\
+    ```\n\n## Common Workflows\n\n### Workflow 1: First-Time Store Setup\n\n```bash\n\
+    # 1. Install the CLI\nwinget install \"Microsoft Store Developer CLI\"\n\n# 2.\
+    \ Configure credentials (get these from Partner Center)\nmsstore reconfigure --tenantId\
+    \ $TENANT_ID --sellerId $SELLER_ID --clientId $CLIENT_ID --clientSecret $CLIENT_SECRET\n\
+    \n# 3. Verify configuration\nmsstore info\n\n# 4. List your apps to confirm access\n\
+    msstore apps list\n```\n\n### Workflow 2: Initialize and Publish New App\n\n```bash\n\
+    # 1. Navigate to project\ncd my-winui-app\n\n# 2. Initialize for Store (creates/updates\
+    \ app identity)\nmsstore init .\n\n# 3. Package the application\nmsstore package\
+    \ . --arch x64,arm64\n\n# 4. Publish to Store\nmsstore publish .\n\n# 5. Check\
+    \ submission status\nmsstore submission status <productId>\n```\n\n### Workflow\
+    \ 3: Update Existing App\n\n```bash\n# 1. Build your updated application\ndotnet\
+    \ publish -c Release\n\n# 2. Package and publish\nmsstore publish ./my-app\n\n\
+    # Or publish from existing package\nmsstore publish ./my-app --inputFile ./artifacts/MyApp.msixupload\n\
+    ```\n\n### Workflow 4: Gradual Rollout\n\n```bash\n# 1. Publish with initial rollout\
+    \ percentage\nmsstore publish ./my-app --packageRolloutPercentage 10\n\n# 2. Monitor\
+    \ and increase rollout\nmsstore submission poll <productId>\n\n# 3. (After validation)\
+    \ Finalize to 100%\n# This completes via Partner Center or submission update\n\
+    ```\n\n### Workflow 5: Beta Testing with Flights\n\n```bash\n# 1. Create a flight\
+    \ group in Partner Center first\n# Then create a flight\nmsstore flights create\
+    \ <productId> \"Beta Testers\" --group-ids \"group-id-1,group-id-2\"\n\n# 2. Publish\
+    \ to the flight\nmsstore publish ./my-app --flightId <flightId>\n\n# 3. Check\
+    \ flight submission status\nmsstore flights submission status <productId> <flightId>\n\
+    \n# 4. After testing, publish to production\nmsstore publish ./my-app\n```\n\n\
+    ### Workflow 6: CI/CD Pipeline Integration\n\n```yaml\n# GitHub Actions example\n\
+    name: Publish to Store\n\non:\n  release:\n    types: [published]\n\njobs:\n \
+    \ publish:\n    runs-on: windows-latest\n    steps:\n      - uses: actions/checkout@v4\n\
+    \      \n      - name: Setup .NET\n        uses: actions/setup-dotnet@v4\n   \
+    \     with:\n          dotnet-version: '9.0.x'\n      \n      - name: Install\
+    \ msstore CLI\n        run: winget install \"Microsoft Store Developer CLI\" --accept-package-agreements\
+    \ --accept-source-agreements\n      \n      - name: Configure Store credentials\n\
+    \        run: |\n          msstore reconfigure --tenantId ${{ secrets.TENANT_ID\
+    \ }} --sellerId ${{ secrets.SELLER_ID }} --clientId ${{ secrets.CLIENT_ID }} --clientSecret\
+    \ ${{ secrets.CLIENT_SECRET }}\n      \n      - name: Build application\n    \
+    \    run: dotnet publish -c Release\n      \n      - name: Publish to Store\n\
+    \        run: msstore publish ./src/MyApp\n```\n\n## Integration with winapp CLI\n\
+    \nThe winapp CLI (v0.2.0+) integrates with msstore via the `winapp store` subcommand:\n\
+    \n```bash\n# These commands are equivalent:\nmsstore reconfigure --tenantId xxx\
+    \ --clientId xxx --clientSecret xxx\nwinapp store reconfigure --tenantId xxx --clientId\
+    \ xxx --clientSecret xxx\n\n# List apps\nmsstore apps list\nwinapp store apps\
+    \ list\n\n# Publish\nmsstore publish ./my-app\nwinapp store publish ./my-app\n\
+    ```\n\nUse `winapp store` when you want a unified CLI experience for both packaging\
+    \ and publishing.\n\n## Troubleshooting\n\n| Issue | Solution |\n| ----- | --------\
+    \ |\n| Authentication failed | Verify credentials with `msstore info`; re-run\
+    \ `msstore reconfigure` |\n| App not found | Ensure the product ID is correct;\
+    \ run `msstore apps list` to verify |\n| Insufficient permissions | Check Azure\
+    \ AD app role in Partner Center (needs Manager or Developer) |\n| Package validation\
+    \ failed | Ensure package meets Store requirements; check Partner Center for details\
+    \ |\n| Submission stuck | Run `msstore submission poll <productId>` to check status\
+    \ |\n| Flight not found | Verify flight ID with `msstore flights list <productId>`\
+    \ |\n| Rollout percentage invalid | Value must be between 0 and 100 |\n| Init\
+    \ fails for PWA | Ensure URL is publicly accessible and has valid web app manifest\
+    \ |\n\n## Environment Variables\n\nThe CLI supports environment variables for\
+    \ credentials:\n\n| Variable | Description |\n| -------- | ----------- |\n| `MSSTORE_TENANT_ID`\
+    \ | Azure AD Tenant ID |\n| `MSSTORE_SELLER_ID` | Partner Center Seller ID |\n\
+    | `MSSTORE_CLIENT_ID` | Azure AD Application Client ID |\n| `MSSTORE_CLIENT_SECRET`\
+    \ | Client Secret |\n\n## References\n\n- [Microsoft Store Developer CLI Documentation](https://learn.microsoft.com/windows/apps/publish/msstore-dev-cli/overview)\n\
+    - [CLI Commands Reference](https://learn.microsoft.com/windows/apps/publish/msstore-dev-cli/commands)\n\
+    - [GitHub Repository](https://github.com/microsoft/msstore-cli)\n- [Partner Center\
+    \ API](https://learn.microsoft.com/windows/uwp/monetize/using-windows-store-services)\n\
+    - [App Submission API](https://learn.microsoft.com/windows/uwp/monetize/create-and-manage-submissions-using-windows-store-services)\n\
+    - [Package Flights Overview](https://learn.microsoft.com/windows/uwp/publish/package-flights)\n\
+    - [Gradual Package Rollout](https://learn.microsoft.com/windows/uwp/publish/gradual-package-rollout)"

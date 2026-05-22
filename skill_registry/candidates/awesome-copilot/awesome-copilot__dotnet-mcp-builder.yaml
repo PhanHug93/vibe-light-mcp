@@ -1,0 +1,114 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__dotnet-mcp-builder
+name: dotnet-mcp-builder
+description: "Build Model Context Protocol (MCP) servers in C#/.NET against the current\
+  \ ModelContextProtocol 1.x NuGet packages. Especially helps with cases the model\
+  \ often gets wrong without guidance \u2014 stale preview versions (it tends to pick\
+  \ 0.3 or 0.4 preview), MCP Apps (interactive UI rendered in the host), elicitation\
+  \ URL mode, per-session HTTP wiring, OAuth and reverse-proxy deploy specifics, and\
+  \ debugging concrete MapMcp / STDIO / Streamable-HTTP errors. Also covers the routine\
+  \ work \u2014 STDIO and Streamable HTTP transports (SSE is deprecated), tools, prompts,\
+  \ resources, sampling, roots, completions, logging \u2014 and a basic .NET MCP client.\
+  \ Trigger when the user says or implies any .NET MCP server work: ModelContextProtocol,\
+  \ McpServerTool, MapMcp, WithStdioServerTransport, \"MCP server in C#\", \"MCP tool\
+  \ in dotnet\", \"expose this as MCP\", or names a primitive (prompt/resource/elicitation/MCP\
+  \ App) in a .NET context. Skip for MCP work in other languages."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/dotnet-mcp-builder/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- dotnet-mcp-builder
+content:
+  kind: skill_markdown
+  sha256: ce5efce47a11ed3c6d9690bc5a2250b4bd4565b8c4e973e98695c077ff0a62ac
+  char_count: 6884
+  text: "# Building MCP servers in .NET\n\nThis skill helps you write production-quality\
+    \ MCP servers and basic clients in C#/.NET against the **official** [`ModelContextProtocol`](https://www.nuget.org/profiles/ModelContextProtocol)\
+    \ NuGet packages, maintained by Microsoft and the MCP project. It targets the\
+    \ **stable 1.x** line and the current spec (2025-11-25).\n\n## When this skill\
+    \ earns its keep\n\nThe .NET MCP SDK had years of preview packages (`0.x-preview`)\
+    \ before reaching `1.0`. Without help, the model tends to:\n- Pin a stale preview\
+    \ version that won't compile against current samples.\n- Miss recent spec features\
+    \ (elicitation URL mode, MCP Apps, structured content blocks).\n- Get HTTP transport\
+    \ details wrong (stateful/stateless, proxy buffering, OAuth wiring).\n- Forget\
+    \ the STDIO stdout/stderr trap.\n\nIf the task is one of those, *load the matching\
+    \ reference* and follow it. If it's truly trivial (e.g. \"rename this tool method\"\
+    ), you don't need to read everything \u2014 the cardinal rules below are the minimum.\n\
+    \n## Mental model in 30 seconds\n\nA .NET MCP server is an ordinary `Microsoft.Extensions.Hosting`\
+    \ (or `WebApplication`) app that wires an MCP server through DI:\n\n```csharp\n\
+    builder.Services\n    .AddMcpServer()\n    .WithStdioServerTransport()      //\
+    \ OR .WithHttpTransport(...)\n    .WithToolsFromAssembly()         // discover\
+    \ [McpServerToolType] classes\n    .WithPrompts<MyPrompts>()        // optional\n\
+    \    .WithResources<MyResources>();   // optional\n```\n\nPrimitives are plain\
+    \ C# methods on classes marked with attributes (`[McpServerToolType]` + `[McpServerTool]`,\
+    \ `[McpServerPromptType]` + `[McpServerPrompt]`, `[McpServerResourceType]` + `[McpServerResource]`).\
+    \ Parameters bind from JSON-RPC; the SDK builds the JSON Schema from the signature\
+    \ plus `[Description]` attributes.\n\nServer-to-client features (sampling, elicitation,\
+    \ roots, log/progress notifications) are methods on the injected `IMcpServer`.\n\
+    \n## Decision tree \u2192 which references to load\n\nAlways load `references/packages.md`\
+    \ if you're creating a new project or unsure of the current package version.\n\
+    \n| Task | Load |\n|---|---|\n| New STDIO server | `references/transport-stdio.md`\
+    \ |\n| New HTTP (Streamable) server | `references/transport-http.md` |\n| Add/modify\
+    \ a tool | `references/tool-primitive.md` |\n| Add/modify a prompt | `references/prompt-primitive.md`\
+    \ |\n| Add/modify a resource | `references/resource-primitive.md` |\n| Ask the\
+    \ user a question mid-tool | `references/elicitation.md` |\n| Call the client's\
+    \ LLM from a tool | `references/sampling.md` |\n| Read the user's project roots\
+    \ | `references/roots.md` |\n| Return an interactive UI | `references/mcp-apps.md`\
+    \ |\n| Argument completions, log/progress notifications, filters, server instructions\
+    \ | `references/server-features.md` |\n| Write a .NET program that **consumes**\
+    \ an MCP server | `references/client.md` |\n| MCP Inspector, in-memory tests,\
+    \ mocks, CI | `references/testing.md` |\n\nFor multi-primitive tasks, load several\
+    \ at once. For trivial edits in an existing file, you usually don't need any.\n\
+    \n## Cardinal rules (apply always; these prevent the highest-frequency breakages)\n\
+    \n1. **Pin the current stable package, not a preview.** Use `ModelContextProtocol`\
+    \ / `ModelContextProtocol.AspNetCore` / `ModelContextProtocol.Core` at the latest\
+    \ **1.x**. If you find yourself writing `0.3-preview` or `0.4-preview`, stop and\
+    \ check NuGet \u2014 preview APIs have breaking differences.\n2. **STDIO servers\
+    \ must not write to stdout.** Stdout is the JSON-RPC channel. Configure `LogToStandardErrorThreshold\
+    \ = LogLevel.Trace` before anything else and never `Console.WriteLine` from a\
+    \ tool.\n3. **HTTP defaults to stateful.** For horizontally-scaled deployments\
+    \ without server-initiated traffic, set `options.Stateless = true`. Server-to-client\
+    \ features (sampling, elicitation, roots, unsolicited notifications) require stateful\
+    \ HTTP **or** STDIO \u2014 `Stateless = true` will break them at runtime.\n4.\
+    \ **SSE-only is deprecated.** Use Streamable HTTP. Only enable legacy SSE (`EnableLegacySse\
+    \ = true`) for an old client you must support, and call it out.\n5. **Always `[Description]`\
+    \ tools and parameters.** This is what the LLM sees when picking and shaping calls.\
+    \ Vague descriptions are the #1 reason tools don't get used.\n6. **Show the registration\
+    \ line every time you add a primitive.** A new `[McpServerPromptType]` class without\
+    \ `.WithPrompts<...>()` (or `.WithPromptsFromAssembly()`) is invisible.\n7. **Don't\
+    \ invent APIs.** If you're unsure a method exists, say so and check the [API reference](https://csharp.sdk.modelcontextprotocol.io/api/ModelContextProtocol.html)\
+    \ \u2014 wrong method names cause silent failures.\n\n## Working style\n\n- **Make\
+    \ minimal, additive changes.** Add a method to the existing tool class rather\
+    \ than restructuring the project.\n- **For non-trivial setups, run `dotnet build`.**\
+    \ Catches missing usings, attribute typos, and TFM mismatches before the user\
+    \ sees them.\n- **Confirm transport + .NET version + primitives before scaffolding**\
+    \ if context doesn't already make them obvious. Default to **.NET 10** for new\
+    \ projects.\n\n## When the user is stuck\n\nWalk this checklist before guessing:\n\
+    1. **STDIO:** something is writing to stdout (logger sink, `Console.WriteLine`,\
+    \ library banner).\n2. **HTTP 404:** path mismatch \u2014 `app.MapMcp()` is root,\
+    \ `app.MapMcp(\"/mcp\")` puts it under `/mcp`.\n3. **Tool not appearing:** missing\
+    \ `[McpServerToolType]` on the class, or no `.WithToolsFromAssembly()` / `.WithTools<T>()`\
+    \ registered.\n4. **Args not bound:** parameter names must match the JSON-RPC\
+    \ `arguments` keys; complex types bind via `System.Text.Json`.\n5. **Sampling/elicitation/roots\
+    \ failing:** transport is stateless HTTP, or the client doesn't advertise the\
+    \ capability.\n\nStill stuck? Point the user at the [`EverythingServer`](https://github.com/modelcontextprotocol/csharp-sdk/tree/main/samples/EverythingServer)\
+    \ sample \u2014 it exercises every feature."

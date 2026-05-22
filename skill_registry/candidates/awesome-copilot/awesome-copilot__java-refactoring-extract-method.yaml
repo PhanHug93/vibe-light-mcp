@@ -1,0 +1,72 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__java-refactoring-extract-method
+name: java-refactoring-extract-method
+description: Refactoring using Extract Methods in Java Language
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/java-refactoring-extract-method/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- java-refactoring-extract-method
+content:
+  kind: skill_markdown
+  sha256: 4f23304d1c3ea81035cae02381e6f6bf70d4652a46990cfd71620f384ad78a2b
+  char_count: 3490
+  text: "# Refactoring Java Methods with Extract Method\n\n## Role\n\nYou are an expert\
+    \ in refactoring Java methods.\n\nBelow are **2 examples** (with titles code before\
+    \ and code after refactoring) that represents **Extract Method**.\n\n## Code Before\
+    \ Refactoring 1:\n```java\npublic FactLineBuilder setC_BPartner_ID_IfValid(final\
+    \ int bpartnerId) {\n\tassertNotBuild();\n\tif (bpartnerId > 0) {\n\t\tsetC_BPartner_ID(bpartnerId);\n\
+    \t}\n\treturn this;\n}\n```\n\n## Code After Refactoring 1:\n```java\npublic FactLineBuilder\
+    \ bpartnerIdIfNotNull(final BPartnerId bpartnerId) {\n\tif (bpartnerId != null)\
+    \ {\n\t\treturn bpartnerId(bpartnerId);\n\t} else {\n\t\treturn this;\n\t}\n}\n\
+    public FactLineBuilder setC_BPartner_ID_IfValid(final int bpartnerRepoId) {\n\t\
+    return bpartnerIdIfNotNull(BPartnerId.ofRepoIdOrNull(bpartnerRepoId));\n}\n```\n\
+    \n## Code Before Refactoring 2:\n```java\npublic DefaultExpander add(RelationshipType\
+    \ type, Direction direction) {\n     Direction existingDirection = directions.get(type.name());\n\
+    \     final RelationshipType[] newTypes;\n     if (existingDirection != null)\
+    \ {\n          if (existingDirection == direction) {\n               return this;\n\
+    \          }\n          newTypes = types;\n     } else {\n          newTypes =\
+    \ new RelationshipType[types.length + 1];\n          System.arraycopy(types, 0,\
+    \ newTypes, 0, types.length);\n          newTypes[types.length] = type;\n    \
+    \ }\n     Map<String, Direction> newDirections = new HashMap<String, Direction>(directions);\n\
+    \     newDirections.put(type.name(), direction);\n     return new DefaultExpander(newTypes,\
+    \ newDirections);\n}\n```\n\n## Code After Refactoring 2:\n```java\npublic DefaultExpander\
+    \ add(RelationshipType type, Direction direction) {\n     Direction existingDirection\
+    \ = directions.get(type.name());\n     final RelationshipType[] newTypes;\n  \
+    \   if (existingDirection != null) {\n          if (existingDirection == direction)\
+    \ {\n               return this;\n          }\n          newTypes = types;\n \
+    \    } else {\n          newTypes = new RelationshipType[types.length + 1];\n\
+    \          System.arraycopy(types, 0, newTypes, 0, types.length);\n          newTypes[types.length]\
+    \ = type;\n     }\n     Map<String, Direction> newDirections = new HashMap<String,\
+    \ Direction>(directions);\n     newDirections.put(type.name(), direction);\n \
+    \    return (DefaultExpander) newExpander(newTypes, newDirections);\n}\nprotected\
+    \ RelationshipExpander newExpander(RelationshipType[] types,\n          Map<String,\
+    \ Direction> directions) {\n     return new DefaultExpander(types, directions);\n\
+    }\n```\n\n## Task\n\nApply **Extract Method** to improve readability, testability,\
+    \ maintainability, reusability, modularity, cohesion, low coupling, and consistency.\n\
+    \nAlways return a complete and compilable method (Java 17).\n\nPerform intermediate\
+    \ steps internally:\n- First, analyze each method and identify those exceeding\
+    \ thresholds:\n  * LOC (Lines of Code) > 15\n  * NOM (Number of Statements) >\
+    \ 10\n  * CC (Cyclomatic Complexity) > 10\n- For each qualifying method, identify\
+    \ code blocks that can be extracted into separate methods.\n- Extract at least\
+    \ one new method with a descriptive name.\n- Output only the refactored code inside\
+    \ a single ```java``` block.\n- Do not remove any functionality from the original\
+    \ method.\n- Include a one-line comment above each new method describing its purpose.\n\
+    \n## Code to be Refactored:\n\nNow, assess all methods with high complexity and\
+    \ refactor them using **Extract Method**"

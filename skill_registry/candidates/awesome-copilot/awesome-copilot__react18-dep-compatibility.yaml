@@ -1,0 +1,88 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react18-dep-compatibility
+name: react18-dep-compatibility
+description: React 18.3.1 and React 19 dependency compatibility matrix.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react18-dep-compatibility/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- react18-dep-compatibility
+content:
+  kind: skill_markdown
+  sha256: 1578a05b72d487c3ff55256d9824f8f60dc47bb421e669d1705c977d86ab81c7
+  char_count: 4495
+  text: "# React Dependency Compatibility Matrix\n\nMinimum versions required for\
+    \ React 18.3.1 and React 19 compatibility.\n\nUse this skill whenever checking\
+    \ whether a dependency supports a target React version, resolving peer dependency\
+    \ conflicts, deciding whether to upgrade or use `legacy-peer-deps`, or assessing\
+    \ the risk of a `react-router` v5 to v6 migration.\n\nReview this matrix before\
+    \ running `npm install` during a React upgrade and before accepting an npm dependency\
+    \ conflict resolution, especially where concurrent mode compatibility may be affected.\n\
+    ## Core Upgrade Targets\n\n| Package | React 17 (current) | React 18.3.1 (min)\
+    \ | React 19 (min) | Notes |\n|---|---|---|---|---|\n| `react` | 17.x | **18.3.1**\
+    \ | **19.0.0** | Pin exactly to 18.3.1 for the R18 orchestra |\n| `react-dom`\
+    \ | 17.x | **18.3.1** | **19.0.0** | Must match react version exactly |\n\n##\
+    \ Testing Libraries\n\n| Package | React 18 Min | React 19 Min | Notes |\n|---|---|---|---|\n\
+    | `@testing-library/react` | **14.0.0** | **16.0.0** | RTL 13 uses ReactDOM.render\
+    \ internally - broken in R18 |\n| `@testing-library/jest-dom` | **6.0.0** | **6.0.0**\
+    \ | v5 works but v6 has React 18 matcher updates |\n| `@testing-library/user-event`\
+    \ | **14.0.0** | **14.0.0** | v13 is sync, v14 is async - API change required\
+    \ |\n| `jest` | **27.x** | **27.x** | jest 27+ with jsdom 16+ for React 18 |\n\
+    | `jest-environment-jsdom` | **27.x** | **27.x** | Must match jest version |\n\
+    \n## Apollo Client\n\n| Package | React 18 Min | React 19 Min | Notes |\n|---|---|---|---|\n\
+    | `@apollo/client` | **3.8.0** | **3.11.0** | 3.8 adds `useSyncExternalStore`\
+    \ for concurrent mode |\n| `graphql` | **15.x** | **16.x** | Apollo 3.8+ peer\
+    \ requires graphql 15 or 16 |\n\nRead **`references/apollo-details.md`** for concurrent\
+    \ mode issues and MockedProvider changes.\n\n## Emotion\n\n| Package | React 18\
+    \ Min | React 19 Min | Notes |\n|---|---|---|---|\n| `@emotion/react` | **11.10.0**\
+    \ | **11.13.0** | 11.10 adds React 18 concurrent mode support |\n| `@emotion/styled`\
+    \ | **11.10.0** | **11.13.0** | Must match @emotion/react version |\n| `@emotion/cache`\
+    \ | **11.10.0** | **11.13.0** | If used directly |\n\n## React Router\n\n| Package\
+    \ | React 18 Min | React 19 Min | Notes |\n|---|---|---|---|\n| `react-router-dom`\
+    \ | **v6.0.0** | **v6.8.0** | v5 \u2192 v6 is a breaking migration - see details\
+    \ below |\n| `react-router-dom` v5 | 5.3.4 (workaround) | \u274C Not supported\
+    \ | See legacy peer deps note |\n\n**react-router v5 \u2192 v6 is a SEPARATE migration\
+    \ sprint.** Read `references/router-migration.md`.\n\n## Redux\n\n| Package |\
+    \ React 18 Min | React 19 Min | Notes |\n|---|---|---|---|\n| `react-redux` |\
+    \ **8.0.0** | **9.0.0** | v7 works on R18 legacy root only - breaks on concurrent\
+    \ mode |\n| `redux` | **4.x** | **5.x** | Redux itself is framework-agnostic -\
+    \ react-redux version matters |\n| `@reduxjs/toolkit` | **1.9.0** | **2.0.0**\
+    \ | RTK 1.9 tested against React 18 |\n\n## Other Common Packages\n\n| Package\
+    \ | React 18 Min | React 19 Min | Notes |\n|---|---|---|---|\n| `react-query`\
+    \ / `@tanstack/react-query` | **4.0.0** | **5.0.0** | v3 doesn't support concurrent\
+    \ mode |\n| `react-hook-form` | **7.0.0** | **7.43.0** | v6 has concurrent mode\
+    \ issues |\n| `formik` | **2.2.9** | **2.4.0** | v2.2.9 patched for React 18 |\n\
+    | `react-select` | **5.0.0** | **5.8.0** | v4 has peer dep conflicts with R18\
+    \ |\n| `react-datepicker` | **4.8.0** | **6.0.0** | v4.8+ added React 18 support\
+    \ |\n| `react-dnd` | **16.0.0** | **16.0.0** | v15 and below have R18 concurrent\
+    \ mode issues |\n| `prop-types` | any | any | Standalone - unaffected by React\
+    \ version |\n\n---\n\n## Conflict Resolution Decision Tree\n\n```\nnpm ls shows\
+    \ peer conflict for package X\n         \u2502\n         \u25BC\nDoes package\
+    \ X have a version that supports React 18?\n  YES \u2192 npm install X@[min-compatible-version]\n\
+    \  NO  \u2193\n         \u2502\nIs the package critical to the app?\n  YES \u2192\
+    \ check GitHub issues for React 18 branch/fork\n      \u2192 check if maintainer\
+    \ has a PR open\n      \u2192 last resort: --legacy-peer-deps (document why)\n\
+    \  NO  \u2192 consider removing the package\n```\n\n## --legacy-peer-deps Rules\n\
+    \nOnly use `--legacy-peer-deps` when:\n- The package has no React 18 compatible\
+    \ release\n- The package is actively maintained (not abandoned)\n- The conflict\
+    \ is only a peer dep declaration mismatch (not actual API incompatibility)\n\n\
+    **Document every `--legacy-peer-deps` usage** in a comment at the top of package.json\
+    \ or in a MIGRATION.md file explaining why it was necessary."

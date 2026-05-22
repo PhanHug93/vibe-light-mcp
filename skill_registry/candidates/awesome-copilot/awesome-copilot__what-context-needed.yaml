@@ -1,0 +1,39 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__what-context-needed
+name: what-context-needed
+description: Ask Copilot what files it needs to see before answering a question
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/what-context-needed/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- what-context-needed
+content:
+  kind: skill_markdown
+  sha256: 65ed7445bf561a5e5199ac77478d2691c05019e0dc32fdddc23db9e45bd9d135
+  char_count: 875
+  text: "# What Context Do You Need?\n\nBefore answering my question, tell me what\
+    \ files you need to see.\n\n## My Question\n\n{{question}}\n\n## Instructions\n\
+    \n1. Based on my question, list the files you would need to examine\n2. Explain\
+    \ why each file is relevant\n3. Note any files you've already seen in this conversation\n\
+    4. Identify what you're uncertain about\n\n## Output Format\n\n```markdown\n##\
+    \ Files I Need\n\n### Must See (required for accurate answer)\n- `path/to/file.ts`\
+    \ \u2014 [why needed]\n\n### Should See (helpful for complete answer)\n- `path/to/file.ts`\
+    \ \u2014 [why helpful]\n\n### Already Have\n- `path/to/file.ts` \u2014 [from earlier\
+    \ in conversation]\n\n### Uncertainties\n- [What I'm not sure about without seeing\
+    \ the code]\n```\n\nAfter I provide these files, I'll ask my question again."

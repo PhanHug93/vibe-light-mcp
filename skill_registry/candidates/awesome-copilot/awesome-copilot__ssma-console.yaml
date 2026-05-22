@@ -1,0 +1,122 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__ssma-console
+name: ssma-console
+description: "Use when: SSMA console operations \u2014 create project, generate assessment\
+  \ report, convert schema, migrate data, Oracle to SQL Server migration, schema conversion,\
+  \ data migration"
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/ssma-console/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- ssma-console
+content:
+  kind: skill_markdown
+  sha256: 68bf5e87b2f6a2c42b795989f3199c74d84c0a3f015cca59576b2e43e603107a
+  char_count: 7136
+  text: "# SSMA Console \u2014 Oracle to SQL Server Migration\n\nGenerate XML configs\
+    \ and invoke `SSMAforOracleConsole.exe` directly \u2014 no external scripts or\
+    \ wrappers.\n\n**Operations** (run in order for \"full migration\"):\n1. **create-project**\
+    \ \u2014 connect source & target, map schema\n2. **generate-report** \u2014 assessment\
+    \ report\n3. **migrate-schema** \u2014 convert & deploy schema\n4. **migrate-data**\
+    \ \u2014 convert, deploy, migrate data end-to-end\n\n## Collect Inputs\n\nAsk\
+    \ for missing parameters. Defaults in parentheses.\n\n**Oracle**: Host (`localhost`),\
+    \ Port (`1521`), Instance *(required, service name)*, User, Password, Schema\n\
+    **SQL Server**: Server, Database, User, Password, Encrypt (`true`), Trust Server\
+    \ Certificate (`true`), Target Schema (`dbo`)\n**Project**: Name (`ssma-migration`),\
+    \ Folder (`.`), Type (`sql-server-2022` \u2014 also `2016`/`2017`/`2019`/`2025`/`sql-azure`),\
+    \ SSMA Path (`C:\\Program Files\\Microsoft SQL Server Migration Assistant for\
+    \ Oracle\\bin\\SSMAforOracleConsole.exe`)\n\n## Generate XML Files\n\nResolve\
+    \ ALL `{PLACEHOLDER}` tokens before writing. Generate 3 files:\n\n### `ssma-variables.xml`\n\
+    \n```xml\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<variables>\n  <variable\
+    \ name=\"$WorkingFolder$\" value=\"{PROJECT_FOLDER}\" />\n  <variable name=\"\
+    $ProjectType$\" value=\"{PROJECT_TYPE}\" />\n  <variable name=\"$ProjectName$\"\
+    \ value=\"{PROJECT_NAME}\" />\n  <variable-group name=\"OracleConnection\">\n\
+    \    <variable name=\"$OracleHostName$\" value=\"{ORACLE_HOST}\" />\n    <variable\
+    \ name=\"$OracleInstance$\" value=\"{ORACLE_INSTANCE}\" />\n    <variable name=\"\
+    $OraclePort$\" value=\"{ORACLE_PORT}\" />\n    <variable name=\"$OracleUserName$\"\
+    \ value=\"{ORACLE_USER}\" />\n    <variable name=\"$OraclePassword$\" value=\"\
+    {ORACLE_PASSWORD}\" />\n    <variable name=\"$OracleSchemaName$\" value=\"{ORACLE_SCHEMA}\"\
+    \ />\n  </variable-group>\n  <variable-group name=\"SQLServerConnection\">\n \
+    \   <variable name=\"$SQLServerName$\" value=\"{SQL_SERVER}\" />\n    <variable\
+    \ name=\"$SQLServerDb$\" value=\"{SQL_DATABASE}\" />\n    <variable name=\"$SQLServerUsrID$\"\
+    \ value=\"{SQL_USER}\" />\n    <variable name=\"$SQLServerPwd$\" value=\"{SQL_PASSWORD}\"\
+    \ />\n  </variable-group>\n  <variable-group name=\"ReportSettings\">\n    <variable\
+    \ name=\"$SummaryReportFile$\" value=\"Reports\\Assessment\\AssessmentReport.xml\"\
+    \ />\n    <variable name=\"$ConversionReportFile$\" value=\"Reports\\Conversion\\\
+    ConversionReport.xml\" />\n    <variable name=\"$ConversionReportFolder$\" value=\"\
+    Reports\\Conversion\" />\n    <variable name=\"$DataMigrationReportFile$\" value=\"\
+    Reports\\Migration\\DataMigrationReport.xml\" />\n    <variable name=\"$SynchronizationReportFolder$\"\
+    \ value=\"Reports\\Synchronization\" />\n  </variable-group>\n</variables>\n```\n\
+    \n### `ssma-servers.xml`\n\n**CRITICAL**: Use `tns-name-mode` \u2014 `standard-mode`\
+    \ treats instance as SID and fails with ORA-12505.\n\n```xml\n<?xml version=\"\
+    1.0\" encoding=\"utf-8\"?>\n<servers>\n  <oracle name=\"source_oracle\">\n   \
+    \ <tns-name-mode>\n      <connection-provider value=\"OracleClient\" />\n    \
+    \  <service-name value=\"(DESCRIPTION =(ADDRESS_LIST =(ADDRESS = (PROTOCOL = TCP)(HOST\
+    \ = $OracleHostName$)(PORT = $OraclePort$)))(CONNECT_DATA =(SERVICE_NAME = $OracleInstance$)))\"\
+    \ />\n      <user-id value=\"$OracleUserName$\" />\n      <password value=\"$OraclePassword$\"\
+    \ />\n    </tns-name-mode>\n  </oracle>\n  <sql-server name=\"target_sqlserver\"\
+    >\n    <sql-server-authentication>\n      <server value=\"$SQLServerName$\" />\n\
+    \      <database value=\"$SQLServerDb$\" />\n      <user-id value=\"$SQLServerUsrID$\"\
+    \ />\n      <password value=\"$SQLServerPwd$\" />\n      <encrypt value=\"{ENCRYPT}\"\
+    \ />\n      <trust-server-certificate value=\"{TRUST_CERT}\" />\n    </sql-server-authentication>\n\
+    \  </sql-server>\n</servers>\n```\n\n### Operation Script XML\n\nGenerate one\
+    \ script per operation. All scripts share this common `<config>` block (add `<object-overwrite\
+    \ action=\"overwrite\" />` for migrate-schema/migrate-data, add `<data-migration-connection\
+    \ source-use-last-used=\"true\" target-server=\"target_sqlserver\" />` for migrate-data,\
+    \ use `every-5%` progress for schema/data ops):\n\n```xml\n<config>\n  <output-providers>\n\
+    \    <output-window suppress-messages=\"false\" destination=\"stdout\" />\n  \
+    \  <upgrade-project action=\"yes\" />\n    <user-input-popup mode=\"continue\"\
+    \ />\n    <progress-reporting enable=\"true\" report-messages=\"true\" report-progress=\"\
+    every-10%\" />\n    <log-verbosity level=\"info\" />\n  </output-providers>\n\
+    </config>\n```\n\nAll scripts start with this **preamble** in `<script-commands>`:\n\
+    \n```xml\n<create-new-project project-folder=\"$WorkingFolder$\" project-name=\"\
+    $ProjectName$\"\n                    overwrite-if-exists=\"true\" project-type=\"\
+    $ProjectType$\" />\n<connect-source-database server=\"source_oracle\">\n  <object-to-collect\
+    \ object-name=\"$OracleSchemaName$\" />\n</connect-source-database>\n```\n\n**CRITICAL**:\
+    \ Always include `<object-to-collect>` \u2014 without it, `map-schema` fails with\
+    \ \"Source namespace was not found\".\n\n**Per-operation commands** (after preamble,\
+    \ before `<save-project />`):\n\n| Operation | File | Commands after preamble\
+    \ |\n|-----------|------|------------------------|\n| create-project | `ssma-create-project.xml`\
+    \ | `connect-target-database` \u2192 `map-schema source-schema=\"$OracleSchemaName$\"\
+    \ sql-server-schema=\"$SQLServerDb$.{TARGET_SCHEMA}\"` |\n| generate-report |\
+    \ `ssma-assessment.xml` | `generate-assessment-report object-name=\"$OracleSchemaName$\"\
+    \ object-type=\"Schemas\" write-summary-report-to=\"$SummaryReportFile$\" verbose=\"\
+    true\" report-errors=\"true\"` |\n| migrate-schema | `ssma-schema.xml` | `connect-target-database`\
+    \ \u2192 `map-schema` \u2192 `convert-schema` (to `$ConversionReportFile$`) \u2192\
+    \ `synchronize-target object-name=\"$SQLServerDb$.{TARGET_SCHEMA}\"` |\n| migrate-data\
+    \ | `ssma-data.xml` | Same as migrate-schema + `refresh-from-database` \u2192\
+    \ `migrate-data object-name=\"$OracleSchemaName$.Tables\" object-type=\"category\"\
+    ` (to `$DataMigrationReportFile$`) \u2192 `close-project` |\n\n## Execute\n\n\
+    Show resolved XML and command to user. Confirm before running.\n\n```powershell\n\
+    New-Item -ItemType Directory -Force -Path \"Reports\\Assessment\",\"Reports\\\
+    Conversion\",\"Reports\\Migration\",\"Reports\\Synchronization\",\"Logs\" | Out-Null\n\
+    & \"{SSMA_CONSOLE_PATH}\" -s \"{SCRIPT_XML}\" -c \"ssma-servers.xml\" -v \"ssma-variables.xml\"\
+    \ -l \"Logs\\{OPERATION}.log\"\n```\n\n## Report Results\n\nCheck exit code (`0`\
+    \ = success), read logs and reports (`Reports\\Assessment\\`, `Reports\\Conversion\\\
+    `, `Reports\\Migration\\`), summarize findings.\n\n## Constraints\n\n- No external\
+    \ scripts \u2014 no `.ps1`, `.bat`, `.sh`\n- Confirm connection details before\
+    \ executing\n- Resolve all placeholders \u2014 no `{...}` in final XML\n- Create\
+    \ output directories before execution\n\n## Known Pitfalls\n\n| Symptom | Fix\
+    \ |\n|---------|-----|\n| `ORA-12505: SID not registered` | Use `tns-name-mode`,\
+    \ not `standard-mode` |\n| `Source namespace was not found` | Add `<object-to-collect>`\
+    \ to `connect-source-database` |\n| `not found in metabase` on `force-load` |\
+    \ Use `object-to-collect` instead \u2014 `force-load` is unreliable |\n| `SQL\
+    \ Server Agent is not running` | Warning only \u2014 BCP client-side migration\
+    \ still works |"

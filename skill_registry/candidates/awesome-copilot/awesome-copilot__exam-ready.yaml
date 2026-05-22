@@ -1,0 +1,81 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__exam-ready
+name: exam-ready
+description: Activate this skill when a student provides study material (PDF or pasted
+  notes) and a syllabus, and wants to prepare for an exam. Extracts key definitions,
+  points, keywords, diagrams, exam-ready sentences, and practice questions strictly
+  from the provided material.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/exam-ready/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- exam-ready
+content:
+  kind: skill_markdown
+  sha256: c3551239018434cb3cf080ce505b279efeaca8211a5c2d513d7c91b1a157e2ad
+  char_count: 3932
+  text: "# exam-ready\n\nActivate this skill when a student provides study material\
+    \ (PDF or pasted notes)\nand a syllabus, and wants to prepare for an exam.\n\n\
+    ## What this skill does\n\nFor each syllabus topic, extract from the provided\
+    \ material:\n- What it is (1 line definition \u2014 exam-ready)\n- 3\u20135 key\
+    \ points an examiner expects\n- Important keywords to use in the answer (bold\
+    \ them)\n- Any important diagram or figure \u2014 describe what it shows in 2\
+    \ lines\n- 1\u20132 sentences the student can directly write in their exam answer\
+    \ (or MCQ trick if exam type is MCQ)\n- 1 examiner-style practice question to\
+    \ test recall\n\nDo NOT explain the full topic. Do NOT add context outside the\
+    \ provided material.\nDo NOT explain things the syllabus didn't ask for.\nNever\
+    \ tell the student to \"read more\" or \"refer to chapter X\". Give them what\
+    \ they need right here.\n\n## Input format\n\nStudent will provide:\n1. A PDF\
+    \ file or pasted notes (their study material)\n2. A syllabus \u2014 either pasted\
+    \ as text or listed as topics\n3. Optionally: exam type (MCQ / short-answer /\
+    \ long-answer) and time available\n\n## Handling missing inputs\n\n- If no study\
+    \ material is provided: say \"Please share your notes or PDF first. I won't use\
+    \ outside knowledge.\"\n- If no syllabus is provided: say \"Please list your syllabus\
+    \ topics so I cover exactly what's being tested.\"\n- If exam type is not mentioned:\
+    \ default to long-answer format, but ask once: \"Is this MCQ or written?\"\n-\
+    \ If a topic is not found in the provided material: say \"This topic was not found\
+    \ in your notes. Check your material.\"\n\n## Triage mode (when student gives\
+    \ a time constraint)\n\nIf the student says \"I have X hours\":\n1. First, output\
+    \ a **priority list** \u2014 number all syllabus topics in order of:\n   - Explicit\
+    \ weightage (if syllabus mentions marks)\n   - Frequency of appearance in the\
+    \ PDF (more coverage = higher priority)\n   - Breadth of subtopics under it\n\
+    2. Then expand each topic in that priority order, not syllabus order.\n3. If time\
+    \ is very short (\u22641 hour), cut output to definition + key points + exam line\
+    \ only. Skip diagrams.\n\n## Output format per topic\n\n---\n\n### [Topic Name]\n\
+    \n**Definition:** [1 sentence]\n\n**Key Points:**\n- [point 1]\n- [point 2]\n\
+    - [point 3]\n\n**Keywords to use:** keyword1, keyword2, keyword3\n\n**Diagram\
+    \ (if any):** [What the diagram shows and what to label]\n\n**Write this in your\
+    \ exam:** *(skip if MCQ \u2014 show MCQ trick instead)*\n[1\u20132 ready-to-write\
+    \ sentences the student can use directly]\n\n**MCQ trick:** *(only if exam type\
+    \ is MCQ)*\n[How to identify the correct option or eliminate wrong ones for this\
+    \ topic]\n\n**Cross-references:** *(only if this topic's keywords appeared in\
+    \ another topic)*\n[e.g., \"The term 'X' used here also appears in [Topic Y] \u2014\
+    \ examiners may link them\"]\n\n**Practice question:**\n[1 examiner-style question\
+    \ to test recall on this topic]\n\n---\n\n## Rules\n\n- Stay strictly within the\
+    \ provided material. Do not add outside knowledge under any circumstance.\n- If\
+    \ exam type is MCQ, replace \"Write this in your exam\" with \"MCQ trick\".\n\
+    - If no weightage is given in the syllabus, prioritize topics that appear most\
+    \ in the PDF.\n- If a keyword from one topic reappears in another, flag it under\
+    \ \"Cross-references\".\n- If the PDF contradicts the syllabus topic name or scope,\
+    \ use the PDF content but note: \"Your notes cover this as [X] \u2014 answering\
+    \ based on that.\"\n- Keep everything short. The student is cramming, not researching.\n\
+    \n## Trigger phrases\n\n- \"I have an exam tomorrow on [subject]\"\n- \"explain\
+    \ [topic] from my notes\"\n- \"what do I need to know about [topic] for my exam\"\
+    \n- \"go through my syllabus\"\n- \"I only have [X] hours, help me prepare\"\n\
+    - \"quiz me on [topic]\""

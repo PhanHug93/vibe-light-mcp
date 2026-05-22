@@ -1,0 +1,198 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__rust-mcp-server-generator
+name: rust-mcp-server-generator
+description: Generate a complete Rust Model Context Protocol server project with tools,
+  prompts, resources, and tests using the official rmcp SDK
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/rust-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+- testing
+languages: []
+platforms: []
+aliases:
+- rust-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: 7d60ebdec91be10f4f9a3b2560559d1a9ef4f7adc0e4a310f868e943e362cf03
+  char_count: 12758
+  text: "# Rust MCP Server Generator\n\nYou are a Rust MCP server generator. Create\
+    \ a complete, production-ready Rust MCP server project using the official `rmcp`\
+    \ SDK.\n\n## Project Requirements\n\nAsk the user for:\n1. **Project name** (e.g.,\
+    \ \"my-mcp-server\")\n2. **Server description** (e.g., \"A weather data MCP server\"\
+    )\n3. **Transport type** (stdio, sse, http, or all)\n4. **Tools to include** (e.g.,\
+    \ \"weather lookup\", \"forecast\", \"alerts\")\n5. **Whether to include prompts\
+    \ and resources**\n\n## Project Structure\n\nGenerate this structure:\n\n```\n\
+    {project-name}/\n\u251C\u2500\u2500 Cargo.toml\n\u251C\u2500\u2500 .gitignore\n\
+    \u251C\u2500\u2500 README.md\n\u251C\u2500\u2500 src/\n\u2502   \u251C\u2500\u2500\
+    \ main.rs\n\u2502   \u251C\u2500\u2500 handler.rs\n\u2502   \u251C\u2500\u2500\
+    \ tools/\n\u2502   \u2502   \u251C\u2500\u2500 mod.rs\n\u2502   \u2502   \u2514\
+    \u2500\u2500 {tool_name}.rs\n\u2502   \u251C\u2500\u2500 prompts/\n\u2502   \u2502\
+    \   \u251C\u2500\u2500 mod.rs\n\u2502   \u2502   \u2514\u2500\u2500 {prompt_name}.rs\n\
+    \u2502   \u251C\u2500\u2500 resources/\n\u2502   \u2502   \u251C\u2500\u2500 mod.rs\n\
+    \u2502   \u2502   \u2514\u2500\u2500 {resource_name}.rs\n\u2502   \u2514\u2500\
+    \u2500 state.rs\n\u2514\u2500\u2500 tests/\n    \u2514\u2500\u2500 integration_test.rs\n\
+    ```\n\n## File Templates\n\n### Cargo.toml\n\n```toml\n[package]\nname = \"{project-name}\"\
+    \nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nrmcp = { version\
+    \ = \"0.8.1\", features = [\"server\"] }\nrmcp-macros = \"0.8\"\ntokio = { version\
+    \ = \"1\", features = [\"full\"] }\nserde = { version = \"1.0\", features = [\"\
+    derive\"] }\nserde_json = \"1.0\"\nanyhow = \"1.0\"\ntracing = \"0.1\"\ntracing-subscriber\
+    \ = \"0.3\"\nschemars = { version = \"0.8\", features = [\"derive\"] }\nasync-trait\
+    \ = \"0.1\"\n\n# Optional: for HTTP transports\naxum = { version = \"0.7\", optional\
+    \ = true }\ntower-http = { version = \"0.5\", features = [\"cors\"], optional\
+    \ = true }\n\n[dev-dependencies]\ntokio-test = \"0.4\"\n\n[features]\ndefault\
+    \ = []\nhttp = [\"dep:axum\", \"dep:tower-http\"]\n\n[[bin]]\nname = \"{project-name}\"\
+    \npath = \"src/main.rs\"\n```\n\n### .gitignore\n\n```gitignore\n/target\nCargo.lock\n\
+    *.swp\n*.swo\n*~\n.DS_Store\n```\n\n### README.md\n\n```markdown\n# {Project Name}\n\
+    \n{Server description}\n\n## Installation\n\n```bash\ncargo build --release\n\
+    ```\n\n## Usage\n\n### Stdio Transport\n\n```bash\ncargo run\n```\n\n### SSE Transport\n\
+    \n```bash\ncargo run --features http -- --transport sse\n```\n\n### HTTP Transport\n\
+    \n```bash\ncargo run --features http -- --transport http\n```\n\n## Configuration\n\
+    \nConfigure in your MCP client (e.g., Claude Desktop):\n\n```json\n{\n  \"mcpServers\"\
+    : {\n    \"{project-name}\": {\n      \"command\": \"path/to/target/release/{project-name}\"\
+    ,\n      \"args\": []\n    }\n  }\n}\n```\n\n## Tools\n\n- **{tool_name}**: {Tool\
+    \ description}\n\n## Development\n\nRun tests:\n\n```bash\ncargo test\n```\n\n\
+    Run with logging:\n\n```bash\nRUST_LOG=debug cargo run\n```\n```\n\n### src/main.rs\n\
+    \n```rust\nuse anyhow::Result;\nuse rmcp::{\n    protocol::ServerCapabilities,\n\
+    \    server::Server,\n    transport::StdioTransport,\n};\nuse tokio::signal;\n\
+    use tracing_subscriber;\n\nmod handler;\nmod state;\nmod tools;\nmod prompts;\n\
+    mod resources;\n\nuse handler::McpHandler;\n\n#[tokio::main]\nasync fn main()\
+    \ -> Result<()> {\n    // Initialize tracing\n    tracing_subscriber::fmt()\n\
+    \        .with_max_level(tracing::Level::INFO)\n        .with_target(false)\n\
+    \        .init();\n    \n    tracing::info!(\"Starting {project-name} MCP server\"\
+    );\n    \n    // Create handler\n    let handler = McpHandler::new();\n    \n\
+    \    // Create transport (stdio by default)\n    let transport = StdioTransport::new();\n\
+    \    \n    // Build server with capabilities\n    let server = Server::builder()\n\
+    \        .with_handler(handler)\n        .with_capabilities(ServerCapabilities\
+    \ {\n            tools: Some(Default::default()),\n            prompts: Some(Default::default()),\n\
+    \            resources: Some(Default::default()),\n            ..Default::default()\n\
+    \        })\n        .build(transport)?;\n    \n    tracing::info!(\"Server started,\
+    \ waiting for requests\");\n    \n    // Run server until Ctrl+C\n    server.run(signal::ctrl_c()).await?;\n\
+    \    \n    tracing::info!(\"Server shutting down\");\n    Ok(())\n}\n```\n\n###\
+    \ src/handler.rs\n\n```rust\nuse rmcp::{\n    model::*,\n    protocol::*,\n  \
+    \  server::{RequestContext, ServerHandler, RoleServer, ToolRouter},\n    ErrorData,\n\
+    };\nuse rmcp::{tool_router, tool_handler};\nuse async_trait::async_trait;\n\n\
+    use crate::state::ServerState;\nuse crate::tools;\n\npub struct McpHandler {\n\
+    \    state: ServerState,\n    tool_router: ToolRouter,\n}\n\n#[tool_router]\n\
+    impl McpHandler {\n    // Include tool definitions from tools module\n    #[tool(\n\
+    \        name = \"example_tool\",\n        description = \"An example tool\",\n\
+    \        annotations(read_only_hint = true)\n    )]\n    async fn example_tool(params:\
+    \ Parameters<tools::ExampleParams>) -> Result<String, String> {\n        tools::example::execute(params).await\n\
+    \    }\n    \n    pub fn new() -> Self {\n        Self {\n            state: ServerState::new(),\n\
+    \            tool_router: Self::tool_router(),\n        }\n    }\n}\n\n#[tool_handler]\n\
+    #[async_trait]\nimpl ServerHandler for McpHandler {\n    async fn list_prompts(\n\
+    \        &self,\n        _request: Option<PaginatedRequestParam>,\n        _context:\
+    \ RequestContext<RoleServer>,\n    ) -> Result<ListPromptsResult, ErrorData> {\n\
+    \        let prompts = vec![\n            Prompt {\n                name: \"example-prompt\"\
+    .to_string(),\n                description: Some(\"An example prompt\".to_string()),\n\
+    \                arguments: Some(vec![\n                    PromptArgument {\n\
+    \                        name: \"topic\".to_string(),\n                      \
+    \  description: Some(\"The topic to discuss\".to_string()),\n                \
+    \        required: Some(true),\n                    },\n                ]),\n\
+    \            },\n        ];\n        \n        Ok(ListPromptsResult { prompts\
+    \ })\n    }\n    \n    async fn get_prompt(\n        &self,\n        request:\
+    \ GetPromptRequestParam,\n        _context: RequestContext<RoleServer>,\n    )\
+    \ -> Result<GetPromptResult, ErrorData> {\n        match request.name.as_str()\
+    \ {\n            \"example-prompt\" => {\n                let topic = request.arguments\n\
+    \                    .as_ref()\n                    .and_then(|args| args.get(\"\
+    topic\"))\n                    .ok_or_else(|| ErrorData::invalid_params(\"topic\
+    \ required\"))?;\n                \n                Ok(GetPromptResult {\n   \
+    \                 description: Some(\"Example prompt\".to_string()),\n       \
+    \             messages: vec![\n                        PromptMessage::user(format!(\"\
+    Let's discuss: {}\", topic)),\n                    ],\n                })\n  \
+    \          }\n            _ => Err(ErrorData::invalid_params(\"Unknown prompt\"\
+    )),\n        }\n    }\n    \n    async fn list_resources(\n        &self,\n  \
+    \      _request: Option<PaginatedRequestParam>,\n        _context: RequestContext<RoleServer>,\n\
+    \    ) -> Result<ListResourcesResult, ErrorData> {\n        let resources = vec![\n\
+    \            Resource {\n                uri: \"example://data/info\".to_string(),\n\
+    \                name: \"Example Resource\".to_string(),\n                description:\
+    \ Some(\"An example resource\".to_string()),\n                mime_type: Some(\"\
+    text/plain\".to_string()),\n            },\n        ];\n        \n        Ok(ListResourcesResult\
+    \ { resources })\n    }\n    \n    async fn read_resource(\n        &self,\n \
+    \       request: ReadResourceRequestParam,\n        _context: RequestContext<RoleServer>,\n\
+    \    ) -> Result<ReadResourceResult, ErrorData> {\n        match request.uri.as_str()\
+    \ {\n            \"example://data/info\" => {\n                Ok(ReadResourceResult\
+    \ {\n                    contents: vec![\n                        ResourceContents::text(\"\
+    Example resource content\".to_string())\n                            .with_uri(request.uri)\n\
+    \                            .with_mime_type(\"text/plain\"),\n              \
+    \      ],\n                })\n            }\n            _ => Err(ErrorData::invalid_params(\"\
+    Unknown resource\")),\n        }\n    }\n}\n```\n\n### src/state.rs\n\n```rust\n\
+    use std::sync::Arc;\nuse tokio::sync::RwLock;\n\n#[derive(Clone)]\npub struct\
+    \ ServerState {\n    // Add shared state here\n    counter: Arc<RwLock<i32>>,\n\
+    }\n\nimpl ServerState {\n    pub fn new() -> Self {\n        Self {\n        \
+    \    counter: Arc::new(RwLock::new(0)),\n        }\n    }\n    \n    pub async\
+    \ fn increment(&self) -> i32 {\n        let mut counter = self.counter.write().await;\n\
+    \        *counter += 1;\n        *counter\n    }\n    \n    pub async fn get(&self)\
+    \ -> i32 {\n        *self.counter.read().await\n    }\n}\n```\n\n### src/tools/mod.rs\n\
+    \n```rust\npub mod example;\n\npub use example::ExampleParams;\n```\n\n### src/tools/example.rs\n\
+    \n```rust\nuse rmcp::model::Parameters;\nuse serde::{Deserialize, Serialize};\n\
+    use schemars::JsonSchema;\n\n#[derive(Debug, Deserialize, JsonSchema)]\npub struct\
+    \ ExampleParams {\n    pub input: String,\n}\n\npub async fn execute(params: Parameters<ExampleParams>)\
+    \ -> Result<String, String> {\n    let input = &params.inner().input;\n    \n\
+    \    // Tool logic here\n    Ok(format!(\"Processed: {}\", input))\n}\n\n#[cfg(test)]\n\
+    mod tests {\n    use super::*;\n    \n    #[tokio::test]\n    async fn test_example_tool()\
+    \ {\n        let params = Parameters::new(ExampleParams {\n            input:\
+    \ \"test\".to_string(),\n        });\n        \n        let result = execute(params).await.unwrap();\n\
+    \        assert!(result.contains(\"test\"));\n    }\n}\n```\n\n### src/prompts/mod.rs\n\
+    \n```rust\n// Prompt implementations can go here if needed\n```\n\n### src/resources/mod.rs\n\
+    \n```rust\n// Resource implementations can go here if needed\n```\n\n### tests/integration_test.rs\n\
+    \n```rust\nuse rmcp::{\n    model::*,\n    protocol::*,\n    server::{RequestContext,\
+    \ ServerHandler, RoleServer},\n};\n\n// Replace with your actual project name\
+    \ in snake_case\n// Example: if project is \"my-mcp-server\", use my_mcp_server\n\
+    use my_mcp_server::handler::McpHandler;\n\n#[tokio::test]\nasync fn test_list_tools()\
+    \ {\n    let handler = McpHandler::new();\n    let context = RequestContext::default();\n\
+    \    \n    let result = handler.list_tools(None, context).await.unwrap();\n  \
+    \  \n    assert!(!result.tools.is_empty());\n    assert!(result.tools.iter().any(|t|\
+    \ t.name == \"example_tool\"));\n}\n\n#[tokio::test]\nasync fn test_call_tool()\
+    \ {\n    let handler = McpHandler::new();\n    let context = RequestContext::default();\n\
+    \    \n    let request = CallToolRequestParam {\n        name: \"example_tool\"\
+    .to_string(),\n        arguments: Some(serde_json::json!({\n            \"input\"\
+    : \"test\"\n        })),\n    };\n    \n    let result = handler.call_tool(request,\
+    \ context).await;\n    assert!(result.is_ok());\n}\n\n#[tokio::test]\nasync fn\
+    \ test_list_prompts() {\n    let handler = McpHandler::new();\n    let context\
+    \ = RequestContext::default();\n    \n    let result = handler.list_prompts(None,\
+    \ context).await.unwrap();\n    assert!(!result.prompts.is_empty());\n}\n\n#[tokio::test]\n\
+    async fn test_list_resources() {\n    let handler = McpHandler::new();\n    let\
+    \ context = RequestContext::default();\n    \n    let result = handler.list_resources(None,\
+    \ context).await.unwrap();\n    assert!(!result.resources.is_empty());\n}\n```\n\
+    \n## Implementation Guidelines\n\n1. **Use rmcp-macros**: Leverage `#[tool]`,\
+    \ `#[tool_router]`, and `#[tool_handler]` macros for cleaner code\n2. **Type Safety**:\
+    \ Use `schemars::JsonSchema` for all parameter types\n3. **Error Handling**: Return\
+    \ `Result` types with proper error messages\n4. **Async/Await**: All handlers\
+    \ must be async\n5. **State Management**: Use `Arc<RwLock<T>>` for shared state\n\
+    6. **Testing**: Include unit tests for tools and integration tests for handlers\n\
+    7. **Logging**: Use `tracing` macros (`info!`, `debug!`, `warn!`, `error!`)\n\
+    8. **Documentation**: Add doc comments to all public items\n\n## Example Tool\
+    \ Patterns\n\n### Simple Read-Only Tool\n\n```rust\n#[derive(Debug, Deserialize,\
+    \ JsonSchema)]\npub struct GreetParams {\n    pub name: String,\n}\n\n#[tool(\n\
+    \    name = \"greet\",\n    description = \"Greets a user by name\",\n    annotations(read_only_hint\
+    \ = true, idempotent_hint = true)\n)]\nasync fn greet(params: Parameters<GreetParams>)\
+    \ -> String {\n    format!(\"Hello, {}!\", params.inner().name)\n}\n```\n\n###\
+    \ Tool with Error Handling\n\n```rust\n#[derive(Debug, Deserialize, JsonSchema)]\n\
+    pub struct DivideParams {\n    pub a: f64,\n    pub b: f64,\n}\n\n#[tool(name\
+    \ = \"divide\", description = \"Divides two numbers\")]\nasync fn divide(params:\
+    \ Parameters<DivideParams>) -> Result<f64, String> {\n    let p = params.inner();\n\
+    \    if p.b == 0.0 {\n        Err(\"Cannot divide by zero\".to_string())\n   \
+    \ } else {\n        Ok(p.a / p.b)\n    }\n}\n```\n\n### Tool with State\n\n```rust\n\
+    #[tool(\n    name = \"increment\",\n    description = \"Increments the counter\"\
+    ,\n    annotations(destructive_hint = true)\n)]\nasync fn increment(state: &ServerState)\
+    \ -> i32 {\n    state.increment().await\n}\n```\n\n## Running the Generated Server\n\
+    \nAfter generation:\n\n```bash\ncd {project-name}\ncargo build\ncargo test\ncargo\
+    \ run\n```\n\nFor Claude Desktop integration:\n\n```json\n{\n  \"mcpServers\"\
+    : {\n    \"{project-name}\": {\n      \"command\": \"path/to/{project-name}/target/release/{project-name}\"\
+    ,\n      \"args\": []\n    }\n  }\n}\n```\n\nNow generate the complete project\
+    \ based on the user's requirements!"

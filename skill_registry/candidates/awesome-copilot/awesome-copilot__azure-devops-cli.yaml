@@ -1,0 +1,86 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__azure-devops-cli
+name: azure-devops-cli
+description: Manage Azure DevOps resources via CLI including projects, repos, pipelines,
+  builds, pull requests, work items, artifacts, and service endpoints. Use when working
+  with Azure DevOps, az commands, devops automation, CI/CD, or when user mentions
+  Azure DevOps CLI.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/azure-devops-cli/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- azure-devops-cli
+content:
+  kind: skill_markdown
+  sha256: 5e4c5e62be6683daef60db4d9628982cc9af02cc8ee78c7412f9ee8f3a61d6a8
+  char_count: 3813
+  text: "# Azure DevOps CLI\n\nManage Azure DevOps resources using the Azure CLI with\
+    \ the Azure DevOps extension.\n\n**CLI Version:** 2.81.0 (current as of 2025)\n\
+    \n## Prerequisites\n\n```bash\n# Install Azure CLI\nbrew install azure-cli  #\
+    \ macOS\ncurl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash  # Linux\n\n#\
+    \ Install Azure DevOps extension\naz extension add --name azure-devops\n```\n\n\
+    ## Authentication\n\n```bash\n# Login with PAT token\naz devops login --organization\
+    \ https://dev.azure.com/{org} --token YOUR_PAT_TOKEN\n\n# Set default organization\
+    \ and project (avoids repeating --org/--project)\n# Note: Legacy URL https://{org}.visualstudio.com\
+    \ should be replaced with https://dev.azure.com/{org}\naz devops configure --defaults\
+    \ organization=https://dev.azure.com/{org} project={project}\n\n# List current\
+    \ configuration\naz devops configure --list\n```\n\n## CLI Structure\n\n```\n\
+    az devops          # Main DevOps commands\n\u251C\u2500\u2500 admin          #\
+    \ Administration (banner)\n\u251C\u2500\u2500 extension      # Extension management\n\
+    \u251C\u2500\u2500 project        # Team projects\n\u251C\u2500\u2500 security\
+    \       # Security operations\n\u2502   \u251C\u2500\u2500 group      # Security\
+    \ groups\n\u2502   \u2514\u2500\u2500 permission # Security permissions\n\u251C\
+    \u2500\u2500 service-endpoint # Service connections\n\u251C\u2500\u2500 team \
+    \          # Teams\n\u251C\u2500\u2500 user           # Users\n\u251C\u2500\u2500\
+    \ wiki           # Wikis\n\u251C\u2500\u2500 configure      # Set defaults\n\u251C\
+    \u2500\u2500 invoke         # Invoke REST API\n\u251C\u2500\u2500 login      \
+    \    # Authenticate\n\u2514\u2500\u2500 logout         # Clear credentials\n\n\
+    az pipelines       # Azure Pipelines\n\u251C\u2500\u2500 agent          # Agents\n\
+    \u251C\u2500\u2500 build          # Builds\n\u251C\u2500\u2500 folder        \
+    \ # Pipeline folders\n\u251C\u2500\u2500 pool           # Agent pools\n\u251C\u2500\
+    \u2500 queue          # Agent queues\n\u251C\u2500\u2500 release        # Releases\n\
+    \u251C\u2500\u2500 runs           # Pipeline runs\n\u251C\u2500\u2500 variable\
+    \       # Pipeline variables\n\u2514\u2500\u2500 variable-group # Variable groups\n\
+    \naz boards          # Azure Boards\n\u251C\u2500\u2500 area           # Area\
+    \ paths\n\u251C\u2500\u2500 iteration      # Iterations\n\u2514\u2500\u2500 work-item\
+    \      # Work items\n\naz repos           # Azure Repos\n\u251C\u2500\u2500 import\
+    \         # Git imports\n\u251C\u2500\u2500 policy         # Branch policies\n\
+    \u251C\u2500\u2500 pr             # Pull requests\n\u2514\u2500\u2500 ref    \
+    \        # Git references\n\naz artifacts       # Azure Artifacts\n\u2514\u2500\
+    \u2500 universal      # Universal Packages\n```\n\n## Reference Files\n\nRead\
+    \ the relevant reference file based on the user's task. Each file contains complete\
+    \ command syntax and examples for its domain.\n\n| File | When to read | Covers\
+    \ |\n|---|---|---|\n| `references/repos-and-prs.md` | Repos, branches, pull requests,\
+    \ branch policies | Repositories, Import, PRs (create/list/vote/reviewers/policies),\
+    \ Git refs, Branch policies |\n| `references/pipelines-and-builds.md` | Pipelines,\
+    \ builds, releases, artifacts | Pipelines CRUD, runs, builds, releases, artifacts\
+    \ download/upload |\n| `references/boards-and-iterations.md` | Work items, sprints,\
+    \ area paths | Work items (WIQL/create/update/relations), Area paths, Iterations,\
+    \ Team iterations |\n| `references/variables-and-agents.md` | Pipeline variables,\
+    \ agent pools | Pipeline variables, Variable groups, Pipeline folders, Agent pools/queues\
+    \ |\n| `references/org-and-security.md` | Projects, teams, users, permissions,\
+    \ wikis | Projects, Extensions, Teams, Users, Security groups/permissions, Service\
+    \ endpoints, Wikis, Admin |\n| `references/advanced-usage.md` | Output formatting,\
+    \ JMESPath queries | Output formats, JMESPath queries (basic + advanced), Global\
+    \ args, Common params, Git aliases |\n| `references/workflows-and-patterns.md`\
+    \ | Automation scripts, best practices, error handling | Common workflows, Best\
+    \ practices, Error handling, Scripting patterns, Real-world examples |"

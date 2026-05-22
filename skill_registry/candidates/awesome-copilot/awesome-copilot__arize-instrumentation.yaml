@@ -1,0 +1,334 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-instrumentation
+name: arize-instrumentation
+description: Adds Arize AX tracing to an LLM application for the first time. Follows
+  a two-phase agent-assisted flow to analyze the codebase then implement instrumentation
+  after user confirmation. Use when the user wants to instrument their app, add tracing
+  from scratch, set up LLM observability, integrate OpenTelemetry or openinference,
+  or get started with Arize tracing.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-instrumentation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- arize-instrumentation
+content:
+  kind: skill_markdown
+  sha256: 9f591abcf628b13e682a9e838cce58aaa569c5bd513a88853696a352a3fe2798
+  char_count: 24839
+  text: "# Arize Instrumentation Skill\n\nUse this skill when the user wants to **add\
+    \ Arize AX tracing** to their application. Follow the **two-phase, agent-assisted\
+    \ flow** from the [Agent-Assisted Tracing Setup](https://arize.com/docs/ax/alyx/tracing-assistant)\
+    \ and the [Arize AX Tracing \u2014 Agent Setup Prompt](https://arize.com/docs/PROMPT.md).\n\
+    \n## Quick start (for the user)\n\nIf the user asks you to \"set up tracing\"\
+    \ or \"instrument my app with Arize\", you can start with:\n\n> Follow the instructions\
+    \ from https://arize.com/docs/PROMPT.md and ask me questions as needed.\n\nThen\
+    \ execute the two phases below.\n\n## Core principles\n\n- **Prefer inspection\
+    \ over mutation** \u2014 understand the codebase before changing it.\n- **Do not\
+    \ change business logic** \u2014 tracing is purely additive.\n- **Use auto-instrumentation\
+    \ where available** \u2014 add manual spans only for custom logic not covered\
+    \ by integrations.\n- **Follow existing code style** and project conventions.\n\
+    - **Keep output concise and production-focused** \u2014 do not generate extra\
+    \ documentation or summary files.\n- **NEVER embed literal credential values in\
+    \ generated code** \u2014 always reference environment variables (e.g., `os.environ[\"\
+    ARIZE_API_KEY\"]`, `process.env.ARIZE_API_KEY`). This includes API keys, space\
+    \ IDs, and any other secrets. The user sets these in their own environment; the\
+    \ agent must never output raw secret values.\n\n## Phase 0: Environment preflight\n\
+    \nBefore changing code:\n\n1. Confirm the repo/service scope is clear. For monorepos,\
+    \ do not assume the whole repo should be instrumented.\n2. Identify the local\
+    \ runtime surface you will need for verification:\n   - package manager and app\
+    \ start command\n   - whether the app is long-running, server-based, or a short-lived\
+    \ CLI/script\n   - whether `ax` will be needed for post-change verification\n\
+    3. Do NOT proactively check `ax` installation or version. If `ax` is needed for\
+    \ verification later, just run it when the time comes. If it fails, see references/ax-profiles.md.\n\
+    4. Never silently replace a user-provided space ID, project name, or project ID.\
+    \ If the CLI, collector, and user input disagree, surface that mismatch as a concrete\
+    \ blocker.\n\n## Phase 1: Analysis (read-only)\n\n**Do not write any code or create\
+    \ any files during this phase.**\n\n### Steps\n\n1. **Check dependency manifests**\
+    \ to detect stack:\n   - Python: `pyproject.toml`, `requirements.txt`, `setup.py`,\
+    \ `Pipfile`\n   - TypeScript/JavaScript: `package.json`\n   - Java: `pom.xml`,\
+    \ `build.gradle`, `build.gradle.kts`\n   - Go: `go.mod`\n\n2. **Scan import statements**\
+    \ in source files to confirm what is actually used.\n\n3. **Check for existing\
+    \ tracing/OTel** \u2014 look for `TracerProvider`, `register()`, `opentelemetry`\
+    \ imports, `ARIZE_*`, `OTEL_*`, `OTLP_*` env vars, or other observability config\
+    \ (Datadog, Honeycomb, etc.).\n\n4. **Identify scope** \u2014 for monorepos or\
+    \ multi-service projects, ask which service(s) to instrument.\n\n### What to identify\n\
+    \n| Item | Examples |\n|------|----------|\n| Language | Python, TypeScript/JavaScript,\
+    \ Java, Go |\n| Package manager | pip/poetry/uv, npm/pnpm/yarn, maven/gradle,\
+    \ go modules |\n| LLM providers | OpenAI, Anthropic, LiteLLM, Bedrock, etc. |\n\
+    | Frameworks | LangChain, LangGraph, LlamaIndex, Vercel AI SDK, Mastra, etc. |\n\
+    | Existing tracing | Any OTel or vendor setup |\n| Tool/function use | LLM tool\
+    \ use, function calling, or custom tools the app executes (e.g. in an agent loop)\
+    \ |\n\n**Key rule:** When a framework is detected alongside an LLM provider, inspect\
+    \ the framework-specific tracing docs first and prefer the framework-native integration\
+    \ path when it already captures the model and tool spans you need. Add separate\
+    \ provider instrumentation only when the framework docs require it or when the\
+    \ framework-native integration leaves obvious gaps. If the app runs tools and\
+    \ the framework integration does not emit tool spans, add manual TOOL spans so\
+    \ each invocation appears with input/output (see **Enriching traces** below).\n\
+    \n### Phase 1 output\n\nReturn a concise summary:\n\n- Detected language, package\
+    \ manager, providers, frameworks\n- Proposed integration list (from the routing\
+    \ table in the docs)\n- Any existing OTel/tracing that needs consideration\n-\
+    \ If monorepo: which service(s) you propose to instrument\n- **If the app uses\
+    \ LLM tool use / function calling:** note that you will add manual CHAIN + TOOL\
+    \ spans so each tool call appears in the trace with input/output (avoids sparse\
+    \ traces).\n\nIf the user explicitly asked you to instrument the app now, and\
+    \ the target service is already clear, present the Phase 1 summary briefly and\
+    \ continue directly to Phase 2. If scope is ambiguous, or the user asked for analysis\
+    \ first, stop and wait for confirmation.\n\n## Integration routing and docs\n\n\
+    The **canonical list** of supported integrations and doc URLs is in the [Agent\
+    \ Setup Prompt](https://arize.com/docs/PROMPT.md). Use it to map detected signals\
+    \ to implementation docs.\n\n- **LLM providers:** [OpenAI](https://arize.com/docs/ax/integrations/llm-providers/openai),\
+    \ [Anthropic](https://arize.com/docs/ax/integrations/llm-providers/anthropic),\
+    \ [LiteLLM](https://arize.com/docs/ax/integrations/llm-providers/litellm), [Google\
+    \ Gen AI](https://arize.com/docs/ax/integrations/llm-providers/google-gen-ai),\
+    \ [Bedrock](https://arize.com/docs/ax/integrations/llm-providers/amazon-bedrock),\
+    \ [Ollama](https://arize.com/docs/ax/integrations/llm-providers/llama), [Groq](https://arize.com/docs/ax/integrations/llm-providers/groq),\
+    \ [MistralAI](https://arize.com/docs/ax/integrations/llm-providers/mistralai),\
+    \ [OpenRouter](https://arize.com/docs/ax/integrations/llm-providers/openrouter),\
+    \ [VertexAI](https://arize.com/docs/ax/integrations/llm-providers/vertexai).\n\
+    - **Python frameworks:** [LangChain](https://arize.com/docs/ax/integrations/python-agent-frameworks/langchain),\
+    \ [LangGraph](https://arize.com/docs/ax/integrations/python-agent-frameworks/langgraph),\
+    \ [LlamaIndex](https://arize.com/docs/ax/integrations/python-agent-frameworks/llamaindex),\
+    \ [CrewAI](https://arize.com/docs/ax/integrations/python-agent-frameworks/crewai),\
+    \ [DSPy](https://arize.com/docs/ax/integrations/python-agent-frameworks/dspy),\
+    \ [AutoGen](https://arize.com/docs/ax/integrations/python-agent-frameworks/autogen),\
+    \ [Semantic Kernel](https://arize.com/docs/ax/integrations/python-agent-frameworks/semantic-kernel),\
+    \ [Pydantic AI](https://arize.com/docs/ax/integrations/python-agent-frameworks/pydantic),\
+    \ [Haystack](https://arize.com/docs/ax/integrations/python-agent-frameworks/haystack),\
+    \ [Guardrails AI](https://arize.com/docs/ax/integrations/python-agent-frameworks/guardrails-ai),\
+    \ [Hugging Face Smolagents](https://arize.com/docs/ax/integrations/python-agent-frameworks/hugging-face-smolagents),\
+    \ [Instructor](https://arize.com/docs/ax/integrations/python-agent-frameworks/instructor),\
+    \ [Agno](https://arize.com/docs/ax/integrations/python-agent-frameworks/agno),\
+    \ [Google ADK](https://arize.com/docs/ax/integrations/python-agent-frameworks/google-adk),\
+    \ [MCP](https://arize.com/docs/ax/integrations/python-agent-frameworks/model-context-protocol),\
+    \ [Portkey](https://arize.com/docs/ax/integrations/python-agent-frameworks/portkey),\
+    \ [Together AI](https://arize.com/docs/ax/integrations/python-agent-frameworks/together-ai),\
+    \ [BeeAI](https://arize.com/docs/ax/integrations/python-agent-frameworks/beeai),\
+    \ [AWS Bedrock Agents](https://arize.com/docs/ax/integrations/python-agent-frameworks/aws).\n\
+    - **TypeScript/JavaScript:** [LangChain JS](https://arize.com/docs/ax/integrations/ts-js-agent-frameworks/langchain),\
+    \ [Mastra](https://arize.com/docs/ax/integrations/ts-js-agent-frameworks/mastra),\
+    \ [Vercel AI SDK](https://arize.com/docs/ax/integrations/ts-js-agent-frameworks/vercel),\
+    \ [BeeAI JS](https://arize.com/docs/ax/integrations/ts-js-agent-frameworks/beeai).\n\
+    - **Java:** [LangChain4j](https://arize.com/docs/ax/integrations/java/langchain4j),\
+    \ [Spring AI](https://arize.com/docs/ax/integrations/java/spring-ai), [Arconia](https://arize.com/docs/ax/integrations/java/arconia).\n\
+    - **Go:** No first-party auto-instrumentation packages today \u2014 use the OpenTelemetry\
+    \ Go SDK with manual [OpenInference](https://github.com/Arize-ai/openinference)\
+    \ attributes per [Manual instrumentation](https://arize.com/docs/ax/instrument/manual-instrumentation).\n\
+    - **Platforms (UI-based):** [LangFlow](https://arize.com/docs/ax/integrations/platforms/langflow),\
+    \ [Flowise](https://arize.com/docs/ax/integrations/platforms/flowise), [Dify](https://arize.com/docs/ax/integrations/platforms/dify),\
+    \ [Prompt flow](https://arize.com/docs/ax/integrations/platforms/prompt-flow).\n\
+    - **Fallback:** [Manual instrumentation](https://arize.com/docs/ax/instrument/manual-instrumentation),\
+    \ [All integrations](https://arize.com/docs/ax/integrations).\n\n**Fetch the matched\
+    \ doc pages** from the [full routing table in PROMPT.md](https://arize.com/docs/PROMPT.md)\
+    \ for exact installation and code snippets. Use [llms.txt](https://arize.com/docs/llms.txt)\
+    \ as a fallback for doc discovery if needed.\n\n> **Note:** `arize.com/docs/PROMPT.md`\
+    \ and `arize.com/docs/llms.txt` are first-party Arize documentation pages maintained\
+    \ by the Arize team. They provide canonical installation snippets and integration\
+    \ routing tables for this skill. These are trusted, same-organization URLs \u2014\
+    \ not third-party content.\n\n## Phase 2: Implementation\n\nProceed **only after\
+    \ the user confirms** the Phase 1 analysis.\n\n### Steps\n\n1. **Fetch integration\
+    \ docs** \u2014 Read the matched doc URLs and follow their installation and instrumentation\
+    \ steps.\n2. **Install packages** using the detected package manager **before**\
+    \ writing code:\n   - Python: `pip install arize-otel` plus `openinference-instrumentation-{name}`\
+    \ (hyphens in package name; underscores in import, e.g. `openinference.instrumentation.llama_index`).\n\
+    \   - TypeScript/JavaScript: `@opentelemetry/sdk-trace-node` plus the relevant\
+    \ `@arizeai/openinference-*` package.\n   - Java: OpenTelemetry SDK plus `openinference-instrumentation-*`\
+    \ in pom.xml or build.gradle.\n   - Go: `go get go.opentelemetry.io/otel go.opentelemetry.io/otel/sdk\
+    \ go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp` \u2014 no auto-instrumentors\
+    \ yet, so the agent sets OpenInference attributes manually on spans. **Wire the\
+    \ exporter** with `otlptracehttp.WithEndpoint(\"otlp.arize.com\")` (US) or `otlptracehttp.WithEndpoint(\"\
+    otlp.eu-west-1a.arize.com\")` (EU) \u2014 pass the bare hostname, no `https://`\
+    \ scheme \u2014 and `otlptracehttp.WithHeaders(map[string]string{\"space_id\"\
+    : ..., \"api_key\": ...})`. Recent OTel Go modules require Go \u2265 1.23 \u2014\
+    \ `go mod tidy` may bump the toolchain.\n3. **Credentials** \u2014 User needs\
+    \ an **Arize API Key** and **Space ID**. Check existing `ax` profiles for `ARIZE_API_KEY`\
+    \ and `ARIZE_SPACE` \u2014 never read `.env` files:\n   - Run `ax profiles show`\
+    \ to check for an existing profile.\n   - If no profile exists, guide the user\
+    \ to run `ax profiles create` which provides an **interactive wizard** that walks\
+    \ through API key and space setup. See [CLI profiles docs](https://arize.com/docs/api-clients/cli/profiles)\
+    \ for details.\n   - If the user needs to find their API key manually, direct\
+    \ them to **https://app.arize.com** and to navigate to the settings page (do not\
+    \ use organization-specific URLs with placeholder IDs \u2014 they won't resolve\
+    \ for new users).\n   - If credentials are not set, instruct the user to set them\
+    \ as environment variables \u2014 never embed raw values in generated code. All\
+    \ generated instrumentation code must reference `os.environ[\"ARIZE_API_KEY\"\
+    ]` (Python), `process.env.ARIZE_API_KEY` (TypeScript/JavaScript), or `os.Getenv(\"\
+    ARIZE_API_KEY\")` (Go).\n   - See references/ax-profiles.md for full profile setup\
+    \ and troubleshooting.\n4. **Centralized instrumentation** \u2014 Create a single\
+    \ module (e.g. `instrumentation.py`, `instrumentation.ts`, `instrumentation.go`)\
+    \ and initialize tracing **before** any LLM client is created.\n5. **Existing\
+    \ OTel** \u2014 If there is already a TracerProvider, add Arize as an **additional**\
+    \ exporter (e.g. BatchSpanProcessor with Arize OTLP). Do not replace existing\
+    \ setup unless the user asks.\n\n### Implementation rules\n\n- Use **auto-instrumentation\
+    \ first**; manual spans only when needed.\n- Prefer the repo's native integration\
+    \ surface before adding generic OpenTelemetry plumbing. If the framework ships\
+    \ an exporter or observability package, use that first unless there is a documented\
+    \ gap.\n- **Fail gracefully** if env vars are missing (warn, do not crash).\n\
+    - **Import order:** register tracer \u2192 attach instrumentors \u2192 then create\
+    \ LLM clients.\n- **Project name attribute (required):** Arize rejects spans with\
+    \ HTTP 500 if the project name is missing \u2014 `service.name` alone is not accepted.\
+    \ Set it as a **resource attribute** on the TracerProvider (recommended \u2014\
+    \ one place, applies to all spans):\n  - **Python:** `register(project_name=\"\
+    my-app\")` handles it automatically (sets `\"openinference.project.name\"` on\
+    \ the resource). For routing spans to different projects, use `set_routing_context(space_id=...,\
+    \ project_name=...)` from `arize.otel`.\n  - **TypeScript:** Arize accepts both\
+    \ `\"model_id\"` (shown in the official TS quickstart) and `\"openinference.project.name\"\
+    ` via `SEMRESATTRS_PROJECT_NAME` from `@arizeai/openinference-semantic-conventions`\
+    \ (shown in the manual instrumentation docs) \u2014 both work.\n  - **Go:** Pass\
+    \ `attribute.String(\"openinference.project.name\", \"my-app\")` to `resource.New(...)`\
+    \ and apply via `sdktrace.WithResource(res)`. The Go SDK has no helper for this,\
+    \ so it must be set manually on every TracerProvider.\n- **CLI/script apps \u2014\
+    \ flush before exit:** `provider.shutdown()` (TS) / `provider.force_flush()` then\
+    \ `provider.shutdown()` (Python) / `tp.Shutdown(ctx)` (Go) must be called before\
+    \ the process exits, otherwise async OTLP exports are dropped and no traces appear.\n\
+    - **When the app has tool/function execution:** add manual CHAIN + TOOL spans\
+    \ (see **Enriching traces** below) so the trace tree shows each tool call and\
+    \ its result \u2014 otherwise traces will look sparse (only LLM API spans, no\
+    \ tool input/output).\n\n## Enriching traces: manual spans for tool use and agent\
+    \ loops\n\n### Why doesn't the auto-instrumentor do this?\n\n**Provider instrumentors\
+    \ (Anthropic, OpenAI, etc.) only wrap the LLM *client* \u2014 the code that sends\
+    \ HTTP requests and receives responses.** They see:\n\n- One span per API call:\
+    \ request (messages, system prompt, tools) and response (text, tool_use blocks,\
+    \ etc.).\n\nThey **cannot** see what happens *inside your application* after the\
+    \ response:\n\n- **Tool execution** \u2014 Your code parses the response, calls\
+    \ `run_tool(\"check_loan_eligibility\", {...})`, and gets a result. That runs\
+    \ in your process; the instrumentor has no hook into your `run_tool()` or the\
+    \ actual tool output. The *next* API call (sending the tool result back) is just\
+    \ another `messages.create` span \u2014 the instrumentor doesn't know that the\
+    \ message content is a tool result or what the tool returned.\n- **Agent/chain\
+    \ boundary** \u2014 The idea of \"one user turn \u2192 multiple LLM calls + tool\
+    \ calls\" is an *application-level* concept. The instrumentor only sees separate\
+    \ API calls; it doesn't know they belong to the same logical \"run_agent\" run.\n\
+    \nSo TOOL and CHAIN spans have to be added **manually** (or by a *framework* instrumentor\
+    \ like LangChain/LangGraph that knows about tools and chains). Once you add them,\
+    \ they appear in the same trace as the LLM spans because they use the same TracerProvider.\n\
+    \n---\n\nTo avoid sparse traces where tool inputs/outputs are missing:\n\n1. **Detect**\
+    \ agent/tool patterns: a loop that calls the LLM, then runs one or more tools\
+    \ (by name + arguments), then calls the LLM again with tool results.\n2. **Add\
+    \ manual spans** using the same TracerProvider (e.g. `opentelemetry.trace.get_tracer(...)`\
+    \ after `register()`):\n   - **CHAIN span** \u2014 Wrap the full agent run (e.g.\
+    \ `run_agent`): set `openinference.span.kind` = `\"CHAIN\"`, `input.value` = user\
+    \ message, `output.value` = final reply.\n   - **TOOL span** \u2014 Wrap each\
+    \ tool invocation: set `openinference.span.kind` = `\"TOOL\"`, `input.value` =\
+    \ JSON of arguments, `output.value` = JSON of result. Use the tool name as the\
+    \ span name (e.g. `check_loan_eligibility`).\n\n**OpenInference attributes (use\
+    \ these so Arize shows spans correctly):**\n\n| Attribute | Use |\n|-----------|-----|\n\
+    | `openinference.span.kind` | Pick the right value: `\"LLM\"` for raw provider\
+    \ API calls (OpenAI, Anthropic, etc.); `\"CHAIN\"` for orchestration / agent-loop\
+    \ boundaries; `\"TOOL\"` for tool/function execution; `\"RETRIEVER\"` for vector-store\
+    \ / search lookups; `\"EMBEDDING\"` for embedding API calls; `\"AGENT\"` for an\
+    \ autonomous sub-agent run nested inside a larger chain; `\"RERANKER\"` for rerank\
+    \ API calls; `\"GUARDRAIL\"` for guardrail/policy checks; `\"EVALUATOR\"` for\
+    \ online eval calls. |\n| `input.value` | string (e.g. user message or JSON of\
+    \ tool args) |\n| `output.value` | string (e.g. final reply or JSON of tool result)\
+    \ |\n\n**LLM-span attributes (set these in addition to the three above when the\
+    \ span is an actual LLM call):**\n\n| Attribute | Use |\n|-----------|-----|\n\
+    | `llm.model_name` | model identifier (e.g. `\"gpt-4o-mini\"`) |\n| `llm.provider`\
+    \ / `llm.system` | provider name (e.g. `\"openai\"`, `\"anthropic\"`) |\n| `llm.input_messages.{i}.message.role`\
+    \ | `\"system\"` / `\"user\"` / `\"assistant\"` / `\"tool\"` for the i-th input\
+    \ message |\n| `llm.input_messages.{i}.message.content` | text content of the\
+    \ i-th input message |\n| `llm.output_messages.{i}.message.role` | role of the\
+    \ i-th output message |\n| `llm.output_messages.{i}.message.content` | text content\
+    \ of the i-th output message |\n| `llm.token_count.prompt` | int \u2014 prompt/input\
+    \ tokens |\n| `llm.token_count.completion` | int \u2014 completion/output tokens\
+    \ |\n| `llm.token_count.total` | int \u2014 total tokens |\n\nIn Python and TypeScript\
+    \ these names are exposed via `openinference-semantic-conventions` packages; in\
+    \ Go they must be hand-typed as the strings above.\n\n**Python pattern:** Get\
+    \ the global tracer (same provider as Arize), then use context managers so tool\
+    \ spans are children of the CHAIN span and appear in the same trace as the LLM\
+    \ spans:\n\n```python\nfrom opentelemetry.trace import get_tracer\n\ntracer =\
+    \ get_tracer(\"my-app\", \"1.0.0\")\n\n# In your agent entrypoint:\nwith tracer.start_as_current_span(\"\
+    run_agent\") as chain_span:\n    chain_span.set_attribute(\"openinference.span.kind\"\
+    , \"CHAIN\")\n    chain_span.set_attribute(\"input.value\", user_message)\n  \
+    \  # ... LLM call ...\n    for tool_use in tool_uses:\n        with tracer.start_as_current_span(tool_use[\"\
+    name\"]) as tool_span:\n            tool_span.set_attribute(\"openinference.span.kind\"\
+    , \"TOOL\")\n            tool_span.set_attribute(\"input.value\", json.dumps(tool_use[\"\
+    input\"]))\n            result = run_tool(tool_use[\"name\"], tool_use[\"input\"\
+    ])\n            tool_span.set_attribute(\"output.value\", result)\n        # ...\
+    \ append tool result to messages, call LLM again ...\n    chain_span.set_attribute(\"\
+    output.value\", final_reply)\n```\n\n**Go pattern:** Get a tracer from the global\
+    \ TracerProvider (registered via `otel.SetTracerProvider`), then nest spans with\
+    \ `tracer.Start` so tool spans become children of the CHAIN span.\n\n> **Critical\
+    \ for short-lived processes:** never call `log.Fatalf` / `os.Exit` after a span\
+    \ has started \u2014 they skip the deferred `tp.Shutdown(ctx)` and the in-flight\
+    \ CHAIN/LLM spans never flush. Use `log.Printf` + `return` from `main` instead,\
+    \ and keep `tp.Shutdown(ctx)` deferred at the top of `main`.\n\n```go\nimport\
+    \ (\n    \"context\"\n    \"encoding/json\"\n    \"go.opentelemetry.io/otel\"\n\
+    \    \"go.opentelemetry.io/otel/attribute\"\n)\n\nvar tracer = otel.Tracer(\"\
+    my-app\")\n\nfunc runAgent(ctx context.Context, userMessage string) string {\n\
+    \    ctx, chainSpan := tracer.Start(ctx, \"run_agent\")\n    defer chainSpan.End()\n\
+    \    chainSpan.SetAttributes(\n        attribute.String(\"openinference.span.kind\"\
+    , \"CHAIN\"),\n        attribute.String(\"input.value\", userMessage),\n    )\n\
+    \n    // ... LLM call ...\n    for _, toolUse := range toolUses {\n        ctx,\
+    \ toolSpan := tracer.Start(ctx, toolUse.Name)\n        argsJSON, err := json.Marshal(toolUse.Input)\n\
+    \        if err != nil {\n            toolSpan.RecordError(err)\n        }\n \
+    \       toolSpan.SetAttributes(\n            attribute.String(\"openinference.span.kind\"\
+    , \"TOOL\"),\n            attribute.String(\"input.value\", string(argsJSON)),\n\
+    \        )\n        result := runTool(toolUse.Name, toolUse.Input)\n        toolSpan.SetAttributes(attribute.String(\"\
+    output.value\", result))\n        toolSpan.End()\n        // ... append tool result\
+    \ to messages, call LLM again ...\n    }\n\n    chainSpan.SetAttributes(attribute.String(\"\
+    output.value\", finalReply))\n    return finalReply\n}\n```\n\nSee [Manual instrumentation](https://arize.com/docs/ax/instrument/manual-instrumentation)\
+    \ for more span kinds and attributes.\n\n## Verification\n\nTreat instrumentation\
+    \ as complete only when all of the following are true:\n\n1. The app still builds\
+    \ or typechecks after the tracing change.\n2. The app starts successfully with\
+    \ the new tracing configuration.\n3. You trigger at least one real request or\
+    \ run that should produce spans.\n4. You either verify the resulting trace in\
+    \ Arize, or you provide a precise blocker that distinguishes app-side success\
+    \ from Arize-side failure.\n\nAfter implementation:\n\n1. Run the application\
+    \ and trigger at least one LLM call.\n2. **Use the `arize-trace` skill** to confirm\
+    \ traces arrived. If empty, retry shortly. Verify spans have expected `openinference.span.kind`,\
+    \ `input.value`/`output.value`, and parent-child relationships.\n3. If no traces:\
+    \ verify `ARIZE_SPACE` and `ARIZE_API_KEY`, ensure tracer is initialized before\
+    \ instrumentors and clients, check connectivity to `otlp.arize.com:443`, and inspect\
+    \ app/runtime exporter logs so you can tell whether spans are being emitted locally\
+    \ but rejected remotely. For debug set `GRPC_VERBOSITY=debug` or pass `log_to_console=True`\
+    \ to `register()`. Common gotchas: (a) missing project name resource attribute\
+    \ causes HTTP 500 rejections \u2014 `service.name` alone is not enough; Python:\
+    \ pass `project_name` to `register()`; TypeScript: set `\"model_id\"` or `SEMRESATTRS_PROJECT_NAME`\
+    \ on the resource; Go: add `attribute.String(\"openinference.project.name\", \"\
+    my-app\")` to `resource.New(...)`; (b) CLI/script processes exit before OTLP exports\
+    \ flush \u2014 call `provider.force_flush()` then `provider.shutdown()` (Python/TS)\
+    \ or `tp.Shutdown(ctx)` (Go) before exit; (c) CLI-visible spaces/projects can\
+    \ disagree with a collector-targeted space ID \u2014 report the mismatch instead\
+    \ of silently rewriting credentials.\n4. If the app uses tools: confirm CHAIN\
+    \ and TOOL spans appear with `input.value` / `output.value` so tool calls and\
+    \ results are visible.\n\nWhen verification is blocked by CLI or account issues,\
+    \ end with a concrete status:\n\n- app instrumentation status\n- latest local\
+    \ trace ID or run ID\n- whether exporter logs show local span emission\n- whether\
+    \ the failure is credential, space/project resolution, network, or collector rejection\n\
+    \n## Leveraging the Tracing Assistant (MCP)\n\nFor deeper instrumentation guidance\
+    \ inside the IDE, the user can enable:\n\n- **Arize AX Tracing Assistant MCP**\
+    \ \u2014 instrumentation guides, framework examples, and support. In Cursor: **Settings\
+    \ \u2192 MCP \u2192 Add** and use:\n  ```json\n  \"arize-tracing-assistant\":\
+    \ {\n    \"command\": \"uvx\",\n    \"args\": [\"arize-tracing-assistant@latest\"\
+    ]\n  }\n  ```\n- **Arize AX Docs MCP** \u2014 searchable docs. In Cursor:\n  ```json\n\
+    \  \"arize-ax-docs\": {\n    \"url\": \"https://arize.com/docs/mcp\"\n  }\n  ```\n\
+    \nThen the user can ask things like: *\"Instrument this app using Arize AX\"*,\
+    \ *\"Can you use manual instrumentation so I have more control over my traces?\"\
+    *, *\"How can I redact sensitive information from my spans?\"*\n\nSee the full\
+    \ setup at [Agent-Assisted Tracing Setup](https://arize.com/docs/ax/alyx/tracing-assistant).\n\
+    \n## Reference links\n\n| Resource | URL |\n|----------|-----|\n| Agent-Assisted\
+    \ Tracing Setup | https://arize.com/docs/ax/alyx/tracing-assistant |\n| Agent\
+    \ Setup Prompt (full routing + phases) | https://arize.com/docs/PROMPT.md |\n\
+    | Arize AX Docs | https://arize.com/docs/ax |\n| Full integration list | https://arize.com/docs/ax/integrations\
+    \ |\n| Doc index (llms.txt) | https://arize.com/docs/llms.txt |\n\n## Save Credentials\
+    \ for Future Use\n\nSee references/ax-profiles.md \xA7 Save Credentials for Future\
+    \ Use."

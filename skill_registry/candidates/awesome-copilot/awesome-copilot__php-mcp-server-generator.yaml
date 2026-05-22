@@ -1,0 +1,175 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__php-mcp-server-generator
+name: php-mcp-server-generator
+description: Generate a complete PHP Model Context Protocol server project with tools,
+  resources, prompts, and tests using the official PHP SDK
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/php-mcp-server-generator/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+- testing
+languages: []
+platforms: []
+aliases:
+- php-mcp-server-generator
+content:
+  kind: skill_markdown
+  sha256: e4ac56da9b7bfea6a03dece665b2c959ba8862da2ab97dc4041b891662620e37
+  char_count: 10785
+  text: "# PHP MCP Server Generator\n\nYou are a PHP MCP server generator. Create\
+    \ a complete, production-ready PHP MCP server project using the official PHP SDK.\n\
+    \n## Project Requirements\n\nAsk the user for:\n1. **Project name** (e.g., \"\
+    my-mcp-server\")\n2. **Server description** (e.g., \"A file management MCP server\"\
+    )\n3. **Transport type** (stdio, http, or both)\n4. **Tools to include** (e.g.,\
+    \ \"file read\", \"file write\", \"list directory\")\n5. **Whether to include\
+    \ resources and prompts**\n6. **PHP version** (8.2+ required)\n\n## Project Structure\n\
+    \n```\n{project-name}/\n\u251C\u2500\u2500 composer.json\n\u251C\u2500\u2500 .gitignore\n\
+    \u251C\u2500\u2500 README.md\n\u251C\u2500\u2500 server.php\n\u251C\u2500\u2500\
+    \ src/\n\u2502   \u251C\u2500\u2500 Tools/\n\u2502   \u2502   \u2514\u2500\u2500\
+    \ {ToolClass}.php\n\u2502   \u251C\u2500\u2500 Resources/\n\u2502   \u2502   \u2514\
+    \u2500\u2500 {ResourceClass}.php\n\u2502   \u251C\u2500\u2500 Prompts/\n\u2502\
+    \   \u2502   \u2514\u2500\u2500 {PromptClass}.php\n\u2502   \u2514\u2500\u2500\
+    \ Providers/\n\u2502       \u2514\u2500\u2500 {CompletionProvider}.php\n\u2514\
+    \u2500\u2500 tests/\n    \u2514\u2500\u2500 ToolsTest.php\n```\n\n## File Templates\n\
+    \n### composer.json\n\n```json\n{\n    \"name\": \"your-org/{project-name}\",\n\
+    \    \"description\": \"{Server description}\",\n    \"type\": \"project\",\n\
+    \    \"require\": {\n        \"php\": \"^8.2\",\n        \"mcp/sdk\": \"^0.1\"\
+    \n    },\n    \"require-dev\": {\n        \"phpunit/phpunit\": \"^10.0\",\n  \
+    \      \"symfony/cache\": \"^6.4\"\n    },\n    \"autoload\": {\n        \"psr-4\"\
+    : {\n            \"App\\\\\\\\\": \"src/\"\n        }\n    },\n    \"autoload-dev\"\
+    : {\n        \"psr-4\": {\n            \"Tests\\\\\\\\\": \"tests/\"\n       \
+    \ }\n    },\n    \"config\": {\n        \"optimize-autoloader\": true,\n     \
+    \   \"preferred-install\": \"dist\",\n        \"sort-packages\": true\n    }\n\
+    }\n```\n\n### .gitignore\n\n```\n/vendor\n/cache\ncomposer.lock\n.phpunit.cache\n\
+    phpstan.neon\n```\n\n### README.md\n\n```markdown\n# {Project Name}\n\n{Server\
+    \ description}\n\n## Requirements\n\n- PHP 8.2 or higher\n- Composer\n\n## Installation\n\
+    \n```bash\ncomposer install\n```\n\n## Usage\n\n### Start Server (Stdio)\n\n```bash\n\
+    php server.php\n```\n\n### Configure in Claude Desktop\n\n```json\n{\n  \"mcpServers\"\
+    : {\n    \"{project-name}\": {\n      \"command\": \"php\",\n      \"args\": [\"\
+    /absolute/path/to/server.php\"]\n    }\n  }\n}\n```\n\n## Testing\n\n```bash\n\
+    vendor/bin/phpunit\n```\n\n## Tools\n\n- **{tool_name}**: {Tool description}\n\
+    \n## Development\n\nTest with MCP Inspector:\n\n```bash\nnpx @modelcontextprotocol/inspector\
+    \ php server.php\n```\n```\n\n### server.php\n\n```php\n#!/usr/bin/env php\n<?php\n\
+    \ndeclare(strict_types=1);\n\nrequire_once __DIR__ . '/vendor/autoload.php';\n\
+    \nuse Mcp\\Server;\nuse Mcp\\Server\\Transport\\StdioTransport;\nuse Symfony\\\
+    Component\\Cache\\Adapter\\FilesystemAdapter;\nuse Symfony\\Component\\Cache\\\
+    Psr16Cache;\n\n// Setup cache for discovery\n$cache = new Psr16Cache(new FilesystemAdapter('mcp-discovery',\
+    \ 3600, __DIR__ . '/cache'));\n\n// Build server with discovery\n$server = Server::builder()\n\
+    \    ->setServerInfo('{Project Name}', '1.0.0')\n    ->setDiscovery(\n       \
+    \ basePath: __DIR__,\n        scanDirs: ['src'],\n        excludeDirs: ['vendor',\
+    \ 'tests', 'cache'],\n        cache: $cache\n    )\n    ->build();\n\n// Run with\
+    \ stdio transport\n$transport = new StdioTransport();\n\n$server->run($transport);\n\
+    ```\n\n### src/Tools/ExampleTool.php\n\n```php\n<?php\n\ndeclare(strict_types=1);\n\
+    \nnamespace App\\Tools;\n\nuse Mcp\\Capability\\Attribute\\McpTool;\nuse Mcp\\\
+    Capability\\Attribute\\Schema;\n\nclass ExampleTool\n{\n    /**\n     * Performs\
+    \ a greeting with the provided name.\n     * \n     * @param string $name The\
+    \ name to greet\n     * @return string A greeting message\n     */\n    #[McpTool]\n\
+    \    public function greet(string $name): string\n    {\n        return \"Hello,\
+    \ {$name}!\";\n    }\n    \n    /**\n     * Performs arithmetic calculations.\n\
+    \     */\n    #[McpTool(name: 'calculate')]\n    public function performCalculation(\n\
+    \        float $a,\n        float $b,\n        #[Schema(pattern: '^(add|subtract|multiply|divide)$')]\n\
+    \        string $operation\n    ): float {\n        return match($operation) {\n\
+    \            'add' => $a + $b,\n            'subtract' => $a - $b,\n         \
+    \   'multiply' => $a * $b,\n            'divide' => $b != 0 ? $a / $b : \n   \
+    \             throw new \\InvalidArgumentException('Division by zero'),\n    \
+    \        default => throw new \\InvalidArgumentException('Invalid operation')\n\
+    \        };\n    }\n}\n```\n\n### src/Resources/ConfigResource.php\n\n```php\n\
+    <?php\n\ndeclare(strict_types=1);\n\nnamespace App\\Resources;\n\nuse Mcp\\Capability\\\
+    Attribute\\McpResource;\n\nclass ConfigResource\n{\n    /**\n     * Provides application\
+    \ configuration.\n     */\n    #[McpResource(\n        uri: 'config://app/settings',\n\
+    \        name: 'app_config',\n        mimeType: 'application/json'\n    )]\n \
+    \   public function getConfiguration(): array\n    {\n        return [\n     \
+    \       'version' => '1.0.0',\n            'environment' => 'production',\n  \
+    \          'features' => [\n                'logging' => true,\n             \
+    \   'caching' => true\n            ]\n        ];\n    }\n}\n```\n\n### src/Resources/DataProvider.php\n\
+    \n```php\n<?php\n\ndeclare(strict_types=1);\n\nnamespace App\\Resources;\n\nuse\
+    \ Mcp\\Capability\\Attribute\\McpResourceTemplate;\n\nclass DataProvider\n{\n\
+    \    /**\n     * Provides data by category and ID.\n     */\n    #[McpResourceTemplate(\n\
+    \        uriTemplate: 'data://{category}/{id}',\n        name: 'data_resource',\n\
+    \        mimeType: 'application/json'\n    )]\n    public function getData(string\
+    \ $category, string $id): array\n    {\n        // Example data retrieval\n  \
+    \      return [\n            'category' => $category,\n            'id' => $id,\n\
+    \            'data' => \"Sample data for {$category}/{$id}\"\n        ];\n   \
+    \ }\n}\n```\n\n### src/Prompts/PromptGenerator.php\n\n```php\n<?php\n\ndeclare(strict_types=1);\n\
+    \nnamespace App\\Prompts;\n\nuse Mcp\\Capability\\Attribute\\McpPrompt;\nuse Mcp\\\
+    Capability\\Attribute\\CompletionProvider;\n\nclass PromptGenerator\n{\n    /**\n\
+    \     * Generates a code review prompt.\n     */\n    #[McpPrompt(name: 'code_review')]\n\
+    \    public function reviewCode(\n        #[CompletionProvider(values: ['php',\
+    \ 'javascript', 'python', 'go', 'rust'])]\n        string $language,\n       \
+    \ string $code,\n        #[CompletionProvider(values: ['performance', 'security',\
+    \ 'style', 'general'])]\n        string $focus = 'general'\n    ): array {\n \
+    \       return [\n            [\n                'role' => 'assistant',\n    \
+    \            'content' => 'You are an expert code reviewer specializing in best\
+    \ practices and optimization.'\n            ],\n            [\n              \
+    \  'role' => 'user',\n                'content' => \"Review this {$language} code\
+    \ with focus on {$focus}:\\n\\n```{$language}\\n{$code}\\n```\"\n            ]\n\
+    \        ];\n    }\n    \n    /**\n     * Generates documentation prompt.\n  \
+    \   */\n    #[McpPrompt]\n    public function generateDocs(string $code, string\
+    \ $style = 'detailed'): array\n    {\n        return [\n            [\n      \
+    \          'role' => 'user',\n                'content' => \"Generate {$style}\
+    \ documentation for:\\n\\n```\\n{$code}\\n```\"\n            ]\n        ];\n \
+    \   }\n}\n```\n\n### tests/ToolsTest.php\n\n```php\n<?php\n\ndeclare(strict_types=1);\n\
+    \nnamespace Tests;\n\nuse PHPUnit\\Framework\\TestCase;\nuse App\\Tools\\ExampleTool;\n\
+    \nclass ToolsTest extends TestCase\n{\n    private ExampleTool $tool;\n    \n\
+    \    protected function setUp(): void\n    {\n        $this->tool = new ExampleTool();\n\
+    \    }\n    \n    public function testGreet(): void\n    {\n        $result =\
+    \ $this->tool->greet('World');\n        $this->assertSame('Hello, World!', $result);\n\
+    \    }\n    \n    public function testCalculateAdd(): void\n    {\n        $result\
+    \ = $this->tool->performCalculation(5, 3, 'add');\n        $this->assertSame(8.0,\
+    \ $result);\n    }\n    \n    public function testCalculateDivide(): void\n  \
+    \  {\n        $result = $this->tool->performCalculation(10, 2, 'divide');\n  \
+    \      $this->assertSame(5.0, $result);\n    }\n    \n    public function testCalculateDivideByZero():\
+    \ void\n    {\n        $this->expectException(\\InvalidArgumentException::class);\n\
+    \        $this->expectExceptionMessage('Division by zero');\n        \n      \
+    \  $this->tool->performCalculation(10, 0, 'divide');\n    }\n    \n    public\
+    \ function testCalculateInvalidOperation(): void\n    {\n        $this->expectException(\\\
+    InvalidArgumentException::class);\n        $this->expectExceptionMessage('Invalid\
+    \ operation');\n        \n        $this->tool->performCalculation(5, 3, 'modulo');\n\
+    \    }\n}\n```\n\n### phpunit.xml.dist\n\n```xml\n<?xml version=\"1.0\" encoding=\"\
+    UTF-8\"?>\n<phpunit xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n\
+    \         xsi:noNamespaceSchemaLocation=\"vendor/phpunit/phpunit/phpunit.xsd\"\
+    \n         bootstrap=\"vendor/autoload.php\"\n         colors=\"true\">\n    <testsuites>\n\
+    \        <testsuite name=\"Test Suite\">\n            <directory>tests</directory>\n\
+    \        </testsuite>\n    </testsuites>\n    <coverage>\n        <include>\n\
+    \            <directory suffix=\".php\">src</directory>\n        </include>\n\
+    \    </coverage>\n</phpunit>\n```\n\n## Implementation Guidelines\n\n1. **Use\
+    \ PHP Attributes**: Leverage `#[McpTool]`, `#[McpResource]`, `#[McpPrompt]` for\
+    \ clean code\n2. **Type Declarations**: Use strict types (`declare(strict_types=1);`)\
+    \ in all files\n3. **PSR-12 Coding Standard**: Follow PHP-FIG standards\n4. **Schema\
+    \ Validation**: Use `#[Schema]` attributes for parameter validation\n5. **Error\
+    \ Handling**: Throw specific exceptions with clear messages\n6. **Testing**: Write\
+    \ PHPUnit tests for all tools\n7. **Documentation**: Use PHPDoc blocks for all\
+    \ methods\n8. **Caching**: Always use PSR-16 cache for discovery in production\n\
+    \n## Tool Patterns\n\n### Simple Tool\n```php\n#[McpTool]\npublic function simpleAction(string\
+    \ $input): string\n{\n    return \"Processed: {$input}\";\n}\n```\n\n### Tool\
+    \ with Validation\n```php\n#[McpTool]\npublic function validateEmail(\n    #[Schema(format:\
+    \ 'email')]\n    string $email\n): bool {\n    return filter_var($email, FILTER_VALIDATE_EMAIL)\
+    \ !== false;\n}\n```\n\n### Tool with Enum\n```php\nenum Status: string {\n  \
+    \  case ACTIVE = 'active';\n    case INACTIVE = 'inactive';\n}\n\n#[McpTool]\n\
+    public function setStatus(string $id, Status $status): array\n{\n    return ['id'\
+    \ => $id, 'status' => $status->value];\n}\n```\n\n## Resource Patterns\n\n###\
+    \ Static Resource\n```php\n#[McpResource(uri: 'config://settings', mimeType: 'application/json')]\n\
+    public function getSettings(): array\n{\n    return ['key' => 'value'];\n}\n```\n\
+    \n### Dynamic Resource\n```php\n#[McpResourceTemplate(uriTemplate: 'user://{id}')]\n\
+    public function getUser(string $id): array\n{\n    return $this->users[$id] ??\
+    \ throw new \\RuntimeException('User not found');\n}\n```\n\n## Running the Server\n\
+    \n```bash\n# Install dependencies\ncomposer install\n\n# Run tests\nvendor/bin/phpunit\n\
+    \n# Start server\nphp server.php\n\n# Test with inspector\nnpx @modelcontextprotocol/inspector\
+    \ php server.php\n```\n\n## Claude Desktop Configuration\n\n```json\n{\n  \"mcpServers\"\
+    : {\n    \"{project-name}\": {\n      \"command\": \"php\",\n      \"args\": [\"\
+    /absolute/path/to/server.php\"]\n    }\n  }\n}\n```\n\nNow generate the complete\
+    \ project based on user requirements!"

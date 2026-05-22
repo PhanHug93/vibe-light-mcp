@@ -1,0 +1,208 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__onboard-context-matic
+name: onboard-context-matic
+description: 'Interactive onboarding tour for the context-matic MCP server. Walks
+  the user through what the server does, shows all available APIs, lets them pick
+  one to explore, explains it in their project language, demonstrates model_search
+  and endpoint_search live, and ends with a menu of things the user can ask the agent
+  to do. USE FOR: first-time setup; "what can this MCP do?"; "show me the available
+  APIs"; "onboard me"; "how do I use the context-matic server"; "give me a tour".
+  DO NOT USE FOR: actually integrating an API end-to-end (use integrate-context-matic
+  instead).'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/onboard-context-matic/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_external_api
+  - mentions_secret_or_token
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- onboard-context-matic
+content:
+  kind: skill_markdown
+  sha256: db5b6ff9092017ab254334daee1df36ee526b3f1af42d9d8197d6dc6f7a4edb9
+  char_count: 13441
+  text: "# Onboarding: ContextMatic MCP\n\nThis skill delivers a guided, interactive\
+    \ tour of the `context-matic` MCP server. Follow every\nphase in order. Stop after\
+    \ each interaction point and wait for the user's reply before continuing.\n\n\
+    > **Agent conduct rules \u2014 follow throughout the entire skill:**\n> - **Never\
+    \ narrate the skill structure.** Do not say phase names, step numbers, or anything\
+    \ that\n>   sounds like you are reading instructions (e.g., \"In Phase 1 I will\u2026\
+    \", \"Step 1a:\", \"As per the\n>   skill\u2026\"). Deliver the tour as a natural\
+    \ conversation.\n> - **Announce every tool call before making it.** One short\
+    \ sentence is enough \u2014 tell the user\n>   what you are about to look up and\
+    \ why, then call the tool. Example: *\"Let me pull up the list\n>   of available\
+    \ APIs for your project language.\"* This keeps the user informed and prevents\n\
+    >   silent, unexplained pauses.\n\n---\n\n## Phase 0 \u2014 Opening statement\
+    \ and tool walkthrough\n\nBegin with a brief, plain-language explanation of what\
+    \ the server does. Say it in your own words\nbased on the following facts:\n\n\
+    > The **context-matic** MCP server solves a fundamental problem with AI-assisted\
+    \ coding: general\n> models are trained on public code that is often outdated,\
+    \ incorrect, or missing entirely for newer\n> SDK versions. This server acts as\
+    \ a **live, version-aware grounding layer**. Instead of the agent\n> guessing\
+    \ at SDK usage from training data, it queries the server for the *exact* SDK models,\n\
+    > endpoints, auth patterns, and runnable code samples that match the current API\
+    \ version and the\n> project's programming language.\n\nAfter explaining the problem\
+    \ the server solves, walk through each of the four tools as if\nintroducing them\
+    \ to someone using the server for the first time. For each tool, explain:\n- **What\
+    \ it is** \u2014 give it a memorable one-line description\n- **When you would\
+    \ use it** \u2014 a concrete, relatable scenario\n- **What it gives back** \u2014\
+    \ the kind of output the user will see\n\nUse the following facts as your source,\
+    \ but say it conversationally \u2014 do not present a raw table:\n\n> | Tool |\
+    \ What it does | When to use it | What you get back |\n> |---|---|---|---|\n>\
+    \ | `fetch_api` | Returns an exact match for an API `key`/identifier and language,\
+    \ or lists all APIs for a given language. The `key` is the machine-readable identifier\
+    \ returned by `fetch_api` (for example, `paypal`), not the human-readable display\
+    \ name (for example, \"PayPal Server SDK\"). | \"What APIs can I use?\" / Starting\
+    \ a new project / \"Do you have the PayPal SDK?\" | A named list of available\
+    \ APIs with short descriptions (full catalog), or one exact API match when you\
+    \ provide its identifier/key and language |\n> | `ask` | Answers integration questions\
+    \ with version-accurate guidance and code samples | \"How do I authenticate?\"\
+    , \"Show me the quickstart\", \"What's the right way to do X?\" | Step-by-step\
+    \ guidance and runnable code samples grounded in the actual SDK version |\n> |\
+    \ `model_search` | Looks up an SDK model/object definition and its typed properties\
+    \ | \"What fields does an Order have?\", \"Is this property required?\" | The\
+    \ model's name, description, and a full typed property list (required vs. optional,\
+    \ nested types) |\n> | `endpoint_search` | Looks up an endpoint method, its parameters,\
+    \ response type, and a runnable code sample | \"Show me how to call createOrder\"\
+    , \"What does getTrack return?\" | Method signature, parameter types, response\
+    \ type, and a copy-paste-ready code sample |\n\nEnd this section by telling the\
+    \ user that you'll demonstrate the four core discovery and\nintegration tools\
+    \ live during the tour, starting with `fetch_api` right now. Make it clear that\n\
+    this tour is focused on those core ContextMatic server tools rather than every\
+    \ possible helper the\nbroader workflow might use.\n\n\n---\n\n## Phase 1 \u2014\
+    \ Show available APIs\n\n### 1a. Detect the project language\n\nBefore calling\
+    \ `fetch_api`, determine the project's primary language by inspecting workspace\
+    \ files:\n\n- Look for `package.json` + `.ts`/`.tsx` files \u2192 `typescript`\n\
+    - Look for `*.csproj` or `*.sln` \u2192 `csharp`\n- Look for `requirements.txt`,\
+    \ `pyproject.toml`, or `*.py` \u2192 `python`\n- Look for `pom.xml` or `build.gradle`\
+    \ \u2192 `java`\n- Look for `go.mod` \u2192 `go`\n- Look for `Gemfile` or `*.rb`\
+    \ \u2192 `ruby`\n- Look for `composer.json` or `*.php` \u2192 `php`\n- If no project\
+    \ files are found, silently fall back to `typescript`.\n\nStore the detected language\
+    \ \u2014 you will pass it to every subsequent tool call.\n\n### 1b. Fetch available\
+    \ APIs\n\nTell the user which language you detected and that you are fetching\
+    \ the available APIs \u2014 for\nexample: *\"I can see this is a TypeScript project.\
+    \ Let me fetch the APIs available for TypeScript.\"*\n\nCall **`fetch_api`** with\
+    \ `language` = the detected language and `key` = \"\" so the tool returns the\
+    \ full list of available APIs.\n\nDisplay the results as a formatted list, showing\
+    \ each API's **name** and a one-sentence summary of\nits **description**. Do not\
+    \ truncate or skip any entry.\n\nExample display format (adapt to actual results):\n\
+    \n```\nHere are the APIs currently available through this server:\n\n1. PayPal\
+    \ Server SDK   \u2014 Payments, orders, subscriptions, and vault via PayPal REST\
+    \ APIs.\n2. Spotify Web API     \u2014 Music/podcast discovery, playback control,\
+    \ and library management.\n....\n```\n\n---\n\n## Phase 2 \u2014 API selection\
+    \ (interaction)\n\nAsk the user:\n\n> \"Which of these APIs would you like to\
+    \ explore? Just say the name or the number.\"\n\n**Wait for the user's reply before\
+    \ continuing.**\n\nStore the chosen API's `key` value from the `fetch_api` response\
+    \ \u2014 you will pass it to all\nsubsequent tool calls. Also note the API's name\
+    \ for use in explanatory text.\n\n---\n\n## Phase 3 \u2014 Explain the chosen\
+    \ API\n\nBefore calling, say something like: *\"Great choice \u2014 let me get\
+    \ an overview of [API name] for you.\"*\n\nCall **`ask`** with:\n- `key` = chosen\
+    \ API's key\n- `language` = detected language\n- `query` = `\"Give me a high-level\
+    \ overview of this API: what it does, what the main controllers or\n  modules\
+    \ are, how authentication works, and what the first step to start using it is.\"\
+    `\n\nPresent the response conversationally. Highlight:\n- What the API can do\
+    \ (use cases)\n- How authentication works (credentials, OAuth flows, etc.)\n-\
+    \ The main SDK controllers or namespaces\n- The NPM/pip/NuGet/etc. package name\
+    \ to install\n\n---\n\n## Phase 4 \u2014 Integration in the project language (interaction)\n\
+    \nAsk the user:\n\n> \"Is there a specific part of the [API name] you want to\
+    \ learn how to use \u2014 for example,\n> creating an order, searching tracks,\
+    \ or managing subscriptions? Or should I show you\n> the complete integration\
+    \ quickstart?\"\n\n**Wait for the user's reply.**\n\nBefore calling, say something\
+    \ like: *\"On it \u2014 let me look that up.\"* or *\"Sure, let me pull up the\
+    \ quickstart.\"*\n\nCall **`ask`** with:\n- `key` = chosen API's key\n- `language`\
+    \ = detected language\n- `query` = the user's stated goal, or `\"Show me a complete\
+    \ integration quickstart: install the\n  SDK, configure credentials, and make\
+    \ the first API call.\"` if they asked for the full guide.\n\nPresent the response,\
+    \ including any code samples exactly as returned.\n\n---\n\n## Phase 5 \u2014\
+    \ Demonstrate `model_search`\n\nTell the user:\n\n> \"Now let me show you how\
+    \ `model_search` works. This tool lets you look up any SDK model or\n> object\
+    \ definition \u2014 its typed properties, which are required vs. optional, and\
+    \ what types they use.\n> It works with partial, case-sensitive names.\"\n\nBefore\
+    \ calling, say something like: *\"Let me search for the `[model name]` model so\
+    \ you can see what the result looks like.\"*\n\nPick a **representative model**\
+    \ from the chosen API (examples below) and call **`model_search`** with:\n- `key`\
+    \ = the previously chosen API key (for example, `paypal` or `spotify`)\n- `language`\
+    \ = the detected project language\n- `query` = the representative model name you\
+    \ picked\n\n| API key | Good demo query |\n|---|---|\n| `paypal` | `Order` |\n\
+    | `spotify` | `TrackObject` |\n\nDisplay the result, pointing out:\n- The exact\
+    \ model name and its description\n- A few interesting typed properties (highlight\
+    \ optional vs. required)\n- Any nested model references (e.g., `PurchaseUnit[]\
+    \ | undefined`)\n\nTell the user:\n\n> \"You can search any model by name \u2014\
+    \ partial matches work too. Try asking me to look up a\n> specific model from\
+    \ [API name] whenever you need to know its shape.\"\n\n---\n\n## Phase 6 \u2014\
+    \ Demonstrate `endpoint_search`\n\nTell the user:\n\n> \"Similarly, `endpoint_search`\
+    \ looks up any SDK method \u2014 the exact parameters, their types,\n> the response\
+    \ type, and a fully runnable code sample you can drop straight into your project.\"\
+    \n\nBefore calling, say something like: *\"Let me fetch the `[endpoint name]`\
+    \ endpoint so you can see the parameters and a live code sample.\"*\n\nPick a\
+    \ **representative endpoint** for the chosen API and call **`endpoint_search`**\
+    \ with an explicit argument object:\n\n- `key` = the API key you are demonstrating\
+    \ (for example, `paypal` or `spotify`)\n- `query` = the endpoint / SDK method\
+    \ name you want to look up (for example, `createOrder` or `getTrack`)\n- `language`\
+    \ = the user's project language (for example, `\"typescript\"` or `\"python\"\
+    `)\n\nFor example:\n\n| API key (`key`) | Endpoint name (`query`) | Example `language`\
+    \ |\n|---|---|---|\n| `paypal` | `createOrder` | user's project language |\n|\
+    \ `spotify` | `getTrack`   | user's project language |\nDisplay the result, pointing\
+    \ out:\n- The method name and description\n- The request parameters and their\
+    \ types\n- The response type\n- The full code sample (present exactly as returned)\n\
+    \nTell the user:\n\n> \"Notice that the code sample is ready to use \u2014 it\
+    \ imports from the correct SDK, initialises\n> the client, calls the endpoint,\
+    \ and handles errors. You can search for any endpoint by its\n> method name or\
+    \ a partial case-sensitive fragment.\"\n\n---\n\n## Phase 7 \u2014 Closing: what\
+    \ you can ask\n\nEnd the tour with a summary list of things the user can now ask\
+    \ the agent to do. Present this as\na formatted menu:\n\n---\n\n### What you can\
+    \ do with this MCP\n\n**Quickstart: your first API call**\n```\n/integrate-context-matic\
+    \ Set up the Spotify TypeScript SDK and fetch my top 5 tracks.\nShow me the complete\
+    \ client initialization and the API call.\n```\n```\n/integrate-context-matic\
+    \ How do I authenticate with the Twilio API and send an SMS?\nGive me the full\
+    \ PHP setup including the SDK client and the send call.\n```\n```\n/integrate-context-matic\
+    \ Walk me through initializing the Slack API client in a Python script and posting\
+    \ a message to a channel.\n```\n\n**Framework-specific integration**\n```\n/integrate-context-matic\
+    \ I'm building a Next.js app. Integrate the Google Maps Places API\nto search\
+    \ for nearby restaurants and display them on a page. Use the TypeScript SDK.\n\
+    ```\n```\n/integrate-context-matic I'm using Laravel. Show me how to send a Twilio\
+    \ SMS when a user\nregisters. Include the PHP SDK setup, client initialization,\
+    \ and the controller code.\n```\n```\n/integrate-context-matic I have an ASP.NET\
+    \ Core app. Add Twilio webhook handling so I can receive delivery status callbacks\
+    \ when an SMS is sent.\n```\n\n**Chaining tools for full integrations**\n```\n\
+    /integrate-context-matic I want to add real-time order shipping notifications\
+    \ to my\nNext.js store. Use Twilio to send an SMS when the order status changes\
+    \ to \"shipped\". Show me\nthe full integration: SDK setup, the correct endpoint\
+    \ and its parameters, and the TypeScript code.\n```\n```\n/integrate-context-matic\
+    \ I need to post a Slack message every time a Spotify track changes\nin my playlist\
+    \ monitoring app. Walk me through integrating both APIs in TypeScript \u2014 start\
+    \ by\ndiscovering what's available, then show me the auth setup and the exact\
+    \ API calls.\n```\n```\n/integrate-context-matic In my ASP.NET Core app, I want\
+    \ to geocode user addresses using\nGoogle Maps and cache the results. Look up\
+    \ the geocode endpoint and response model, then\ngenerate the C# code including\
+    \ error handling.\n```\n\n**Debugging and error handling**\n```\n/integrate-context-matic\
+    \ My Spotify API call is returning 401. What OAuth flow should I\nbe using and\
+    \ how does the TypeScript SDK handle token refresh automatically?\n```\n```\n\
+    /integrate-context-matic My Slack message posts are failing intermittently with\
+    \ rate limit\nerrors. How does the Python SDK expose rate limit information and\
+    \ what's the recommended retry\npattern?\n```\n\n---\n\n> \"That's the tour! Ask\
+    \ me any of the above or just tell me what you want to build \u2014 I'll\n> use\
+    \ this server to give you accurate, version-specific guidance.\"\n\n---\n\n##\
+    \ Notes for the agent\n\n- If the user picks an API that is not in the `fetch_api`\
+    \ results, tell them it is not currently\n  available and offer to continue the\
+    \ tour with one that is.\n- All tool calls in this skill are **read-only** \u2014\
+    \ they do not modify the project, install packages,\n  or write files unless the\
+    \ user explicitly asks you to proceed with integration.\n- When showing code samples\
+    \ from `endpoint_search` or `ask`, present them in fenced code blocks\n  with\
+    \ the correct language tag."

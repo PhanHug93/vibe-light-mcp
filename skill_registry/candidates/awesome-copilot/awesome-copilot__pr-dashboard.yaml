@@ -1,0 +1,58 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__pr-dashboard
+name: pr-dashboard
+description: Open a GitHub PR dashboard in the browser. Use when the user asks to
+  see their pull requests, open the PR dashboard, show PRs for a date range, or check
+  PR status. Trigger phrases include "show my PRs", "open PR dashboard", "pull request
+  dashboard".
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/pr-dashboard/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_assets_directory
+  - has_scripts_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- pr-dashboard
+content:
+  kind: skill_markdown
+  sha256: 1c5dfa5d5c9b0a849d442b2b34580d49b8f993eebf3402e1eb622d82ca57d3b1
+  char_count: 2095
+  text: "# PR Dashboard\n\nGenerates and opens a GitHub PR dashboard in the browser\
+    \ for a given date range and role filter.\n\n**Prerequisites:** GitHub CLI (`gh`)\
+    \ must be installed and authenticated (`gh auth login`).\n\n## What to do\n\n\
+    Find the CLI script bundled with this skill and run it:\n\n```bash\nSKILL_SCRIPT=$(find\
+    \ ~/.copilot -name \"pr-dashboard-cli.mjs\" -path \"*/pr-dashboard/scripts/*\"\
+    \ 2>/dev/null | head -1)\nnode \"$SKILL_SCRIPT\" \"<query>\" \"<role>\"\n```\n\
+    \n- `<query>`: the date range the user specified (default: `last 7 days`)\n- `<role>`:\
+    \ one of `Authored by me`, `Requested reviews`, `Assigned to me`, `All` (default:\
+    \ `Authored by me`)\n\n## Parsing the user's request\n\nExtract the date range\
+    \ and role from the user's message. Examples:\n\n| User says | query | role |\n\
+    |---|---|---|\n| show my PRs | `last 7 days` | `Authored by me` |\n| show my PRs\
+    \ last 2 weeks | `last 2 weeks` | `Authored by me` |\n| PR dashboard this month\
+    \ reviews | `this month` | `Requested reviews` |\n| PR dashboard march 2026 assigned\
+    \ | `march 2026` | `Assigned to me` |\n| show all PRs last 30 days | `last 30\
+    \ days` | `All` |\n\n**Role keyword mapping:**\n- \"my PRs\", \"authored\", \"\
+    I wrote\" \u2192 `Authored by me`\n- \"reviews\", \"review requested\", \"reviewing\"\
+    \ \u2192 `Requested reviews`\n- \"assigned\" \u2192 `Assigned to me`\n- \"all\"\
+    , \"involves me\" \u2192 `All`\n\n## Supported date range formats\n\nThe script\
+    \ understands natural language \u2014 pass it through as-is:\n- `last 7 days`,\
+    \ `last 2 weeks`, `last 30 days`\n- `this week`, `last week`, `this month`, `last\
+    \ month`\n- `march 2026`, `feb 2025`\n- `2026-01-01 - 2026-03-31`\n- `2025` (whole\
+    \ year)\n\n## After running\n\nTell the user the dashboard is opening in their\
+    \ browser. The script outputs progress to stdout. If it exits with an error, show\
+    \ the error output and suggest they run `gh auth login` if it's an auth issue."

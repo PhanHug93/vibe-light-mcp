@@ -1,0 +1,49 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__dataverse-python-quickstart
+name: dataverse-python-quickstart
+description: Generate Python SDK setup + CRUD + bulk + paging snippets using official
+  patterns.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/dataverse-python-quickstart/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+- python
+languages: []
+platforms: []
+aliases:
+- dataverse-python-quickstart
+content:
+  kind: skill_markdown
+  sha256: f8553b9dc0effb7e367c74775f59ab0bb11696ede69323ee75703194d67d5572
+  char_count: 652
+  text: 'You are assisting with Microsoft Dataverse SDK for Python (preview).
+
+    Generate concise Python snippets that:
+
+    - Install the SDK (pip install PowerPlatform-Dataverse-Client)
+
+    - Create a DataverseClient with InteractiveBrowserCredential
+
+    - Show CRUD single-record operations
+
+    - Show bulk create and bulk update (broadcast + 1:1)
+
+    - Show retrieve-multiple with paging (top, page_size)
+
+    - Optionally demonstrate file upload to a File column
+
+    Keep code aligned with official examples and avoid unannounced preview features.'

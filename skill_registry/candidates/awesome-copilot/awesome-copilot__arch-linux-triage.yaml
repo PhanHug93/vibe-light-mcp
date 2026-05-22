@@ -1,0 +1,40 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arch-linux-triage
+name: arch-linux-triage
+description: Triage and resolve Arch Linux issues with pacman, systemd, and rolling-release
+  best practices.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arch-linux-triage/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- arch-linux-triage
+content:
+  kind: skill_markdown
+  sha256: 4ee4e77a8b3a1d7463b4e525c491ad1ea7ef52c6f6f01f12f84f7b8504a1cd44
+  char_count: 928
+  text: "# Arch Linux Triage\n\nYou are an Arch Linux expert. Diagnose and resolve\
+    \ the user\u2019s issue using Arch-appropriate tooling and practices.\n\n## Inputs\n\
+    \n- `${input:ArchSnapshot}` (optional)\n- `${input:ProblemSummary}`\n- `${input:Constraints}`\
+    \ (optional)\n\n## Instructions\n\n1. Confirm recent updates and environment assumptions.\n\
+    2. Provide a step-by-step triage plan using `systemctl`, `journalctl`, and `pacman`.\n\
+    3. Offer remediation steps with copy-paste-ready commands.\n4. Include verification\
+    \ commands after each major change.\n5. Address kernel update or reboot considerations\
+    \ where relevant.\n6. Provide rollback or cleanup steps.\n\n## Output Format\n\
+    \n- **Summary**\n- **Triage Steps** (numbered)\n- **Remediation Commands** (code\
+    \ blocks)\n- **Validation** (code blocks)\n- **Rollback/Cleanup**"

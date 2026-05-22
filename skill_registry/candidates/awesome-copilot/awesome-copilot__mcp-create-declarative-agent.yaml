@@ -1,0 +1,136 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mcp-create-declarative-agent
+name: mcp-create-declarative-agent
+description: Skill converted from mcp-create-declarative-agent.prompt.md
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mcp-create-declarative-agent/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- mcp-create-declarative-agent
+content:
+  kind: skill_markdown
+  sha256: 8aa6694de0da94ea8e1231555cca446d50a1c4553c898e7382e04b30120a2820
+  char_count: 8144
+  text: "````prompt\n---\nmode: 'agent'\ntools: ['changes', 'search/codebase', 'edit/editFiles',\
+    \ 'problems']\ndescription: 'Create a declarative agent for Microsoft 365 Copilot\
+    \ by integrating an MCP server with authentication, tool selection, and configuration'\n\
+    model: 'gpt-4.1'\ntags: [mcp, m365-copilot, declarative-agent, model-context-protocol,\
+    \ api-plugin]\n---\n\n# Create MCP-based Declarative Agent for Microsoft 365 Copilot\n\
+    \nCreate a complete declarative agent for Microsoft 365 Copilot that integrates\
+    \ with a Model Context Protocol (MCP) server to access external systems and data.\n\
+    \n## Requirements\n\nGenerate the following project structure using Microsoft\
+    \ 365 Agents Toolkit:\n\n### Project Setup\n1. **Scaffold declarative agent**\
+    \ via Agents Toolkit\n2. **Add MCP action** pointing to MCP server\n3. **Select\
+    \ tools** to import from MCP server\n4. **Configure authentication** (OAuth 2.0\
+    \ or SSO)\n5. **Review generated files** (manifest.json, ai-plugin.json, declarativeAgent.json)\n\
+    \n### Key Files Generated\n\n**appPackage/manifest.json** - Teams app manifest\
+    \ with plugin reference:\n```json\n{\n  \"$schema\": \"https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json\"\
+    ,\n  \"manifestVersion\": \"devPreview\",\n  \"version\": \"1.0.0\",\n  \"id\"\
+    : \"...\",\n  \"developer\": {\n    \"name\": \"...\",\n    \"websiteUrl\": \"\
+    ...\",\n    \"privacyUrl\": \"...\",\n    \"termsOfUseUrl\": \"...\"\n  },\n \
+    \ \"name\": {\n    \"short\": \"Agent Name\",\n    \"full\": \"Full Agent Name\"\
+    \n  },\n  \"description\": {\n    \"short\": \"Short description\",\n    \"full\"\
+    : \"Full description\"\n  },\n  \"copilotAgents\": {\n    \"declarativeAgents\"\
+    : [\n      {\n        \"id\": \"declarativeAgent\",\n        \"file\": \"declarativeAgent.json\"\
+    \n      }\n    ]\n  }\n}\n```\n\n**appPackage/declarativeAgent.json** - Agent\
+    \ definition:\n```json\n{\n  \"$schema\": \"https://aka.ms/json-schemas/copilot/declarative-agent/v1.0/schema.json\"\
+    ,\n  \"version\": \"v1.0\",\n  \"name\": \"Agent Name\",\n  \"description\": \"\
+    Agent description\",\n  \"instructions\": \"You are an assistant that helps with\
+    \ [specific domain]. Use the available tools to [capabilities].\",\n  \"capabilities\"\
+    : [\n    {\n      \"name\": \"WebSearch\",\n      \"websites\": [\n        {\n\
+    \          \"url\": \"https://learn.microsoft.com\"\n        }\n      ]\n    },\n\
+    \    {\n      \"name\": \"MCP\",\n      \"file\": \"ai-plugin.json\"\n    }\n\
+    \  ]\n}\n```\n\n**appPackage/ai-plugin.json** - MCP plugin manifest:\n```json\n\
+    {\n  \"schema_version\": \"v2.1\",\n  \"name_for_human\": \"Service Name\",\n\
+    \  \"description_for_human\": \"Description for users\",\n  \"description_for_model\"\
+    : \"Description for AI model\",\n  \"contact_email\": \"support@company.com\"\
+    ,\n  \"namespace\": \"serviceName\",\n  \"capabilities\": {\n    \"conversation_starters\"\
+    : [\n      {\n        \"text\": \"Example query 1\"\n      }\n    ]\n  },\n  \"\
+    functions\": [\n    {\n      \"name\": \"functionName\",\n      \"description\"\
+    : \"Function description\",\n      \"capabilities\": {\n        \"response_semantics\"\
+    : {\n          \"data_path\": \"$\",\n          \"properties\": {\n          \
+    \  \"title\": \"$.title\",\n            \"subtitle\": \"$.description\"\n    \
+    \      }\n        }\n      }\n    }\n  ],\n  \"runtimes\": [\n    {\n      \"\
+    type\": \"MCP\",\n      \"spec\": {\n        \"url\": \"https://api.service.com/mcp/\"\
+    \n      },\n      \"run_for_functions\": [\"functionName\"],\n      \"auth\":\
+    \ {\n        \"type\": \"OAuthPluginVault\",\n        \"reference_id\": \"${{OAUTH_REFERENCE_ID}}\"\
+    \n      }\n    }\n  ]\n}\n```\n\n**/.vscode/mcp.json** - MCP server configuration:\n\
+    ```json\n{\n  \"serverUrl\": \"https://api.service.com/mcp/\",\n  \"pluginFilePath\"\
+    : \"appPackage/ai-plugin.json\"\n}\n```\n\n## MCP Server Integration\n\n### Supported\
+    \ MCP Endpoints\nThe MCP server must provide:\n- **Server metadata** endpoint\n\
+    - **Tools listing** endpoint (exposes available functions)\n- **Tool execution**\
+    \ endpoint (handles function calls)\n\n### Tool Selection\nWhen importing from\
+    \ MCP:\n1. Fetch available tools from server\n2. Select specific tools to include\
+    \ (for security/simplicity)\n3. Tool definitions are auto-generated in ai-plugin.json\n\
+    \n### Authentication Types\n\n**OAuth 2.0 (Static Registration)**\n```json\n\"\
+    auth\": {\n  \"type\": \"OAuthPluginVault\",\n  \"reference_id\": \"${{OAUTH_REFERENCE_ID}}\"\
+    ,\n  \"authorization_url\": \"https://auth.service.com/authorize\",\n  \"client_id\"\
+    : \"${{CLIENT_ID}}\",\n  \"client_secret\": \"${{CLIENT_SECRET}}\",\n  \"scope\"\
+    : \"read write\"\n}\n```\n\n**Single Sign-On (SSO)**\n```json\n\"auth\": {\n \
+    \ \"type\": \"SSO\"\n}\n```\n\n## Response Semantics\n\n### Define Data Mapping\n\
+    Use `response_semantics` to extract relevant fields from API responses:\n\n```json\n\
+    \"capabilities\": {\n  \"response_semantics\": {\n    \"data_path\": \"$.results\"\
+    ,\n    \"properties\": {\n      \"title\": \"$.name\",\n      \"subtitle\": \"\
+    $.description\",\n      \"url\": \"$.link\"\n    }\n  }\n}\n```\n\n### Add Adaptive\
+    \ Cards (Optional)\nSee the `mcp-create-adaptive-cards` prompt for adding visual\
+    \ card templates.\n\n## Environment Configuration\n\nCreate `.env.local` or `.env.dev`\
+    \ for credentials:\n\n```env\nOAUTH_REFERENCE_ID=your-oauth-reference-id\nCLIENT_ID=your-client-id\n\
+    CLIENT_SECRET=your-client-secret\n```\n\n## Testing & Deployment\n\n### Local\
+    \ Testing\n1. **Provision** agent in Agents Toolkit\n2. **Start debugging** to\
+    \ sideload in Teams\n3. Test in Microsoft 365 Copilot at https://m365.cloud.microsoft/chat\n\
+    4. Authenticate when prompted\n5. Query the agent using natural language\n\n###\
+    \ Validation\n- Verify tool imports in ai-plugin.json\n- Check authentication\
+    \ configuration\n- Test each exposed function\n- Validate response data mapping\n\
+    \n## Best Practices\n\n### Tool Design\n- **Focused functions**: Each tool should\
+    \ do one thing well\n- **Clear descriptions**: Help the model understand when\
+    \ to use each tool\n- **Minimal scoping**: Only import tools the agent needs\n\
+    - **Descriptive names**: Use action-oriented function names\n\n### Security\n\
+    - **Use OAuth 2.0** for production scenarios\n- **Store secrets** in environment\
+    \ variables\n- **Validate inputs** on the MCP server side\n- **Limit scopes**\
+    \ to minimum required permissions\n- **Use reference IDs** for OAuth registration\n\
+    \n### Instructions\n- **Be specific** about the agent's purpose and capabilities\n\
+    - **Define behavior** for both successful and error scenarios\n- **Reference tools**\
+    \ explicitly in instructions when applicable\n- **Set expectations** for users\
+    \ about what the agent can/cannot do\n\n### Performance\n- **Cache responses**\
+    \ when appropriate on MCP server\n- **Batch operations** where possible\n- **Set\
+    \ timeouts** for long-running operations\n- **Paginate results** for large datasets\n\
+    \n## Common MCP Server Examples\n\n### GitHub MCP Server\n```\nURL: https://api.githubcopilot.com/mcp/\n\
+    Tools: search_repositories, search_users, get_repository\nAuth: OAuth 2.0\n```\n\
+    \n### Jira MCP Server\n```\nURL: https://your-domain.atlassian.net/mcp/\nTools:\
+    \ search_issues, create_issue, update_issue\nAuth: OAuth 2.0\n```\n\n### Custom\
+    \ Service\n```\nURL: https://api.your-service.com/mcp/\nTools: Custom tools exposed\
+    \ by your service\nAuth: OAuth 2.0 or SSO\n```\n\n## Workflow\n\nAsk the user:\n\
+    1. What MCP server are you integrating with (URL)?\n2. What tools should be exposed\
+    \ to Copilot?\n3. What authentication method does the server support?\n4. What\
+    \ should the agent's primary purpose be?\n5. Do you need response semantics or\
+    \ Adaptive Cards?\n\nThen generate:\n- Complete appPackage/ structure (manifest.json,\
+    \ declarativeAgent.json, ai-plugin.json)\n- mcp.json configuration\n- .env.local\
+    \ template\n- Provisioning and testing instructions\n\n## Troubleshooting\n\n\
+    ### MCP Server Not Responding\n- Verify server URL is correct\n- Check network\
+    \ connectivity\n- Validate MCP server implements required endpoints\n\n### Authentication\
+    \ Fails\n- Verify OAuth credentials are correct\n- Check reference ID matches\
+    \ registration\n- Confirm scopes are requested properly\n- Test OAuth flow independently\n\
+    \n### Tools Not Appearing\n- Ensure mcp.json points to correct server\n- Verify\
+    \ tools were selected during import\n- Check ai-plugin.json has correct function\
+    \ definitions\n- Re-fetch actions from MCP if server changed\n\n### Agent Not\
+    \ Understanding Queries\n- Review instructions in declarativeAgent.json\n- Check\
+    \ function descriptions are clear\n- Verify response_semantics extract correct\
+    \ data\n- Test with more specific queries\n\n````"

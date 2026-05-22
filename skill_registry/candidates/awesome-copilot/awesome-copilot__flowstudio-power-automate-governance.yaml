@@ -1,0 +1,212 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__flowstudio-power-automate-governance
+name: flowstudio-power-automate-governance
+description: "Govern Power Automate flows and Power Apps at scale using the FlowStudio\
+  \ MCP cached store. Classify flows by business impact, detect orphaned resources,\
+  \ audit connector usage, enforce compliance standards, manage notification rules,\
+  \ and compute governance scores \u2014 all without Dataverse or the CoE Starter\
+  \ Kit. Load this skill when asked to: tag or classify flows, set business impact,\
+  \ assign ownership, detect orphans, audit connectors, check compliance, compute\
+  \ archive scores, manage notification rules, run a governance review, generate a\
+  \ compliance report, offboard a maker, or any task that involves writing governance\
+  \ metadata to flows. Requires a FlowStudio for Teams or MCP Pro+ subscription \u2014\
+  \ see https://mcp.flowstudio.app"
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/flowstudio-power-automate-governance/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+- frontend
+- mcp
+languages: []
+platforms: []
+aliases:
+- flowstudio-power-automate-governance
+content:
+  kind: skill_markdown
+  sha256: e0d2b62d51ca2e5b0d0c9762783960750fe25841cd200cb931506db3ffd63871
+  char_count: 14316
+  text: "# Power Automate Governance with FlowStudio MCP\n\nClassify, tag, and govern\
+    \ Power Automate flows at scale through the FlowStudio\nMCP **cached store** \u2014\
+    \ without Dataverse, without the CoE Starter Kit, and\nwithout the Power Automate\
+    \ portal.\n\nThis skill uses the same `store_*` tool family as `flowstudio-power-automate-monitoring`,\n\
+    but with a different *intent*: governance writes metadata (`update_store_flow`)\n\
+    and reads for *audit and classification* outcomes. Monitoring reads the same\n\
+    tools for *operational health* outcomes. Don't try to memorize which skill\n\"\
+    owns\" which tool \u2014 pick by what the user is doing. For health checks and\n\
+    failure-rate dashboards, load `flowstudio-power-automate-monitoring` instead.\n\
+    \n> **\u26A0\uFE0F Pro+ subscription required.** This skill calls `store_*` tools\
+    \ that\n> only work for FlowStudio for Teams or MCP Pro+ subscribers.\n>\n> **If\
+    \ the user does not have Pro+ access:** the first `store_*` tool call\n> will\
+    \ return a 403/404 error. When that happens:\n> 1. STOP calling store tools\n\
+    > 2. Tell the user governance features require a Pro+ subscription\n> 3. Link\
+    \ them to https://mcp.flowstudio.app/pricing\n>\n> **Discovery:** load tool schemas\
+    \ via the meta-tools rather than `tools/list` \u2014\n> call `tool_search` with\
+    \ `query: \"skill:governance\"` for the canonical bundle,\n> or `query: \"select:update_store_flow\"\
+    ` for a single tool. This skill covers\n> workflow patterns and field semantics\
+    \ \u2014 things `tool_search` cannot tell you.\n> If this document disagrees with\
+    \ a real API response, the API wins.\n\n---\n\n## Critical: How to Extract Flow\
+    \ IDs\n\n`list_store_flows` returns `id` in format `<environmentId>.<flowId>`.\
+    \ **You must split\non the first `.`** to get `environmentName` and `flowName`\
+    \ for all other tools:\n\n```\nid = \"Default-<envGuid>.<flowGuid>\"\nenvironmentName\
+    \ = \"Default-<envGuid>\"    (everything before first \".\")\nflowName = \"<flowGuid>\"\
+    \                  (everything after first \".\")\n```\n\nAlso: skip entries that\
+    \ have no `displayName` or have `state=Deleted` \u2014\nthese are sparse records\
+    \ or flows that no longer exist in Power Automate.\nIf a deleted flow has `monitor=true`,\
+    \ suggest disabling monitoring\n(`update_store_flow` with `monitor=false`) to\
+    \ free up a monitoring slot\n(standard plan includes 20).\n\n---\n\n## The Write\
+    \ Tool: `update_store_flow`\n\n`update_store_flow` writes governance metadata\
+    \ to the **Flow Studio cache\nonly** \u2014 it does NOT modify the flow in Power\
+    \ Automate. These fields are\nnot visible via `get_live_flow` or the PA portal.\
+    \ They exist only in the\nFlow Studio store and are used by Flow Studio's scanning\
+    \ pipeline and\nnotification rules.\n\nThis means:\n- `ownerTeam` / `supportEmail`\
+    \ \u2014 sets who Flow Studio considers the\n  governance contact. Does NOT change\
+    \ the actual PA flow owner.\n- `rule_notify_email` \u2014 sets who receives Flow\
+    \ Studio failure/missing-run\n  notifications. Does NOT change Microsoft's built-in\
+    \ flow failure alerts.\n- `monitor` / `critical` / `businessImpact` \u2014 Flow\
+    \ Studio classification\n  only. Power Automate has no equivalent fields.\n\n\
+    Merge semantics \u2014 only fields you provide are updated. Returns the full\n\
+    updated record (same shape as `get_store_flow`).\n\nRequired parameters: `environmentName`,\
+    \ `flowName`. All other fields optional.\n\n### Settable Fields\n\n| Field | Type\
+    \ | Purpose |\n|---|---|---|\n| `monitor` | bool | Enable run-level scanning (standard\
+    \ plan: 20 flows included) |\n| `rule_notify_onfail` | bool | Send email notification\
+    \ on any failed run |\n| `rule_notify_onmissingdays` | number | Send notification\
+    \ when flow hasn't run in N days (0 = disabled) |\n| `rule_notify_email` | string\
+    \ | Comma-separated notification recipients |\n| `description` | string | What\
+    \ the flow does |\n| `tags` | string | Classification tags (also auto-extracted\
+    \ from description `#hashtags`) |\n| `businessImpact` | string | Low / Medium\
+    \ / High / Critical |\n| `businessJustification` | string | Why the flow exists,\
+    \ what process it automates |\n| `businessValue` | string | Business value statement\
+    \ |\n| `ownerTeam` | string | Accountable team |\n| `ownerBusinessUnit` | string\
+    \ | Business unit |\n| `supportGroup` | string | Support escalation group |\n\
+    | `supportEmail` | string | Support contact email |\n| `critical` | bool | Designate\
+    \ as business-critical |\n| `tier` | string | Standard or Premium |\n| `security`\
+    \ | string | Security classification or notes |\n\n> **Caution with `security`:**\
+    \ The `security` field on `get_store_flow`\n> contains structured JSON (e.g. `{\"\
+    triggerRequestAuthenticationType\":\"All\"}`).\n> Writing a plain string like\
+    \ `\"reviewed\"` will overwrite this. To mark a\n> flow as security-reviewed,\
+    \ use `tags` instead.\n\n---\n\n## Governance Workflows\n\n### 1. Compliance Detail\
+    \ Review\n\nIdentify flows missing required governance metadata.\n\n```\n1. Ask\
+    \ the user which compliance fields they require\n2. list_store_flows\n3. For each\
+    \ active flow: split id, call get_store_flow, check required fields\n4. Report\
+    \ non-compliant flows with missing fields listed\n5. For updates: ask for values,\
+    \ then update_store_flow(...provided fields)\n```\n\nCommon compliance fields:\
+    \ `description`, `businessImpact`,\n`businessJustification`, `ownerTeam`, `supportEmail`,\
+    \ `monitor`,\n`rule_notify_onfail`, `critical`. Ask for the user's policy before\
+    \ flagging.\n\n### 2. Orphaned Resource Detection\n\nFind flows owned by deleted\
+    \ or disabled Azure AD accounts.\n\n```\n1. list_store_makers\n2. Filter where\
+    \ deleted=true AND ownerFlowCount > 0\n3. list_store_flows \u2192 collect all\
+    \ flows\n4. For each active flow: split id, get_store_flow, parse owners JSON\n\
+    5. Match owner principalId against orphaned maker id\n6. Reassign governance contact\
+    \ or stop/tag for decommission\n```\n\n`update_store_flow` does not transfer actual\
+    \ PA ownership; use the admin center\nor PowerShell for that. Some orphaned-looking\
+    \ flows are system-generated; tag\nthem instead of reassigning when appropriate.\
+    \ Store coverage is only as fresh as\nthe latest scan.\n\n### 3. Archive Score\
+    \ Calculation\n\nCompute an inactivity score (0-7) per flow to identify cleanup\
+    \ candidates.\n\n```\n1. list_store_flows\n2. For each active flow: split id,\
+    \ get_store_flow\n3. Add 1 point each: created\u2248modified, test/demo/temp/copy\
+    \ name, age >12mo,\n   stopped/suspended, no owners, no recent runs, complexity.actions\
+    \ < 5\n4. Score 5-7: recommend archive; 3-4: tag #archive-review; 0-2: active\n\
+    5. For confirmed archive: set_live_flow_state(..., \"Stopped\") and append #archived\n\
+    ```\n\nArchive via MCP means stop the flow and tag it. Deletion requires the portal\
+    \ or\nadmin PowerShell.\n\n### 4. Connector Audit\n\nAudit which connectors are\
+    \ in use across monitored flows. Useful for DLP\nimpact analysis and premium license\
+    \ planning.\n\n```\n1. list_store_flows(monitor=true)\n2. For each active flow:\
+    \ split id, get_store_flow, parse connections JSON\n3. Group by apiName; flag\
+    \ Premium tier, HTTP connectors, custom connectors\n4. Report inventory to user\n\
+    ```\n\nScope to monitored flows where possible; each `get_store_flow` call costs\
+    \ time.\n`list_store_connections` lists connection instances, not connector usage\
+    \ per\nflow. DLP policies are not exposed; ask the user for connector classifications.\n\
+    \n### 5. Notification Rule Management\n\nConfigure monitoring and alerting for\
+    \ flows at scale.\n\n```\nEnable failure alerts on all critical flows:\n1. list_store_flows(monitor=true)\n\
+    2. For each active flow: split id, get_store_flow\n3. If critical=true and rule_notify_onfail\
+    \ is false, update_store_flow(...,\n   rule_notify_onfail=true, rule_notify_email=\"\
+    oncall@contoso.com\")\n\nEnable missing-run detection for scheduled flows:\n1.\
+    \ list_store_flows(monitor=true)\n2. For active Recurrence flows: get_store_flow\n\
+    3. If rule_notify_onmissingdays is 0/missing, update_store_flow(...,\n   rule_notify_onmissingdays=2)\n\
+    ```\n\nCheck monitoring limits before bulk-enabling `monitor=true`. If no flows\
+    \ have\n`critical=true`, report that as a governance gap before configuring alerts.\n\
+    \n### 6. Classification and Tagging\n\nBulk-classify flows by connector type,\
+    \ business function, or risk level.\n\n```\nAuto-tag by connector:\n1. list_store_flows\n\
+    2. For each active flow: split id, get_store_flow, parse connections JSON\n3.\
+    \ Map apiName values to tags (#sharepoint, #teams, #email, #custom-connector)\n\
+    4. Read existing store tags, append new tags, update_store_flow(tags=...)\n```\n\
+    \nStore tags and description hashtags are separate systems. `tags=` overwrites\n\
+    store tags, so read/append/write. Avoid overriding computed `tier` unless asked.\n\
+    \n### 7. Maker Offboarding\n\nWhen an employee leaves, identify their flows and\
+    \ apps, and reassign\nFlow Studio governance contacts and notification recipients.\n\
+    \n```\n1. get_store_maker(makerKey=\"<departing-user-aad-oid>\")\n   \u2192 check\
+    \ ownerFlowCount, ownerAppCount, deleted status\n2. list_store_flows \u2192 collect\
+    \ all flows\n3. For each active flow: split id, get_store_flow, parse owners JSON\n\
+    4. Flag flows whose owner principalId matches the departing user's OID\n5. list_store_power_apps\
+    \ \u2192 filter ownerId\n6. For kept flows: update ownerTeam/supportEmail/rule_notify_email;\
+    \ consider\n   add_live_flow_to_solution before account deletion\n7. For retired\
+    \ flows: set_live_flow_state(..., \"Stopped\") and tag #decommissioned\n8. Report:\
+    \ flows reassigned, flows migrated to solutions, flows stopped,\n   apps needing\
+    \ manual reassignment\n```\n\nThis changes Flow Studio governance contacts, not\
+    \ actual PA ownership. Power\nApps ownership changes are manual/admin-center work.\n\
+    \n### 8. Security Review\n\nReview flows for potential security concerns using\
+    \ cached store data.\n\n```\n1. list_store_flows(monitor=true)\n2. For each active\
+    \ flow: split id, get_store_flow\n3. Parse security/connections/referencedResources\
+    \ JSON; read sharingType top-level\n4. Report findings; for reviewed flows append\
+    \ #security-reviewed tag\n```\n\nSecurity signals: `security.triggerRequestAuthenticationType`,\
+    \ `sharingType`,\n`connections`, `referencedResources`, `tier`. Never overwrite\
+    \ the structured\n`security` field; tag reviewed flows instead.\n\n### 9. Environment\
+    \ Governance\n\nAudit environments for compliance and sprawl.\n\n```\n1. list_store_environments\n\
+    \   Skip entries without displayName (tenant-level metadata rows)\n2. Flag:\n\
+    \   - Developer environments\n   - Non-managed environments\n   - Environments\
+    \ where service account lacks admin access (isAdmin=false)\n3. list_store_flows\
+    \ \u2192 group by environmentName\n4. list_store_connections \u2192 group by environmentName\n\
+    ```\n\n### 10. Governance Dashboard\n\nGenerate a tenant-wide governance summary.\n\
+    \n```\nEfficient metrics (list calls only):\n1. total_flows = len(list_store_flows())\n\
+    2. monitored = len(list_store_flows(monitor=true))\n3. with_onfail = len(list_store_flows(rule_notify_onfail=true))\n\
+    4. makers/apps/envs/conns = list_store_makers/list_store_power_apps/list_store_environments/list_store_connections\n\
+    5. Compute monitoring %, notification %, orphan count, high-failure count\n\n\
+    Detailed metrics (require get_store_flow per flow \u2014 expensive for large tenants):\n\
+    - Compliance %: flows with businessImpact set / total active flows\n- Undocumented\
+    \ count: flows without description\n- Tier breakdown: group by tier field\n```\n\
+    \n---\n\n## Field Reference: `get_store_flow` Fields Used in Governance\n\nAll\
+    \ fields below are confirmed present on the `get_store_flow` response.\nFields\
+    \ marked with `*` are also available on `list_store_flows` (cheaper).\n\n| Field\
+    \ | Type | Governance use |\n|---|---|---|\n| `displayName` * | string | Archive\
+    \ score (test/demo name detection) |\n| `state` * | string | Archive score, lifecycle\
+    \ management |\n| `tier` | string | License audit (Standard vs Premium) |\n| `monitor`\
+    \ * | bool | Is this flow being actively monitored? |\n| `critical` | bool | Business-critical\
+    \ designation (settable via update_store_flow) |\n| `businessImpact` | string\
+    \ | Compliance classification |\n| `businessJustification` | string | Compliance\
+    \ attestation |\n| `ownerTeam` | string | Ownership accountability |\n| `supportEmail`\
+    \ | string | Escalation contact |\n| `rule_notify_onfail` | bool | Failure alerting\
+    \ configured? |\n| `rule_notify_onmissingdays` | number | SLA monitoring configured?\
+    \ |\n| `rule_notify_email` | string | Alert recipients |\n| `description` | string\
+    \ | Documentation completeness |\n| `tags` | string | Classification \u2014 `list_store_flows`\
+    \ shows description-extracted hashtags only; store tags written by `update_store_flow`\
+    \ require `get_store_flow` to read back |\n| `runPeriodTotal` * | number | Activity\
+    \ level |\n| `runPeriodFailRate` * | number | Health status |\n| `runLast` | ISO\
+    \ string | Last run timestamp |\n| `scanned` | ISO string | Data freshness |\n\
+    | `deleted` | bool | Lifecycle tracking |\n| `createdTime` * | ISO string | Archive\
+    \ score (age) |\n| `lastModifiedTime` * | ISO string | Archive score (staleness)\
+    \ |\n| `owners` | JSON string | Orphan detection, ownership audit \u2014 parse\
+    \ with json.loads() |\n| `connections` | JSON string | Connector audit, tier \u2014\
+    \ parse with json.loads() |\n| `complexity` | JSON string | Archive score (simplicity)\
+    \ \u2014 parse with json.loads() |\n| `security` | JSON string | Auth type audit\
+    \ \u2014 parse with json.loads(), contains `triggerRequestAuthenticationType`\
+    \ |\n| `sharingType` | string | Oversharing detection (top-level, NOT inside security)\
+    \ |\n| `referencedResources` | JSON string | URL audit \u2014 parse with json.loads()\
+    \ |\n\n---\n\n## Related Skills\n\n- `flowstudio-power-automate-monitoring` \u2014\
+    \ Health checks, failure rates, inventory (read-only)\n- `flowstudio-power-automate-mcp`\
+    \ \u2014 Foundation skill: connection setup, MCP helper, tool discovery\n- `flowstudio-power-automate-debug`\
+    \ \u2014 Deep diagnosis with action-level inputs/outputs\n- `flowstudio-power-automate-build`\
+    \ \u2014 Build and deploy flow definitions"

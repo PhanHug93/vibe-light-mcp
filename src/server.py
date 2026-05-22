@@ -7,6 +7,7 @@ Boots a FastMCP server exposing tools organized by domain:
     auto_recall, cleanup_workspace, memory_stats
   - **System**: run_terminal_command, server_health, manage_chroma, self_update
   - **Knowledge**: sync_knowledge, update_tech_stack, usage_stats
+  - **Refinery**: prepare_llm_payload
 
 Architecture (SOLID):
   - This file is a **thin orchestrator** — it creates the FastMCP instance,
@@ -17,7 +18,7 @@ Architecture (SOLID):
 
 from __future__ import annotations
 
-__version__: str = "1.0.15"
+__version__: str = "1.0.16"
 
 import logging
 import sys
@@ -49,13 +50,17 @@ from src.tools.workspace import register_workspace_tools  # noqa: E402
 from src.tools.memory import register_memory_tools  # noqa: E402
 from src.tools.system import register_system_tools  # noqa: E402
 from src.tools.knowledge import register_knowledge_tools  # noqa: E402
+from src.tools.refinery import register_refinery_tools  # noqa: E402
+from src.tools.skills import register_skill_tools  # noqa: E402
 
 register_workspace_tools(mcp)
 register_memory_tools(mcp)
 register_system_tools(mcp)
 register_knowledge_tools(mcp)
+register_refinery_tools(mcp)
+register_skill_tools(mcp)
 
-logger.info("All tools registered — 14 tools across 4 domains.")
+logger.info("All tools registered - 18 tools across 6 domains.")
 
 # ---------------------------------------------------------------------------
 # Entry point (fallback — prefer main.py)

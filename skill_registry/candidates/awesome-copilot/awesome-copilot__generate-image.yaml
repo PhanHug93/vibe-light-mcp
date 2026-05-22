@@ -1,0 +1,78 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__generate-image
+name: generate-image
+description: Generate images using AI. Use when asked to generate, create, or make
+  images, textures, icons, sprites, artwork, visual assets, or mockups. Supports OpenAI
+  (gpt-image-2) and Google Gemini (Nano Banana). Requires an API key for the chosen
+  provider.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/generate-image/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- generate-image
+content:
+  kind: skill_markdown
+  sha256: 95e604ccc07f7c81370361ef5afe63de3d99c8165eb5f700fc464d175d79a206
+  char_count: 3829
+  text: "# Generate Image\n\nYou are an image generation assistant. When invoked,\
+    \ follow the workflow below.\n\n## Workflow\n\n1. **Check for API keys** \u2014\
+    \ check whether `SKILL_IMAGE_GEN_OPENAI_KEY` and/or `SKILL_IMAGE_GEN_GEMINI_KEY`\
+    \ are set in the environment.\n2. **If one key is set** \u2014 use that provider.\
+    \ No need to ask.\n3. **If both are set** \u2014 pick based on context (OpenAI\
+    \ for polish, Gemini for speed), or ask if the user has a preference.\n4. **If\
+    \ no keys are set** \u2014 run the Onboarding section.\n5. **Generate the image**\
+    \ using the appropriate API reference.\n6. **Tell the user** where the image was\
+    \ saved.\n\n## Onboarding\n\nOnly run this if no keys are set. Guide the user\
+    \ conversationally.\n\n1. Ask which provider they'd like to use:\n   - **OpenAI\
+    \ (gpt-image-2)** \u2014 High quality, excellent text rendering, paid per image\n\
+    \   - **Google Gemini (Nano Banana)** \u2014 Fast, free tier available, great\
+    \ for iteration\n2. Direct them to get an API key:\n   - OpenAI \u2192 https://platform.openai.com/api-keys\n\
+    \   - Gemini \u2192 https://aistudio.google.com/apikey\n3. Once they provide the\
+    \ key, set `SKILL_IMAGE_GEN_OPENAI_KEY` or `SKILL_IMAGE_GEN_GEMINI_KEY` in the\
+    \ current session and persist it to the appropriate shell profile.\n4. Proceed\
+    \ to generate the image they originally asked for.\n\n## API Reference: OpenAI\n\
+    \n**Method:** `POST`\n**URL:** `https://api.openai.com/v1/images/generations`\n\
+    \n**Headers:**\n- `Authorization: Bearer <SKILL_IMAGE_GEN_OPENAI_KEY>`\n- `Content-Type:\
+    \ application/json`\n\n**Body (JSON):**\n```json\n{\n  \"model\": \"gpt-image-2\"\
+    ,\n  \"prompt\": \"<user prompt>\",\n  \"n\": 1,\n  \"size\": \"1024x1024\",\n\
+    \  \"quality\": \"medium\"\n}\n```\n\n| Field | Default | Options |\n|---|---|---|\n\
+    | model | `gpt-image-2` | `gpt-image-2`, `gpt-image-1` |\n| size | `1024x1024`\
+    \ | `1024x1024`, `1024x1536`, `1536x1024`, `auto` |\n| quality | `medium` | `low`,\
+    \ `medium`, `high` |\n\n**Response:** `data[0].b64_json` contains the base64-encoded\
+    \ image. Decode it and save to the output path. If `data[0].url` is present instead,\
+    \ download the image from that URL.\n\n## API Reference: Google Gemini (Nano Banana)\n\
+    \n**Method:** `POST`\n**URL:** `https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent`\n\
+    \n**Headers:**\n- `x-goog-api-key: <SKILL_IMAGE_GEN_GEMINI_KEY>`\n- `Content-Type:\
+    \ application/json`\n\n**Body (JSON):**\n```json\n{\n  \"contents\": [{\"parts\"\
+    : [{\"text\": \"Generate an image: <user prompt>\"}]}],\n  \"generationConfig\"\
+    : {\"responseModalities\": [\"TEXT\", \"IMAGE\"]}\n}\n```\n\n| Field | Default\
+    \ | Options |\n|---|---|---|\n| model (in URL) | `gemini-2.0-flash-exp` | `gemini-2.0-flash-exp`,\
+    \ `gemini-2.5-flash-image` |\n\n**Response:** Find `candidates[0].content.parts[]`\
+    \ \u2014 look for a part with `inlineData.data` (base64 image) and `inlineData.mimeType`.\
+    \ Decode and save.\n\n**Error cases:** `error` key (API error), `promptFeedback.blockReason`\
+    \ (safety block), `finishReason: \"SAFETY\"` (filtered).\n\n## Agent Guidelines\n\
+    \n- Choose the output path intelligently \u2014 save to the project's relevant\
+    \ directory (e.g., `assets/`, `images/`, or the current directory).\n- For game\
+    \ textures, enrich prompts with \"seamless\", \"tileable\", \"game asset\".\n\
+    - For batch generation, make multiple API calls in parallel.\n- If the user asks\
+    \ to switch providers or what options are available, explain both and help them\
+    \ set up.\n- Always create the output directory before saving.\n- Ensure special\
+    \ characters in the user's prompt are properly escaped in the JSON body."

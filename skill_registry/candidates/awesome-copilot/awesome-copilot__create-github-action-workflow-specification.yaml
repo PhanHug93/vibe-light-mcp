@@ -1,0 +1,126 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-github-action-workflow-specification
+name: create-github-action-workflow-specification
+description: Create a formal specification for an existing GitHub Actions CI/CD workflow,
+  optimized for AI consumption and workflow maintenance.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-github-action-workflow-specification/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- create-github-action-workflow-specification
+content:
+  kind: skill_markdown
+  sha256: 25b57a8e4ed35e2e640dc9f6f255dc6c8f86574b98d2abc5153b5a8c9b22491c
+  char_count: 7660
+  text: "# Create GitHub Actions Workflow Specification\n\nCreate a comprehensive\
+    \ specification for the GitHub Actions workflow: `${input:WorkflowFile}`.\n\n\
+    This specification serves as a specification for the workflow's behavior, requirements,\
+    \ and constraints. It must be implementation-agnostic, focusing on **what** the\
+    \ workflow accomplishes rather than **how** it's implemented.\n\n## AI-Optimized\
+    \ Requirements\n\n- **Token Efficiency**: Use concise language without sacrificing\
+    \ clarity\n- **Structured Data**: Leverage tables, lists, and diagrams for dense\
+    \ information\n- **Semantic Clarity**: Use precise terminology consistently throughout\n\
+    - **Implementation Abstraction**: Avoid specific syntax, commands, or tool versions\n\
+    - **Maintainability**: Design for easy updates as workflow evolves\n\n## Specification\
+    \ Template\n\nSave as: `/spec/spec-process-cicd-[workflow-name].md`\n\n```md\n\
+    ---\ntitle: CI/CD Workflow Specification - [Workflow Name]\nversion: 1.0\ndate_created:\
+    \ [YYYY-MM-DD]\nlast_updated: [YYYY-MM-DD]\nowner: DevOps Team\ntags: [process,\
+    \ cicd, github-actions, automation, [domain-specific-tags]]\n---\n\n## Workflow\
+    \ Overview\n\n**Purpose**: [One sentence describing workflow's primary goal]\n\
+    **Trigger Events**: [List trigger conditions]\n**Target Environments**: [Environment\
+    \ scope]\n\n## Execution Flow Diagram\n\n```mermaid\ngraph TD\n    A[Trigger Event]\
+    \ --> B[Job 1]\n    B --> C[Job 2]\n    C --> D[Job 3]\n    D --> E[End]\n   \
+    \ \n    B --> F[Parallel Job]\n    F --> D\n    \n    style A fill:#e1f5fe\n \
+    \   style E fill:#e8f5e8\n```\n\n## Jobs & Dependencies\n\n| Job Name | Purpose\
+    \ | Dependencies | Execution Context |\n|----------|---------|--------------|-------------------|\n\
+    | job-1 | [Purpose] | [Prerequisites] | [Runner/Environment] |\n| job-2 | [Purpose]\
+    \ | job-1 | [Runner/Environment] |\n\n## Requirements Matrix\n\n### Functional\
+    \ Requirements\n| ID | Requirement | Priority | Acceptance Criteria |\n|----|-------------|----------|-------------------|\n\
+    | REQ-001 | [Requirement] | High | [Testable criteria] |\n| REQ-002 | [Requirement]\
+    \ | Medium | [Testable criteria] |\n\n### Security Requirements\n| ID | Requirement\
+    \ | Implementation Constraint |\n|----|-------------|---------------------------|\n\
+    | SEC-001 | [Security requirement] | [Constraint description] |\n\n### Performance\
+    \ Requirements\n| ID | Metric | Target | Measurement Method |\n|----|-------|--------|-------------------|\n\
+    | PERF-001 | [Metric] | [Target value] | [How measured] |\n\n## Input/Output Contracts\n\
+    \n### Inputs\n\n```yaml\n# Environment Variables\nENV_VAR_1: string  # Purpose:\
+    \ [description]\nENV_VAR_2: secret  # Purpose: [description]\n\n# Repository Triggers\n\
+    paths: [list of path filters]\nbranches: [list of branch patterns]\n```\n\n###\
+    \ Outputs\n\n```yaml\n# Job Outputs\njob_1_output: string  # Description: [purpose]\n\
+    build_artifact: file  # Description: [content type]\n```\n\n### Secrets & Variables\n\
+    \n| Type | Name | Purpose | Scope |\n|------|------|---------|-------|\n| Secret\
+    \ | SECRET_1 | [Purpose] | Workflow |\n| Variable | VAR_1 | [Purpose] | Repository\
+    \ |\n\n## Execution Constraints\n\n### Runtime Constraints\n\n- **Timeout**: [Maximum\
+    \ execution time]\n- **Concurrency**: [Parallel execution limits]\n- **Resource\
+    \ Limits**: [Memory/CPU constraints]\n\n### Environmental Constraints\n\n- **Runner\
+    \ Requirements**: [OS/hardware needs]\n- **Network Access**: [External connectivity\
+    \ needs]\n- **Permissions**: [Required access levels]\n\n## Error Handling Strategy\n\
+    \n| Error Type | Response | Recovery Action |\n|------------|----------|-----------------|\n\
+    | Build Failure | [Response] | [Recovery steps] |\n| Test Failure | [Response]\
+    \ | [Recovery steps] |\n| Deployment Failure | [Response] | [Recovery steps] |\n\
+    \n## Quality Gates\n\n### Gate Definitions\n\n| Gate | Criteria | Bypass Conditions\
+    \ |\n|------|----------|-------------------|\n| Code Quality | [Standards] | [When\
+    \ allowed] |\n| Security Scan | [Thresholds] | [When allowed] |\n| Test Coverage\
+    \ | [Percentage] | [When allowed] |\n\n## Monitoring & Observability\n\n### Key\
+    \ Metrics\n\n- **Success Rate**: [Target percentage]\n- **Execution Time**: [Target\
+    \ duration]\n- **Resource Usage**: [Monitoring approach]\n\n### Alerting\n\n|\
+    \ Condition | Severity | Notification Target |\n|-----------|----------|-------------------|\n\
+    | [Condition] | [Level] | [Who/Where] |\n\n## Integration Points\n\n### External\
+    \ Systems\n\n| System | Integration Type | Data Exchange | SLA Requirements |\n\
+    |--------|------------------|---------------|------------------|\n| [System] |\
+    \ [Type] | [Data format] | [Requirements] |\n\n### Dependent Workflows\n\n| Workflow\
+    \ | Relationship | Trigger Mechanism |\n|----------|--------------|-------------------|\n\
+    | [Workflow] | [Type] | [How triggered] |\n\n## Compliance & Governance\n\n###\
+    \ Audit Requirements\n\n- **Execution Logs**: [Retention policy]\n- **Approval\
+    \ Gates**: [Required approvals]\n- **Change Control**: [Update process]\n\n###\
+    \ Security Controls\n\n- **Access Control**: [Permission model]\n- **Secret Management**:\
+    \ [Rotation policy]\n- **Vulnerability Scanning**: [Scan frequency]\n\n## Edge\
+    \ Cases & Exceptions\n\n### Scenario Matrix\n\n| Scenario | Expected Behavior\
+    \ | Validation Method |\n|----------|-------------------|-------------------|\n\
+    | [Edge case] | [Behavior] | [How to verify] |\n\n## Validation Criteria\n\n###\
+    \ Workflow Validation\n\n- **VLD-001**: [Validation rule]\n- **VLD-002**: [Validation\
+    \ rule]\n\n### Performance Benchmarks\n\n- **PERF-001**: [Benchmark criteria]\n\
+    - **PERF-002**: [Benchmark criteria]\n\n## Change Management\n\n### Update Process\n\
+    \n1. **Specification Update**: Modify this document first\n2. **Review & Approval**:\
+    \ [Approval process]\n3. **Implementation**: Apply changes to workflow\n4. **Testing**:\
+    \ [Validation approach]\n5. **Deployment**: [Release process]\n\n### Version History\n\
+    \n| Version | Date | Changes | Author |\n|---------|------|---------|--------|\n\
+    | 1.0 | [Date] | Initial specification | [Author] |\n\n## Related Specifications\n\
+    \n- [Link to related workflow specs]\n- [Link to infrastructure specs]\n- [Link\
+    \ to deployment specs]\n\n```\n\n## Analysis Instructions\n\nWhen analyzing the\
+    \ workflow file:\n\n1. **Extract Core Purpose**: Identify the primary business\
+    \ objective\n2. **Map Job Flow**: Create dependency graph showing execution order\n\
+    3. **Identify Contracts**: Document inputs, outputs, and interfaces\n4. **Capture\
+    \ Constraints**: Extract timeouts, permissions, and limits\n5. **Define Quality\
+    \ Gates**: Identify validation and approval points\n6. **Document Error Paths**:\
+    \ Map failure scenarios and recovery\n7. **Abstract Implementation**: Focus on\
+    \ behavior, not syntax\n\n## Mermaid Diagram Guidelines\n\n### Flow Types\n- **Sequential**:\
+    \ `A --> B --> C`\n- **Parallel**: `A --> B & A --> C; B --> D & C --> D`\n- **Conditional**:\
+    \ `A --> B{Decision}; B -->|Yes| C; B -->|No| D`\n\n### Styling\n```mermaid\n\
+    style TriggerNode fill:#e1f5fe\nstyle SuccessNode fill:#e8f5e8\nstyle FailureNode\
+    \ fill:#ffebee\nstyle ProcessNode fill:#f3e5f5\n```\n\n### Complex Workflows\n\
+    For workflows with 5+ jobs, use subgraphs:\n```mermaid\ngraph TD\n    subgraph\
+    \ \"Build Phase\"\n        A[Lint] --> B[Test] --> C[Build]\n    end\n    subgraph\
+    \ \"Deploy Phase\"  \n        D[Staging] --> E[Production]\n    end\n    C -->\
+    \ D\n```\n\n## Token Optimization Strategies\n\n1. **Use Tables**: Dense information\
+    \ in structured format\n2. **Abbreviate Consistently**: Define once, use throughout\n\
+    3. **Bullet Points**: Avoid prose paragraphs\n4. **Code Blocks**: Structured data\
+    \ over narrative\n5. **Cross-Reference**: Link instead of repeat information\n\
+    \nFocus on creating a specification that serves as both documentation and a template\
+    \ for workflow updates."

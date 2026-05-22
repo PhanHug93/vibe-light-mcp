@@ -1,0 +1,162 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-ai-provider-integration
+name: arize-ai-provider-integration
+description: Creates, reads, updates, and deletes Arize AI integrations that store
+  LLM provider credentials used by evaluators and other Arize features. Supports any
+  LLM provider (e.g. OpenAI, Anthropic, Azure OpenAI, AWS Bedrock, Vertex AI, Gemini,
+  NVIDIA NIM). Use when the user mentions AI integration, LLM provider credentials,
+  create integration, list integrations, update credentials, delete integration, or
+  connecting an LLM provider to Arize.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-ai-provider-integration/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- arize-ai-provider-integration
+content:
+  kind: skill_markdown
+  sha256: c1fe70e2c0bd7950d48eb5910cbed9bcb6893d0af3bca3983f232dacc48adf03
+  char_count: 10401
+  text: "# Arize AI Integration Skill\n\n> **`SPACE`** \u2014 Most `--space` flags\
+    \ and the `ARIZE_SPACE` env var accept a space **name** (e.g., `my-workspace`)\
+    \ or a base64 space **ID** (e.g., `U3BhY2U6...`). Find yours with `ax spaces list`.\n\
+    > **Note:** `ai-integrations create` does **not** accept `--space` \u2014 AI integrations\
+    \ are account-scoped. Use `--space` only with `list`, `get`, `update`, and `delete`.\n\
+    \n## Concepts\n\n- **AI Integration** = stored LLM provider credentials registered\
+    \ in Arize; used by evaluators to call a judge model and by other Arize features\
+    \ that need to invoke an LLM on your behalf\n- **Provider** = the LLM service\
+    \ backing the integration (e.g., `openAI`, `anthropic`, `awsBedrock`)\n- **Integration\
+    \ ID** = a base64-encoded global identifier for an integration (e.g., `TGxtSW50ZWdyYXRpb246MTI6YUJjRA==`);\
+    \ required for evaluator creation and other downstream operations\n- **Scoping**\
+    \ = visibility rules controlling which spaces or users can use an integration\n\
+    - **Auth type** = how Arize authenticates with the provider: `default` (provider\
+    \ API key), `proxy_with_headers` (proxy via custom headers), or `bearer_token`\
+    \ (bearer token auth)\n\n## Prerequisites\n\nProceed directly with the task \u2014\
+    \ run the `ax` command you need. Do NOT check versions, env vars, or profiles\
+    \ upfront.\n\nIf an `ax` command fails, troubleshoot based on the error:\n- `command\
+    \ not found` or version error \u2192 see references/ax-setup.md\n- `401 Unauthorized`\
+    \ / missing API key \u2192 run `ax profiles show` to inspect the current profile.\
+    \ If the profile is missing or the API key is wrong, follow references/ax-profiles.md\
+    \ to create/update it. If the user doesn't have their key, direct them to https://app.arize.com/admin\
+    \ > API Keys\n- Space unknown \u2192 run `ax spaces list` to pick by name, or\
+    \ ask the user\n- LLM provider call fails (missing OPENAI_API_KEY / ANTHROPIC_API_KEY)\
+    \ \u2192 run `ax ai-integrations list --space SPACE` to check for platform-managed\
+    \ credentials. If none exist, ask the user to provide the key or create an integration\
+    \ via the **arize-ai-provider-integration** skill\n- **Security:** Never read\
+    \ `.env` files or search the filesystem for credentials. Use `ax profiles` for\
+    \ Arize credentials and `ax ai-integrations` for LLM provider keys. If credentials\
+    \ are not available through these channels, ask the user.\n\n---\n\n## List AI\
+    \ Integrations\n\nList all integrations accessible in a space:\n\n```bash\nax\
+    \ ai-integrations list --space SPACE\n```\n\nFilter by name (case-insensitive\
+    \ substring match):\n\n```bash\nax ai-integrations list --space SPACE --name \"\
+    openai\"\n```\n\nPaginate large result sets:\n\n```bash\n# Get first page\nax\
+    \ ai-integrations list --space SPACE --limit 20 -o json\n\n# Get next page using\
+    \ cursor from previous response\nax ai-integrations list --space SPACE --limit\
+    \ 20 --cursor CURSOR_TOKEN -o json\n```\n\n**Key flags:**\n\n| Flag | Description\
+    \ |\n|------|-------------|\n| `--space` | Space name or ID to filter integrations\
+    \ |\n| `--name` | Case-insensitive substring filter on integration name |\n| `--limit`\
+    \ | Max results (1\u2013100, default 15) |\n| `--cursor` | Pagination token from\
+    \ a previous response |\n| `-o, --output` | Output format: `table` (default) or\
+    \ `json` |\n\n**Response fields:**\n\n| Field | Description |\n|-------|-------------|\n\
+    | `id` | Base64 integration ID \u2014 copy this for downstream commands |\n| `name`\
+    \ | Human-readable name |\n| `provider` | LLM provider enum (see Supported Providers\
+    \ below) |\n| `has_api_key` | `true` if credentials are stored |\n| `model_names`\
+    \ | Allowed model list, or `null` if all models are enabled |\n| `enable_default_models`\
+    \ | Whether default models for this provider are allowed |\n| `function_calling_enabled`\
+    \ | Whether tool/function calling is enabled |\n| `auth_type` | Authentication\
+    \ method: `default`, `proxy_with_headers`, or `bearer_token` |\n\n---\n\n## Get\
+    \ a Specific Integration\n\n```bash\nax ai-integrations get NAME_OR_ID\nax ai-integrations\
+    \ get NAME_OR_ID -o json\nax ai-integrations get NAME_OR_ID --space SPACE   #\
+    \ required when using name instead of ID\n```\n\nUse this to inspect an integration's\
+    \ full configuration or to confirm its ID after creation.\n\n---\n\n## Create\
+    \ an AI Integration\n\nBefore creating, always list integrations first \u2014\
+    \ the user may already have a suitable one:\n\n```bash\nax ai-integrations list\
+    \ --space SPACE\n```\n\nIf no suitable integration exists, create one. The required\
+    \ flags depend on the provider.\n\n### OpenAI\n\n```bash\nax ai-integrations create\
+    \ \\\n  --name \"My OpenAI Integration\" \\\n  --provider openAI \\\n  --api-key\
+    \ $OPENAI_API_KEY\n```\n\n### Anthropic\n\n```bash\nax ai-integrations create\
+    \ \\\n  --name \"My Anthropic Integration\" \\\n  --provider anthropic \\\n  --api-key\
+    \ $ANTHROPIC_API_KEY\n```\n\n### Azure OpenAI\n\n```bash\nax ai-integrations create\
+    \ \\\n  --name \"My Azure OpenAI Integration\" \\\n  --provider azureOpenAI \\\
+    \n  --api-key $AZURE_OPENAI_API_KEY \\\n  --base-url \"https://my-resource.openai.azure.com/\"\
+    \n```\n\n### AWS Bedrock\n\nAWS Bedrock uses IAM role-based auth. Provide the\
+    \ ARN of the role Arize should assume via `--provider-metadata`:\n\n```bash\n\
+    ax ai-integrations create \\\n  --name \"My Bedrock Integration\" \\\n  --provider\
+    \ awsBedrock \\\n  --provider-metadata '{\"role_arn\": \"arn:aws:iam::123456789012:role/ArizeBedrockRole\"\
+    }'\n```\n\n### Vertex AI\n\nVertex AI uses GCP service account credentials. Provide\
+    \ the GCP project and region via `--provider-metadata`:\n\n```bash\nax ai-integrations\
+    \ create \\\n  --name \"My Vertex AI Integration\" \\\n  --provider vertexAI \\\
+    \n  --provider-metadata '{\"project_id\": \"my-gcp-project\", \"location\": \"\
+    us-central1\"}'\n```\n\n### Gemini\n\n```bash\nax ai-integrations create \\\n\
+    \  --name \"My Gemini Integration\" \\\n  --provider gemini \\\n  --api-key $GEMINI_API_KEY\n\
+    ```\n\n### NVIDIA NIM\n\n```bash\nax ai-integrations create \\\n  --name \"My\
+    \ NVIDIA NIM Integration\" \\\n  --provider nvidiaNim \\\n  --api-key $NVIDIA_API_KEY\
+    \ \\\n  --base-url \"https://integrate.api.nvidia.com/v1\"\n```\n\n### Custom\
+    \ (OpenAI-compatible endpoint)\n\n```bash\nax ai-integrations create \\\n  --name\
+    \ \"My Custom Integration\" \\\n  --provider custom \\\n  --base-url \"https://my-llm-proxy.example.com/v1\"\
+    \ \\\n  --api-key $CUSTOM_LLM_API_KEY\n```\n\n### Supported Providers\n\n| Provider\
+    \ | Required extra flags |\n|----------|---------------------|\n| `openAI` | `--api-key\
+    \ <key>` |\n| `anthropic` | `--api-key <key>` |\n| `azureOpenAI` | `--api-key\
+    \ <key>`, `--base-url <azure-endpoint>` |\n| `awsBedrock` | `--provider-metadata\
+    \ '{\"role_arn\": \"<arn>\"}'` |\n| `vertexAI` | `--provider-metadata '{\"project_id\"\
+    : \"<gcp-project>\", \"location\": \"<region>\"}'` |\n| `gemini` | `--api-key\
+    \ <key>` |\n| `nvidiaNim` | `--api-key <key>`, `--base-url <nim-endpoint>` |\n\
+    | `custom` | `--base-url <endpoint>` |\n\n### Optional flags for any provider\n\
+    \n| Flag | Description |\n|------|-------------|\n| `--model-name` | Allowed model\
+    \ name (repeat for multiple, e.g. `--model-name gpt-4o --model-name gpt-4o-mini`);\
+    \ omit to allow all models |\n| `--enable-default-models` | Enable the provider's\
+    \ default model list |\n| `--function-calling-enabled` | Enable tool/function\
+    \ calling support |\n| `--auth-type` | Authentication type: `default`, `proxy_with_headers`,\
+    \ or `bearer_token` |\n| `--headers` | Custom headers as JSON object or file path\
+    \ (for proxy auth) |\n| `--provider-metadata` | Provider-specific metadata as\
+    \ JSON object or file path |\n\n### After creation\n\nCapture the returned integration\
+    \ ID (e.g., `TGxtSW50ZWdyYXRpb246MTI6YUJjRA==`) \u2014 it is needed for evaluator\
+    \ creation and other downstream commands. If you missed it, retrieve it:\n\n```bash\n\
+    ax ai-integrations list --space SPACE -o json\n# or by name/ID directly:\nax ai-integrations\
+    \ get NAME_OR_ID\n```\n\n---\n\n## Update an AI Integration\n\n`update` is a partial\
+    \ update \u2014 only the flags you provide are changed. Omitted fields stay as-is.\n\
+    \n```bash\n# Rename\nax ai-integrations update NAME_OR_ID --name \"New Name\"\n\
+    \n# Rotate the API key\nax ai-integrations update NAME_OR_ID --api-key $OPENAI_API_KEY\n\
+    \n# Change the model list (replaces all existing model names)\nax ai-integrations\
+    \ update NAME_OR_ID --model-name gpt-4o --model-name gpt-4o-mini\n\n# Update base\
+    \ URL (for Azure, custom, or NIM)\nax ai-integrations update NAME_OR_ID --base-url\
+    \ \"https://new-endpoint.example.com/v1\"\n```\n\nAdd `--space SPACE` when using\
+    \ a name instead of ID. Any flag accepted by `create` can be passed to `update`.\n\
+    \n---\n\n## Delete an AI Integration\n\n**Warning:** Deletion is permanent. Evaluators\
+    \ that reference this integration will no longer be able to run.\n\n```bash\n\
+    ax ai-integrations delete NAME_OR_ID --force\nax ai-integrations delete NAME_OR_ID\
+    \ --space SPACE --force   # required when using name instead of ID\n```\n\nOmit\
+    \ `--force` to get a confirmation prompt instead of deleting immediately.\n\n\
+    ---\n\n## Troubleshooting\n\n| Problem | Solution |\n|---------|----------|\n\
+    | `ax: command not found` | See references/ax-setup.md |\n| `401 Unauthorized`\
+    \ | API key may not have access to this space. Verify key and space ID at https://app.arize.com/admin\
+    \ > API Keys |\n| `No profile found` | Run `ax profiles show --expand`; set `ARIZE_API_KEY`\
+    \ env var or write `~/.arize/config.toml` |\n| `Integration not found` | Verify\
+    \ with `ax ai-integrations list --space SPACE` |\n| `has_api_key: false` after\
+    \ create | Credentials were not saved \u2014 re-run `update` with the correct\
+    \ `--api-key` or `--provider-metadata` |\n| Evaluator runs fail with LLM errors\
+    \ | Check integration credentials with `ax ai-integrations get INT_ID`; rotate\
+    \ the API key if needed |\n| `provider` mismatch | Cannot change provider after\
+    \ creation \u2014 delete and recreate with the correct provider |\n\n---\n\n##\
+    \ Related Skills\n\n- **arize-evaluator**: Create LLM-as-judge evaluators that\
+    \ use an AI integration \u2192 use `arize-evaluator`\n- **arize-experiment**:\
+    \ Run experiments that use evaluators backed by an AI integration \u2192 use `arize-experiment`\n\
+    \n---\n\n## Save Credentials for Future Use\n\nSee references/ax-profiles.md \xA7\
+    \ Save Credentials for Future Use."

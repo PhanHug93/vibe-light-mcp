@@ -1,0 +1,57 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react18-string-refs
+name: react18-string-refs
+description: Provides exact migration patterns for React string refs (ref="name" +
+  this.refs.name) to React.createRef() in class components. Use this skill whenever
+  migrating string ref usage - including single element refs, multiple refs in a component,
+  refs in lists, callback refs, and refs passed to child components. Always use this
+  skill before writing any ref migration code - the multiple-refs-in-list pattern
+  is particularly tricky and this skill prevents the most common mistakes. Use it
+  for React 18.3.1 migration (string refs warn) and React 19 migration (string refs
+  removed).
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react18-string-refs/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- documentation
+- frontend
+languages: []
+platforms: []
+aliases:
+- react18-string-refs
+content:
+  kind: skill_markdown
+  sha256: c876a43c2aaaac6746c48364ebadf050787922d259ef6f021b51d36f2db9fc67
+  char_count: 2106
+  text: "# React 18 String Refs Migration\n\nString refs (`ref=\"myInput\"` + `this.refs.myInput`)\
+    \ were deprecated in React 16.3, warn in React 18.3.1, and are **removed in React\
+    \ 19**.\n\n## Quick Pattern Map\n\n| Pattern | Reference |\n|---|---|\n| Single\
+    \ ref on a DOM element | [\u2192 patterns.md#single-ref](references/patterns.md#single-ref)\
+    \ |\n| Multiple refs in one component | [\u2192 patterns.md#multiple-refs](references/patterns.md#multiple-refs)\
+    \ |\n| Refs in a list / dynamic refs | [\u2192 patterns.md#list-refs](references/patterns.md#list-refs)\
+    \ |\n| Callback refs (alternative approach) | [\u2192 patterns.md#callback-refs](references/patterns.md#callback-refs)\
+    \ |\n| Ref passed to a child component | [\u2192 patterns.md#forwarded-refs](references/patterns.md#forwarded-refs)\
+    \ |\n\n## Scan Command\n\n```bash\n# Find all string ref assignments in JSX\n\
+    grep -rn 'ref=\"' src/ --include=\"*.js\" --include=\"*.jsx\" | grep -v \"\\.test\\\
+    .\"\n\n# Find all this.refs accessors\ngrep -rn \"this\\.refs\\.\" src/ --include=\"\
+    *.js\" --include=\"*.jsx\" | grep -v \"\\.test\\.\"\n```\n\nBoth should be migrated\
+    \ together - find the `ref=\"name\"` and the `this.refs.name` accesses for each\
+    \ component as a pair.\n\n## The Migration Rule\n\nEvery string ref migrates to\
+    \ `React.createRef()`:\n\n1. Add `refName = React.createRef();` as a class field\
+    \ (or in constructor)\n2. Replace `ref=\"refName\"` \u2192 `ref={this.refName}`\
+    \ in JSX\n3. Replace `this.refs.refName` \u2192 `this.refName.current` everywhere\n\
+    \nRead `references/patterns.md` for the full before/after for each case."

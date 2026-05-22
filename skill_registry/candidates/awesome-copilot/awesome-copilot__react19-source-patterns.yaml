@@ -1,0 +1,54 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__react19-source-patterns
+name: react19-source-patterns
+description: Reference for React 19 source-file migration patterns, including API
+  changes, ref handling, and context updates.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/react19-source-patterns/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- react19-source-patterns
+content:
+  kind: skill_markdown
+  sha256: cbbf1227b3f46f9b91c948c3846611a539496b363e4dc1bbd3faff2e913dff86
+  char_count: 1955
+  text: "# React 19 Source Migration Patterns\n\nReference for every source-file migration\
+    \ required for React 19.\n\n## Quick Reference Table\n\n| Pattern | Action | Reference\
+    \ |\n|---|---|---|\n| `ReactDOM.render(...)` | \u2192 `createRoot().render()`\
+    \ | See references/api-migrations.md |\n| `ReactDOM.hydrate(...)` | \u2192 `hydrateRoot(...)`\
+    \ | See references/api-migrations.md |\n| `unmountComponentAtNode` | \u2192 `root.unmount()`\
+    \ | Inline fix |\n| `ReactDOM.findDOMNode` | \u2192 direct ref | Inline fix |\n\
+    | `forwardRef(...)` wrapper | \u2192 ref as direct prop | See references/api-migrations.md\
+    \ |\n| `Component.defaultProps = {}` | \u2192 ES6 default params | See references/api-migrations.md\
+    \ |\n| `useRef()` no arg | \u2192 `useRef(null)` | Inline fix  add `null` |\n\
+    | Legacy Context | \u2192 `createContext` | [\u2192 api-migrations.md#legacy-context](references/api-migrations.md#legacy-context)\
+    \ |\n| String refs `this.refs.x` | \u2192 `createRef()` | [\u2192 api-migrations.md#string-refs](references/api-migrations.md#string-refs)\
+    \ |\n| `import React from 'react'` (unused) | Remove | Only if no `React.` usage\
+    \ in file |\n\n## PropTypes Rule\n\nDo **not** remove `.propTypes` assignments.\
+    \ The `prop-types` package still works as a standalone validator. React 19 only\
+    \ removes the built-in runtime checking from the React package  the package itself\
+    \ remains valid.\n\nAdd this comment above any `.propTypes` block:\n```jsx\n//\
+    \ NOTE: React 19 no longer runs propTypes validation at runtime.\n// PropTypes\
+    \ kept for documentation and IDE tooling only.\n```\n\n## Read the Reference\n\
+    \nFor full before/after code for each migration, read **`references/api-migrations.md`**.\
+    \ It contains the complete patterns including edge cases for `forwardRef` with\
+    \ `useImperativeHandle`, `defaultProps` null vs undefined behavior, and legacy\
+    \ context provider/consumer cross-file migrations."

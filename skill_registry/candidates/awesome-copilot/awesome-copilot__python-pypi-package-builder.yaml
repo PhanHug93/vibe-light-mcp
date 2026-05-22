@@ -1,0 +1,288 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__python-pypi-package-builder
+name: python-pypi-package-builder
+description: 'End-to-end skill for building, testing, linting, versioning, and publishing
+  a production-grade Python library to PyPI. Covers all four build backends (setuptools+setuptools_scm,
+  hatchling, flit, poetry), PEP 440 versioning, semantic versioning, dynamic git-tag
+  versioning, OOP/SOLID design, type hints (PEP 484/526/544/561), Trusted Publishing
+  (OIDC), and the full PyPA packaging flow. Use for: creating Python packages, pip-installable
+  SDKs, CLI tools, framework plugins, pyproject.toml setup, py.typed, setuptools_scm,
+  semver, mypy, pre-commit, GitHub Actions CI/CD, or PyPI publishing.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/python-pypi-package-builder/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - has_scripts_directory
+facets:
+- frontend
+- python
+- testing
+languages: []
+platforms: []
+aliases:
+- python-pypi-package-builder
+content:
+  kind: skill_markdown
+  sha256: a936499b350cc292fead873345f54893c2e91c46ce0bae8620bd2f1734376f3e
+  char_count: 18438
+  text: "# Python PyPI Package Builder Skill\n\nA complete, battle-tested guide for\
+    \ building, testing, linting, versioning, typing, and\npublishing a production-grade\
+    \ Python library to PyPI \u2014 from first commit to community-ready\nrelease.\n\
+    \n> **AI Agent Instruction:** Read this entire file before writing a single line\
+    \ of code or\n> creating any file. Every decision \u2014 layout, backend, versioning\
+    \ strategy, patterns, CI \u2014\n> has a decision rule here. Follow the decision\
+    \ trees in order. This skill applies to any\n> Python package type (utility, SDK,\
+    \ CLI, plugin, data library). Do not skip sections.\n\n---\n\n## Quick Navigation\n\
+    \n| Section in this file | What it covers |\n|---|---|\n| [1. Skill Trigger](#1-skill-trigger)\
+    \ | When to load this skill |\n| [2. Package Type Decision](#2-package-type-decision)\
+    \ | Identify what you are building |\n| [3. Folder Structure Decision](#3-folder-structure-decision)\
+    \ | src/ vs flat vs monorepo |\n| [4. Build Backend Decision](#4-build-backend-decision)\
+    \ | setuptools / hatchling / flit / poetry |\n| [5. PyPA Packaging Flow](#5-pypa-packaging-flow)\
+    \ | The canonical publish pipeline |\n| [6. Project Structure Templates](#6-project-structure-templates)\
+    \ | Full layouts for every option |\n| [7. Versioning Strategy](#7-versioning-strategy)\
+    \ | PEP 440, semver, dynamic vs static |\n\n| Reference file | What it covers\
+    \ |\n|---|---|\n| `references/pyproject-toml.md` | All four backend templates,\
+    \ `setuptools_scm`, `py.typed`, tool configs |\n| `references/library-patterns.md`\
+    \ | OOP/SOLID, type hints, core class design, factory, protocols, CLI |\n| `references/testing-quality.md`\
+    \ | `conftest.py`, unit/backend/async tests, ruff/mypy/pre-commit |\n| `references/ci-publishing.md`\
+    \ | `ci.yml`, `publish.yml`, Trusted Publishing, TestPyPI, CHANGELOG, release\
+    \ checklist |\n| `references/community-docs.md` | README, docstrings, CONTRIBUTING,\
+    \ SECURITY, anti-patterns, master checklist |\n| `references/architecture-patterns.md`\
+    \ | Backend system (plugin/strategy), config layer, transport layer, CLI, backend\
+    \ injection |\n| `references/versioning-strategy.md` | PEP 440, SemVer, pre-release,\
+    \ setuptools_scm deep-dive, flit static, decision engine |\n| `references/release-governance.md`\
+    \ | Branch strategy, branch protection, OIDC, tag author validation, prevent invalid\
+    \ tags |\n| `references/tooling-ruff.md` | Ruff-only setup (replaces black/isort),\
+    \ mypy config, pre-commit, asyncio_mode=auto |\n\n**Scaffold script:** run `python\
+    \ skills/python-pypi-package-builder/scripts/scaffold.py --name your-package-name`\n\
+    to generate the entire directory layout, stub files, and `pyproject.toml` in one\
+    \ command.\n\n---\n\n## 1. Skill Trigger\n\nLoad this skill whenever the user\
+    \ wants to:\n\n- Create, scaffold, or publish a Python package or library to PyPI\n\
+    - Build a pip-installable SDK, utility, CLI tool, or framework extension\n- Set\
+    \ up `pyproject.toml`, linting, mypy, pre-commit, or GitHub Actions for a Python\
+    \ project\n- Understand versioning (`setuptools_scm`, PEP 440, semver, static\
+    \ versioning)\n- Understand PyPA specs: `py.typed`, `MANIFEST.in`, `RECORD`, classifiers\n\
+    - Publish to PyPI using Trusted Publishing (OIDC) or API tokens\n- Refactor an\
+    \ existing package to follow modern Python packaging standards\n- Add type hints,\
+    \ protocols, ABCs, or dataclasses to a Python library\n- Apply OOP/SOLID design\
+    \ patterns to a Python package\n- Choose between build backends (setuptools, hatchling,\
+    \ flit, poetry)\n\n**Also trigger for phrases like:** \"build a Python SDK\",\
+    \ \"publish my library\", \"set up PyPI CI\",\n\"create a pip package\", \"how\
+    \ do I publish to PyPI\", \"pyproject.toml help\", \"PEP 561 typed\",\n\"setuptools_scm\
+    \ version\", \"semver Python\", \"PEP 440\", \"git tag release\", \"Trusted Publishing\"\
+    .\n\n---\n\n## 2. Package Type Decision\n\nIdentify what the user is building\
+    \ **before** writing any code. Each type has distinct patterns.\n\n### Decision\
+    \ Table\n\n| Type | Core Pattern | Entry Point | Key Deps | Example Packages |\n\
+    |---|---|---|---|---|\n| **Utility library** | Module of pure functions + helpers\
+    \ | Import API only | Minimal | `arrow`, `humanize`, `boltons`, `more-itertools`\
+    \ |\n| **API client / SDK** | Class with methods, auth, retry logic | Import API\
+    \ only | `httpx` or `requests` | `boto3`, `stripe-python`, `openai` |\n| **CLI\
+    \ tool** | Command functions + argument parser | `[project.scripts]` or `[project.entry-points]`\
+    \ | `click` or `typer` | `black`, `ruff`, `httpie`, `rich` |\n| **Framework plugin**\
+    \ | Plugin class, hook registration | `[project.entry-points.\"framework.plugin\"\
+    ]` | Framework dep | `pytest-*`, `django-*`, `flask-*` |\n| **Data processing\
+    \ library** | Classes + functional pipeline | Import API only | Optional: `numpy`,\
+    \ `pandas` | `pydantic`, `marshmallow`, `cerberus` |\n| **Mixed / generic** |\
+    \ Combination of above | Varies | Varies | Many real-world packages |\n\n**Decision\
+    \ Rule:** Ask the user if unclear. A package can combine types (e.g., SDK with\
+    \ a CLI\nentry point) \u2014 use the primary type for structural decisions and\
+    \ add secondary type patterns on top.\n\nFor implementation patterns of each type,\
+    \ see `references/library-patterns.md`.\n\n### Package Naming Rules\n\n- PyPI\
+    \ name: all lowercase, hyphens \u2014 `my-python-library`\n- Python import name:\
+    \ underscores \u2014 `my_python_library`\n- Check availability: https://pypi.org/search/\
+    \ before starting\n- Avoid shadowing popular packages (verify `pip install <name>`\
+    \ fails first)\n\n---\n\n## 3. Folder Structure Decision\n\n### Decision Tree\n\
+    \n```\nDoes the package have 5+ internal modules OR multiple contributors OR complex\
+    \ sub-packages?\n\u251C\u2500\u2500 YES \u2192 Use src/ layout\n\u2502       \
+    \  Reason: prevents accidental import of uninstalled code during development;\n\
+    \u2502         separates source from project root files; PyPA-recommended for\
+    \ large projects.\n\u2502\n\u251C\u2500\u2500 NO \u2192 Is it a single-module,\
+    \ focused package (e.g., one file + helpers)?\n\u2502         \u251C\u2500\u2500\
+    \ YES \u2192 Use flat layout\n\u2502         \u2514\u2500\u2500 NO (medium complexity)\
+    \ \u2192 Use flat layout, migrate to src/ if it grows\n\u2502\n\u2514\u2500\u2500\
+    \ Is it multiple related packages under one namespace (e.g., myorg.http, myorg.db)?\n\
+    \          \u2514\u2500\u2500 YES \u2192 Use namespace/monorepo layout\n```\n\n\
+    ### Quick Rule Summary\n\n| Situation | Use |\n|---|---|\n| New project, unknown\
+    \ future size | `src/` layout (safest default) |\n| Single-purpose, 1\u20134 modules\
+    \ | Flat layout |\n| Large library, many contributors | `src/` layout |\n| Multiple\
+    \ packages in one repo | Namespace / monorepo |\n| Migrating old flat project\
+    \ | Keep flat; migrate to `src/` at next major version |\n\n---\n\n## 4. Build\
+    \ Backend Decision\n\n### Decision Tree\n\n```\nDoes the user need version derived\
+    \ automatically from git tags?\n\u251C\u2500\u2500 YES \u2192 Use setuptools +\
+    \ setuptools_scm\n\u2502         (git tag v1.0.0 \u2192 that IS your release workflow)\n\
+    \u2502\n\u2514\u2500\u2500 NO \u2192 Does the user want an all-in-one tool (deps\
+    \ + build + publish)?\n          \u251C\u2500\u2500 YES \u2192 Use poetry (v2+\
+    \ supports standard [project] table)\n          \u2502\n          \u2514\u2500\
+    \u2500 NO \u2192 Is the package pure Python with no C extensions?\n          \
+    \          \u251C\u2500\u2500 YES, minimal config preferred \u2192 Use flit\n\
+    \                    \u2502   (zero config, auto-discovers version from __version__)\n\
+    \                    \u2502\n                    \u2514\u2500\u2500 YES, modern\
+    \ & fast preferred \u2192 Use hatchling\n                        (zero-config,\
+    \ plugin system, no setup.py needed)\n\nDoes the package have C/Cython/Fortran\
+    \ extensions?\n\u2514\u2500\u2500 YES \u2192 MUST use setuptools (only backend\
+    \ with full native extension support)\n```\n\n### Backend Comparison\n\n| Backend\
+    \ | Version source | Config | C extensions | Best for |\n|---|---|---|---|---|\n\
+    | `setuptools` + `setuptools_scm` | git tags (automatic) | `pyproject.toml` +\
+    \ optional `setup.py` shim | Yes | Projects with git-tag releases; any complexity\
+    \ |\n| `hatchling` | manual or plugin | `pyproject.toml` only | No | New pure-Python\
+    \ projects; fast, modern |\n| `flit` | `__version__` in `__init__.py` | `pyproject.toml`\
+    \ only | No | Very simple, single-module packages |\n| `poetry` | `pyproject.toml`\
+    \ field | `pyproject.toml` only | No | Teams wanting integrated dep management\
+    \ |\n\nFor all four complete `pyproject.toml` templates, see `references/pyproject-toml.md`.\n\
+    \n---\n\n## 5. PyPA Packaging Flow\n\nThis is the canonical end-to-end flow from\
+    \ source code to user install.\n**Every step must be understood before publishing.**\n\
+    \n```\n1. SOURCE TREE\n   Your code in version control (git)\n   \u2514\u2500\u2500\
+    \ pyproject.toml describes metadata + build system\n\n2. BUILD\n   python -m build\n\
+    \   \u2514\u2500\u2500 Produces two artifacts in dist/:\n       \u251C\u2500\u2500\
+    \ *.tar.gz   \u2192 source distribution (sdist)\n       \u2514\u2500\u2500 *.whl\
+    \      \u2192 built distribution (wheel) \u2014 preferred by pip\n\n3. VALIDATE\n\
+    \   twine check dist/*\n   \u2514\u2500\u2500 Checks metadata, README rendering,\
+    \ and PyPI compatibility\n\n4. TEST PUBLISH (first release only)\n   twine upload\
+    \ --repository testpypi dist/*\n   \u2514\u2500\u2500 Verify: pip install --index-url\
+    \ https://test.pypi.org/simple/ your-package\n\n5. PUBLISH\n   twine upload dist/*\
+    \          \u2190 manual fallback\n   OR GitHub Actions publish.yml  \u2190 recommended\
+    \ (Trusted Publishing / OIDC)\n\n6. USER INSTALL\n   pip install your-package\n\
+    \   pip install \"your-package[extra]\"\n```\n\n### Key PyPA Concepts\n\n| Concept\
+    \ | What it means |\n|---|---|\n| **sdist** | Source distribution \u2014 your\
+    \ source + metadata; used when no wheel is available |\n| **wheel (.whl)** | Pre-built\
+    \ binary \u2014 pip extracts directly into site-packages; no build step |\n| **PEP\
+    \ 517/518** | Standard build system interface via `pyproject.toml [build-system]`\
+    \ table |\n| **PEP 621** | Standard `[project]` table in `pyproject.toml`; all\
+    \ modern backends support it |\n| **PEP 639** | `license` key as SPDX string (e.g.,\
+    \ `\"MIT\"`, `\"Apache-2.0\"`) \u2014 not `{text = \"MIT\"}` |\n| **PEP 561**\
+    \ | `py.typed` empty marker file \u2014 tells mypy/IDEs this package ships type\
+    \ information |\n\nFor complete CI workflow and publishing setup, see `references/ci-publishing.md`.\n\
+    \n---\n\n## 6. Project Structure Templates\n\n### A. src/ Layout (Recommended\
+    \ default for new projects)\n\n```\nyour-package/\n\u251C\u2500\u2500 src/\n\u2502\
+    \   \u2514\u2500\u2500 your_package/\n\u2502       \u251C\u2500\u2500 __init__.py\
+    \           # Public API: __all__, __version__\n\u2502       \u251C\u2500\u2500\
+    \ py.typed              # PEP 561 marker \u2014 EMPTY FILE\n\u2502       \u251C\
+    \u2500\u2500 core.py               # Primary implementation\n\u2502       \u251C\
+    \u2500\u2500 client.py             # (API client type) or remove\n\u2502     \
+    \  \u251C\u2500\u2500 cli.py                # (CLI type) click/typer commands,\
+    \ or remove\n\u2502       \u251C\u2500\u2500 config.py             # Settings\
+    \ / configuration dataclass\n\u2502       \u251C\u2500\u2500 exceptions.py   \
+    \      # Custom exception hierarchy\n\u2502       \u251C\u2500\u2500 models.py\
+    \             # Data classes, Pydantic models, TypedDicts\n\u2502       \u251C\
+    \u2500\u2500 utils.py              # Internal helpers (prefix _utils if private)\n\
+    \u2502       \u251C\u2500\u2500 types.py              # Shared type aliases and\
+    \ TypeVars\n\u2502       \u2514\u2500\u2500 backends/             # (Plugin pattern)\
+    \ \u2014 remove if not needed\n\u2502           \u251C\u2500\u2500 __init__.py\
+    \       # Protocol / ABC interface definition\n\u2502           \u251C\u2500\u2500\
+    \ memory.py         # Default zero-dep implementation\n\u2502           \u2514\
+    \u2500\u2500 redis.py          # Optional heavy implementation\n\u251C\u2500\u2500\
+    \ tests/\n\u2502   \u251C\u2500\u2500 __init__.py\n\u2502   \u251C\u2500\u2500\
+    \ conftest.py               # Shared fixtures\n\u2502   \u251C\u2500\u2500 unit/\n\
+    \u2502   \u2502   \u251C\u2500\u2500 __init__.py\n\u2502   \u2502   \u251C\u2500\
+    \u2500 test_core.py\n\u2502   \u2502   \u251C\u2500\u2500 test_config.py\n\u2502\
+    \   \u2502   \u2514\u2500\u2500 test_models.py\n\u2502   \u251C\u2500\u2500 integration/\n\
+    \u2502   \u2502   \u251C\u2500\u2500 __init__.py\n\u2502   \u2502   \u2514\u2500\
+    \u2500 test_backends.py\n\u2502   \u2514\u2500\u2500 e2e/                    \
+    \  # Optional: end-to-end tests\n\u2502       \u2514\u2500\u2500 __init__.py\n\
+    \u251C\u2500\u2500 docs/                         # Optional: mkdocs or sphinx\n\
+    \u251C\u2500\u2500 scripts/\n\u2502   \u2514\u2500\u2500 scaffold.py\n\u251C\u2500\
+    \u2500 .github/\n\u2502   \u251C\u2500\u2500 workflows/\n\u2502   \u2502   \u251C\
+    \u2500\u2500 ci.yml\n\u2502   \u2502   \u2514\u2500\u2500 publish.yml\n\u2502\
+    \   \u2514\u2500\u2500 ISSUE_TEMPLATE/\n\u2502       \u251C\u2500\u2500 bug_report.md\n\
+    \u2502       \u2514\u2500\u2500 feature_request.md\n\u251C\u2500\u2500 .pre-commit-config.yaml\n\
+    \u251C\u2500\u2500 pyproject.toml\n\u251C\u2500\u2500 CHANGELOG.md\n\u251C\u2500\
+    \u2500 CONTRIBUTING.md\n\u251C\u2500\u2500 SECURITY.md\n\u251C\u2500\u2500 LICENSE\n\
+    \u251C\u2500\u2500 README.md\n\u2514\u2500\u2500 .gitignore\n```\n\n### B. Flat\
+    \ Layout (Small / focused packages)\n\n```\nyour-package/\n\u251C\u2500\u2500\
+    \ your_package/         # \u2190 at root, not inside src/\n\u2502   \u251C\u2500\
+    \u2500 __init__.py\n\u2502   \u251C\u2500\u2500 py.typed\n\u2502   \u2514\u2500\
+    \u2500 ... (same internal structure)\n\u251C\u2500\u2500 tests/\n\u2514\u2500\u2500\
+    \ ... (same top-level files)\n```\n\n### C. Namespace / Monorepo Layout (Multiple\
+    \ related packages)\n\n```\nyour-org/\n\u251C\u2500\u2500 packages/\n\u2502  \
+    \ \u251C\u2500\u2500 your-org-core/\n\u2502   \u2502   \u251C\u2500\u2500 src/your_org/core/\n\
+    \u2502   \u2502   \u2514\u2500\u2500 pyproject.toml\n\u2502   \u251C\u2500\u2500\
+    \ your-org-http/\n\u2502   \u2502   \u251C\u2500\u2500 src/your_org/http/\n\u2502\
+    \   \u2502   \u2514\u2500\u2500 pyproject.toml\n\u2502   \u2514\u2500\u2500 your-org-cli/\n\
+    \u2502       \u251C\u2500\u2500 src/your_org/cli/\n\u2502       \u2514\u2500\u2500\
+    \ pyproject.toml\n\u251C\u2500\u2500 .github/workflows/\n\u2514\u2500\u2500 README.md\n\
+    ```\n\nEach sub-package has its own `pyproject.toml`. They share the `your_org`\
+    \ namespace via PEP 420\nimplicit namespace packages (no `__init__.py` in the\
+    \ namespace root).\n\n### Internal Module Guidelines\n\n| File | Purpose | When\
+    \ to include |\n|---|---|---|\n| `__init__.py` | Public API surface; re-exports;\
+    \ `__version__` | Always |\n| `py.typed` | PEP 561 typed-package marker (empty)\
+    \ | Always |\n| `core.py` | Primary class / main logic | Always |\n| `config.py`\
+    \ | Settings dataclass or Pydantic model | When configurable |\n| `exceptions.py`\
+    \ | Exception hierarchy (`YourBaseError` \u2192 specifics) | Always |\n| `models.py`\
+    \ | Data models / DTOs / TypedDicts | When data-heavy |\n| `utils.py` | Internal\
+    \ helpers (not part of public API) | As needed |\n| `types.py` | Shared `TypeVar`,\
+    \ `TypeAlias`, `Protocol` definitions | When complex typing |\n| `cli.py` | CLI\
+    \ entry points (click/typer) | CLI type only |\n| `backends/` | Plugin/strategy\
+    \ pattern | When swappable implementations |\n| `_compat.py` | Python version\
+    \ compatibility shims | When 3.9\u20133.13 compat needed |\n\n---\n\n## 7. Versioning\
+    \ Strategy\n\n### PEP 440 \u2014 The Standard\n\n```\nCanonical form:  N[.N]+[{a|b|rc}N][.postN][.devN]\n\
+    \nExamples:\n  1.0.0          Stable release\n  1.0.0a1        Alpha (pre-release)\n\
+    \  1.0.0b2        Beta\n  1.0.0rc1       Release candidate\n  1.0.0.post1    Post-release\
+    \ (e.g., packaging fix only)\n  1.0.0.dev1     Development snapshot (not for PyPI)\n\
+    ```\n\n### Semantic Versioning (recommended)\n\n```\nMAJOR.MINOR.PATCH\n\nMAJOR:\
+    \ Breaking API change (remove/rename public function/class/arg)\nMINOR: New feature,\
+    \ fully backward-compatible\nPATCH: Bug fix, no API change\n```\n\n### Dynamic\
+    \ versioning with setuptools_scm (recommended for git-tag workflows)\n\n```bash\n\
+    # How it works:\ngit tag v1.0.0          \u2192  installed version = 1.0.0\ngit\
+    \ tag v1.1.0          \u2192  installed version = 1.1.0\n(commits after tag) \
+    \    \u2192  version = 1.1.0.post1  (suffix stripped for PyPI)\n\n# In code \u2014\
+    \ NEVER hardcode when using setuptools_scm:\nfrom importlib.metadata import version,\
+    \ PackageNotFoundError\ntry:\n    __version__ = version(\"your-package\")\nexcept\
+    \ PackageNotFoundError:\n    __version__ = \"0.0.0-dev\"    # Fallback for uninstalled\
+    \ dev checkouts\n```\n\nRequired `pyproject.toml` config:\n```toml\n[tool.setuptools_scm]\n\
+    version_scheme = \"post-release\"\nlocal_scheme   = \"no-local-version\"   # Prevents\
+    \ +g<hash> from breaking PyPI uploads\n```\n\n**Critical:** always set `fetch-depth:\
+    \ 0` in every CI checkout step. Without full git history,\n`setuptools_scm` cannot\
+    \ find tags and the build version silently falls back to `0.0.0+dev`.\n\n### Static\
+    \ versioning (flit, hatchling manual, poetry)\n\n```python\n# your_package/__init__.py\n\
+    __version__ = \"1.0.0\"    # Update this before every release\n```\n\n### Version\
+    \ specifier best practices for dependencies\n\n```toml\n# In [project] dependencies:\n\
+    \"httpx>=0.24\"            # Minimum version \u2014 PREFERRED for libraries\n\"\
+    httpx>=0.24,<1.0\"       # Upper bound only when a known breaking change exists\n\
+    \"httpx==0.27.0\"          # Pin exactly ONLY in applications, NOT libraries\n\
+    \n# NEVER do this in a library \u2014 it breaks dependency resolution for users:\n\
+    # \"httpx~=0.24.0\"        # Too tight\n# \"httpx==0.27.*\"        # Fragile\n\
+    ```\n\n### Version bump \u2192 release flow\n\n```bash\n# 1. Update CHANGELOG.md\
+    \ \u2014 move [Unreleased] entries to [x.y.z] - YYYY-MM-DD\n# 2. Commit the changelog\n\
+    git add CHANGELOG.md\ngit commit -m \"chore: prepare release vX.Y.Z\"\n# 3. Tag\
+    \ and push \u2014 this triggers publish.yml automatically\ngit tag vX.Y.Z\ngit\
+    \ push origin main --tags\n# 4. Monitor GitHub Actions \u2192 verify on https://pypi.org/project/your-package/\n\
+    ```\n\nFor complete pyproject.toml templates for all four backends, see `references/pyproject-toml.md`.\n\
+    \n---\n\n## Where to Go Next\n\nAfter understanding decisions and structure:\n\
+    \n1. **Set up `pyproject.toml`** \u2192 `references/pyproject-toml.md`\n   All\
+    \ four backend templates (setuptools+scm, hatchling, flit, poetry), full tool\
+    \ configs,\n   `py.typed` setup, versioning config.\n\n2. **Write your library\
+    \ code** \u2192 `references/library-patterns.md`\n   OOP/SOLID principles, type\
+    \ hints (PEP 484/526/544/561), core class design, factory functions,\n   `__init__.py`,\
+    \ plugin/backend pattern, CLI entry point.\n\n3. **Add tests and code quality**\
+    \ \u2192 `references/testing-quality.md`\n   `conftest.py`, unit/backend/async\
+    \ tests, parametrize, ruff/mypy/pre-commit setup.\n\n4. **Set up CI/CD and publish**\
+    \ \u2192 `references/ci-publishing.md`\n   `ci.yml`, `publish.yml` with Trusted\
+    \ Publishing (OIDC, no API tokens), CHANGELOG format,\n   release checklist.\n\
+    \n5. **Polish for community/OSS** \u2192 `references/community-docs.md`\n   README\
+    \ sections, docstring format, CONTRIBUTING, SECURITY, issue templates, anti-patterns\n\
+    \   table, and master release checklist.\n\n6. **Design backends, config, transport,\
+    \ CLI** \u2192 `references/architecture-patterns.md`\n   Backend system (plugin/strategy\
+    \ pattern), Settings dataclass, HTTP transport layer,\n   CLI with click/typer,\
+    \ backend injection rules.\n\n7. **Choose and implement a versioning strategy**\
+    \ \u2192 `references/versioning-strategy.md`\n   PEP 440 canonical forms, SemVer\
+    \ rules, pre-release identifiers, setuptools_scm deep-dive,\n   flit static versioning,\
+    \ decision engine (DEFAULT/BEGINNER/MINIMAL).\n\n8. **Govern releases and secure\
+    \ the publish pipeline** \u2192 `references/release-governance.md`\n   Branch\
+    \ strategy, branch protection rules, OIDC Trusted Publishing setup, tag author\n\
+    \   validation in CI, tag format enforcement, full governed `publish.yml`.\n\n\
+    9. **Simplify tooling with Ruff** \u2192 `references/tooling-ruff.md`\n   Ruff-only\
+    \ setup replacing black/isort/flake8, mypy config, pre-commit hooks,\n   asyncio_mode=auto\
+    \ (remove @pytest.mark.asyncio), migration guide."

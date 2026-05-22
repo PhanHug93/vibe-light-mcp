@@ -1,0 +1,46 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__ai-ready
+name: ai-ready
+description: "Make any repo AI-ready \u2014 analyzes your codebase and generates AGENTS.md,\
+  \ copilot-instructions.md, CI workflows, issue templates, and more. Mines your PR\
+  \ review patterns and creates files customized to your stack. USE THIS SKILL when\
+  \ the user asks to \"make this repo ai-ready\", \"set up AI config\", or \"prepare\
+  \ this repo for AI contributions\"."
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/ai-ready/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- ai-ready
+content:
+  kind: skill_markdown
+  sha256: eafb73ade36a0c3c6280ad2e87d1a87a286a26e65f26f7fa90c0815ced2dfaa4
+  char_count: 1453
+  text: "# AI Ready\n\nThis skill helps the user install the latest [ai-ready](https://github.com/johnpapa/ai-ready)\
+    \ skill by [John Papa](https://github.com/johnpapa).\n\n*Why?*: The full ai-ready\
+    \ skill is ~600 lines of detailed instructions that evolve frequently. This wrapper\
+    \ keeps it discoverable here while the source of truth stays in [johnpapa/ai-ready](https://github.com/johnpapa/ai-ready)\
+    \ \u2014 always up to date.\n\n## Steps\n\n1. Tell the user to add the skill by\
+    \ running this command inside Copilot CLI:\n\n   ```\n   /skills add johnpapa/ai-ready\n\
+    \   ```\n\n   This downloads the latest version of the skill to their personal\
+    \ skills directory. Re-running the command updates to the latest version.\n\n\
+    2. Remind the user to review the skill before loading it. They can inspect it\
+    \ with:\n   ```bash\n   head -20 ~/.copilot/skills/ai-ready/SKILL.md\n   ```\n\
+    3. After the user confirms they've reviewed and installed it, tell them to reload\
+    \ skills with `/skills reload` and then say `make this repo ai-ready`.\n4. Do\
+    \ **not** run the command on the user's behalf. The user must run it themselves."

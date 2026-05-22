@@ -1,0 +1,148 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__legacy-circuit-mockups
+name: legacy-circuit-mockups
+description: Generate breadboard circuit mockups and visual diagrams using HTML5 Canvas
+  drawing techniques. Use when asked to create circuit layouts, visualize electronic
+  component placements, draw breadboard diagrams, mockup 6502 builds, generate retro
+  computer schematics, or design vintage electronics projects. Supports 555 timers,
+  W65C02S microprocessors, 28C256 EEPROMs, W65C22 VIA chips, 7400-series logic gates,
+  LEDs, resistors, capacitors, switches, buttons, crystals, and wires.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/legacy-circuit-mockups/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- legacy-circuit-mockups
+content:
+  kind: skill_markdown
+  sha256: 2087521d62e0f99d15db3a73389d0d8bcdf45b4913f3fcfc7ef2657eae6df4de
+  char_count: 9214
+  text: "# Legacy Circuit Mockups\n\nA skill for creating breadboard circuit mockups\
+    \ and visual diagrams for retro computing and electronics projects. This skill\
+    \ leverages HTML5 Canvas drawing mechanisms to render interactive circuit layouts\
+    \ featuring vintage components like the 6502 microprocessor, 555 timer ICs, EEPROMs,\
+    \ and 7400-series logic gates.\n\n## When to Use This Skill\n\n- User asks to\
+    \ \"create a breadboard layout\" or \"mockup a circuit\"\n- User wants to visualize\
+    \ component placement on a breadboard\n- User needs a visual reference for building\
+    \ a 6502 computer\n- User asks to \"draw a circuit\" or \"diagram electronics\"\
+    \n- User wants to create educational electronics visuals\n- User mentions Ben\
+    \ Eater tutorials or retro computing projects\n- User asks to mockup 555 timer\
+    \ circuits or LED projects\n- User needs to visualize wire connections between\
+    \ components\n\n## Prerequisites\n\n- Understanding of component pinouts from\
+    \ bundled reference files\n- Knowledge of breadboard layout conventions (rows,\
+    \ columns, power rails)\n\n## Supported Components\n\n### Microprocessors & Memory\n\
+    \n| Component | Pins | Description |\n|-----------|------|-------------|\n| W65C02S\
+    \ | 40-pin DIP | 8-bit microprocessor with 16-bit address bus |\n| 28C256 | 28-pin\
+    \ DIP | 32KB parallel EEPROM |\n| W65C22 | 40-pin DIP | Versatile Interface Adapter\
+    \ (VIA) |\n| 62256 | 28-pin DIP | 32KB static RAM |\n\n### Logic & Timer ICs\n\
+    \n| Component | Pins | Description |\n|-----------|------|-------------|\n| NE555\
+    \ | 8-pin DIP | Timer IC for timing and oscillation |\n| 7400 | 14-pin DIP | Quad\
+    \ 2-input NAND gate |\n| 7402 | 14-pin DIP | Quad 2-input NOR gate |\n| 7404 |\
+    \ 14-pin DIP | Hex inverter (NOT gate) |\n| 7408 | 14-pin DIP | Quad 2-input AND\
+    \ gate |\n| 7432 | 14-pin DIP | Quad 2-input OR gate |\n\n### Passive & Active\
+    \ Components\n\n| Component | Description |\n|-----------|-------------|\n| LED\
+    \ | Light emitting diode (various colors) |\n| Resistor | Current limiting (configurable\
+    \ values) |\n| Capacitor | Filtering and timing (ceramic/electrolytic) |\n| Crystal\
+    \ | Clock oscillator |\n| Switch | Toggle switch (latching) |\n| Button | Momentary\
+    \ push button |\n| Potentiometer | Variable resistor |\n| Photoresistor | Light-dependent\
+    \ resistor |\n\n### Grid System\n\n```javascript\n// Standard breadboard grid:\
+    \ 20px spacing\nconst gridSize = 20;\nconst cellX = Math.floor(x / gridSize) *\
+    \ gridSize;\nconst cellY = Math.floor(y / gridSize) * gridSize;\n```\n\n### Component\
+    \ Rendering Pattern\n\n```javascript\n// All components follow this structure:\n\
+    {\n  type: 'component-type',\n  x: gridX,\n  y: gridY,\n  width: componentWidth,\n\
+    \  height: componentHeight,\n  rotation: 0,  // 0, 90, 180, 270\n  properties:\
+    \ { /* component-specific data */ }\n}\n```\n\n### Wire Connections\n\n```javascript\n\
+    // Wire connection format:\n{\n  start: { x: startX, y: startY },\n  end: { x:\
+    \ endX, y: endY },\n  color: '#ff0000'  // Wire color coding\n}\n```\n\n## Step-by-Step\
+    \ Workflows\n\n### Creating a Basic LED Circuit Mockup\n\n1. Define breadboard\
+    \ dimensions and grid\n2. Place power rail connections (+5V and GND)\n3. Add LED\
+    \ component with anode/cathode orientation\n4. Place current-limiting resistor\n\
+    5. Draw wire connections between components\n6. Add labels and annotations\n\n\
+    ### Creating a 555 Timer Circuit\n\n1. Place NE555 IC on breadboard (pins 1-4\
+    \ left, 5-8 right)\n2. Connect pin 1 (GND) to ground rail\n3. Connect pin 8 (Vcc)\
+    \ to power rail\n4. Add timing resistors and capacitors\n5. Wire trigger and threshold\
+    \ connections\n6. Connect output to LED or other load\n\n### Creating a 6502 Microprocessor\
+    \ Layout\n\n1. Place W65C02S centered on breadboard\n2. Add 28C256 EEPROM for\
+    \ program storage\n3. Place W65C22 VIA for I/O\n4. Add 7400-series logic for address\
+    \ decoding\n5. Wire address bus (A0-A15)\n6. Wire data bus (D0-D7)\n7. Connect\
+    \ control signals (R/W, PHI2, RESB)\n8. Add reset button and clock crystal\n\n\
+    ## Component Pinout Quick Reference\n\n### 555 Timer (8-pin DIP)\n\n| Pin | Name\
+    \ | Function |\n|:---:|:-----|:---------|\n| 1 | GND | Ground (0V) |\n| 2 | TRIG\
+    \ | Trigger (< 1/3 Vcc starts timing) |\n| 3 | OUT | Output (source/sink 200mA)\
+    \ |\n| 4 | RESET | Active-low reset |\n| 5 | CTRL | Control voltage (bypass with\
+    \ 10nF) |\n| 6 | THR | Threshold (> 2/3 Vcc resets) |\n| 7 | DIS | Discharge (open\
+    \ collector) |\n| 8 | Vcc | Supply (+4.5V to +16V) |\n\n### W65C02S (40-pin DIP)\
+    \ - Key Pins\n\n| Pin | Name | Function |\n|:---:|:-----|:---------|\n| 8 | VDD\
+    \ | Power supply |\n| 21 | VSS | Ground |\n| 37 | PHI2 | System clock input |\n\
+    | 40 | RESB | Active-low reset |\n| 34 | RWB | Read/Write signal |\n| 9-25 | A0-A15\
+    \ | Address bus |\n| 26-33 | D0-D7 | Data bus |\n\n### 28C256 EEPROM (28-pin DIP)\
+    \ - Key Pins\n\n| Pin | Name | Function |\n|:---:|:-----|:---------|\n| 14 | GND\
+    \ | Ground |\n| 28 | VCC | Power supply |\n| 20 | CE | Chip enable (active-low)\
+    \ |\n| 22 | OE | Output enable (active-low) |\n| 27 | WE | Write enable (active-low)\
+    \ |\n| 1-10, 21-26 | A0-A14 | Address inputs |\n| 11-19 | I/O0-I/O7 | Data bus\
+    \ |\n\n## Formulas Reference\n\n### Resistor Calculations\n\n- **Ohm's Law:**\
+    \ V = I \xD7 R\n- **LED Current:** R = (Vcc - Vled) / Iled\n- **Power:** P = V\
+    \ \xD7 I = I\xB2 \xD7 R\n\n### 555 Timer Formulas\n\n**Astable Mode:**\n\n- Frequency:\
+    \ f = 1.44 / ((R1 + 2\xD7R2) \xD7 C)\n- High time: t\u2081 = 0.693 \xD7 (R1 +\
+    \ R2) \xD7 C\n- Low time: t\u2082 = 0.693 \xD7 R2 \xD7 C\n- Duty cycle: D = (R1\
+    \ + R2) / (R1 + 2\xD7R2) \xD7 100%\n\n**Monostable Mode:**\n\n- Pulse width: T\
+    \ = 1.1 \xD7 R \xD7 C\n\n### Capacitor Calculations\n\n- Capacitive reactance:\
+    \ Xc = 1 / (2\u03C0fC)\n- Energy stored: E = \xBD \xD7 C \xD7 V\xB2\n\n## Color\
+    \ Coding Conventions\n\n### Wire Colors\n\n| Color | Purpose |\n|-------|---------|\n\
+    | Red | +5V / Power |\n| Black | Ground |\n| Yellow | Clock / Timing |\n| Blue\
+    \ | Address bus |\n| Green | Data bus |\n| Orange | Control signals |\n| White\
+    \ | General purpose |\n\n### LED Colors\n\n| Color | Forward Voltage |\n|-------|-----------------|\n\
+    | Red | 1.8V - 2.2V |\n| Green | 2.0V - 2.2V |\n| Yellow | 2.0V - 2.2V |\n| Blue\
+    \ | 3.0V - 3.5V |\n| White | 3.0V - 3.5V |\n\n## Build Examples\n\n### Build 1\
+    \ \u2014 Single LED\n\n**Components:** Red LED, 220\u03A9 resistor, jumper wires,\
+    \ power source\n\n**Steps:**\n\n1. Insert black jumper wire from power GND to\
+    \ row A5\n2. Insert red jumper wire from power +5V to row J5\n3. Place LED with\
+    \ cathode (short leg) in row aligned with GND\n4. Place 220\u03A9 resistor between\
+    \ power and LED anode\n\n### Build 2 \u2014 555 Astable Blinker\n\n**Components:**\
+    \ NE555, LED, resistors (10k\u03A9, 100k\u03A9), capacitor (10\xB5F)\n\n**Steps:**\n\
+    \n1. Place 555 IC straddling center channel\n2. Connect pin 1 to GND, pin 8 to\
+    \ +5V\n3. Connect pin 4 to pin 8 (disable reset)\n4. Wire 10k\u03A9 between pin\
+    \ 7 and +5V\n5. Wire 100k\u03A9 between pins 6 and 7\n6. Wire 10\xB5F between\
+    \ pin 6 and GND\n7. Connect pin 3 (output) to LED circuit\n\n## Troubleshooting\n\
+    \n| Issue | Solution |\n|-------|----------|\n| LED doesn't light | Check polarity\
+    \ (anode to +, cathode to -) |\n| Circuit doesn't power | Verify power rail connections\
+    \ |\n| IC not working | Check VCC and GND pin connections |\n| 555 not oscillating\
+    \ | Verify threshold/trigger capacitor wiring |\n| Microprocessor stuck | Check\
+    \ RESB is HIGH after reset pulse |\n\n## References\n\nDetailed component specifications\
+    \ are available in the bundled reference files:\n\n- [555.md](references/555.md)\
+    \ - Complete 555 timer IC specification\n- [6502.md](references/6502.md) - MOS\
+    \ 6502 microprocessor details\n- [6522.md](references/6522.md) - W65C22 VIA interface\
+    \ adapter\n- [28256-eeprom.md](references/28256-eeprom.md) - AT28C256 EEPROM specification\n\
+    - [6C62256.md](references/6C62256.md) - 62256 SRAM details\n- [7400-series.md](references/7400-series.md)\
+    \ - TTL logic gate pinouts\n- [assembly-compiler.md](references/assembly-compiler.md)\
+    \ - Assembly compiler specification\n- [assembly-language.md](references/assembly-language.md)\
+    \ - Assembly language specification\n- [basic-electronic-components.md](references/basic-electronic-components.md)\
+    \ - Resistors, capacitors, switches\n- [breadboard.md](references/breadboard.md)\
+    \ - Breadboard specifications\n- [common-breadboard-components.md](references/common-breadboard-components.md)\
+    \ - Comprehensive component reference\n- [connecting-electronic-components.md](references/connecting-electronic-components.md)\
+    \ - Step-by-step build guides\n- [emulator-28256-eeprom.md](references/emulator-28256-eeprom.md)\
+    \ - Emulating 28256-eeprom specification\n- [emulator-6502.md](references/emulator-6502.md)\
+    \ - Emulating 6502 specification\n- [emulator-6522.md](references/emulator-6522.md)\
+    \ - Emulating 6522 specification\n- [emulator-6C62256.md](references/emulator-6C62256.md)\
+    \ - Emulating 6C62256 specification\n- [emulator-lcd.md](references/emulator-lcd.md)\
+    \ - Emulating a LCD specification\n- [lcd.md](references/lcd.md) - LCD display\
+    \ interfacing\n- [minipro.md](references/minipro.md) - EEPROM programmer usage\n\
+    - [t48eeprom-programmer.md](references/t48eeprom-programmer.md) - T48 programmer\
+    \ reference"

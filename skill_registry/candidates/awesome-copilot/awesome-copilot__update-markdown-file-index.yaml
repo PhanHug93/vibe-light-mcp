@@ -1,0 +1,62 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__update-markdown-file-index
+name: update-markdown-file-index
+description: Update a markdown file section with an index/table of files from a specified
+  folder.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/update-markdown-file-index/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- update-markdown-file-index
+content:
+  kind: skill_markdown
+  sha256: d1abb1eb4685fc941376f29a6ef309c07bc4aea02b8d88c065ef81e2b8065707
+  char_count: 2652
+  text: "# Update Markdown File Index\n\nUpdate markdown file `${file}` with an index/table\
+    \ of files from folder `${input:folder}`.\n\n## Process\n\n1. **Scan**: Read the\
+    \ target markdown file `${file}` to understand existing structure\n2. **Discover**:\
+    \ List all files in the specified folder `${input:folder}` matching pattern `${input:pattern}`\n\
+    3. **Analyze**: Identify if an existing table/index section exists to update,\
+    \ or create new structure\n4. **Structure**: Generate appropriate table/list format\
+    \ based on file types and existing content\n5. **Update**: Replace existing section\
+    \ or add new section with file index\n6. **Validate**: Ensure markdown syntax\
+    \ is valid and formatting is consistent\n\n## File Analysis\n\nFor each discovered\
+    \ file, extract:\n\n- **Name**: Filename with or without extension based on context\n\
+    - **Type**: File extension and category (e.g., `.md`, `.js`, `.py`)\n- **Description**:\
+    \ First line comment, header, or inferred purpose\n- **Size**: File size for reference\
+    \ (optional)\n- **Modified**: Last modified date (optional)\n\n## Table Structure\
+    \ Options\n\nChoose format based on file types and existing content:\n\n### Option\
+    \ 1: Simple List\n\n```markdown\n## Files in ${folder}\n\n- [filename.ext](path/to/filename.ext)\
+    \ - Description\n- [filename2.ext](path/to/filename2.ext) - Description\n```\n\
+    \n### Option 2: Detailed Table\n\n| File | Type | Description |\n|------|------|-------------|\n\
+    | [filename.ext](path/to/filename.ext) | Extension | Description |\n| [filename2.ext](path/to/filename2.ext)\
+    \ | Extension | Description |\n\n### Option 3: Categorized Sections\n\nGroup files\
+    \ by type/category with separate sections or sub-tables.\n\n## Update Strategy\n\
+    \n- \U0001F504 **Update existing**: If table/index section exists, replace content\
+    \ while preserving structure\n- \u2795 **Add new**: If no existing section, create\
+    \ new section using best-fit format\n- \U0001F4CB **Preserve**: Maintain existing\
+    \ markdown formatting, heading levels, and document flow\n- \U0001F517 **Links**:\
+    \ Use relative paths for file links within the repository\n\n## Section Identification\n\
+    \nLook for existing sections with these patterns:\n\n- Headings containing: \"\
+    index\", \"files\", \"contents\", \"directory\", \"list\"\n- Tables with file-related\
+    \ columns\n- Lists with file links\n- HTML comments marking file index sections\n\
+    \n## Requirements\n\n- Preserve existing markdown structure and formatting\n-\
+    \ Use relative paths for file links\n- Include file descriptions when available\n\
+    - Sort files alphabetically by default\n- Handle special characters in filenames\n\
+    - Validate all generated markdown syntax"

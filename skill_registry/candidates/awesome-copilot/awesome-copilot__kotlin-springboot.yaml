@@ -1,0 +1,84 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__kotlin-springboot
+name: kotlin-springboot
+description: Get best practices for developing applications with Spring Boot and Kotlin.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/kotlin-springboot/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- kotlin-springboot
+content:
+  kind: skill_markdown
+  sha256: 0ddd1ab19b608348a3728443160cc7a3a7feaa61ed1ae7cc812cdcd62b574ca2
+  char_count: 4406
+  text: "# Spring Boot with Kotlin Best Practices\n\nYour goal is to help me write\
+    \ high-quality, idiomatic Spring Boot applications using Kotlin.\n\n## Project\
+    \ Setup & Structure\n\n- **Build Tool:** Use Maven (`pom.xml`) or Gradle (`build.gradle`)\
+    \ with the Kotlin plugins (`kotlin-maven-plugin` or `org.jetbrains.kotlin.jvm`).\n\
+    - **Kotlin Plugins:** For JPA, enable the `kotlin-jpa` plugin to automatically\
+    \ make entity classes `open` without boilerplate.\n- **Starters:** Use Spring\
+    \ Boot starters (e.g., `spring-boot-starter-web`, `spring-boot-starter-data-jpa`)\
+    \ as usual.\n- **Package Structure:** Organize code by feature/domain (e.g., `com.example.app.order`,\
+    \ `com.example.app.user`) rather than by layer.\n\n## Dependency Injection & Components\n\
+    \n- **Primary Constructors:** Always use the primary constructor for required\
+    \ dependency injection. It's the most idiomatic and concise approach in Kotlin.\n\
+    - **Immutability:** Declare dependencies as `private val` in the primary constructor.\
+    \ Prefer `val` over `var` everywhere to promote immutability.\n- **Component Stereotypes:**\
+    \ Use `@Service`, `@Repository`, and `@RestController` annotations just as you\
+    \ would in Java.\n\n## Configuration\n\n- **Externalized Configuration:** Use\
+    \ `application.yml` for its readability and hierarchical structure.\n- **Type-Safe\
+    \ Properties:** Use `@ConfigurationProperties` with `data class` to create immutable,\
+    \ type-safe configuration objects.\n- **Profiles:** Use Spring Profiles (`application-dev.yml`,\
+    \ `application-prod.yml`) to manage environment-specific configurations.\n- **Secrets\
+    \ Management:** Never hardcode secrets. Use environment variables or a dedicated\
+    \ secret management tool like HashiCorp Vault or AWS Secrets Manager.\n\n## Web\
+    \ Layer (Controllers)\n\n- **RESTful APIs:** Design clear and consistent RESTful\
+    \ endpoints.\n- **Data Classes for DTOs:** Use Kotlin `data class` for all DTOs.\
+    \ This provides `equals()`, `hashCode()`, `toString()`, and `copy()` for free\
+    \ and promotes immutability.\n- **Validation:** Use Java Bean Validation (JSR\
+    \ 380) with annotations (`@Valid`, `@NotNull`, `@Size`) on your DTO data classes.\n\
+    - **Error Handling:** Implement a global exception handler using `@ControllerAdvice`\
+    \ and `@ExceptionHandler` for consistent error responses.\n\n## Service Layer\n\
+    \n- **Business Logic:** Encapsulate business logic within `@Service` classes.\n\
+    - **Statelessness:** Services should be stateless.\n- **Transaction Management:**\
+    \ Use `@Transactional` on service methods. In Kotlin, this can be applied to class\
+    \ or function level.\n\n## Data Layer (Repositories)\n\n- **JPA Entities:** Define\
+    \ entities as classes. Remember they must be `open`. It's highly recommended to\
+    \ use the `kotlin-jpa` compiler plugin to handle this automatically.\n- **Null\
+    \ Safety:** Leverage Kotlin's null-safety (`?`) to clearly define which entity\
+    \ fields are optional or required at the type level.\n- **Spring Data JPA:** Use\
+    \ Spring Data JPA repositories by extending `JpaRepository` or `CrudRepository`.\n\
+    - **Coroutines:** For reactive applications, leverage Spring Boot's support for\
+    \ Kotlin Coroutines in the data layer.\n\n## Logging\n\n- **Companion Object Logger:**\
+    \ The idiomatic way to declare a logger is in a companion object.\n  ```kotlin\n\
+    \  companion object {\n      private val logger = LoggerFactory.getLogger(MyClass::class.java)\n\
+    \  }\n  ```\n- **Parameterized Logging:** Use parameterized messages (`logger.info(\"\
+    Processing user {}...\", userId)`) for performance and clarity.\n\n## Testing\n\
+    \n- **JUnit 5:** JUnit 5 is the default and works seamlessly with Kotlin.\n- **Idiomatic\
+    \ Testing Libraries:** For more fluent and idiomatic tests, consider using **Kotest**\
+    \ for assertions and **MockK** for mocking. They are designed for Kotlin and offer\
+    \ a more expressive syntax.\n- **Test Slices:** Use test slice annotations like\
+    \ `@WebMvcTest` or `@DataJpaTest` to test specific parts of the application.\n\
+    - **Testcontainers:** Use Testcontainers for reliable integration tests with real\
+    \ databases, message brokers, etc.\n\n## Coroutines & Asynchronous Programming\n\
+    \n- **`suspend` functions:** For non-blocking asynchronous code, use `suspend`\
+    \ functions in your controllers and services. Spring Boot has excellent support\
+    \ for coroutines.\n- **Structured Concurrency:** Use `coroutineScope` or `supervisorScope`\
+    \ to manage the lifecycle of coroutines."

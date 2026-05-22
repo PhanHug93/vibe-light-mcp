@@ -1,0 +1,90 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__email-drafter
+name: email-drafter
+description: 'Draft and review professional emails that match your personal writing
+  style. Analyzes your sent emails for tone, greeting, structure, and sign-off patterns
+  via WorkIQ, then generates context-aware drafts for any recipient. USE FOR: draft
+  email, write email, compose email, reply email, follow-up email, analyze email tone,
+  email style.'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/email-drafter/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- email-drafter
+content:
+  kind: skill_markdown
+  sha256: c3324d26f899149e5b664a02cad9fa4b1a615d9b2ce5bb7f6dfd908c17c622e8
+  char_count: 4565
+  text: "# Email Drafter\n\nDraft professional emails that match your established\
+    \ writing style and tone. Uses WorkIQ to analyze your sent emails and prior correspondence\
+    \ with recipients, then produces context-aware drafts you can review and refine.\n\
+    \n## When to Use\n\n- \"Draft an email to [person] about [topic]\"\n- \"Write\
+    \ a follow-up email to [customer] regarding [project]\"\n- \"Reply to [person]'s\
+    \ email about [subject]\"\n- \"Compose a proposal email for [initiative]\"\n-\
+    \ \"Analyze my email tone with [recipient]\"\n\n## Workflow\n\n### Step 1 \u2014\
+    \ Gather Context\n\nBefore drafting, collect:\n\n1. **Recipient(s)** \u2014 who\
+    \ is the email for?\n2. **Purpose** \u2014 what is the email about? (proposal,\
+    \ follow-up, technical guidance, introduction, status update, etc.)\n3. **Key\
+    \ points** \u2014 what needs to be communicated?\n4. **Relationship context**\
+    \ \u2014 use WorkIQ to check prior email history with the recipient if available\n\
+    \nIf the user provides all of these upfront, proceed directly. Otherwise, ask\
+    \ clarifying questions (max 3).\n\n### Step 2 \u2014 Analyze Tone\n\nWhen drafting\
+    \ for a recipient, use WorkIQ to understand the user's established communication\
+    \ patterns:\n\n1. Pull 3\u20135 recent sent emails from the user to the same recipient\
+    \ or similar recipients\n2. Identify patterns:\n   - **Greeting style** \u2014\
+    \ formal (\"Dear\"), standard (\"Hello\"), casual (\"Hi\"), or direct (no greeting)\n\
+    \   - **Structure** \u2014 short paragraphs vs. bullet lists vs. numbered steps\n\
+    \   - **Sign-off** \u2014 what closing and name format the user typically uses\n\
+    \   - **Formality level** \u2014 professional, friendly-professional, casual\n\
+    \   - **Language** \u2014 which language the user writes in with this recipient\n\
+    3. Apply those patterns to the draft\n\nIf WorkIQ is unavailable or no prior emails\
+    \ exist, use sensible professional defaults and note that the tone was inferred.\n\
+    \n### Step 3 \u2014 Draft the Email\n\nApply the discovered (or default) style\
+    \ rules:\n\n**Greeting:**\n- Match whatever greeting style was found in Step 2\n\
+    - Default: \"Hello [FirstName],\" for external, \"Hi [FirstName],\" for internal\n\
+    - For multiple recipients: \"Hello [Name1], [Name2],\"\n\n**Tone:**\n- Direct\
+    \ and concise \u2014 no filler language\n- Friendly but professional\n- Get to\
+    \ the point quickly\n- Offer help proactively where appropriate (\"Happy to discuss\
+    \ further\", \"Let me know if you need anything\")\n\n**Structure:**\n- Short\
+    \ emails (1\u20132 points): simple paragraphs, no bullets needed\n- Longer emails\
+    \ (proposals, multi-point updates): use bullet points or numbered lists\n- Include\
+    \ context from prior conversations when relevant (\"Following our recent conversation\
+    \ about...\")\n\n**Sign-off:**\n- Match the user's established sign-off pattern\
+    \ from Step 2\n- Default: \"Best regards,\" followed by the user's first name\
+    \ on the next line\n\n**Language:**\n- Default to English unless the user specifies\
+    \ otherwise\n- Match the recipient's language if prior correspondence was in another\
+    \ language\n\n### Step 4 \u2014 Output\n\n1. Present the draft for review with\
+    \ a brief note on the tone/style applied\n2. Apply edits as the user requests\
+    \ \u2014 iterate until satisfied\n3. Save the final draft to `outputs/<year>/<month>/`\
+    \ with a descriptive filename (e.g., `2026-03-26-email-acme-followup.md`)\n\n\
+    ## Important Rules\n\n- **Never send emails** \u2014 only draft them as files\
+    \ for the user to review and send manually\n- Always check WorkIQ for prior context\
+    \ with the recipient when available\n- If the user says \"draft email\" or \"\
+    write email\", activate this skill automatically\n- Save drafts using the `outputs/<year>/<month>/`\
+    \ folder convention\n- Respect privacy: do not include sensitive information from\
+    \ unrelated email threads\n\n## Example Prompts\n\n- \"Draft an email to Sarah\
+    \ about the project timeline\"\n- \"Write a follow-up to the customer about their\
+    \ migration questions\"\n- \"Compose a proposal email for the new training initiative\"\
+    \n- \"Reply to John's email \u2014 agree with his approach but suggest we add\
+    \ monitoring\"\n- \"Analyze my email tone with the Acme team\"\n\n## Requirements\n\
+    \n- **WorkIQ MCP tool** is recommended for tone analysis and recipient context\
+    \ (Microsoft 365 / Outlook)\n- Without WorkIQ, the skill still works but uses\
+    \ professional defaults instead of personalized tone matching\n- Output is saved\
+    \ as markdown files in the workspace"

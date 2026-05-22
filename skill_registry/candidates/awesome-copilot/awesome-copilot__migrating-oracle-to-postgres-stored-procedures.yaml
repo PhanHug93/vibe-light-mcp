@@ -1,0 +1,57 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__migrating-oracle-to-postgres-stored-procedures
+name: migrating-oracle-to-postgres-stored-procedures
+description: Migrates Oracle PL/SQL stored procedures to PostgreSQL PL/pgSQL. Translates
+  Oracle-specific syntax, preserves method signatures and type-anchored parameters,
+  leverages orafce where appropriate, and applies COLLATE "C" for Oracle-compatible
+  text sorting. Use when converting Oracle stored procedures or functions to PostgreSQL
+  equivalents during a database migration.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/migrating-oracle-to-postgres-stored-procedures/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- migrating-oracle-to-postgres-stored-procedures
+content:
+  kind: skill_markdown
+  sha256: 894bd0093dbc2ee5ffb66a5edf29d8e56ff69bf2e84375490256e8577e8f76c8
+  char_count: 2302
+  text: "# Migrating Stored Procedures from Oracle to PostgreSQL\n\nTranslate Oracle\
+    \ PL/SQL stored procedures and functions to PostgreSQL PL/pgSQL equivalents.\n\
+    \n## Workflow\n\n```\nProgress:\n- [ ] Step 1: Read the Oracle source procedure\n\
+    - [ ] Step 2: Translate to PostgreSQL PL/pgSQL\n- [ ] Step 3: Write the migrated\
+    \ procedure to Postgres output directory\n```\n\n**Step 1: Read the Oracle source\
+    \ procedure**\n\nRead the Oracle stored procedure from `.github/oracle-to-postgres-migration/DDL/Oracle/Procedures\
+    \ and Functions/`. Consult the Oracle table/view definitions at `.github/oracle-to-postgres-migration/DDL/Oracle/Tables\
+    \ and Views/` for type resolution.\n\n**Step 2: Translate to PostgreSQL PL/pgSQL**\n\
+    \nApply these translation rules:\n\n- Translate all Oracle-specific syntax to\
+    \ PostgreSQL equivalents.\n- Preserve original functionality and control flow\
+    \ logic.\n- Keep type-anchored input parameters (e.g., `PARAM_NAME IN table_name.column_name%TYPE`).\n\
+    - Use explicit types (`NUMERIC`, `VARCHAR`, `INTEGER`) for output parameters passed\
+    \ to other procedures \u2014 do not type-anchor these.\n- Do not alter method\
+    \ signatures.\n- Do not prefix object names with schema names unless already present\
+    \ in the Oracle source.\n- Leave exception handling and rollback logic unchanged.\n\
+    - Do not generate `COMMENT` or `GRANT` statements.\n- Use `COLLATE \"C\"` when\
+    \ ordering by text fields for Oracle-compatible sorting.\n- Leverage the `orafce`\
+    \ extension when it improves clarity or fidelity.\n\nConsult the PostgreSQL table/view\
+    \ definitions at `.github/oracle-to-postgres-migration/DDL/Postgres/Tables and\
+    \ Views/` for target schema details.\n\n**Step 3: Write the migrated procedure\
+    \ to Postgres output directory**\n\nPlace each migrated procedure in its own file\
+    \ under `.github/oracle-to-postgres-migration/DDL/Postgres/Procedures and Functions/{PACKAGE_NAME_IF_APPLICABLE}/`.\
+    \ One procedure per file."

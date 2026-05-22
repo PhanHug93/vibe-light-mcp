@@ -1,0 +1,235 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-partnership-architecture
+name: gtm-partnership-architecture
+description: Build and scale partner ecosystems that drive revenue and platform adoption.
+  Use when building partner programs from scratch, tiering partnerships, managing
+  co-marketing, making build-vs-partner decisions, or structuring crawl-walk-run partner
+  deployment.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-partnership-architecture/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gtm-partnership-architecture
+content:
+  kind: skill_markdown
+  sha256: d7dab398f7ce5c16cb5a7026f7e9465a6cb077a7b16caf024b3b120502d924b4
+  char_count: 15825
+  text: "# Partnership Architecture\n\nBuild and scale partner ecosystems that drive\
+    \ revenue and platform adoption. These aren't theory \u2014 they're patterns from\
+    \ building partner programs that drove 8-figure ARR and observing partnerships\
+    \ with real economic commitment.\n\n## When to Use\n\n**Triggers:**\n- \"How do\
+    \ I structure a partner program?\"\n- \"Should we build this or partner for it?\"\
+    \n- \"Partner-led vs direct sales motion\"\n- \"Ecosystem strategy\"\n- \"How\
+    \ to recruit and tier partners\"\n- \"Co-marketing with partners\"\n- \"When does\
+    \ a partnership actually matter?\"\n\n**Context:**\n- Building partnership program\
+    \ from scratch (0\u21921)\n- Scaling existing program (1\u2192100)\n- Evaluating\
+    \ build vs partner decisions\n- Structuring partner deals and economics\n- Planning\
+    \ partner GTM motions\n\n---\n\n## Core Frameworks\n\n### 1. Real Partnerships\
+    \ Require Skin in the Game\n\n**The Pattern:**\n\nMost \"partnerships\" are co-marketing\
+    \ theater. Joint webinars, logo swaps, press releases. No economic commitment.\
+    \ No real skin in the game.\n\nReal partnerships look different:\n- Economic commitment\
+    \ (spend, revenue share, co-investment)\n- Product roadmap alignment (features\
+    \ built for the partnership)\n- Executive sponsorship (leadership engaged quarterly)\n\
+    - Mutual risk (both sides can fail if it doesn't work)\n\n**How to Tell the Difference:**\n\
+    \nAsk: \"If this partnership fails, what does each side lose?\"\n\nIf the answer\
+    \ is \"nothing\" \u2014 it's not a partnership. It's a handshake.\n\nThe best\
+    \ partnerships I've seen involved uncomfortable commitments on both sides. Multi-year\
+    \ cloud spend commitments. Dedicated engineering teams. Revenue guarantees. The\
+    \ discomfort is the point \u2014 it forces both sides to make the partnership\
+    \ work.\n\n**Framework: Three-Sided Value Proposition**\n\nEvery successful partnership\
+    \ creates clear value for three parties:\n\n**Your Company:**\n- Distribution\
+    \ (access to partner's customers)\n- Credibility (association with known brand)\n\
+    - Revenue (direct or influenced)\n- Product leverage (capability you don't build)\n\
+    \n**The Partner:**\n- Revenue or margin improvement\n- Customer retention/stickiness\n\
+    - Competitive differentiation\n- Reduced support burden\n\n**Shared Customers:**\n\
+    - Workflow improvement\n- Reduced integration pain\n- Single vendor relationship\n\
+    - Cost efficiency\n\n**Decision Criteria:**\n\nBefore pursuing any partnership,\
+    \ answer:\n\n1. What is our economic commitment? (Eng resources, spend, revenue\
+    \ share?)\n2. What is partner's economic commitment? (Are they investing too?)\n\
+    3. What happens if this fails? (Do we both lose something real?)\n\nIf both sides\
+    \ can walk away with zero cost, **it's not a partnership \u2014 it's a handshake.**\n\
+    \n**Common Mistake:**\n\nTreating \"partnerships\" as marketing announcements.\
+    \ Integration launches, joint webinars, co-branded content. These create buzz,\
+    \ not business. Real partnerships require uncomfortable commitments.\n\n---\n\n\
+    ### 2. Ecosystem Control = Discovery, Not Gatekeeping\n\n**The Developer Marketplace\
+    \ Decision:**\n\nRunning ecosystem at a platform company during hypergrowth. Leadership\
+    \ debate: Open the network to anyone, or curate for quality?\n\n**Quality control\
+    \ camp:** \"We need gatekeeping. Otherwise we'll get SEO spam, low-quality APIs,\
+    \ brand damage.\"\n\n**Open network camp:** \"Developers route around gatekeepers.\
+    \ Network effects matter more than quality control.\"\n\n**The decision:** Went\
+    \ open. Quality concerns were real, but we made a bet: **Control comes from discovery\
+    \ + trust layers, not submission gatekeeping.**\n\n**What We Built Instead of\
+    \ Gatekeeping:**\n\n1. **Search and discovery** - Surface high-quality APIs through\
+    \ algorithms\n2. **Trust signals** - Verified badges, usage stats, health scores\n\
+    3. **Community curation** - User ratings, collections, recommendations\n4. **Moderation**\
+    \ - Remove spam after publication, not block before\n\n**Result:** Network effects\
+    \ won. Thousands of APIs published. Quality surfaced through usage, not through\
+    \ us deciding upfront.\n\n**The Pattern:**\n\n**Curated ecosystem (Gatekeeper\
+    \ Model):**\n- Pros: High quality, controlled brand\n- Cons: Slow growth, partner\
+    \ friction, you become the bottleneck\n\n**Open ecosystem (Discovery Model):**\n\
+    - Pros: Network effects, rapid growth, self-service\n- Cons: Quality variance,\
+    \ moderation overhead\n\n**When to Use Which:**\n\n```\nIs brand damage risk high\
+    \ if low-quality partners join?\n\u251C\u2500 Yes (regulated, security-critical)\
+    \ \u2192 Curated\n\u2514\u2500 No \u2192 Continue...\n    \u2502\n    Can you\
+    \ scale human review?\n    \u251C\u2500 No (thousands of potential partners) \u2192\
+    \ Open\n    \u2514\u2500 Yes (dozens of partners) \u2192 Curated\n```\n\n**Common\
+    \ Mistake:**\n\nDefaulting to curated because \"we need quality control.\" This\
+    \ works when you have 10 partners. At 100+, you become the bottleneck. Build discovery\
+    \ and trust systems instead.\n\n---\n\n### 3. Partnership Tactics > Partnership\
+    \ Theater\n\n**The Certification Wedge:**\n\nEarly in a cloud partnership, looking\
+    \ for channel leverage. Targeting managed service providers (MSPs).\n\n**The insight:**\
+    \ Buried in the cloud provider's partner program requirements: \"Must include\
+    \ [our product category] in certified stack.\"\n\n**The play:** Built entire partnership\
+    \ pitch around that one line. MSPs didn't just want our product \u2014 they **needed\
+    \ it** to maintain certification.\n\n**Result:** We became required, not \"nice\
+    \ to have.\" Closed MSP deals 3x faster than generic partnerships.\n\n**Framework:\
+    \ Partnership Leverage Types**\n\n**1. Requirement leverage** (Strongest)\n- Partner\
+    \ needs you for certification/compliance/partnership status\n- Example: Cloud\
+    \ provider certification requiring your category of product\n- How to find: Read\
+    \ partner program requirements, marketplace rules\n\n**2. Economic leverage**\
+    \ (Strong)\n- Helps partner make or save money directly\n- Example: Reduce partner's\
+    \ support costs by 30%\n- How to measure: Calculate partner's ROI in their P&L\
+    \ terms\n\n**3. Competitive leverage** (Moderate)\n- Gives partner differentiation\
+    \ vs competitors\n- Example: Exclusive integration for 6 months\n- How to validate:\
+    \ Ask \"would competitors want this?\"\n\n**4. Customer leverage** (Moderate)\n\
+    - Partner's customers demand the integration\n- Example: 50+ support tickets requesting\
+    \ integration\n- How to measure: Partner support ticket volume\n\n**5. Co-marketing\
+    \ leverage** (Weak)\n- Joint content, events, logo swaps\n- Example: Co-branded\
+    \ webinar\n- Reality: Nice to have, rarely closes deals\n\n**How to Apply:**\n\
+    \n**Before pitching partnership, identify your leverage:**\n\nHigh leverage (requirements,\
+    \ economics) \u2192 Full partnership investment\nModerate leverage (competitive,\
+    \ customer) \u2192 Light partnership, test first\nLow leverage (co-marketing only)\
+    \ \u2192 Don't do it, you'll waste time\n\n**The Qualification Question:**\n\n\
+    \"If we don't do this partnership, what happens to you?\"\n\n- \"We lose cloud\
+    \ provider certification\" \u2192 High leverage, pursue\n- \"We might lose some\
+    \ customers\" \u2192 Moderate, test carefully\n- \"Nothing really changes\" \u2192\
+    \ No leverage, walk away\n\n**Common Mistake:**\n\nPitching partnerships based\
+    \ on your benefit, not theirs. \"We want access to your customers\" is co-marketing\
+    \ theater. \"You'll maintain cloud provider certification\" is leverage.\n\n---\n\
+    \n### 4. Partner Tiering: Three-Tier Model\n\nStructure partner programs into\
+    \ clear tiers based on commitment and capability:\n\n**Tier 1: Integration Partner\
+    \ (Self-Serve)**\n- Partner builds with your public API/docs\n- You provide: documentation,\
+    \ Slack channel, office hours\n- Partner drives their own promotion\n- Timeline:\
+    \ 2-6 months\n- Best for: Ambitious partners with engineering resources\n\n**Tier\
+    \ 2: Partnership Partner (Joint Development)**\n- Co-developed integration\n-\
+    \ You provide: dedicated channel, regular syncs, product input\n- Platform provides\
+    \ co-marketing support\n- Timeline: 6-12 months\n- Best for: Strategic fit partners,\
+    \ accelerating integration quality\n\n**Tier 3: Strategic Partner (Co-Development)**\n\
+    - Deep product roadmap integration\n- You provide: dedicated partner manager,\
+    \ executive relationship\n- Customized co-marketing, revenue objectives\n- Timeline:\
+    \ Ongoing\n- Best for: Marquee partnerships that shift positioning\n\n**Decision\
+    \ Criteria:**\n- Tier based on strategic fit AND partner capability\n- Don't over-tier\
+    \ (creates expectations you can't meet)\n- Create clear graduation path between\
+    \ tiers\n\n**Common Mistake:**\n\nTreating all partners equally. Tier 1 partners\
+    \ want self-serve, Tier 3 want white-glove. Mismatch creates frustration.\n\n\
+    ---\n\n### 5. Crawl-Walk-Run Partnership Deployment\n\nDe-risk partnerships with\
+    \ phased validation before full commitment.\n\n**Crawl (4-8 weeks):**\n- 1-2 pilot\
+    \ customers using both solutions\n- Manual or lightweight integration (not production-grade)\n\
+    - Measure specific outcomes: time savings, adoption, revenue impact\n- Go/no-go:\
+    \ 20%+ improvement on stated metric\n\n**Walk (8-12 weeks):**\n- 5-10 additional\
+    \ customers\n- Build formal integration\n- Co-marketing: joint announcements,\
+    \ webinars\n- Sales enablement: training, playbooks\n- Go/no-go: 70%+ adoption\
+    \ rate of invited customers\n\n**Run (6-12 months ongoing):**\n- Full-scale deployment\n\
+    - Joint enterprise sales, integrated customer success\n- APIs/native integrations,\
+    \ marketplace listing\n- Quarterly business reviews, executive steering\n\n**The\
+    \ Pattern:**\n\nMost partnerships fail in Crawl phase. That's good \u2014 you\
+    \ learn fast with minimal investment.\n\n**Common Mistakes:**\n- Skipping Crawl\
+    \ phase (jumping straight to full commitment)\n- Running phases in parallel (creates\
+    \ confusion, can't isolate signal)\n- Continuing partnerships not delivering value\
+    \ (sunk cost fallacy)\n- Moving to next phase without clear go/no-go criteria\n\
+    \n**Go/No-Go Criteria:**\n\n**After Crawl:**\n- Did pilot customers see 20%+ improvement?\n\
+    - Would they recommend to peers?\n- Can we scale this integration?\n\n**After\
+    \ Walk:**\n- Did 70%+ of invited customers adopt?\n- Is partner actively promoting?\n\
+    - Is support burden manageable?\n\n**Enter Run Only If:**\n- Both Crawl and Walk\
+    \ passed criteria\n- Both sides committed to next phase\n- ROI model validates\
+    \ at scale\n\n---\n\n### 6. Partnership Value Exchange Clarity\n\nIf you can't\
+    \ articulate what each party gets, the partnership will fail.\n\n**Partnership\
+    \ Charter (Required Before Launch):**\n\n**Mutual Goals:**\n- What does success\
+    \ look like for us?\n- What does success look like for partner?\n- What does success\
+    \ look like for customers?\n\n**Value Exchange:**\n- What we give (engineering\
+    \ time, co-marketing, revenue share)\n- What partner gives (distribution, credibility,\
+    \ co-investment)\n- Is this balanced? (Would both sides still do this if other\
+    \ walked?)\n\n**Timeline:**\n- Crawl phase (dates, deliverables, metrics)\n- Walk\
+    \ phase (dates, deliverables, metrics)\n- Run phase (ongoing cadence, QBRs)\n\n\
+    **Measurement:**\n- Specific metrics for success (revenue, customers, retention)\n\
+    - How we'll track (dashboard, reports, reviews)\n- Review cadence (monthly? quarterly?)\n\
+    \n**Governance:**\n- Who owns decisions on each side?\n- Escalation path for disputes\n\
+    - Exit criteria (what triggers ending partnership?)\n\n**The Signature Test:**\n\
+    \nBoth sides should sign the charter. If either side won't commit to paper, there's\
+    \ no real partnership.\n\n**Common Mistake:**\n\nVerbal agreements without documentation.\
+    \ When things get hard (and they will), you need written alignment.\n\n---\n\n\
+    ### 7. Co-Marketing Execution Checklist\n\n**Pre-Launch (4-6 weeks before):**\n\
+    - [ ] Joint value prop finalized (reviewed by both marketing teams)\n- [ ] Customer\
+    \ case study identified (ideally 2-3 options)\n- [ ] Technical integration validated\
+    \ (no launch-day bugs)\n- [ ] Sales enablement ready (one-pager, deck, demo)\n\
+    - [ ] Support trained (both teams know how to handle tickets)\n- [ ] Marketplace\
+    \ listings prepared (if applicable)\n\n**Launch Week:**\n- [ ] Press release (coordinated\
+    \ timing)\n- [ ] Blog posts (both companies)\n- [ ] Joint webinar scheduled (within\
+    \ 2 weeks of launch)\n- [ ] Social media campaign (coordinated hashtags)\n- [\
+    \ ] Sales teams briefed (live training session)\n- [ ] Customer comms sent (email\
+    \ to relevant segments)\n\n**Post-Launch (Weeks 2-8):**\n- [ ] Customer adoption\
+    \ tracked (weekly dashboard)\n- [ ] Support issues triaged (joint Slack channel)\n\
+    - [ ] Case study published (quantified results)\n- [ ] Pipeline impact measured\
+    \ (influenced deals)\n- [ ] Quarterly business review scheduled\n\n**Common Mistake:**\n\
+    \nTreating launch as finish line. Real work starts after launch \u2014 adoption,\
+    \ support, iteration.\n\n---\n\n## Decision Trees\n\n### Should We Build or Partner?\n\
+    \n```\nIs this capability core to our product differentiation?\n\u251C\u2500 Yes\
+    \ \u2192 Build it yourself\n\u2514\u2500 No \u2192 Continue...\n    \u2502\n \
+    \   Would building this delay our roadmap by >6 months?\n    \u251C\u2500 Yes\
+    \ \u2192 Partner\n    \u2514\u2500 No \u2192 Continue...\n        \u2502\n   \
+    \     Is there a credible partner who needs us too?\n        \u251C\u2500 Yes\
+    \ \u2192 Partner\n        \u2514\u2500 No \u2192 Build\n```\n\n### Which Partner\
+    \ Tier?\n\n```\nDoes partner have engineering resources to self-serve?\n\u251C\
+    \u2500 Yes \u2192 Start at Tier 1, evaluate for Tier 2 after 6 months\n\u2514\u2500\
+    \ No \u2192 Continue...\n    \u2502\n    Is this a marquee logo that shifts our\
+    \ positioning?\n    \u251C\u2500 Yes \u2192 Tier 3 (Strategic)\n    \u2514\u2500\
+    \ No \u2192 Tier 2 (Joint Development)\n```\n\n### Should We Continue This Partnership?\n\
+    \n```\nDid Crawl phase meet success criteria?\n\u251C\u2500 No \u2192 End partnership,\
+    \ learn from failure\n\u2514\u2500 Yes \u2192 Continue...\n    \u2502\n    Did\
+    \ Walk phase meet success criteria?\n    \u251C\u2500 No \u2192 End partnership\
+    \ or restart Crawl with changes\n    \u2514\u2500 Yes \u2192 Move to Run phase\n\
+    ```\n\n---\n\n## Common Mistakes\n\n1. **Treating partnerships as sales channel,\
+    \ not platform expansion**\n   - Partnerships should expand what your product\
+    \ can do, not just who buys it\n\n2. **Launching without clear integration pathways**\n\
+    \   - Partners will struggle and fail without step-by-step guides\n\n3. **Expecting\
+    \ partners to self-promote**\n   - You must provide co-marketing templates, resources,\
+    \ support\n\n4. **Creating too many tiers**\n   - 2-3 is optimal; more causes\
+    \ confusion and expectation mismatch\n\n5. **Ghosting after launch**\n   - Relationships\
+    \ need ongoing cultivation; schedule recurring touchpoints\n\n6. **Pursuing partnerships\
+    \ for vanity**\n   - Brand name or funding connections don't equal customer value\n\
+    \n7. **No clear exit criteria**\n   - Define upfront what failure looks like and\
+    \ when to deprioritize\n\n---\n\n## Quick Reference\n\n**Before starting any partnership:**\n\
+    - [ ] Three-sided value prop articulated\n- [ ] Partner tier identified\n- [ ]\
+    \ Crawl phase scope defined\n- [ ] Success metrics agreed\n- [ ] Partnership charter\
+    \ drafted\n\n**Before launching any partnership:**\n- [ ] Customer ready criteria\
+    \ met\n- [ ] Co-marketing checklist complete\n- [ ] Sales team briefed\n- [ ]\
+    \ Health management cadence scheduled\n\n**Partnership leverage hierarchy:**\n\
+    1. Requirement (they need you for cert/compliance)\n2. Economic (saves/makes them\
+    \ money)\n3. Competitive (differentiates them)\n4. Customer (their customers want\
+    \ it)\n5. Co-marketing (nice to have, rarely decisive)\n\n**Go/no-go criteria:**\n\
+    - Crawl: 20%+ customer outcome improvement\n- Walk: 70%+ adoption rate\n- Run:\
+    \ Both phases passed + ROI validated\n\n---\n\n## Related Skills\n\n- **developer-ecosystem**:\
+    \ Developer-specific ecosystem programs\n- **enterprise-account-planning**: Managing\
+    \ enterprise deals with partners\n- **technical-product-pricing**: Pricing partnership\
+    \ deals\n\n---\n\n*Based on partnerships work across multiple platform companies\
+    \ during hypergrowth, including running a developer marketplace ecosystem (open\
+    \ vs curated decision) and leveraging cloud provider certification requirements\
+    \ for channel growth. Not theory \u2014 patterns from partnerships that actually\
+    \ drove revenue and platform adoption.*"

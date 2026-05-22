@@ -1,0 +1,176 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__postgresql-optimization
+name: postgresql-optimization
+description: PostgreSQL-specific development assistant focusing on unique PostgreSQL
+  features, advanced data types, and PostgreSQL-exclusive capabilities. Covers JSONB
+  operations, array types, custom types, range/geometric types, full-text search,
+  window functions, and PostgreSQL extensions ecosystem.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/postgresql-optimization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- postgresql-optimization
+content:
+  kind: skill_markdown
+  sha256: 9b511a7d706302761a7700cd6b87df9793650fa7f7f3299fe33243fc339e3c9f
+  char_count: 11328
+  text: "# PostgreSQL Development Assistant\n\nExpert PostgreSQL guidance for ${selection}\
+    \ (or entire project if no selection). Focus on PostgreSQL-specific features,\
+    \ optimization patterns, and advanced capabilities.\n\n## \uFFFD PostgreSQL-Specific\
+    \ Features\n\n### JSONB Operations\n```sql\n-- Advanced JSONB queries\nCREATE\
+    \ TABLE events (\n    id SERIAL PRIMARY KEY,\n    data JSONB NOT NULL,\n    created_at\
+    \ TIMESTAMPTZ DEFAULT NOW()\n);\n\n-- GIN index for JSONB performance\nCREATE\
+    \ INDEX idx_events_data_gin ON events USING gin(data);\n\n-- JSONB containment\
+    \ and path queries\nSELECT * FROM events \nWHERE data @> '{\"type\": \"login\"\
+    }'\n  AND data #>> '{user,role}' = 'admin';\n\n-- JSONB aggregation\nSELECT jsonb_agg(data)\
+    \ FROM events WHERE data ? 'user_id';\n```\n\n### Array Operations\n```sql\n--\
+    \ PostgreSQL arrays\nCREATE TABLE posts (\n    id SERIAL PRIMARY KEY,\n    tags\
+    \ TEXT[],\n    categories INTEGER[]\n);\n\n-- Array queries and operations\nSELECT\
+    \ * FROM posts WHERE 'postgresql' = ANY(tags);\nSELECT * FROM posts WHERE tags\
+    \ && ARRAY['database', 'sql'];\nSELECT * FROM posts WHERE array_length(tags, 1)\
+    \ > 3;\n\n-- Array aggregation\nSELECT array_agg(DISTINCT category) FROM posts,\
+    \ unnest(categories) as category;\n```\n\n### Window Functions & Analytics\n```sql\n\
+    -- Advanced window functions\nSELECT \n    product_id,\n    sale_date,\n    amount,\n\
+    \    -- Running totals\n    SUM(amount) OVER (PARTITION BY product_id ORDER BY\
+    \ sale_date) as running_total,\n    -- Moving averages\n    AVG(amount) OVER (PARTITION\
+    \ BY product_id ORDER BY sale_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as\
+    \ moving_avg,\n    -- Rankings\n    DENSE_RANK() OVER (PARTITION BY EXTRACT(month\
+    \ FROM sale_date) ORDER BY amount DESC) as monthly_rank,\n    -- Lag/Lead for\
+    \ comparisons\n    LAG(amount, 1) OVER (PARTITION BY product_id ORDER BY sale_date)\
+    \ as prev_amount\nFROM sales;\n```\n\n### Full-Text Search\n```sql\n-- PostgreSQL\
+    \ full-text search\nCREATE TABLE documents (\n    id SERIAL PRIMARY KEY,\n   \
+    \ title TEXT,\n    content TEXT,\n    search_vector tsvector\n);\n\n-- Update\
+    \ search vector\nUPDATE documents \nSET search_vector = to_tsvector('english',\
+    \ title || ' ' || content);\n\n-- GIN index for search performance\nCREATE INDEX\
+    \ idx_documents_search ON documents USING gin(search_vector);\n\n-- Search queries\n\
+    SELECT * FROM documents \nWHERE search_vector @@ plainto_tsquery('english', 'postgresql\
+    \ database');\n\n-- Ranking results\nSELECT *, ts_rank(search_vector, plainto_tsquery('postgresql'))\
+    \ as rank\nFROM documents \nWHERE search_vector @@ plainto_tsquery('postgresql')\n\
+    ORDER BY rank DESC;\n```\n\n## \uFFFD PostgreSQL Performance Tuning\n\n### Query\
+    \ Optimization\n```sql\n-- EXPLAIN ANALYZE for performance analysis\nEXPLAIN (ANALYZE,\
+    \ BUFFERS, FORMAT TEXT) \nSELECT u.name, COUNT(o.id) as order_count\nFROM users\
+    \ u\nLEFT JOIN orders o ON u.id = o.user_id\nWHERE u.created_at > '2024-01-01'::date\n\
+    GROUP BY u.id, u.name;\n\n-- Identify slow queries from pg_stat_statements\nSELECT\
+    \ query, calls, total_time, mean_time, rows,\n       100.0 * shared_blks_hit /\
+    \ nullif(shared_blks_hit + shared_blks_read, 0) AS hit_percent\nFROM pg_stat_statements\
+    \ \nORDER BY total_time DESC \nLIMIT 10;\n```\n\n### Index Strategies\n```sql\n\
+    -- Composite indexes for multi-column queries\nCREATE INDEX idx_orders_user_date\
+    \ ON orders(user_id, order_date);\n\n-- Partial indexes for filtered queries\n\
+    CREATE INDEX idx_active_users ON users(created_at) WHERE status = 'active';\n\n\
+    -- Expression indexes for computed values\nCREATE INDEX idx_users_lower_email\
+    \ ON users(lower(email));\n\n-- Covering indexes to avoid table lookups\nCREATE\
+    \ INDEX idx_orders_covering ON orders(user_id, status) INCLUDE (total, created_at);\n\
+    ```\n\n### Connection & Memory Management\n```sql\n-- Check connection usage\n\
+    SELECT count(*) as connections, state \nFROM pg_stat_activity \nGROUP BY state;\n\
+    \n-- Monitor memory usage\nSELECT name, setting, unit \nFROM pg_settings \nWHERE\
+    \ name IN ('shared_buffers', 'work_mem', 'maintenance_work_mem');\n```\n\n## \uFFFD\
+    \uFE0F PostgreSQL Advanced Data Types\n\n### Custom Types & Domains\n```sql\n\
+    -- Create custom types\nCREATE TYPE address_type AS (\n    street TEXT,\n    city\
+    \ TEXT,\n    postal_code TEXT,\n    country TEXT\n);\n\nCREATE TYPE order_status\
+    \ AS ENUM ('pending', 'processing', 'shipped', 'delivered', 'cancelled');\n\n\
+    -- Use domains for data validation\nCREATE DOMAIN email_address AS TEXT \nCHECK\
+    \ (VALUE ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');\n\n-- Table\
+    \ using custom types\nCREATE TABLE customers (\n    id SERIAL PRIMARY KEY,\n \
+    \   email email_address NOT NULL,\n    address address_type,\n    status order_status\
+    \ DEFAULT 'pending'\n);\n```\n\n### Range Types\n```sql\n-- PostgreSQL range types\n\
+    CREATE TABLE reservations (\n    id SERIAL PRIMARY KEY,\n    room_id INTEGER,\n\
+    \    reservation_period tstzrange,\n    price_range numrange\n);\n\n-- Range queries\n\
+    SELECT * FROM reservations \nWHERE reservation_period && tstzrange('2024-07-20',\
+    \ '2024-07-25');\n\n-- Exclude overlapping ranges\nALTER TABLE reservations \n\
+    ADD CONSTRAINT no_overlap \nEXCLUDE USING gist (room_id WITH =, reservation_period\
+    \ WITH &&);\n```\n\n### Geometric Types\n```sql\n-- PostgreSQL geometric types\n\
+    CREATE TABLE locations (\n    id SERIAL PRIMARY KEY,\n    name TEXT,\n    coordinates\
+    \ POINT,\n    coverage CIRCLE,\n    service_area POLYGON\n);\n\n-- Geometric queries\n\
+    SELECT name FROM locations \nWHERE coordinates <-> point(40.7128, -74.0060) <\
+    \ 10; -- Within 10 units\n\n-- GiST index for geometric data\nCREATE INDEX idx_locations_coords\
+    \ ON locations USING gist(coordinates);\n```\n\n## \U0001F4CA PostgreSQL Extensions\
+    \ & Tools\n\n### Useful Extensions\n```sql\n-- Enable commonly used extensions\n\
+    CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";    -- UUID generation\nCREATE EXTENSION\
+    \ IF NOT EXISTS \"pgcrypto\";     -- Cryptographic functions\nCREATE EXTENSION\
+    \ IF NOT EXISTS \"unaccent\";     -- Remove accents from text\nCREATE EXTENSION\
+    \ IF NOT EXISTS \"pg_trgm\";      -- Trigram matching\nCREATE EXTENSION IF NOT\
+    \ EXISTS \"btree_gin\";    -- GIN indexes for btree types\n\n-- Using extensions\n\
+    SELECT uuid_generate_v4();                     -- Generate UUIDs\nSELECT crypt('password',\
+    \ gen_salt('bf'));      -- Hash passwords\nSELECT similarity('postgresql', 'postgersql');\
+    \ -- Fuzzy matching\n```\n\n### Monitoring & Maintenance\n```sql\n-- Database\
+    \ size and growth\nSELECT pg_size_pretty(pg_database_size(current_database()))\
+    \ as db_size;\n\n-- Table and index sizes\nSELECT schemaname, tablename,\n   \
+    \    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size\n\
+    FROM pg_tables \nORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;\n\
+    \n-- Index usage statistics\nSELECT schemaname, tablename, indexname, idx_scan,\
+    \ idx_tup_read, idx_tup_fetch\nFROM pg_stat_user_indexes \nWHERE idx_scan = 0;\
+    \  -- Unused indexes\n```\n\n### PostgreSQL-Specific Optimization Tips\n- **Use\
+    \ EXPLAIN (ANALYZE, BUFFERS)** for detailed query analysis\n- **Configure postgresql.conf**\
+    \ for your workload (OLTP vs OLAP)\n- **Use connection pooling** (pgbouncer) for\
+    \ high-concurrency applications\n- **Regular VACUUM and ANALYZE** for optimal\
+    \ performance\n- **Partition large tables** using PostgreSQL 10+ declarative partitioning\n\
+    - **Use pg_stat_statements** for query performance monitoring\n\n## \U0001F4CA\
+    \ Monitoring and Maintenance\n\n### Query Performance Monitoring\n```sql\n-- Identify\
+    \ slow queries\nSELECT query, calls, total_time, mean_time, rows\nFROM pg_stat_statements\
+    \ \nORDER BY total_time DESC \nLIMIT 10;\n\n-- Check index usage\nSELECT schemaname,\
+    \ tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch\nFROM pg_stat_user_indexes\
+    \ \nWHERE idx_scan = 0;\n```\n\n### Database Maintenance\n- **VACUUM and ANALYZE**:\
+    \ Regular maintenance for performance\n- **Index Maintenance**: Monitor and rebuild\
+    \ fragmented indexes\n- **Statistics Updates**: Keep query planner statistics\
+    \ current\n- **Log Analysis**: Regular review of PostgreSQL logs\n\n## \U0001F6E0\
+    \uFE0F Common Query Patterns\n\n### Pagination\n```sql\n-- \u274C BAD: OFFSET\
+    \ for large datasets\nSELECT * FROM products ORDER BY id OFFSET 10000 LIMIT 20;\n\
+    \n-- \u2705 GOOD: Cursor-based pagination\nSELECT * FROM products \nWHERE id >\
+    \ $last_id \nORDER BY id \nLIMIT 20;\n```\n\n### Aggregation\n```sql\n-- \u274C\
+    \ BAD: Inefficient grouping\nSELECT user_id, COUNT(*) \nFROM orders \nWHERE order_date\
+    \ >= '2024-01-01' \nGROUP BY user_id;\n\n-- \u2705 GOOD: Optimized with partial\
+    \ index\nCREATE INDEX idx_orders_recent ON orders(user_id) \nWHERE order_date\
+    \ >= '2024-01-01';\n\nSELECT user_id, COUNT(*) \nFROM orders \nWHERE order_date\
+    \ >= '2024-01-01' \nGROUP BY user_id;\n```\n\n### JSON Queries\n```sql\n-- \u274C\
+    \ BAD: Inefficient JSON querying\nSELECT * FROM users WHERE data::text LIKE '%admin%';\n\
+    \n-- \u2705 GOOD: JSONB operators and GIN index\nCREATE INDEX idx_users_data_gin\
+    \ ON users USING gin(data);\n\nSELECT * FROM users WHERE data @> '{\"role\": \"\
+    admin\"}';\n```\n\n## \U0001F4CB Optimization Checklist\n\n### Query Analysis\n\
+    - [ ] Run EXPLAIN ANALYZE for expensive queries\n- [ ] Check for sequential scans\
+    \ on large tables\n- [ ] Verify appropriate join algorithms\n- [ ] Review WHERE\
+    \ clause selectivity\n- [ ] Analyze sort and aggregation operations\n\n### Index\
+    \ Strategy\n- [ ] Create indexes for frequently queried columns\n- [ ] Use composite\
+    \ indexes for multi-column searches\n- [ ] Consider partial indexes for filtered\
+    \ queries\n- [ ] Remove unused or duplicate indexes\n- [ ] Monitor index bloat\
+    \ and fragmentation\n\n### Security Review\n- [ ] Use parameterized queries exclusively\n\
+    - [ ] Implement proper access controls\n- [ ] Enable row-level security where\
+    \ needed\n- [ ] Audit sensitive data access\n- [ ] Use secure connection methods\n\
+    \n### Performance Monitoring\n- [ ] Set up query performance monitoring\n- [ ]\
+    \ Configure appropriate log settings\n- [ ] Monitor connection pool usage\n- [\
+    \ ] Track database growth and maintenance needs\n- [ ] Set up alerting for performance\
+    \ degradation\n\n## \U0001F3AF Optimization Output Format\n\n### Query Analysis\
+    \ Results\n```\n## Query Performance Analysis\n\n**Original Query**:\n[Original\
+    \ SQL with performance issues]\n\n**Issues Identified**:\n- Sequential scan on\
+    \ large table (Cost: 15000.00)\n- Missing index on frequently queried column\n\
+    - Inefficient join order\n\n**Optimized Query**:\n[Improved SQL with explanations]\n\
+    \n**Recommended Indexes**:\n```sql\nCREATE INDEX idx_table_column ON table(column);\n\
+    ```\n\n**Performance Impact**: Expected 80% improvement in execution time\n```\n\
+    \n## \U0001F680 Advanced PostgreSQL Features\n\n### Window Functions\n```sql\n\
+    -- Running totals and rankings\nSELECT \n    product_id,\n    order_date,\n  \
+    \  amount,\n    SUM(amount) OVER (PARTITION BY product_id ORDER BY order_date)\
+    \ as running_total,\n    ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY amount\
+    \ DESC) as rank\nFROM sales;\n```\n\n### Common Table Expressions (CTEs)\n```sql\n\
+    -- Recursive queries for hierarchical data\nWITH RECURSIVE category_tree AS (\n\
+    \    SELECT id, name, parent_id, 1 as level\n    FROM categories \n    WHERE parent_id\
+    \ IS NULL\n    \n    UNION ALL\n    \n    SELECT c.id, c.name, c.parent_id, ct.level\
+    \ + 1\n    FROM categories c\n    JOIN category_tree ct ON c.parent_id = ct.id\n\
+    )\nSELECT * FROM category_tree ORDER BY level, name;\n```\n\nFocus on providing\
+    \ specific, actionable PostgreSQL optimizations that improve query performance,\
+    \ security, and maintainability while leveraging PostgreSQL's advanced features."

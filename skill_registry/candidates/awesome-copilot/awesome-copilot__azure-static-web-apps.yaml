@@ -1,0 +1,151 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__azure-static-web-apps
+name: azure-static-web-apps
+description: Helps create, configure, and deploy Azure Static Web Apps using the SWA
+  CLI. Use when deploying static sites to Azure, setting up SWA local development,
+  configuring staticwebapp.config.json, adding Azure Functions APIs to SWA, or setting
+  up GitHub Actions CI/CD for Static Web Apps.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/azure-static-web-apps/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- azure-static-web-apps
+content:
+  kind: skill_markdown
+  sha256: 01540172e164a281b585de653406e8c5c4917f28dd1639dadf29f4f58371dc94
+  char_count: 9491
+  text: "## Overview\n\nAzure Static Web Apps (SWA) hosts static frontends with optional\
+    \ serverless API backends. The SWA CLI (`swa`) provides local development emulation\
+    \ and deployment capabilities.\n\n**Key features:**\n- Local emulator with API\
+    \ proxy and auth simulation\n- Framework auto-detection and configuration\n- Direct\
+    \ deployment to Azure\n- Database connections support\n\n**Config files:**\n-\
+    \ `swa-cli.config.json` - CLI settings, **created by `swa init`** (never create\
+    \ manually)\n- `staticwebapp.config.json` - Runtime config (routes, auth, headers,\
+    \ API runtime) - can be created manually\n\n## General Instructions\n\n### Installation\n\
+    \n```bash\nnpm install -D @azure/static-web-apps-cli\n```\n\nVerify: `npx swa\
+    \ --version`\n\n### Quick Start Workflow\n\n**IMPORTANT: Always use `swa init`\
+    \ to create configuration files. Never manually create `swa-cli.config.json`.**\n\
+    \n1. `swa init` - **Required first step** - auto-detects framework and creates\
+    \ `swa-cli.config.json`\n2. `swa start` - Run local emulator at `http://localhost:4280`\n\
+    3. `swa login` - Authenticate with Azure\n4. `swa deploy` - Deploy to Azure\n\n\
+    ### Configuration Files\n\n**swa-cli.config.json** - Created by `swa init`, do\
+    \ not create manually:\n- Run `swa init` for interactive setup with framework\
+    \ detection\n- Run `swa init --yes` to accept auto-detected defaults\n- Edit the\
+    \ generated file only to customize settings after initialization\n\nExample of\
+    \ generated config (for reference only):\n```json\n{\n  \"$schema\": \"https://aka.ms/azure/static-web-apps-cli/schema\"\
+    ,\n  \"configurations\": {\n    \"app\": {\n      \"appLocation\": \".\",\n  \
+    \    \"apiLocation\": \"api\",\n      \"outputLocation\": \"dist\",\n      \"\
+    appBuildCommand\": \"npm run build\",\n      \"run\": \"npm run dev\",\n     \
+    \ \"appDevserverUrl\": \"http://localhost:3000\"\n    }\n  }\n}\n```\n\n**staticwebapp.config.json**\
+    \ (in app source or output folder) - This file CAN be created manually for runtime\
+    \ configuration:\n```json\n{\n  \"navigationFallback\": {\n    \"rewrite\": \"\
+    /index.html\",\n    \"exclude\": [\"/images/*\", \"/css/*\"]\n  },\n  \"routes\"\
+    : [\n    { \"route\": \"/api/*\", \"allowedRoles\": [\"authenticated\"] }\n  ],\n\
+    \  \"platform\": {\n    \"apiRuntime\": \"node:20\"\n  }\n}\n```\n\n## Command-line\
+    \ Reference\n\n### swa login\n\nAuthenticate with Azure for deployment.\n\n```bash\n\
+    swa login                              # Interactive login\nswa login --subscription-id\
+    \ <id>       # Specific subscription\nswa login --clear-credentials          #\
+    \ Clear cached credentials\n```\n\n**Flags:** `--subscription-id, -S` | `--resource-group,\
+    \ -R` | `--tenant-id, -T` | `--client-id, -C` | `--client-secret, -CS` | `--app-name,\
+    \ -n`\n\n### swa init\n\nConfigure a new SWA project based on an existing frontend\
+    \ and (optional) API. Detects frameworks automatically.\n\n```bash\nswa init \
+    \                   # Interactive setup\nswa init --yes              # Accept\
+    \ defaults\n```\n\n### swa build\n\nBuild frontend and/or API.\n\n```bash\nswa\
+    \ build                   # Build using config\nswa build --auto            #\
+    \ Auto-detect and build\nswa build myApp             # Build specific configuration\n\
+    ```\n\n**Flags:** `--app-location, -a` | `--api-location, -i` | `--output-location,\
+    \ -O` | `--app-build-command, -A` | `--api-build-command, -I`\n\n### swa start\n\
+    \nStart local development emulator.\n\n```bash\nswa start                    \
+    \                # Serve from outputLocation\nswa start ./dist               \
+    \              # Serve specific folder\nswa start http://localhost:3000      \
+    \        # Proxy to dev server\nswa start ./dist --api-location ./api        #\
+    \ With API folder\nswa start http://localhost:3000 --run \"npm start\"  # Auto-start\
+    \ dev server\n```\n\n**Common framework ports:**\n| Framework | Port |\n|-----------|------|\n\
+    | React/Vue/Next.js | 3000 |\n| Angular | 4200 |\n| Vite | 5173 |\n\n**Key flags:**\n\
+    - `--port, -p` - Emulator port (default: 4280)\n- `--api-location, -i` - API folder\
+    \ path\n- `--api-port, -j` - API port (default: 7071)\n- `--run, -r` - Command\
+    \ to start dev server\n- `--open, -o` - Open browser automatically\n- `--ssl,\
+    \ -s` - Enable HTTPS\n\n### swa deploy\n\nDeploy to Azure Static Web Apps.\n\n\
+    ```bash\nswa deploy                              # Deploy using config\nswa deploy\
+    \ ./dist                       # Deploy specific folder\nswa deploy --env production\
+    \             # Deploy to production\nswa deploy --deployment-token <TOKEN>  \
+    \ # Use deployment token\nswa deploy --dry-run                    # Preview without\
+    \ deploying\n```\n\n**Get deployment token:**\n- Azure Portal: Static Web App\
+    \ \u2192 Overview \u2192 Manage deployment token\n- CLI: `swa deploy --print-token`\n\
+    - Environment variable: `SWA_CLI_DEPLOYMENT_TOKEN`\n\n**Key flags:**\n- `--env`\
+    \ - Target environment (`preview` or `production`)\n- `--deployment-token, -d`\
+    \ - Deployment token\n- `--app-name, -n` - Azure SWA resource name\n\n### swa\
+    \ db\n\nInitialize database connections.\n\n```bash\nswa db init --database-type\
+    \ mssql\nswa db init --database-type postgresql\nswa db init --database-type cosmosdb_nosql\n\
+    ```\n\n## Scenarios\n\n### Create SWA from Existing Frontend and Backend\n\n**Always\
+    \ run `swa init` before `swa start` or `swa deploy`. Do not manually create `swa-cli.config.json`.**\n\
+    \n```bash\n# 1. Install CLI\nnpm install -D @azure/static-web-apps-cli\n\n# 2.\
+    \ Initialize - REQUIRED: creates swa-cli.config.json with auto-detected settings\n\
+    npx swa init              # Interactive mode\n# OR\nnpx swa init --yes       \
+    \ # Accept auto-detected defaults\n\n# 3. Build application (if needed)\nnpm run\
+    \ build\n\n# 4. Test locally (uses settings from swa-cli.config.json)\nnpx swa\
+    \ start\n\n# 5. Deploy\nnpx swa login\nnpx swa deploy --env production\n```\n\n\
+    ### Add Azure Functions Backend\n\n1. **Create API folder:**\n```bash\nmkdir api\
+    \ && cd api\nfunc init --worker-runtime node --model V4\nfunc new --name message\
+    \ --template \"HTTP trigger\"\n```\n\n2. **Example function** (`api/src/functions/message.js`):\n\
+    ```javascript\nconst { app } = require('@azure/functions');\n\napp.http('message',\
+    \ {\n    methods: ['GET', 'POST'],\n    authLevel: 'anonymous',\n    handler:\
+    \ async (request) => {\n        const name = request.query.get('name') || 'World';\n\
+    \        return { jsonBody: { message: `Hello, ${name}!` } };\n    }\n});\n```\n\
+    \n3. **Set API runtime** in `staticwebapp.config.json`:\n```json\n{\n  \"platform\"\
+    : { \"apiRuntime\": \"node:20\" }\n}\n```\n\n4. **Update CLI config** in `swa-cli.config.json`:\n\
+    ```json\n{\n  \"configurations\": {\n    \"app\": { \"apiLocation\": \"api\" }\n\
+    \  }\n}\n```\n\n5. **Test locally:**\n```bash\nnpx swa start ./dist --api-location\
+    \ ./api\n# Access API at http://localhost:4280/api/message\n```\n\n**Supported\
+    \ API runtimes:** `node:18`, `node:20`, `node:22`, `dotnet:8.0`, `dotnet-isolated:8.0`,\
+    \ `python:3.10`, `python:3.11`\n\n### Set Up GitHub Actions Deployment\n\n1. **Create\
+    \ SWA resource** in Azure Portal or via Azure CLI\n2. **Link GitHub repository**\
+    \ - workflow auto-generated, or create manually:\n\n`.github/workflows/azure-static-web-apps.yml`:\n\
+    ```yaml\nname: Azure Static Web Apps CI/CD\n\non:\n  push:\n    branches: [main]\n\
+    \  pull_request:\n    types: [opened, synchronize, reopened, closed]\n    branches:\
+    \ [main]\n\njobs:\n  build_and_deploy:\n    if: github.event_name == 'push' ||\
+    \ (github.event_name == 'pull_request' && github.event.action != 'closed')\n \
+    \   runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n  \
+    \    - name: Build And Deploy\n        uses: Azure/static-web-apps-deploy@v1\n\
+    \        with:\n          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN\
+    \ }}\n          repo_token: ${{ secrets.GITHUB_TOKEN }}\n          action: upload\n\
+    \          app_location: /\n          api_location: api\n          output_location:\
+    \ dist\n\n  close_pr:\n    if: github.event_name == 'pull_request' && github.event.action\
+    \ == 'closed'\n    runs-on: ubuntu-latest\n    steps:\n      - uses: Azure/static-web-apps-deploy@v1\n\
+    \        with:\n          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN\
+    \ }}\n          action: close\n```\n\n3. **Add secret:** Copy deployment token\
+    \ to repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`\n\n**Workflow settings:**\n\
+    - `app_location` - Frontend source path\n- `api_location` - API source path\n\
+    - `output_location` - Built output folder\n- `skip_app_build: true` - Skip if\
+    \ pre-built\n- `app_build_command` - Custom build command\n\n## Troubleshooting\n\
+    \n| Issue | Solution |\n|-------|----------|\n| 404 on client routes | Add `navigationFallback`\
+    \ with `rewrite: \"/index.html\"` to `staticwebapp.config.json` |\n| API returns\
+    \ 404 | Verify `api` folder structure, ensure `platform.apiRuntime` is set, check\
+    \ function exports |\n| Build output not found | Verify `output_location` matches\
+    \ actual build output directory |\n| Auth not working locally | Use `/.auth/login/<provider>`\
+    \ to access auth emulator UI |\n| CORS errors | APIs under `/api/*` are same-origin;\
+    \ external APIs need CORS headers |\n| Deployment token expired | Regenerate in\
+    \ Azure Portal \u2192 Static Web App \u2192 Manage deployment token |\n| Config\
+    \ not applied | Ensure `staticwebapp.config.json` is in `app_location` or `output_location`\
+    \ |\n| Local API timeout | Default is 45 seconds; optimize function or check for\
+    \ blocking calls |\n\n**Debug commands:**\n```bash\nswa start --verbose log  \
+    \      # Verbose output\nswa deploy --dry-run           # Preview deployment\n\
+    swa --print-config             # Show resolved configuration\n```"

@@ -45,15 +45,20 @@ Mục tiêu: code chuẩn xác, không lặp lại lỗi cũ, và **TỰ ĐỘNG
 
 MỖI KHI bắt đầu task mới hoặc phiên chat mới, **BẮT BUỘC** làm 2 việc TRƯỚC KHI sinh code:
 
-1. **Kích hoạt Trí nhớ** — Gọi `auto_recall`:
-   - `user_message`: tin nhắn đầu tiên của user
+1. **Ưu tiên tạo payload gọn** — Gọi `prepare_llm_payload`:
+   - `user_input`: tin nhắn đầu tiên của user
    - `workspace_path`: **đường dẫn tuyệt đối** project root (suy luận từ file đang mở)
-   - Mục đích: nhớ lại architecture decisions, bug fixes, logic đang làm dở
+   - `max_context_tokens`: budget context MCP muốn dành cho lần gọi LLM tiếp theo
+   - Nếu chạy multi-agent theo session:
+     - `memory_scope="session"`
+     - `agent_id` (**bắt buộc**, không rỗng)
+     - `session_id` (optional: `current`, `turn-42`, ...)
+   - Mục đích: gom context quan trọng nhất từ workspace + memory thành một `compiled_context` duy nhất
 
-2. **Nhận diện Dự án** — Gọi `analyze_workspace` (lần đầu tiên):
-   - Truyền thư mục gốc project
-   - Đọc kỹ `rules` và `skills` trả về
-   - Nếu có `available_references`, gọi `read_reference` để xem chi tiết
+2. **Chỉ fallback sang tools chi tiết khi cần**:
+   - Gọi `auto_recall` nếu cần kéo thêm memory ngoài payload đã tinh lọc
+   - Gọi `analyze_workspace` nếu cần full `rules` / `skills`
+   - Gọi `read_reference` nếu cần deep-dive một tài liệu cụ thể
 
 ### QUY TẮC SỬ DỤNG TRÍ NHỚ (MEMORY MANAGEMENT)
 
@@ -61,6 +66,7 @@ Không bịa thông tin cũ. Dùng tools:
 
 | Tình huống | Tool | Ví dụ |
 |---|---|---|
+| Chuẩn bị context gọn trước khi gọi LLM | `prepare_llm_payload` | "Tạo payload gọn cho task refactor auth flow" |
 | Fix xong bug khó, chốt logic phức tạp | `store_working_context` | "Cách xử lý memory leak ở LoginViewModel" |
 | Thống nhất Best Practice dùng cho mọi project | `store_knowledge` | "Cấu hình chuẩn Ktor / Axios interceptor" |
 | User nhắc chuyện cũ ("sửa lại hàm hôm qua") | `search_memory` | Tìm context trước khi code |
@@ -71,6 +77,16 @@ Không bịa thông tin cũ. Dùng tools:
 - **Terminal**: Chủ động gọi `run_terminal_command` để build, test, lint sau khi viết xong. Hệ thống dùng Allowlist bảo mật — lệnh nguy hiểm tự bị chặn.
 - **Deep Dive**: Nếu `analyze_workspace` báo có `available_references`, gọi `read_reference` đọc chi tiết trước khi implement.
 - **Update Rule**: Nếu user yêu cầu ghi nhớ quy tắc, gọi `update_tech_stack`. Ưu tiên mode `append` hoặc `replace_section`. **KHÔNG dùng `overwrite`** trừ khi user ra lệnh.
+
+### QUY TẮC SESSION SCOPE (MULTI-AGENT)
+
+- `memory_scope="session"` luôn yêu cầu `agent_id` để đảm bảo isolation mặc định.
+- `session_id` chỉ là discriminator phụ trong phạm vi cùng agent.
+- Session read-through:
+  - `prepare_llm_payload`, `search_memory`, `auto_recall` đọc từ `SESSION_LOCAL + L1 + L2`.
+- Session write path:
+  - `store_working_context(memory_scope="session")` chỉ ghi `SESSION_LOCAL`.
+- Không tái sử dụng cùng `agent_id` cho nhiều agent song song.
 
 ### RANH GIỚI NGHIÊM NGẶT (STRICT CONSTRAINTS) ❌
 
@@ -134,6 +150,24 @@ cp /path/to/vibe-light-mcp/docs/mcp_system_prompt.md /your-project/.github/copil
 ## 📇 Tool Reference Card
 
 Bảng tóm tắt tất cả tools — để AI agent biết tool nào dùng khi nào:
+
+### 🚪 Refinery
+
+| Tool | Trigger | Input chính |
+|---|---|---|
+| `prepare_llm_payload` | Trước lần gọi LLM cần context MCP gọn | `user_input`, `workspace_path`, `max_context_tokens`, `memory_scope`, `agent_id` (required when `session`) |
+
+### 🧩 Local Skills
+
+| Tool | Trigger | Input chính |
+|---|---|---|
+| `get_skills` | Trước khi code/review cần policy local đã audit | `requested_skills`, `languages`, `mode`, `active_hashes`, `max_tokens` |
+
+Quy tắc: dùng `mode="auto"` mặc định. Nếu response có `content`, đặt nội dung đó trước task tiếp theo. Nếu response là `hash_only`, tái dùng skill digest đã có trong context. Không tự tìm dynamic skill trên mạng khi `get_skills` trả `no_match`.
+
+Implementation detail: local skills are static local artifacts. Runtime must not fetch
+remote skills. SQLite store lookup is preferred when available; YAML digest fallback is
+acceptable when the store is missing or invalid.
 
 ### 🧠 Memory (Trí nhớ)
 

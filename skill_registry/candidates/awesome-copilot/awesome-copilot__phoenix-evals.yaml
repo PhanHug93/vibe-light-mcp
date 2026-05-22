@@ -1,0 +1,76 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__phoenix-evals
+name: phoenix-evals
+description: Build and run evaluators for AI/LLM applications using Phoenix.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/phoenix-evals/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- phoenix-evals
+content:
+  kind: skill_markdown
+  sha256: 3e4e92f3c3bbf1c3d227063bbcd799ec026525d9e71b89134b2c97698b9f5d11
+  char_count: 4503
+  text: "# Phoenix Evals\n\nBuild evaluators for AI/LLM applications. Code first,\
+    \ LLM for nuance, validate against humans.\n\n## Quick Reference\n\n| Task | Files\
+    \ |\n| ---- | ----- |\n| Setup | [setup-python](references/setup-python.md), [setup-typescript](references/setup-typescript.md)\
+    \ |\n| Decide what to evaluate | [evaluators-overview](references/evaluators-overview.md)\
+    \ |\n| Choose a judge model | [fundamentals-model-selection](references/fundamentals-model-selection.md)\
+    \ |\n| Use pre-built evaluators | [evaluators-pre-built](references/evaluators-pre-built.md)\
+    \ |\n| Build code evaluator | [evaluators-code-python](references/evaluators-code-python.md),\
+    \ [evaluators-code-typescript](references/evaluators-code-typescript.md) |\n|\
+    \ Build LLM evaluator | [evaluators-llm-python](references/evaluators-llm-python.md),\
+    \ [evaluators-llm-typescript](references/evaluators-llm-typescript.md), [evaluators-custom-templates](references/evaluators-custom-templates.md)\
+    \ |\n| Batch evaluate DataFrame | [evaluate-dataframe-python](references/evaluate-dataframe-python.md)\
+    \ |\n| Run experiment | [experiments-running-python](references/experiments-running-python.md),\
+    \ [experiments-running-typescript](references/experiments-running-typescript.md)\
+    \ |\n| Create dataset | [experiments-datasets-python](references/experiments-datasets-python.md),\
+    \ [experiments-datasets-typescript](references/experiments-datasets-typescript.md)\
+    \ |\n| Generate synthetic data | [experiments-synthetic-python](references/experiments-synthetic-python.md),\
+    \ [experiments-synthetic-typescript](references/experiments-synthetic-typescript.md)\
+    \ |\n| Validate evaluator accuracy | [validation](references/validation.md), [validation-evaluators-python](references/validation-evaluators-python.md),\
+    \ [validation-evaluators-typescript](references/validation-evaluators-typescript.md)\
+    \ |\n| Sample traces for review | [observe-sampling-python](references/observe-sampling-python.md),\
+    \ [observe-sampling-typescript](references/observe-sampling-typescript.md) |\n\
+    | Analyze errors | [error-analysis](references/error-analysis.md), [error-analysis-multi-turn](references/error-analysis-multi-turn.md),\
+    \ [axial-coding](references/axial-coding.md) |\n| RAG evals | [evaluators-rag](references/evaluators-rag.md)\
+    \ |\n| Avoid common mistakes | [common-mistakes-python](references/common-mistakes-python.md),\
+    \ [fundamentals-anti-patterns](references/fundamentals-anti-patterns.md) |\n|\
+    \ Production | [production-overview](references/production-overview.md), [production-guardrails](references/production-guardrails.md),\
+    \ [production-continuous](references/production-continuous.md) |\n\n## Workflows\n\
+    \n**Starting Fresh:**\n[observe-tracing-setup](references/observe-tracing-setup.md)\
+    \ \u2192 [error-analysis](references/error-analysis.md) \u2192 [axial-coding](references/axial-coding.md)\
+    \ \u2192 [evaluators-overview](references/evaluators-overview.md)\n\n**Building\
+    \ Evaluator:**\n[fundamentals](references/fundamentals.md) \u2192 [common-mistakes-python](references/common-mistakes-python.md)\
+    \ \u2192 evaluators-{code|llm}-{python|typescript} \u2192 validation-evaluators-{python|typescript}\n\
+    \n**RAG Systems:**\n[evaluators-rag](references/evaluators-rag.md) \u2192 evaluators-code-*\
+    \ (retrieval) \u2192 evaluators-llm-* (faithfulness)\n\n**Production:**\n[production-overview](references/production-overview.md)\
+    \ \u2192 [production-guardrails](references/production-guardrails.md) \u2192 [production-continuous](references/production-continuous.md)\n\
+    \n## Reference Categories\n\n| Prefix | Description |\n| ------ | -----------\
+    \ |\n| `fundamentals-*` | Types, scores, anti-patterns |\n| `observe-*` | Tracing,\
+    \ sampling |\n| `error-analysis-*` | Finding failures |\n| `axial-coding-*` |\
+    \ Categorizing failures |\n| `evaluators-*` | Code, LLM, RAG evaluators |\n| `experiments-*`\
+    \ | Datasets, running experiments |\n| `validation-*` | Validating evaluator accuracy\
+    \ against human labels |\n| `production-*` | CI/CD, monitoring |\n\n## Key Principles\n\
+    \n| Principle | Action |\n| --------- | ------ |\n| Error analysis first | Can't\
+    \ automate what you haven't observed |\n| Custom > generic | Build from your failures\
+    \ |\n| Code first | Deterministic before LLM |\n| Validate judges | >80% TPR/TNR\
+    \ |\n| Binary > Likert | Pass/fail, not 1-5 |"

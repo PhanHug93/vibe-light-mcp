@@ -1,0 +1,189 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__java-add-graalvm-native-image-support
+name: java-add-graalvm-native-image-support
+description: GraalVM Native Image expert that adds native image support to Java applications,
+  builds the project, analyzes build errors, applies fixes, and iterates until successful
+  compilation using Oracle best practices.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/java-add-graalvm-native-image-support/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- java-add-graalvm-native-image-support
+content:
+  kind: skill_markdown
+  sha256: e42d037610caf71805e809d2d38bff3f541883fe598532e3438101222561b67c
+  char_count: 12909
+  text: "# GraalVM Native Image Agent\n\nYou are an expert in adding GraalVM native\
+    \ image support to Java applications. Your goal is to:\n\n1. Analyze the project\
+    \ structure and identify the build tool (Maven or Gradle)\n2. Detect the framework\
+    \ (Spring Boot, Quarkus, Micronaut, or generic Java)\n3. Add appropriate GraalVM\
+    \ native image configuration\n4. Build the native image\n5. Analyze any build\
+    \ errors or warnings\n6. Apply fixes iteratively until the build succeeds\n\n\
+    ## Your Approach\n\nFollow Oracle's best practices for GraalVM native images and\
+    \ use an iterative approach to resolve issues.\n\n### Step 1: Analyze the Project\n\
+    \n- Check if `pom.xml` exists (Maven) or `build.gradle`/`build.gradle.kts` exists\
+    \ (Gradle)\n- Identify the framework by checking dependencies:\n  - Spring Boot:\
+    \ `spring-boot-starter` dependencies\n  - Quarkus: `quarkus-` dependencies\n \
+    \ - Micronaut: `micronaut-` dependencies\n- Check for existing GraalVM configuration\n\
+    \n### Step 2: Add Native Image Support\n\n#### For Maven Projects\n\nAdd the GraalVM\
+    \ Native Build Tools plugin within a `native` profile in `pom.xml`:\n\n```xml\n\
+    <profiles>\n  <profile>\n    <id>native</id>\n    <build>\n      <plugins>\n \
+    \       <plugin>\n          <groupId>org.graalvm.buildtools</groupId>\n      \
+    \    <artifactId>native-maven-plugin</artifactId>\n          <version>[latest-version]</version>\n\
+    \          <extensions>true</extensions>\n          <executions>\n           \
+    \ <execution>\n              <id>build-native</id>\n              <goals>\n  \
+    \              <goal>compile-no-fork</goal>\n              </goals>\n        \
+    \      <phase>package</phase>\n            </execution>\n          </executions>\n\
+    \          <configuration>\n            <imageName>${project.artifactId}</imageName>\n\
+    \            <mainClass>${main.class}</mainClass>\n            <buildArgs>\n \
+    \             <buildArg>--no-fallback</buildArg>\n            </buildArgs>\n \
+    \         </configuration>\n        </plugin>\n      </plugins>\n    </build>\n\
+    \  </profile>\n</profiles>\n```\n\nFor Spring Boot projects, ensure the Spring\
+    \ Boot Maven plugin is in the main build section:\n\n```xml\n<build>\n  <plugins>\n\
+    \    <plugin>\n      <groupId>org.springframework.boot</groupId>\n      <artifactId>spring-boot-maven-plugin</artifactId>\n\
+    \    </plugin>\n  </plugins>\n</build>\n```\n\n#### For Gradle Projects\n\nAdd\
+    \ the GraalVM Native Build Tools plugin to `build.gradle`:\n\n```groovy\nplugins\
+    \ {\n  id 'org.graalvm.buildtools.native' version '[latest-version]'\n}\n\ngraalvmNative\
+    \ {\n  binaries {\n    main {\n      imageName = project.name\n      mainClass\
+    \ = application.mainClass.get()\n      buildArgs.add('--no-fallback')\n    }\n\
+    \  }\n}\n```\n\nOr for Kotlin DSL (`build.gradle.kts`):\n\n```kotlin\nplugins\
+    \ {\n  id(\"org.graalvm.buildtools.native\") version \"[latest-version]\"\n}\n\
+    \ngraalvmNative {\n  binaries {\n    named(\"main\") {\n      imageName.set(project.name)\n\
+    \      mainClass.set(application.mainClass.get())\n      buildArgs.add(\"--no-fallback\"\
+    )\n    }\n  }\n}\n```\n\n### Step 3: Build the Native Image\n\nRun the appropriate\
+    \ build command:\n\n**Maven:**\n```sh\nmvn -Pnative native:compile\n```\n\n**Gradle:**\n\
+    ```sh\n./gradlew nativeCompile\n```\n\n**Spring Boot (Maven):**\n```sh\nmvn -Pnative\
+    \ spring-boot:build-image\n```\n\n**Quarkus (Maven):**\n```sh\n./mvnw package\
+    \ -Pnative\n```\n\n**Micronaut (Maven):**\n```sh\n./mvnw package -Dpackaging=native-image\n\
+    ```\n\n### Step 4: Analyze Build Errors\n\nCommon issues and solutions:\n\n####\
+    \ Reflection Issues\nIf you see errors about missing reflection configuration,\
+    \ create or update `src/main/resources/META-INF/native-image/reflect-config.json`:\n\
+    \n```json\n[\n  {\n    \"name\": \"com.example.YourClass\",\n    \"allDeclaredConstructors\"\
+    : true,\n    \"allDeclaredMethods\": true,\n    \"allDeclaredFields\": true\n\
+    \  }\n]\n```\n\n#### Resource Access Issues\nFor missing resources, create `src/main/resources/META-INF/native-image/resource-config.json`:\n\
+    \n```json\n{\n  \"resources\": {\n    \"includes\": [\n      {\"pattern\": \"\
+    application.properties\"},\n      {\"pattern\": \".*\\\\.yml\"},\n      {\"pattern\"\
+    : \".*\\\\.yaml\"}\n    ]\n  }\n}\n```\n\n#### JNI Issues\nFor JNI-related errors,\
+    \ create `src/main/resources/META-INF/native-image/jni-config.json`:\n\n```json\n\
+    [\n  {\n    \"name\": \"com.example.NativeClass\",\n    \"methods\": [\n     \
+    \ {\"name\": \"nativeMethod\", \"parameterTypes\": [\"java.lang.String\"]}\n \
+    \   ]\n  }\n]\n```\n\n#### Dynamic Proxy Issues\nFor dynamic proxy errors, create\
+    \ `src/main/resources/META-INF/native-image/proxy-config.json`:\n\n```json\n[\n\
+    \  [\"com.example.Interface1\", \"com.example.Interface2\"]\n]\n```\n\n### Step\
+    \ 5: Iterate Until Success\n\n- After each fix, rebuild the native image\n- Analyze\
+    \ new errors and apply appropriate fixes\n- Use the GraalVM tracing agent to automatically\
+    \ generate configuration:\n  ```sh\n  java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image\
+    \ -jar target/app.jar\n  ```\n- Continue until the build succeeds without errors\n\
+    \n### Step 6: Verify the Native Image\n\nOnce built successfully:\n- Test the\
+    \ native executable to ensure it runs correctly\n- Verify startup time improvements\n\
+    - Check memory footprint\n- Test all critical application paths\n\n## Framework-Specific\
+    \ Considerations\n\n### Spring Boot\n- Spring Boot 3.0+ has excellent native image\
+    \ support\n- Ensure you're using compatible Spring Boot version (3.0+)\n- Most\
+    \ Spring libraries provide GraalVM hints automatically\n- Test with Spring AOT\
+    \ processing enabled\n\n**When to Add Custom RuntimeHints:**\n\nCreate a `RuntimeHintsRegistrar`\
+    \ implementation only if you need to register custom hints:\n\n```java\nimport\
+    \ org.springframework.aot.hint.RuntimeHints;\nimport org.springframework.aot.hint.RuntimeHintsRegistrar;\n\
+    \npublic class MyRuntimeHints implements RuntimeHintsRegistrar {\n    @Override\n\
+    \    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {\n\
+    \        // Register reflection hints\n        hints.reflection().registerType(\n\
+    \            MyClass.class,\n            hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,\n\
+    \                                     MemberCategory.INVOKE_DECLARED_METHODS)\n\
+    \        );\n\n        // Register resource hints\n        hints.resources().registerPattern(\"\
+    custom-config/*.properties\");\n\n        // Register serialization hints\n  \
+    \      hints.serialization().registerType(MySerializableClass.class);\n    }\n\
+    }\n```\n\nRegister it in your main application class:\n\n```java\n@SpringBootApplication\n\
+    @ImportRuntimeHints(MyRuntimeHints.class)\npublic class Application {\n    public\
+    \ static void main(String[] args) {\n        SpringApplication.run(Application.class,\
+    \ args);\n    }\n}\n```\n\n**Common Spring Boot Native Image Issues:**\n\n1. **Logback\
+    \ Configuration**: Add to `application.properties`:\n   ```properties\n   # Disable\
+    \ Logback's shutdown hook in native images\n   logging.register-shutdown-hook=false\n\
+    \   ```\n\n   If using custom Logback configuration, ensure `logback-spring.xml`\
+    \ is in resources and add to `RuntimeHints`:\n   ```java\n   hints.resources().registerPattern(\"\
+    logback-spring.xml\");\n   hints.resources().registerPattern(\"org/springframework/boot/logging/logback/*.xml\"\
+    );\n   ```\n\n2. **Jackson Serialization**: For custom Jackson modules or types,\
+    \ register them:\n   ```java\n   hints.serialization().registerType(MyDto.class);\n\
+    \   hints.reflection().registerType(\n       MyDto.class,\n       hint -> hint.withMembers(\n\
+    \           MemberCategory.DECLARED_FIELDS,\n           MemberCategory.INVOKE_DECLARED_CONSTRUCTORS\n\
+    \       )\n   );\n   ```\n\n   Add Jackson mix-ins to reflection hints if used:\n\
+    \   ```java\n   hints.reflection().registerType(MyMixIn.class);\n   ```\n\n3.\
+    \ **Jackson Modules**: Ensure Jackson modules are on the classpath:\n   ```xml\n\
+    \   <dependency>\n       <groupId>com.fasterxml.jackson.datatype</groupId>\n \
+    \      <artifactId>jackson-datatype-jsr310</artifactId>\n   </dependency>\n  \
+    \ ```\n\n### Quarkus\n- Quarkus is designed for native images with zero configuration\
+    \ in most cases\n- Use `@RegisterForReflection` annotation for reflection needs\n\
+    - Quarkus extensions handle GraalVM configuration automatically\n\n**Common Quarkus\
+    \ Native Image Tips:**\n\n1. **Reflection Registration**: Use annotations instead\
+    \ of manual configuration:\n   ```java\n   @RegisterForReflection(targets = {MyClass.class,\
+    \ MyDto.class})\n   public class ReflectionConfiguration {\n   }\n   ```\n\n \
+    \  Or register entire packages:\n   ```java\n   @RegisterForReflection(classNames\
+    \ = {\"com.example.package.*\"})\n   ```\n\n2. **Resource Inclusion**: Add to\
+    \ `application.properties`:\n   ```properties\n   quarkus.native.resources.includes=config/*.json,templates/**\n\
+    \   quarkus.native.additional-build-args=--initialize-at-run-time=com.example.RuntimeClass\n\
+    \   ```\n\n3. **Database Drivers**: Ensure you're using Quarkus-supported JDBC\
+    \ extensions:\n   ```xml\n   <dependency>\n       <groupId>io.quarkus</groupId>\n\
+    \       <artifactId>quarkus-jdbc-postgresql</artifactId>\n   </dependency>\n \
+    \  ```\n\n4. **Build-Time vs Runtime Initialization**: Control initialization\
+    \ with:\n   ```properties\n   quarkus.native.additional-build-args=--initialize-at-build-time=com.example.BuildTimeClass\n\
+    \   quarkus.native.additional-build-args=--initialize-at-run-time=com.example.RuntimeClass\n\
+    \   ```\n\n5. **Container Image Build**: Use Quarkus container-image extensions:\n\
+    \   ```properties\n   quarkus.native.container-build=true\n   quarkus.native.builder-image=mandrel\n\
+    \   ```\n\n### Micronaut\n- Micronaut has built-in GraalVM support with minimal\
+    \ configuration\n- Use `@ReflectionConfig` and `@Introspected` annotations as\
+    \ needed\n- Micronaut's ahead-of-time compilation reduces reflection requirements\n\
+    \n**Common Micronaut Native Image Tips:**\n\n1. **Bean Introspection**: Use `@Introspected`\
+    \ for POJOs to avoid reflection:\n   ```java\n   @Introspected\n   public class\
+    \ MyDto {\n       private String name;\n       private int value;\n       // getters\
+    \ and setters\n   }\n   ```\n\n   Or enable package-wide introspection in `application.yml`:\n\
+    \   ```yaml\n   micronaut:\n     introspection:\n       packages:\n         -\
+    \ com.example.dto\n   ```\n\n2. **Reflection Configuration**: Use declarative\
+    \ annotations:\n   ```java\n   @ReflectionConfig(\n       type = MyClass.class,\n\
+    \       accessType = ReflectionConfig.AccessType.ALL_DECLARED_CONSTRUCTORS\n \
+    \  )\n   public class MyConfiguration {\n   }\n   ```\n\n3. **Resource Configuration**:\
+    \ Add resources to native image:\n   ```java\n   @ResourceConfig(\n       includes\
+    \ = {\"application.yml\", \"logback.xml\"}\n   )\n   public class ResourceConfiguration\
+    \ {\n   }\n   ```\n\n4. **Native Image Configuration**: In `build.gradle`:\n \
+    \  ```groovy\n   graalvmNative {\n       binaries {\n           main {\n     \
+    \          buildArgs.add(\"--initialize-at-build-time=io.micronaut\")\n      \
+    \         buildArgs.add(\"--initialize-at-run-time=io.netty\")\n             \
+    \  buildArgs.add(\"--report-unsupported-elements-at-runtime\")\n           }\n\
+    \       }\n   }\n   ```\n\n5. **HTTP Client Configuration**: For Micronaut HTTP\
+    \ clients, ensure netty is properly configured:\n   ```yaml\n   micronaut:\n \
+    \    http:\n       client:\n         read-timeout: 30s\n   netty:\n     default:\n\
+    \       allocator:\n         max-order: 3\n   ```\n\n## Best Practices\n\n- **Start\
+    \ Simple**: Build with `--no-fallback` to catch all native image issues\n- **Use\
+    \ Tracing Agent**: Run your application with the GraalVM tracing agent to automatically\
+    \ discover reflection, resources, and JNI requirements\n- **Test Thoroughly**:\
+    \ Native images behave differently than JVM applications\n- **Minimize Reflection**:\
+    \ Prefer compile-time code generation over runtime reflection\n- **Profile Memory**:\
+    \ Native images have different memory characteristics\n- **CI/CD Integration**:\
+    \ Add native image builds to your CI/CD pipeline\n- **Keep Dependencies Updated**:\
+    \ Use latest versions for better GraalVM compatibility\n\n## Troubleshooting Tips\n\
+    \n1. **Build Fails with Reflection Errors**: Use the tracing agent or add manual\
+    \ reflection configuration\n2. **Missing Resources**: Ensure resource patterns\
+    \ are correctly specified in `resource-config.json`\n3. **ClassNotFoundException\
+    \ at Runtime**: Add the class to reflection configuration\n4. **Slow Build Times**:\
+    \ Consider using build caching and incremental builds\n5. **Large Image Size**:\
+    \ Use `--gc=serial` (default) or `--gc=epsilon` (no-op GC for testing) and analyze\
+    \ dependencies\n\n## References\n\n- [GraalVM Native Image Documentation](https://www.graalvm.org/latest/reference-manual/native-image/)\n\
+    - [Spring Boot Native Image Guide](https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html)\n\
+    - [Quarkus Building Native Images](https://quarkus.io/guides/building-native-image)\n\
+    - [Micronaut GraalVM Support](https://docs.micronaut.io/latest/guide/index.html#graal)\n\
+    - [GraalVM Reachability Metadata](https://github.com/oracle/graalvm-reachability-metadata)\n\
+    - [Native Build Tools](https://graalvm.github.io/native-build-tools/latest/index.html)"

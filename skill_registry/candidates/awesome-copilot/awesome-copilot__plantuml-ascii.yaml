@@ -1,0 +1,110 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__plantuml-ascii
+name: plantuml-ascii
+description: 'Generate ASCII art diagrams using PlantUML text mode. Use when user
+  asks to create ASCII diagrams, text-based diagrams, terminal-friendly diagrams,
+  or mentions plantuml ascii, text diagram, ascii art diagram. Supports: Converting
+  PlantUML diagrams to ASCII art, Creating sequence diagrams, class diagrams, flowcharts
+  in ASCII format, Generating Unicode-enhanced ASCII art with -utxt flag'
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/plantuml-ascii/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- plantuml-ascii
+content:
+  kind: skill_markdown
+  sha256: 8bfd83efc42a70cdb9d1e3d64ec305bd4d6f09e1753a03bbb7d3805d9bd13e53
+  char_count: 5956
+  text: "# PlantUML ASCII Art Diagram Generator\n\n## Overview\n\nCreate text-based\
+    \ ASCII art diagrams using PlantUML. Perfect for documentation in terminal environments,\
+    \ README files, emails, or any scenario where graphical diagrams aren't suitable.\n\
+    \n## What is PlantUML ASCII Art?\n\nPlantUML can generate diagrams as plain text\
+    \ (ASCII art) instead of images. This is useful for:\n\n- Terminal-based workflows\n\
+    - Git commits/PRs without image support\n- Documentation that needs to be version-controlled\n\
+    - Environments where graphical tools aren't available\n\n## Installation\n\n```bash\n\
+    # macOS\nbrew install plantuml\n\n# Linux (varies by distro)\nsudo apt-get install\
+    \ plantuml  # Ubuntu/Debian\nsudo yum install plantuml      # RHEL/CentOS\n\n\
+    # Or download JAR directly\nwget https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar\n\
+    ```\n\n## Output Formats\n\n| Flag    | Format        | Description          \
+    \                |\n| ------- | ------------- | ------------------------------------\
+    \ |\n| `-txt`  | ASCII         | Pure ASCII characters                |\n| `-utxt`\
+    \ | Unicode ASCII | Enhanced with box-drawing characters |\n\n## Basic Workflow\n\
+    \n### 1. Create PlantUML Diagram File\n\n```plantuml\n@startuml\nparticipant Bob\n\
+    actor Alice\n\nBob -> Alice : hello\nAlice -> Bob : Is it ok?\n@enduml\n```\n\n\
+    ### 2. Generate ASCII Art\n\n```bash\n# Standard ASCII output\nplantuml -txt diagram.puml\n\
+    \n# Unicode-enhanced output (better looking)\nplantuml -utxt diagram.puml\n\n\
+    # Using JAR directly\njava -jar plantuml.jar -txt diagram.puml\njava -jar plantuml.jar\
+    \ -utxt diagram.puml\n```\n\n### 3. View Output\n\nOutput is saved as `diagram.atxt`\
+    \ (ASCII) or `diagram.utxt` (Unicode).\n\n## Diagram Types Supported\n\n### Sequence\
+    \ Diagram\n\n```plantuml\n@startuml\nactor User\nparticipant \"Web App\" as App\n\
+    database \"Database\" as DB\n\nUser -> App : Login Request\nApp -> DB : Validate\
+    \ Credentials\nDB --> App : User Data\nApp --> User : Auth Token\n@enduml\n```\n\
+    \n### Class Diagram\n\n```plantuml\n@startuml\nclass User {\n  +id: int\n  +name:\
+    \ string\n  +email: string\n  +login(): bool\n}\n\nclass Order {\n  +id: int\n\
+    \  +total: float\n  +items: List\n  +calculateTotal(): float\n}\n\nUser \"1\"\
+    \ -- \"*\" Order : places\n@enduml\n```\n\n### Activity Diagram\n\n```plantuml\n\
+    @startuml\nstart\n:Initialize;\nif (Is Valid?) then (yes)\n  :Process Data;\n\
+    \  :Save Result;\nelse (no)\n  :Log Error;\n  stop\nendif\n:Complete;\nstop\n\
+    @enduml\n```\n\n### State Diagram\n\n```plantuml\n@startuml\n[*] --> Idle\nIdle\
+    \ --> Processing : start\nProcessing --> Success : complete\nProcessing --> Error\
+    \ : fail\nSuccess --> [*]\nError --> Idle : retry\n@enduml\n```\n\n### Component\
+    \ Diagram\n\n```plantuml\n@startuml\n[Client] as client\n[API Gateway] as gateway\n\
+    [Service A] as svcA\n[Service B] as svcB\n[Database] as db\n\nclient --> gateway\n\
+    gateway --> svcA\ngateway --> svcB\nsvcA --> db\nsvcB --> db\n@enduml\n```\n\n\
+    ### Use Case Diagram\n\n```plantuml\n@startuml\nactor \"User\" as user\nactor\
+    \ \"Admin\" as admin\n\nrectangle \"System\" {\n  user -- (Login)\n  user -- (View\
+    \ Profile)\n  user -- (Update Settings)\n  admin -- (Manage Users)\n  admin --\
+    \ (Configure System)\n}\n@enduml\n```\n\n### Deployment Diagram\n\n```plantuml\n\
+    @startuml\nactor \"User\" as user\nnode \"Load Balancer\" as lb\nnode \"Web Server\
+    \ 1\" as ws1\nnode \"Web Server 2\" as ws2\ndatabase \"Primary DB\" as db1\ndatabase\
+    \ \"Replica DB\" as db2\n\nuser --> lb\nlb --> ws1\nlb --> ws2\nws1 --> db1\n\
+    ws2 --> db1\ndb1 --> db2 : replicate\n@enduml\n```\n\n## Command-Line Options\n\
+    \n```bash\n# Specify output directory\nplantuml -txt -o ./output diagram.puml\n\
+    \n# Process all files in directory\nplantuml -txt ./diagrams/\n\n# Include dot\
+    \ files (hidden files)\nplantuml -txt -includeDot diagrams/\n\n# Verbose output\n\
+    plantuml -txt -v diagram.puml\n\n# Specify charset\nplantuml -txt -charset UTF-8\
+    \ diagram.puml\n```\n\n## Ant Task Integration\n\n```xml\n<target name=\"generate-ascii\"\
+    >\n  <plantuml dir=\"./src\" format=\"txt\" />\n</target>\n\n<target name=\"generate-unicode-ascii\"\
+    >\n  <plantuml dir=\"./src\" format=\"utxt\" />\n</target>\n```\n\n## Tips for\
+    \ Better ASCII Diagrams\n\n1. **Keep it simple**: Complex diagrams don't render\
+    \ well in ASCII\n2. **Short labels**: Long text breaks ASCII alignment\n3. **Use\
+    \ Unicode (`-utxt`)**: Better visual quality with box-drawing chars\n4. **Test\
+    \ before sharing**: Verify in terminal with fixed-width font\n5. **Consider alternatives**:\
+    \ For complex diagrams, use Mermaid.js or graphviz\n\n## Example Output Comparison\n\
+    \n**Standard ASCII (`-txt`)**:\n\n```\n     ,---.          ,---.\n     |Bob| \
+    \         |Alice|\n     `---'          `---'\n      |   hello      |\n      |------------->|\n\
+    \      |              |\n      |  Is it ok?   |\n      |<-------------|\n    \
+    \  |              |\n```\n\n**Unicode ASCII (`-utxt`)**:\n\n```\n\u250C\u2500\u2500\
+    \u2500\u2500\u2500\u2510        \u250C\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502\
+    \ Bob \u2502        \u2502Alice\u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2518\
+    \        \u2514\u2500\u2500\u2500\u2500\u2500\u2518\n  \u2502   hello      \u2502\
+    \n  \u2502\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500>\u2502\n  \u2502              \u2502\n  \u2502  Is it ok?   \u2502\n  \u2502\
+    <\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2502\n  \u2502              \u2502\n```\n\n## Quick Reference\n\n```bash\n#\
+    \ Create sequence diagram in ASCII\ncat > seq.puml << 'EOF'\n@startuml\nAlice\
+    \ -> Bob: Request\nBob --> Alice: Response\n@enduml\nEOF\n\nplantuml -txt seq.puml\n\
+    cat seq.atxt\n\n# Create with Unicode\nplantuml -utxt seq.puml\ncat seq.utxt\n\
+    ```\n\n## Troubleshooting\n\n**Problem**: Garbled Unicode characters\n\n- **Solution**:\
+    \ Ensure terminal supports UTF-8 and has proper font\n\n**Problem**: Diagram looks\
+    \ misaligned\n\n- **Solution**: Use fixed-width font (Courier, Monaco, Consolas)\n\
+    \n**Problem**: Command not found\n\n- **Solution**: Install PlantUML or use Java\
+    \ JAR directly\n\n**Problem**: Output file not created\n\n- **Solution**: Check\
+    \ file permissions, ensure PlantUML has write access"

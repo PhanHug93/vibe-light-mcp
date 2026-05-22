@@ -1,0 +1,141 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__entra-agent-user
+name: entra-agent-user
+description: Create Agent Users in Microsoft Entra ID from Agent Identities, enabling
+  AI agents to act as digital workers with user identity capabilities in Microsoft
+  365 and Azure environments.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/entra-agent-user/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- entra-agent-user
+content:
+  kind: skill_markdown
+  sha256: 1d36474ce96eb53bc1aabe1f0005fa9df18e7502af1e412d7c679ce45c4e6807
+  char_count: 9230
+  text: "# SKILL: Creating Agent Users in Microsoft Entra Agent ID\n\n## Overview\n\
+    \nAn **agent user** is a specialized user identity in Microsoft Entra ID that\
+    \ enables AI agents to act as digital workers. It allows agents to access APIs\
+    \ and services that strictly require user identities (e.g., Exchange mailboxes,\
+    \ Teams, org charts), while maintaining appropriate security boundaries.\n\nAgent\
+    \ users receive tokens with `idtyp=user`, unlike regular agent identities which\
+    \ receive `idtyp=app`.\n\n---\n\n## Prerequisites\n\n- A **Microsoft Entra tenant**\
+    \ with Agent ID capabilities\n- An **agent identity** (service principal of type\
+    \ `ServiceIdentity`) created from an **agent identity blueprint**\n- One of the\
+    \ following **permissions**:\n  - `AgentIdUser.ReadWrite.IdentityParentedBy` (least\
+    \ privileged)\n  - `AgentIdUser.ReadWrite.All`\n  - `User.ReadWrite.All`\n- The\
+    \ caller must have at minimum the **Agent ID Administrator** role (in delegated\
+    \ scenarios)\n\n> **Important:** The `identityParentId` must reference a true\
+    \ agent identity (created via an agent identity blueprint), NOT a regular application\
+    \ service principal. You can verify by checking that the service principal has\
+    \ `@odata.type: #microsoft.graph.agentIdentity` and `servicePrincipalType: ServiceIdentity`.\n\
+    \n---\n\n## Architecture\n\n```\nAgent Identity Blueprint (application template)\n\
+    \    \u2502\n    \u251C\u2500\u2500 Agent Identity (service principal - ServiceIdentity)\n\
+    \    \u2502       \u2502\n    \u2502       \u2514\u2500\u2500 Agent User (user\
+    \ - agentUser) \u2190 1:1 relationship\n    \u2502\n    \u2514\u2500\u2500 Agent\
+    \ Identity Blueprint Principal (service principal in tenant)\n```\n\n| Component\
+    \ | Type | Token Claim | Purpose |\n|---|---|---|---|\n| Agent Identity | Service\
+    \ Principal | `idtyp=app` | Backend/API operations |\n| Agent User | User (`agentUser`)\
+    \ | `idtyp=user` | Act as a digital worker in M365 |\n\n---\n\n## Step 1: Verify\
+    \ the Agent Identity Exists\n\nBefore creating an agent user, confirm the agent\
+    \ identity is a proper `agentIdentity` type:\n\n```http\nGET https://graph.microsoft.com/beta/servicePrincipals/{agent-identity-id}\n\
+    Authorization: Bearer <token>\n```\n\nVerify the response contains:\n```json\n\
+    {\n  \"@odata.type\": \"#microsoft.graph.agentIdentity\",\n  \"servicePrincipalType\"\
+    : \"ServiceIdentity\",\n  \"agentIdentityBlueprintId\": \"<blueprint-id>\"\n}\n\
+    ```\n\n### PowerShell\n\n```powershell\nConnect-MgGraph -Scopes \"Application.Read.All\"\
+    \ -TenantId \"<tenant>\" -UseDeviceCode -NoWelcome\nInvoke-MgGraphRequest -Method\
+    \ GET `\n  -Uri \"https://graph.microsoft.com/beta/servicePrincipals/<agent-identity-id>\"\
+    \ | ConvertTo-Json -Depth 3\n```\n\n> **Common mistake:** Using an app registration's\
+    \ `appId` or a regular application service principal's `id` will fail. Only agent\
+    \ identities created from blueprints work.\n\n---\n\n## Step 2: Create the Agent\
+    \ User\n\n### HTTP Request\n\n```http\nPOST https://graph.microsoft.com/beta/users/microsoft.graph.agentUser\n\
+    Content-Type: application/json\nAuthorization: Bearer <token>\n\n{\n  \"accountEnabled\"\
+    : true,\n  \"displayName\": \"My Agent User\",\n  \"mailNickname\": \"my-agent-user\"\
+    ,\n  \"userPrincipalName\": \"my-agent-user@yourtenant.onmicrosoft.com\",\n  \"\
+    identityParentId\": \"<agent-identity-object-id>\"\n}\n```\n\n### Required Properties\n\
+    \n| Property | Type | Description |\n|---|---|---|\n| `accountEnabled` | Boolean\
+    \ | `true` to enable the account |\n| `displayName` | String | Human-friendly\
+    \ name |\n| `mailNickname` | String | Mail alias (no spaces/special chars) |\n\
+    | `userPrincipalName` | String | UPN \u2014 must be unique in the tenant (`alias@verified-domain`)\
+    \ |\n| `identityParentId` | String | Object ID of the parent agent identity |\n\
+    \n### PowerShell\n\n```powershell\nConnect-MgGraph -Scopes \"User.ReadWrite.All\"\
+    \ -TenantId \"<tenant>\" -UseDeviceCode -NoWelcome\n\n$body = @{\n  accountEnabled\
+    \    = $true\n  displayName       = \"My Agent User\"\n  mailNickname      = \"\
+    my-agent-user\"\n  userPrincipalName = \"my-agent-user@yourtenant.onmicrosoft.com\"\
+    \n  identityParentId  = \"<agent-identity-object-id>\"\n} | ConvertTo-Json\n\n\
+    Invoke-MgGraphRequest -Method POST `\n  -Uri \"https://graph.microsoft.com/beta/users/microsoft.graph.agentUser\"\
+    \ `\n  -Body $body -ContentType \"application/json\" | ConvertTo-Json -Depth 3\n\
+    ```\n\n### Key Notes\n\n- **No password** \u2014 agent users cannot have passwords.\
+    \ They authenticate via their parent agent identity's credentials.\n- **1:1 relationship**\
+    \ \u2014 each agent identity can have at most one agent user. Attempting to create\
+    \ a second returns `400 Bad Request`.\n- The `userPrincipalName` must be unique.\
+    \ Don't reuse an existing user's UPN.\n\n---\n\n## Step 3: Assign a Manager (Optional)\n\
+    \nAssigning a manager allows the agent user to appear in org charts (e.g., Teams).\n\
+    \n```http\nPUT https://graph.microsoft.com/beta/users/{agent-user-id}/manager/$ref\n\
+    Content-Type: application/json\nAuthorization: Bearer <token>\n\n{\n  \"@odata.id\"\
+    : \"https://graph.microsoft.com/beta/users/{manager-user-id}\"\n}\n```\n\n###\
+    \ PowerShell\n\n```powershell\n$managerBody = '{\"@odata.id\":\"https://graph.microsoft.com/beta/users/<manager-user-id>\"\
+    }'\nInvoke-MgGraphRequest -Method PUT `\n  -Uri \"https://graph.microsoft.com/beta/users/<agent-user-id>/manager/`$ref\"\
+    \ `\n  -Body $managerBody -ContentType \"application/json\"\n```\n\n---\n\n##\
+    \ Step 4: Set Usage Location and Assign Licenses (Optional)\n\nA license is needed\
+    \ for the agent user to have a mailbox, Teams presence, etc. Usage location must\
+    \ be set first.\n\n### Set Usage Location\n\n```http\nPATCH https://graph.microsoft.com/beta/users/{agent-user-id}\n\
+    Content-Type: application/json\nAuthorization: Bearer <token>\n\n{\n  \"usageLocation\"\
+    : \"US\"\n}\n```\n\n### List Available Licenses\n\n```http\nGET https://graph.microsoft.com/beta/subscribedSkus?$select=skuPartNumber,skuId,consumedUnits,prepaidUnits\n\
+    Authorization: Bearer <token>\n```\n\nRequires `Organization.Read.All` permission.\n\
+    \n### Assign a License\n\n```http\nPOST https://graph.microsoft.com/beta/users/{agent-user-id}/assignLicense\n\
+    Content-Type: application/json\nAuthorization: Bearer <token>\n\n{\n  \"addLicenses\"\
+    : [\n    { \"skuId\": \"<sku-id>\" }\n  ],\n  \"removeLicenses\": []\n}\n```\n\
+    \n### PowerShell (all in one)\n\n```powershell\nConnect-MgGraph -Scopes \"User.ReadWrite.All\"\
+    ,\"Organization.Read.All\" -TenantId \"<tenant>\" -NoWelcome\n\n# Set usage location\n\
+    Invoke-MgGraphRequest -Method PATCH `\n  -Uri \"https://graph.microsoft.com/beta/users/<agent-user-id>\"\
+    \ `\n  -Body '{\"usageLocation\":\"US\"}' -ContentType \"application/json\"\n\n\
+    # Assign license\n$licenseBody = '{\"addLicenses\":[{\"skuId\":\"<sku-id>\"}],\"\
+    removeLicenses\":[]}'\nInvoke-MgGraphRequest -Method POST `\n  -Uri \"https://graph.microsoft.com/beta/users/<agent-user-id>/assignLicense\"\
+    \ `\n  -Body $licenseBody -ContentType \"application/json\"\n```\n\n> **Tip:**\
+    \ You can also assign licenses via the **Entra admin center** under Identity \u2192\
+    \ Users \u2192 All users \u2192 select the agent user \u2192 Licenses and apps.\n\
+    \n---\n\n## Provisioning Times\n\n| Service | Estimated Time |\n|---|---|\n| Exchange\
+    \ mailbox | 5\u201330 minutes |\n| Teams availability | 15 min \u2013 24 hours\
+    \ |\n| Org chart / People search | Up to 24\u201348 hours |\n| SharePoint / OneDrive\
+    \ | 5\u201330 minutes |\n| Global Address List | Up to 24 hours |\n\n---\n\n##\
+    \ Agent User Capabilities\n\n- \u2705 Added to Microsoft Entra groups (including\
+    \ dynamic groups)\n- \u2705 Access user-only APIs (`idtyp=user` tokens)\n- \u2705\
+    \ Own a mailbox, calendar, and contacts\n- \u2705 Participate in Teams chats and\
+    \ channels\n- \u2705 Appear in org charts and People search\n- \u2705 Added to\
+    \ administrative units\n- \u2705 Assigned licenses\n\n## Agent User Security Constraints\n\
+    \n- \u274C Cannot have passwords, passkeys, or interactive sign-in\n- \u274C Cannot\
+    \ be assigned privileged admin roles\n- \u274C Cannot be added to role-assignable\
+    \ groups\n- \u274C Permissions similar to guest users by default\n- \u274C Custom\
+    \ role assignment not available\n\n---\n\n## Troubleshooting\n\n| Error | Cause\
+    \ | Fix |\n|---|---|---|\n| `Agent user IdentityParent does not exist` | `identityParentId`\
+    \ points to a non-existent or non-agent-identity object | Verify the ID is an\
+    \ `agentIdentity` service principal, not a regular app |\n| `400 Bad Request`\
+    \ (identityParentId already linked) | The agent identity already has an agent\
+    \ user | Each agent identity supports only one agent user |\n| `409 Conflict`\
+    \ on UPN | The `userPrincipalName` is already taken | Use a unique UPN |\n| License\
+    \ assignment fails | Usage location not set | Set `usageLocation` before assigning\
+    \ licenses |\n\n---\n\n## References\n\n- [Agent identities](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-identities)\n\
+    - [Agent users](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-users)\n\
+    - [Agent service principals](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-service-principals)\n\
+    - [Create agent identity blueprint](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/create-blueprint)\n\
+    - [Create agent identities](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/create-delete-agent-identities)\n\
+    - [agentUser resource type (Graph API)](https://learn.microsoft.com/en-us/graph/api/resources/agentuser?view=graph-rest-beta)\n\
+    - [Create agentUser (Graph API)](https://learn.microsoft.com/en-us/graph/api/agentuser-post?view=graph-rest-beta)"

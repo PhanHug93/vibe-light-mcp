@@ -1,0 +1,136 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mvvm-toolkit-messenger
+name: mvvm-toolkit-messenger
+description: CommunityToolkit.Mvvm Messenger pub/sub for decoupled communication between
+  ViewModels (or any objects). Covers WeakReferenceMessenger vs StrongReferenceMessenger,
+  IRecipient<TMessage>, RequestMessage<T> / AsyncRequestMessage<T> / CollectionRequestMessage<T>,
+  ValueChangedMessage<T>, channels (tokens), and the ObservableRecipient activation
+  lifecycle. Use across WPF, WinUI 3, .NET MAUI, Uno, and Avalonia.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mvvm-toolkit-messenger/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- mvvm-toolkit-messenger
+content:
+  kind: skill_markdown
+  sha256: 05fe9691a670b8d5d43184f66f40e36d980c9e878673d11639a3ac48375fa563
+  char_count: 8855
+  text: "# CommunityToolkit.Mvvm Messenger\n\nPub/sub messaging for ViewModels (or\
+    \ any objects) without forcing a shared\nreference graph. Part of `CommunityToolkit.Mvvm`\
+    \ 8.x.\n\n> **TL;DR.** Default to `WeakReferenceMessenger.Default`. Register handlers\n\
+    > with the `(recipient, message)` lambda and the `static` modifier so you\n> never\
+    \ capture `this`. Inherit from `ObservableRecipient` and toggle\n> `IsActive`\
+    \ at activation/deactivation to get automatic register/unregister.\n\n---\n\n\
+    ## When to use this skill\n\n- Two or more ViewModels need to react to an event\
+    \ (login, theme change,\n  save, navigation) without holding references to each\
+    \ other\n- A ViewModel needs to ask another VM for a value (request/reply)\n-\
+    \ You're scoping events to a sub-system or window with channel tokens\n- Diagnosing\
+    \ \"my handler never fires\" or weak-reference recipient lifetime\n  problems\n\
+    \nFor source generators, base classes, and commands see the **`mvvm-toolkit`**\n\
+    skill. For DI wiring (registering an `IMessenger` instance), see\n**`mvvm-toolkit-di`**.\n\
+    \n---\n\n## Choose an implementation\n\n| Type | When |\n|------|------|\n| `WeakReferenceMessenger.Default`\
+    \ | **Default.** Recipients held weakly \u2014 eligible for GC even while registered.\
+    \ Internal trimming runs during full GCs; no manual `Cleanup()` needed. |\n| `StrongReferenceMessenger.Default`\
+    \ | Profiler shows the messenger is hot and allocation matters. Recipients are\
+    \ pinned until you `Unregister`. Forgetting unregistration leaks them. |\n| Custom\
+    \ `IMessenger` instance | Per-window/per-scope (e.g., one messenger per app window).\
+    \ Construct directly, inject via DI. |\n\n`ObservableRecipient`'s parameterless\
+    \ constructor uses\n`WeakReferenceMessenger.Default`. Pass a different `IMessenger`\
+    \ to its\nconstructor to override.\n\n---\n\n## Define a message\n\nThe toolkit\
+    \ ships base classes; any class works.\n\n```csharp\nusing CommunityToolkit.Mvvm.Messaging.Messages;\n\
+    \n// Single-payload broadcast\npublic sealed class LoggedInUserChangedMessage(User\
+    \ user)\n    : ValueChangedMessage<User>(user);\n\n// Custom shape (records are\
+    \ great for this)\npublic sealed record ThemeChangedMessage(AppTheme NewTheme);\n\
+    \n// Empty signal\npublic sealed record RefreshRequestedMessage;\n```\n\n---\n\
+    \n## Register a recipient\n\n### Lambda style (recommended)\n\n```csharp\nWeakReferenceMessenger.Default.Register<MyViewModel,\
+    \ ThemeChangedMessage>(\n    this,\n    static (recipient, message) => recipient.OnThemeChanged(message.NewTheme));\n\
+    ```\n\nThe `static` modifier prevents accidental closure allocation and keeps\n\
+    `this` out of the lambda \u2014 use the `recipient` parameter instead.\n\n###\
+    \ `IRecipient<TMessage>` interface style\n\n```csharp\npublic sealed class MyViewModel\
+    \ : ObservableRecipient,\n    IRecipient<ThemeChangedMessage>,\n    IRecipient<RefreshRequestedMessage>\n\
+    {\n    public void Receive(ThemeChangedMessage message) { /* ... */ }\n    public\
+    \ void Receive(RefreshRequestedMessage message) { /* ... */ }\n}\n```\n\n`ObservableRecipient.OnActivated()`\
+    \ calls `Messenger.RegisterAll(this)`,\nwhich subscribes every `IRecipient<T>`\
+    \ interface implemented by the type.\nIf you're not using `ObservableRecipient`,\
+    \ register manually:\n\n```csharp\nWeakReferenceMessenger.Default.RegisterAll(this);\n\
+    ```\n\n---\n\n## Send a message\n\n```csharp\nWeakReferenceMessenger.Default.Send(new\
+    \ ThemeChangedMessage(AppTheme.Dark));\n\n// Empty payloads use the parameterless\
+    \ overload:\nWeakReferenceMessenger.Default.Send<RefreshRequestedMessage>();\n\
+    ```\n\n---\n\n## Channels (tokens)\n\nScope messages to a sub-system or window\
+    \ with a token (any equatable\nvalue \u2014 `int`, `string`, `Guid`):\n\n```csharp\n\
+    const int LeftPaneChannel = 1;\n\nWeakReferenceMessenger.Default.Register<MyViewModel,\
+    \ RefreshRequestedMessage, int>(\n    this, LeftPaneChannel,\n    static (r, _)\
+    \ => r.RefreshLeft());\n\nWeakReferenceMessenger.Default.Send(new RefreshRequestedMessage(),\
+    \ LeftPaneChannel);\n```\n\nMessages sent without a token use the default shared\
+    \ channel \u2014 they are\n**not** delivered to channel-scoped recipients.\n\n\
+    ---\n\n## Request / reply\n\nFor ask-style scenarios where a recipient provides\
+    \ a value back to the\nsender, use the `RequestMessage<T>` family.\n\n### Sync\
+    \ request\n\n```csharp\npublic sealed class CurrentUserRequest : RequestMessage<User>\
+    \ { }\n\nWeakReferenceMessenger.Default.Register<UserService, CurrentUserRequest>(\n\
+    \    this,\n    static (r, m) => m.Reply(r.CurrentUser));\n\nUser user = WeakReferenceMessenger.Default.Send<CurrentUserRequest>();\n\
+    ```\n\nThe implicit conversion from `CurrentUserRequest` to `User` throws if no\n\
+    recipient called `Reply`. Capture the message to check first:\n\n```csharp\nvar\
+    \ request = WeakReferenceMessenger.Default.Send<CurrentUserRequest>();\nif (request.HasReceivedResponse)\n\
+    \    User user = request.Response;\n```\n\n### Async request\n\n```csharp\npublic\
+    \ sealed class CurrentUserRequest : AsyncRequestMessage<User> { }\n\nWeakReferenceMessenger.Default.Register<UserService,\
+    \ CurrentUserRequest>(\n    this,\n    static (r, m) => m.Reply(r.GetCurrentUserAsync()));\n\
+    \nUser user = await WeakReferenceMessenger.Default.Send<CurrentUserRequest>();\n\
+    ```\n\n### Collection requests (fan-in)\n\n`CollectionRequestMessage<T>` and `AsyncCollectionRequestMessage<T>`\
+    \ collect\na `Reply` from every responding recipient:\n\n```csharp\npublic sealed\
+    \ class OpenDocumentsRequest : CollectionRequestMessage<Document> { }\n\nvar docs\
+    \ = WeakReferenceMessenger.Default.Send<OpenDocumentsRequest>();\nforeach (Document\
+    \ doc in docs) { /* ... */ }\n```\n\n---\n\n## Lifecycle\n\nEven with `WeakReferenceMessenger`,\
+    \ unregister explicitly when a recipient\nis being torn down \u2014 it trims dead\
+    \ entries and improves performance:\n\n```csharp\nWeakReferenceMessenger.Default.Unregister<ThemeChangedMessage>(this);\n\
+    WeakReferenceMessenger.Default.Unregister<ThemeChangedMessage, int>(this, LeftPaneChannel);\n\
+    WeakReferenceMessenger.Default.UnregisterAll(this);\n```\n\n`ObservableRecipient.OnDeactivated()`\
+    \ does this automatically when\n`IsActive` flips to `false`. Set it from your\
+    \ activation hook:\n\n```csharp\nprotected override void OnNavigatedTo(NavigationEventArgs\
+    \ e)\n{\n    base.OnNavigatedTo(e);\n    ViewModel.IsActive = true;\n}\n\nprotected\
+    \ override void OnNavigatedFrom(NavigationEventArgs e)\n{\n    ViewModel.IsActive\
+    \ = false;\n    base.OnNavigatedFrom(e);\n}\n```\n\n---\n\n## Common pitfalls\n\
+    \n1. **Capturing `this` in the lambda.** `(r, m) => OnX(m)` implicitly\n   captures\
+    \ `this`; allocates a closure and confuses lifetime. Always use\n   `(r, m) =>\
+    \ r.OnX(m)` with `static`.\n2. **Strong-ref recipients without `Unregister`.**\
+    \ With\n   `StrongReferenceMessenger`, recipients (and their entire object graph)\n\
+    \   stay pinned forever. Either inherit from `ObservableRecipient`\n   (auto-unregisters\
+    \ in `OnDeactivated`) or call `UnregisterAll(this)`.\n3. **Inherited message types.**\
+    \ A handler registered for `BaseMessage` is\n   **not** invoked for `DerivedMessage\
+    \ : BaseMessage`. Register each\n   concrete type.\n4. **Wrong messenger instance.**\
+    \ Sending via `WeakReferenceMessenger.Default`\n   and registering via an injected\
+    \ per-window messenger means the message\n   never arrives. Use the same `IMessenger`\
+    \ everywhere (typically inject\n   it via `ObservableRecipient(messenger)`).\n\
+    5. **`OnActivated` never runs.** `ObservableRecipient` only registers\n   `IRecipient<T>`\
+    \ handlers when `IsActive` flips from `false` to `true`.\n6. **Cross-thread updates.**\
+    \ The messenger is thread-agnostic. If a\n   handler updates UI, marshal manually\n\
+    \   (`DispatcherQueue.TryEnqueue` / `Dispatcher.BeginInvoke`).\n\n---\n\n## Multiple\
+    \ messengers (per-window scoping)\n\n```csharp\nservices.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);\
+    \ // app-wide\nservices.AddScoped<WindowScopedMessenger>();                  \
+    \     // per-window\n```\n\nInject the appropriate `IMessenger` into the ViewModel\
+    \ constructor:\n\n```csharp\npublic sealed partial class WindowViewModel(IMessenger\
+    \ messenger)\n    : ObservableRecipient(messenger) { }\n```\n\nThis isolates broadcasts\
+    \ to a single window \u2014 useful for multi-window\ndesktop apps (WinUI 3, WPF,\
+    \ MAUI desktop, Avalonia).\n\n---\n\n## References\n\n| Topic | File |\n|-------|------|\n\
+    | Full deep dive (more channel/lifecycle examples, diagnostics) | [`references/messenger-patterns.md`](references/messenger-patterns.md)\
+    \ |\n\nExternal:\n\n- Messenger docs: <https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/messenger>\n\
+    - `WeakReferenceMessenger` API: <https://learn.microsoft.com/en-us/dotnet/api/communitytoolkit.mvvm.messaging.weakreferencemessenger>\n\
+    - Source: <https://github.com/CommunityToolkit/dotnet>"

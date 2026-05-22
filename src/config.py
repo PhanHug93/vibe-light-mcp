@@ -20,10 +20,27 @@ from pathlib import Path
 PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 """Absolute path to the project root directory."""
 
-TECH_STACKS_DIR: Path = PROJECT_ROOT / "tech_stacks"
+TECH_STACKS_DIR: Path = Path(
+    os.getenv("MCP_TECH_STACKS_DIR", str(PROJECT_ROOT / "tech_stacks"))
+).expanduser()
 """Directory containing tech stack knowledge (rules, skills, references)."""
 
-USAGE_LOG_DIR: Path = PROJECT_ROOT / ".usage_logs"
+SKILL_REGISTRY_DIR: Path = Path(
+    os.getenv("MCP_SKILL_REGISTRY_DIR", str(PROJECT_ROOT / "skill_registry"))
+).expanduser()
+"""Directory containing audited local skill digests for MCP delivery."""
+
+SKILL_STORE_PATH: Path = Path(
+    os.getenv(
+        "MCP_SKILL_STORE_PATH",
+        str(SKILL_REGISTRY_DIR / "index" / "skill_store.sqlite"),
+    )
+).expanduser()
+"""Generated SQLite index for audited local skill delivery."""
+
+USAGE_LOG_DIR: Path = Path(
+    os.getenv("MCP_USAGE_LOG_DIR", str(PROJECT_ROOT / ".usage_logs"))
+).expanduser()
 """Directory for daily usage analytics JSON files."""
 
 # ---------------------------------------------------------------------------
@@ -38,7 +55,9 @@ CHROMA_DB_PATH: Path = Path(
 
 CHROMA_CONNECT_TIMEOUT: int = 5  # seconds — initial connection + heartbeat
 CHROMA_OP_TIMEOUT: int = 15  # seconds — per ChromaDB operation
-CHROMA_POOL_SIZE: int = 4  # dedicated thread-pool workers
+CHROMA_POOL_SIZE: int = int(os.getenv("MCP_CHROMA_POOL_SIZE", "8"))
+CHROMA_QUERY_POOL_SIZE: int = int(os.getenv("MCP_QUERY_POOL_SIZE", "8"))
+REFINERY_POOL_SIZE: int = int(os.getenv("MCP_REFINERY_POOL_SIZE", "4"))
 CHROMA_HEARTBEAT_INTERVAL: int = 30  # seconds — proactive staleness check
 
 # ---------------------------------------------------------------------------
@@ -70,6 +89,7 @@ CHROMA_DISTANCE_FN: str = "cosine"
 # ---------------------------------------------------------------------------
 
 L1_PREFIX: str = "mcp_local_"
+SESSION_PREFIX: str = "mcp_session_"
 L2_COLLECTION: str = "mcp_global_knowledge"
 L1_TTL_DAYS: int = 3  # auto-cleanup threshold
 

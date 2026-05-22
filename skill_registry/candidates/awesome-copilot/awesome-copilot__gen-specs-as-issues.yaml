@@ -1,0 +1,104 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gen-specs-as-issues
+name: gen-specs-as-issues
+description: This workflow guides you through a systematic approach to identify missing
+  features, prioritize them, and create detailed specifications for implementation.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gen-specs-as-issues/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gen-specs-as-issues
+content:
+  kind: skill_markdown
+  sha256: 800a30f8ef7628338de6e19d4b119c0e7af4b68dde23e38c84deed87d11bfe49
+  char_count: 5868
+  text: "# Product Manager Assistant: Feature Identification and Specification\n\n\
+    This workflow guides you through a systematic approach to identify missing features,\
+    \ prioritize them, and create detailed specifications for implementation.\n\n\
+    ## 1. Project Understanding Phase\n\n- Review the project structure to understand\
+    \ its organization\n- Read the README.md and other documentation files to understand\
+    \ the project's core functionality\n- Identify the existing implementation status\
+    \ by examining:\n  - Main entry points (CLI, API, UI, etc.)\n  - Core modules\
+    \ and their functionality\n  - Tests to understand expected behavior\n  - Any\
+    \ placeholder implementations\n\n**Guiding Questions:**\n- What is the primary\
+    \ purpose of this project?\n- What user problems does it solve?\n- What patterns\
+    \ exist in the current implementation?\n- Which features are mentioned in documentation\
+    \ but not fully implemented?\n\n## 2. Gap Analysis Phase\n\n- Compare the documented\
+    \ capabilities ONLY against the actual implementation\n- Identify \"placeholder\"\
+    \ code that lacks real functionality\n- Look for features mentioned in documentation\
+    \ but missing robust implementation\n- Consider the user journey and identify\
+    \ broken or missing steps\n- Focus on core functionality first (not nice-to-have\
+    \ features)\n\n**Output Creation:**\n- Create a list of potential missing features\
+    \ (5-7 items)\n- For each feature, note:\n  - Current implementation status\n\
+    \  - References in documentation\n  - Impact on user experience if missing\n\n\
+    ## 3. Prioritization Phase\n\n- Apply a score to each identified gap:\n\n**Scoring\
+    \ Matrix (1-5 scale):**\n- User Impact: How many users benefit?\n- Strategic Alignment:\
+    \ Fits core mission?\n- Implementation Feasibility: Technical complexity?\n- Resource\
+    \ Requirements: Development effort needed?\n- Risk Level: Potential negative impacts?\n\
+    \n**Priority = (User Impact \xD7 Strategic Alignment) / (Implementation Effort\
+    \ \xD7 Risk Level)**\n\n**Output Creation:**\n- Present the top 3 highest-priority\
+    \ missing features based on the scoring\n- For each, provide:\n  - Feature name\n\
+    \  - Current status\n  - Impact if not implemented\n  - Dependencies on other\
+    \ features\n\n## 4. Specification Development Phase\n\n- For each prioritized\
+    \ feature, develop a detailed but practical specification:\n  - Begin with the\
+    \ philosophical approach: simplicity over complexity\n  - Focus on MVP functionality\
+    \ first\n  - Consider the developer experience\n  - Keep the specification implementation-friendly\n\
+    \n**For Each Feature Specification:**\n1. **Overview & Scope**\n   - What problem\
+    \ does it solve?\n   - What's included and what's explicitly excluded?\n\n2. **Technical\
+    \ Requirements**\n   - Core functionality needed\n   - User-facing interfaces\
+    \ (API, UI, CLI, etc.)\n   - Integration points with existing code\n\n3. **Implementation\
+    \ Plan**\n   - Key modules/files to create or modify\n   - Simple code examples\
+    \ showing the approach\n   - Clear data structures and interfaces\n\n4. **Acceptance\
+    \ Criteria**\n   - How will we know when it's done?\n   - What specific functionality\
+    \ must work?\n   - What tests should pass?\n\n## 5. GitHub Issue Creation Phase\n\
+    \n- For each specification, create a GitHub issue:\n  - Clear, descriptive title\n\
+    \  - Comprehensive specification in the body\n  - Appropriate labels (enhancement,\
+    \ high-priority, etc.)\n  - Explicitly mention MVP philosophy where relevant\n\
+    \n**Issue Template Structure:**\n\n# [Feature Name]\n\n## Overview\n[Brief description\
+    \ of the feature and its purpose]\n\n## Scope\n[What's included and what's explicitly\
+    \ excluded]\n\n## Technical Requirements\n[Specific technical needs and constraints]\n\
+    \n## Implementation Plan\n[Step-by-step approach with simple code examples]\n\n\
+    ## Acceptance Criteria\n[Clear list of requirements to consider the feature complete]\n\
+    \n## Priority\n[Justification for prioritization]\n\n## Dependencies\n- **Blocks:**\
+    \ [List of issues blocked by this one]\n- **Blocked by:** [List of issues this\
+    \ one depends on]\n\n## Implementation Size\n- **Estimated effort:** [Small/Medium/Large]\n\
+    - **Sub-issues:** [Links to sub-issues if this is a parent issue]\n\n\n## 5.5\
+    \ Work Distribution Optimization\n\n- **Independence Analysis**\n  - Review each\
+    \ specification to identify truly independent components\n  - Refactor specifications\
+    \ to maximize independent work streams\n  - Create clear boundaries between interdependent\
+    \ components\n\n- **Dependency Mapping**\n  - For features with unavoidable dependencies,\
+    \ establish clear issue hierarchies\n  - Create parent issues for the overall\
+    \ feature with sub-issues for components\n  - Explicitly document \"blocked by\"\
+    \ and \"blocks\" relationships\n\n- **Workload Balancing**\n  - Break down large\
+    \ specifications into smaller, manageable sub-issues\n  - Ensure each sub-issue\
+    \ represents 1-3 days of development work\n  - Include sub-issue specific acceptance\
+    \ criteria\n\n**Implementation Guidelines:**\n- Use GitHub issue linking syntax\
+    \ to create explicit relationships\n- Add labels to indicate dependency status\
+    \ (e.g., \"blocked\", \"prerequisite\")\n- Include estimated complexity/effort\
+    \ for each issue to aid sprint planning\n\n## 6. Final Review Phase\n\n- Summarize\
+    \ all created specifications\n- Highlight implementation dependencies between\
+    \ features\n- Suggest a logical implementation order\n- Note any potential challenges\
+    \ or considerations\n\nRemember throughout this process:\n- Favor simplicity over\
+    \ complexity\n- Start with minimal viable implementations that work\n- Focus on\
+    \ developer experience\n- Build a foundation that can be extended later\n- Consider\
+    \ the open-source community and contribution model\n\nThis workflow embodiment\
+    \ of our approach should help maintain consistency in how features are specified\
+    \ and prioritized, ensuring that software projects evolve in a thoughtful, user-centered\
+    \ way."

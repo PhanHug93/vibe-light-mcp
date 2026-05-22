@@ -12,8 +12,45 @@
 
 set -e
 
-# Directories that may be bind-mounted from host and need write access
-WRITABLE_DIRS="/app/tech_stacks /data"
+# Directories that may be Docker named volumes or bind mounts and need write access.
+WRITABLE_DIRS="/app/tech_stacks /app/skill_registry /data"
+
+seed_if_empty() {
+    source_dir="$1"
+    target_dir="$2"
+
+    if [ ! -d "$source_dir" ]; then
+        return
+    fi
+
+    mkdir -p "$target_dir"
+    if [ -z "$(find "$target_dir" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]; then
+        echo "Seeding $target_dir from $source_dir"
+        cp -a "$source_dir"/. "$target_dir"/
+    fi
+}
+
+seed_if_empty "/opt/mcp-defaults/tech_stacks" "/app/tech_stacks"
+seed_if_empty "/opt/mcp-defaults/skill_registry" "/app/skill_registry"
+
+ensure_skill_store() {
+    SKILL_REGISTRY_DIR="${MCP_SKILL_REGISTRY_DIR:-/app/skill_registry}"
+    SKILL_STORE_PATH="${MCP_SKILL_STORE_PATH:-$SKILL_REGISTRY_DIR/index/skill_store.sqlite}"
+
+    if [ ! -f "$SKILL_REGISTRY_DIR/registry.yaml" ]; then
+        return
+    fi
+
+    if [ ! -f "$SKILL_STORE_PATH" ]; then
+        echo "Building skill store at $SKILL_STORE_PATH"
+        mkdir -p "$(dirname "$SKILL_STORE_PATH")"
+        python scripts/build_skill_store.py \
+            --registry-dir "$SKILL_REGISTRY_DIR" \
+            --output "$SKILL_STORE_PATH"
+    fi
+}
+
+ensure_skill_store
 
 # Fix ownership (only if running as root)
 if [ "$(id -u)" = "0" ]; then

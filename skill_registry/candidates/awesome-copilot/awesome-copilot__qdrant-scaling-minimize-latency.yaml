@@ -1,0 +1,58 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-scaling-minimize-latency
+name: qdrant-minimize-latency
+description: Guides Qdrant query latency optimization. Use when someone asks 'search
+  is slow', 'how to reduce latency', 'p99 is too high', 'tail latency', 'single query
+  too slow', 'how to make search faster', or 'latency spikes'.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-scaling/minimize-latency/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- qdrant-minimize-latency
+content:
+  kind: skill_markdown
+  sha256: e8f0c32d41e69d807a40e68a8da36eb5789c3bf349320dccd8e758eb533f1650
+  char_count: 2572
+  text: "# Scaling for Query Latency\n\nLatency of a single query is determined by\
+    \ the slowest component in the query execution path. It is sometimes correlated\
+    \ with throughput, but not always \u2014 throughput and latency are opposite tuning\
+    \ directions.\n\nLow latency optimization is aimed at utilising maximum resource\
+    \ saturation for a single query, while throughput optimization is aimed at minimizing\
+    \ per-query resource usage to allow more parallel queries.\n\n## Performance Tuning\
+    \ for Lower Latency\n\n- Increase segment count to match CPU cores (`default_segment_number:\
+    \ 16`) [Minimizing latency](https://search.qdrant.tech/md/documentation/operations/optimize/?s=minimizing-latency)\n\
+    - Keep quantized vectors and HNSW in RAM (`always_ram=true`)\n- Reduce `hnsw_ef`\
+    \ at query time (trade recall for speed) [Search params](https://search.qdrant.tech/md/documentation/operations/optimize/?s=fine-tuning-search-parameters)\n\
+    - Use local NVMe, avoid network-attached storage\n\n## Memory Pressure and Latency\n\
+    \nRAM is the most critical resource for latency. If working set exceeds available\
+    \ RAM, OS cache eviction causes severe, sustained latency degradation.\n\n- Vertical\
+    \ scale RAM first. Critical if working set >80%.\n- Use quantization: scalar (4x\
+    \ reduction) or binary (16x reduction) [Quantization](https://search.qdrant.tech/md/documentation/manage-data/quantization/)\n\
+    - Move payload indexes to disk if filtering is infrequent [On-disk payload index](https://search.qdrant.tech/md/documentation/manage-data/indexing/?s=on-disk-payload-index)\n\
+    - Set `optimizer_cpu_budget` to limit background optimization CPUs\n- Schedule\
+    \ indexing: set high `indexing_threshold` during peak hours\n\n\n## Vertical Scaling\
+    \ for Latency\n\nMore RAM and faster CPU directly reduce latency. See [Vertical\
+    \ Scaling](../scaling-data-volume/vertical-scaling/SKILL.md) for node sizing guidelines.\n\
+    \n\n## What NOT to Do\n\n- Do not expect to optimize latency and throughput simultaneously\
+    \ on the same node\n- Do not use few large segments for latency-sensitive workloads\
+    \ (each segment takes longer to search)\n- Do not run at >90% RAM (cache eviction\
+    \ causes severe latency degradation that can last days)\n- Do not ignore optimizer\
+    \ status during performance debugging\n- Do not scale down RAM without load testing\
+    \ (cache eviction causes days-long latency incidents)"

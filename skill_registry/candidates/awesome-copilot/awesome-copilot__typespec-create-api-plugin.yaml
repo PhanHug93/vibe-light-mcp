@@ -1,0 +1,82 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__typespec-create-api-plugin
+name: typespec-create-api-plugin
+description: Generate a TypeSpec API plugin with REST operations, authentication,
+  and Adaptive Cards for Microsoft 365 Copilot
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/typespec-create-api-plugin/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- typespec-create-api-plugin
+content:
+  kind: skill_markdown
+  sha256: b48f961f80c931a0a31f43adf2954d60c8b9006170e45b85c01f5824d3427002
+  char_count: 4050
+  text: "# Create TypeSpec API Plugin\n\nCreate a complete TypeSpec API plugin for\
+    \ Microsoft 365 Copilot that integrates with external REST APIs.\n\n## Requirements\n\
+    \nGenerate TypeSpec files with:\n\n### main.tsp - Agent Definition\n```typescript\n\
+    import \"@typespec/http\";\nimport \"@typespec/openapi3\";\nimport \"@microsoft/typespec-m365-copilot\"\
+    ;\nimport \"./actions.tsp\";\n\nusing TypeSpec.Http;\nusing TypeSpec.M365.Copilot.Agents;\n\
+    using TypeSpec.M365.Copilot.Actions;\n\n@agent({\n  name: \"[Agent Name]\",\n\
+    \  description: \"[Description]\"\n})\n@instructions(\"\"\"\n  [Instructions for\
+    \ using the API operations]\n\"\"\")\nnamespace [AgentName] {\n  // Reference\
+    \ operations from actions.tsp\n  op operation1 is [APINamespace].operationName;\n\
+    }\n```\n\n### actions.tsp - API Operations\n```typescript\nimport \"@typespec/http\"\
+    ;\nimport \"@microsoft/typespec-m365-copilot\";\n\nusing TypeSpec.Http;\nusing\
+    \ TypeSpec.M365.Copilot.Actions;\n\n@service\n@actions(#{\n    nameForHuman: \"\
+    [API Display Name]\",\n    descriptionForModel: \"[Model description]\",\n   \
+    \ descriptionForHuman: \"[User description]\"\n})\n@server(\"[API_BASE_URL]\"\
+    , \"[API Name]\")\n@useAuth([AuthType]) // Optional\nnamespace [APINamespace]\
+    \ {\n  \n  @route(\"[/path]\")\n  @get\n  @action\n  op operationName(\n    @path\
+    \ param1: string,\n    @query param2?: string\n  ): ResponseModel;\n\n  model\
+    \ ResponseModel {\n    // Response structure\n  }\n}\n```\n\n## Authentication\
+    \ Options\n\nChoose based on API requirements:\n\n1. **No Authentication** (Public\
+    \ APIs)\n   ```typescript\n   // No @useAuth decorator needed\n   ```\n\n2. **API\
+    \ Key**\n   ```typescript\n   @useAuth(ApiKeyAuth<ApiKeyLocation.header, \"X-API-Key\"\
+    >)\n   ```\n\n3. **OAuth2**\n   ```typescript\n   @useAuth(OAuth2Auth<[{\n   \
+    \  type: OAuth2FlowType.authorizationCode;\n     authorizationUrl: \"https://oauth.example.com/authorize\"\
+    ;\n     tokenUrl: \"https://oauth.example.com/token\";\n     refreshUrl: \"https://oauth.example.com/token\"\
+    ;\n     scopes: [\"read\", \"write\"];\n   }]>)\n   ```\n\n4. **Registered Auth\
+    \ Reference**\n   ```typescript\n   @useAuth(Auth)\n   \n   @authReferenceId(\"\
+    registration-id-here\")\n   model Auth is ApiKeyAuth<ApiKeyLocation.header, \"\
+    X-API-Key\">\n   ```\n\n## Function Capabilities\n\n### Confirmation Dialog\n\
+    ```typescript\n@capabilities(#{\n  confirmation: #{\n    type: \"AdaptiveCard\"\
+    ,\n    title: \"Confirm Action\",\n    body: \"\"\"\n    Are you sure you want\
+    \ to perform this action?\n      * **Parameter**: {{ function.parameters.paramName\
+    \ }}\n    \"\"\"\n  }\n})\n```\n\n### Adaptive Card Response\n```typescript\n\
+    @card(#{\n  dataPath: \"$.items\",\n  title: \"$.title\",\n  url: \"$.link\",\n\
+    \  file: \"cards/card.json\"\n})\n```\n\n### Reasoning & Response Instructions\n\
+    ```typescript\n@reasoning(\"\"\"\n  Consider user's context when calling this\
+    \ operation.\n  Prioritize recent items over older ones.\n\"\"\")\n@responding(\"\
+    \"\"\n  Present results in a clear table format with columns: ID, Title, Status.\n\
+    \  Include a summary count at the end.\n\"\"\")\n```\n\n## Best Practices\n\n\
+    1. **Operation Names**: Use clear, action-oriented names (listProjects, createTicket)\n\
+    2. **Models**: Define TypeScript-like models for requests and responses\n3. **HTTP\
+    \ Methods**: Use appropriate verbs (@get, @post, @patch, @delete)\n4. **Paths**:\
+    \ Use RESTful path conventions with @route\n5. **Parameters**: Use @path, @query,\
+    \ @header, @body appropriately\n6. **Descriptions**: Provide clear descriptions\
+    \ for model understanding\n7. **Confirmations**: Add for destructive operations\
+    \ (delete, update critical data)\n8. **Cards**: Use for rich visual responses\
+    \ with multiple data items\n\n## Workflow\n\nAsk the user:\n1. What is the API\
+    \ base URL and purpose?\n2. What operations are needed (CRUD operations)?\n3.\
+    \ What authentication method does the API use?\n4. Should confirmations be required\
+    \ for any operations?\n5. Do responses need Adaptive Cards?\n\nThen generate:\n\
+    - Complete `main.tsp` with agent definition\n- Complete `actions.tsp` with API\
+    \ operations and models\n- Optional `cards/card.json` if Adaptive Cards are needed"

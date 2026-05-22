@@ -1,0 +1,65 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__aws-cdk-python-setup
+name: aws-cdk-python-setup
+description: Setup and initialization guide for developing AWS CDK (Cloud Development
+  Kit) applications in Python. This skill enables users to configure environment prerequisites,
+  create new CDK projects, manage dependencies, and deploy to AWS.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/aws-cdk-python-setup/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - mentions_secret_or_token
+facets:
+- frontend
+- python
+languages: []
+platforms: []
+aliases:
+- aws-cdk-python-setup
+content:
+  kind: skill_markdown
+  sha256: ffc9ecadc84bdeaf29c4e5616d497254339e5bad77f05e6c370da569ce9c98c3
+  char_count: 2597
+  text: "# AWS CDK Python Setup Instructions\n\nThis skill provides setup guidance\
+    \ for working with **AWS CDK (Cloud Development Kit)** projects using **Python**.\n\
+    \n---\n\n## Prerequisites\n\nBefore starting, ensure the following tools are installed:\n\
+    \n- **Node.js** \u2265 14.15.0 \u2014 Required for the AWS CDK CLI\n- **Python**\
+    \ \u2265 3.7 \u2014 Used for writing CDK code\n- **AWS CLI** \u2014 Manages credentials\
+    \ and resources\n- **Git** \u2014 Version control and project management\n\n---\n\
+    \n## Installation Steps\n\n### 1. Install AWS CDK CLI\n```bash\nnpm install -g\
+    \ aws-cdk\ncdk --version\n```\n\n### 2. Configure AWS Credentials\n```bash\n#\
+    \ Install AWS CLI (if not installed)\nbrew install awscli\n\n# Configure credentials\n\
+    aws configure\n```\nEnter your AWS Access Key, Secret Access Key, default region,\
+    \ and output format when prompted.\n\n### 3. Create a New CDK Project\n```bash\n\
+    mkdir my-cdk-project\ncd my-cdk-project\ncdk init app --language python\n```\n\
+    \nYour project will include:\n- `app.py` \u2014 Main application entry point\n\
+    - `my_cdk_project/` \u2014 CDK stack definitions\n- `requirements.txt` \u2014\
+    \ Python dependencies\n- `cdk.json` \u2014 Configuration file\n\n### 4. Set Up\
+    \ Python Virtual Environment\n```bash\n# macOS/Linux\nsource .venv/bin/activate\n\
+    \n# Windows\n.venv\\Scripts\\activate\n```\n\n### 5. Install Python Dependencies\n\
+    ```bash\npip install -r requirements.txt\n```\nPrimary dependencies:\n- `aws-cdk-lib`\
+    \ \u2014 Core CDK constructs\n- `constructs` \u2014 Base construct library\n\n\
+    ---\n\n## Development Workflow\n\n### Synthesize CloudFormation Templates\n```bash\n\
+    cdk synth\n```\nGenerates `cdk.out/` containing CloudFormation templates.\n\n\
+    ### Deploy Stacks to AWS\n```bash\ncdk deploy\n```\nReviews and confirms deployment\
+    \ to the configured AWS account.\n\n### Bootstrap (First Deployment Only)\n```bash\n\
+    cdk bootstrap\n```\nPrepares environment resources like S3 buckets for asset storage.\n\
+    \n---\n\n## Best Practices\n\n- Always activate the virtual environment before\
+    \ working.\n- Run `cdk diff` before deployment to preview changes.\n- Use development\
+    \ accounts for testing.\n- Follow Pythonic naming and directory conventions.\n\
+    - Keep `requirements.txt` pinned for consistent builds.\n\n---\n\n## Troubleshooting\
+    \ Tips\n\nIf issues occur, check:\n\n- AWS credentials are correctly configured.\n\
+    - Default region is set properly.\n- Node.js and Python versions meet minimum\
+    \ requirements.\n- Run `cdk doctor` to diagnose environment issues."

@@ -1,0 +1,205 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__flowstudio-power-automate-mcp
+name: flowstudio-power-automate-mcp
+description: "Foundation skill for Power Automate via FlowStudio MCP \u2014 auth setup,\
+  \ the reusable MCP helper (Python + Node.js), tool discovery via `list_skills` /\
+  \ `tool_search`, and oversized-response handling. Load this skill first when connecting\
+  \ an agent to Power Automate. For specialized workflows, load `flowstudio-power-automate-build`,\
+  \ `flowstudio-power-automate-debug`, `flowstudio-power-automate-monitoring` (Pro+),\
+  \ or `flowstudio-power-automate-governance` (Pro+) \u2014 each contains the workflow\
+  \ narrative, this skill provides the plumbing they all rely on. Requires a FlowStudio\
+  \ MCP subscription or compatible server \u2014 see https://mcp.flowstudio.app"
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/flowstudio-power-automate-mcp/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_network_install
+  - mentions_secret_or_token
+facets:
+- frontend
+- mcp
+- python
+- typescript
+languages: []
+platforms: []
+aliases:
+- flowstudio-power-automate-mcp
+content:
+  kind: skill_markdown
+  sha256: 371b2dbdd28805047a9cabb9e374f2773bc09e9846279e0436d029219c1ded95
+  char_count: 13490
+  text: "# Power Automate via FlowStudio MCP \u2014 Foundation\n\nThis skill is the\
+    \ **plumbing layer**. It gives an AI agent a reliable way to\ntalk to a FlowStudio\
+    \ MCP server, discover what tools are available, and handle\nthe responses cleanly.\
+    \ The actual workflow narratives live in four specialized\nskills that all build\
+    \ on this one.\n\n> **Real debugging examples**: [Expression error in child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/fix-expression-error.md)\
+    \ |\n> [Data entry, not a flow bug](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/data-not-flow.md)\
+    \ |\n> [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/null-child-flow.md)\n\
+    \n> **Requires:** A [FlowStudio](https://mcp.flowstudio.app) MCP subscription\
+    \ (or\n> compatible Power Automate MCP server). You will need:\n> - MCP endpoint:\
+    \ `https://mcp.flowstudio.app/mcp` (same for all subscribers)\n> - API key / JWT\
+    \ token (`x-api-key` header \u2014 NOT Bearer)\n> - Power Platform environment\
+    \ name (e.g. `Default-<tenant-guid>`)\n\n---\n\n## Which Skill to Use When\n\n\
+    Skills are organized by **use-case intent**, not by which tools they call.\nMultiple\
+    \ skills reuse the same underlying tools \u2014 pick by what the user is\ntrying\
+    \ to accomplish.\n\n| The user wants to\u2026 | Load this skill |\n|---|---|\n\
+    | Make or change a flow (build new, modify existing, fix a bug, deploy) | **`flowstudio-power-automate-build`**\
+    \ |\n| Diagnose why a flow failed (root cause analysis on a failing run) | **`flowstudio-power-automate-debug`**\
+    \ |\n| See tenant-wide flow health, failure rates, asset inventory | **`flowstudio-power-automate-monitoring`**\
+    \ *(Pro+)* |\n| Tag, audit, classify, score, or offboard flows | **`flowstudio-power-automate-governance`**\
+    \ *(Pro+)* |\n| Just connect, set up auth, write the helper, parse responses |\
+    \ this skill (foundation) |\n\n**Same tools, different lenses.** `flowstudio-power-automate-build`\
+    \ and `flowstudio-power-automate-debug`\nboth call `update_live_flow`, `get_live_flow`,\
+    \ and the run-error tools \u2014 they\ndiffer in *direction* (forward vs backward)\
+    \ and *intent* (compose vs diagnose).\n`flowstudio-power-automate-monitoring`\
+    \ and `flowstudio-power-automate-governance` both call the Store\ntools \u2014\
+    \ they differ in *audience* (ops vs compliance) and *outcome* (read\nhealth vs\
+    \ write metadata). Don't try to memorize \"which tools belong to which\nskill\"\
+    ; pick the skill by what the user is doing.\n\n---\n\n## Source of Truth\n\n|\
+    \ Priority | Source | Covers |\n|----------|--------|--------|\n| 1 | **Real API\
+    \ response** | Always trust what the server actually returns |\n| 2 | **`tool_search`\
+    \ / `list_skills`** | Authoritative tool schemas, parameter names, types, required\
+    \ flags |\n| 3 | **SKILL docs & reference files** | Workflow narrative, response\
+    \ shapes, non-obvious behaviors |\n\nIf documentation disagrees with a real API\
+    \ response, the API wins. Tool schemas\nin this skill (or any other) may lag the\
+    \ server \u2014 call `tool_search` to confirm\nthe current shape before invoking\
+    \ a tool you haven't used recently.\n\n---\n\n## How Agents Discover Tools\n\n\
+    The FlowStudio MCP server (v1.1.5+) exposes two **non-billable** meta-tools that\n\
+    let an agent load only the tools relevant to the current task. Use these in\n\
+    preference to `tools/list` (which loads all 30+ schemas at once) or guessing\n\
+    tool names.\n\n| Meta-tool | When to call |\n|---|---|\n| `list_skills` | Cold\
+    \ start \u2014 see the available bundles (`build-flow`, `create-flow`, `debug-flow`,\
+    \ `monitor-flow`, `discover`, `governance`) and pick one |\n| `tool_search` with\
+    \ `query: \"skill:<name>\"` | Load the full schema set for one bundle (e.g. `skill:debug-flow`)\
+    \ |\n| `tool_search` with `query: \"select:tool1,tool2\"` | Load specific tools\
+    \ by name (e.g. when chaining across bundles) |\n| `tool_search` with `query:\
+    \ \"<keywords>\"` | Free-text search when the user request is ambiguous (e.g.\
+    \ `\"cancel run\"`) |\n\nThe server's `tool_search` bundles are intentionally\
+    \ **narrower than this\nskill family** \u2014 they're starter packs of the most-likely-needed\
+    \ tools per\nintent. A workflow skill (e.g. `flowstudio-power-automate-debug`)\
+    \ may pull a bundle and\nthen call `tool_search` again for additional tools as\
+    \ the workflow progresses.\n\n```python\n# Cold start \u2014 pick a bundle by\
+    \ intent\nskills = mcp(\"list_skills\", {})\n# [{\"name\": \"debug-flow\", \"\
+    description\": \"Investigate why a flow is failing...\",\n#   \"tools\": [\"get_live_flow_runs\"\
+    , \"get_live_flow_run_error\", ...]}, ...]\n\n# Load schemas for the bundle\n\
+    debug_tools = mcp(\"tool_search\", {\"query\": \"skill:debug-flow\"})\n```\n\n\
+    Current common bundles:\n\n| Bundle | Use when |\n|---|---|\n| `create-flow` |\
+    \ Creating a brand-new flow; includes environment/connection discovery, connector\
+    \ description, dynamic options, and `update_live_flow` |\n| `build-flow` | Reading\
+    \ or modifying an existing flow definition |\n| `debug-flow` | Investigating failed\
+    \ runs and action-level inputs/outputs |\n| `monitor-flow` | Starting/stopping,\
+    \ triggering, cancelling, or resubmitting runs |\n| `discover` | Enumerating environments,\
+    \ flows, and connections |\n| `governance` | Pro+ cached-store tagging, maker\
+    \ audit, and metadata updates |\n\n---\n\n## Recommended Language: Python or Node.js\n\
+    \nAll examples in this skill family use **Python with `urllib.request`**\n(stdlib\
+    \ \u2014 no `pip install` needed). **Node.js** is an equally valid choice:\n`fetch`\
+    \ is built-in from Node 18+, JSON handling is native, and async/await\nmaps cleanly\
+    \ onto the request-response pattern of MCP tool calls \u2014 making it\na natural\
+    \ fit for teams already working in a JavaScript/TypeScript stack.\n\n| Language\
+    \ | Verdict | Notes |\n|---|---|---|\n| **Python** | Recommended | Clean JSON\
+    \ handling, no escaping issues, all skill examples use it |\n| **Node.js (\u2265\
+    \ 18)** | Recommended | Native `fetch` + `JSON.stringify`/`JSON.parse`; no extra\
+    \ packages |\n| PowerShell | Avoid for flow operations | `ConvertTo-Json -Depth`\
+    \ silently truncates nested definitions; quoting and escaping break complex payloads.\
+    \ Acceptable for a quick connectivity smoke-test but not for building or updating\
+    \ flows. |\n| cURL / Bash | Possible but fragile | Shell-escaping nested JSON\
+    \ is error-prone; no native JSON parser |\n\n> **TL;DR \u2014 use the Core MCP\
+    \ Helper (Python or Node.js) below.** Both handle\n> JSON-RPC framing, auth, and\
+    \ response parsing in a single reusable function.\n\n---\n\n## Core MCP Helper\
+    \ (Python)\n\nUse this helper throughout all subsequent operations:\n\n```python\n\
+    import json, urllib.request\n\nTOKEN = \"<YOUR_JWT_TOKEN>\"\nMCP   = \"https://mcp.flowstudio.app/mcp\"\
+    \n\ndef mcp(tool, args, cid=1):\n    payload = {\"jsonrpc\": \"2.0\", \"method\"\
+    : \"tools/call\", \"id\": cid,\n               \"params\": {\"name\": tool, \"\
+    arguments\": args}}\n    req = urllib.request.Request(MCP, data=json.dumps(payload).encode(),\n\
+    \        headers={\"x-api-key\": TOKEN, \"Content-Type\": \"application/json\"\
+    ,\n                 \"User-Agent\": \"FlowStudio-MCP/1.0\"})\n    try:\n     \
+    \   resp = urllib.request.urlopen(req, timeout=120)\n    except urllib.error.HTTPError\
+    \ as e:\n        body = e.read().decode(\"utf-8\", errors=\"replace\")\n     \
+    \   raise RuntimeError(f\"MCP HTTP {e.code}: {body[:200]}\") from e\n    raw =\
+    \ json.loads(resp.read())\n    if \"error\" in raw:\n        raise RuntimeError(f\"\
+    MCP error: {json.dumps(raw['error'])}\")\n    text = raw[\"result\"][\"content\"\
+    ][0][\"text\"]\n    return json.loads(text)\n```\n\n> **Common auth errors:**\n\
+    > - HTTP 401/403 \u2192 token is missing, expired, or malformed. Get a fresh JWT\
+    \ from [mcp.flowstudio.app](https://mcp.flowstudio.app).\n> - HTTP 400 \u2192\
+    \ malformed JSON-RPC payload. Check `Content-Type: application/json` and body\
+    \ structure.\n> - `MCP error: {\"code\": -32602, ...}` \u2192 wrong or missing\
+    \ tool arguments. Call `tool_search` with `select:<toolname>` to confirm the schema.\n\
+    \n---\n\n## Core MCP Helper (Node.js)\n\nEquivalent helper for Node.js 18+ (built-in\
+    \ `fetch` \u2014 no packages required):\n\n```js\nconst TOKEN = \"<YOUR_JWT_TOKEN>\"\
+    ;\nconst MCP   = \"https://mcp.flowstudio.app/mcp\";\n\nasync function mcp(tool,\
+    \ args, cid = 1) {\n  const payload = {\n    jsonrpc: \"2.0\",\n    method: \"\
+    tools/call\",\n    id: cid,\n    params: { name: tool, arguments: args },\n  };\n\
+    \  const res = await fetch(MCP, {\n    method: \"POST\",\n    headers: {\n   \
+    \   \"x-api-key\": TOKEN,\n      \"Content-Type\": \"application/json\",\n   \
+    \   \"User-Agent\": \"FlowStudio-MCP/1.0\",\n    },\n    body: JSON.stringify(payload),\n\
+    \  });\n  if (!res.ok) {\n    const body = await res.text();\n    throw new Error(`MCP\
+    \ HTTP ${res.status}: ${body.slice(0, 200)}`);\n  }\n  const raw = await res.json();\n\
+    \  if (raw.error) throw new Error(`MCP error: ${JSON.stringify(raw.error)}`);\n\
+    \  return JSON.parse(raw.result.content[0].text);\n}\n```\n\n> Requires Node.js\
+    \ 18+. For older Node, replace `fetch` with `https.request`\n> from the stdlib\
+    \ or install `node-fetch`.\n\n---\n\n## Verify the Connection\n\nA 3-line smoke\
+    \ test that confirms the token, endpoint, and helper all work:\n\n```python\n\
+    skills = mcp(\"list_skills\", {})\nprint(f\"Connected \u2014 {len(skills)} skill\
+    \ bundles available:\",\n      [s[\"name\"] for s in skills])\n```\n\nExpected\
+    \ output:\n\n```text\nConnected \u2014 6 skill bundles available: ['build-flow',\
+    \ 'create-flow', 'debug-flow', 'monitor-flow', 'discover', 'governance']\n```\n\
+    \nIf this fails, see the **Common auth errors** note above. If it succeeds, hand\n\
+    off to the workflow skill matching the user's intent.\n\n---\n\n## Handling Oversized\
+    \ Responses\n\nSome MCP tool responses are large enough to overflow the agent's\
+    \ context window:\n\n| Tool | Typical size | Cause |\n|---|---|---|\n| `describe_live_connector`\
+    \ | 100-600 KB | Full Swagger spec for a connector |\n| `get_live_dynamic_properties`\
+    \ | 50-500 KB | Dynamic connector field schemas such as SharePoint list columns\
+    \ |\n| `get_live_flow_run_action_outputs` (no `actionName`) | 50 KB \u2013 several\
+    \ MB | Top-level action outputs; with an action in a foreach, every repetition\
+    \ can be returned |\n| `get_live_flow` (large flows) | 50-500 KB | Deeply nested\
+    \ branches |\n| `list_live_flows` (large tenants) | 50-200 KB | Hundreds of flow\
+    \ records |\n\n### When the harness spills to a file\n\nAgent harnesses (Claude\
+    \ Code, VS Code Copilot, etc.) save oversized responses\nto a temp file (e.g.\
+    \ `tool-results/mcp-flowstudio-describe_live_connector-NNNN.txt`)\nand return\
+    \ the path instead of the inline JSON. The file is **double-wrapped** \u2014\n\
+    the outer MCP envelope plus the inner JSON-escaped payload:\n\n```text\n[{\"type\"\
+    :\"text\",\"text\":\"<JSON-escaped payload>\"}]\n```\n\nTwo parses to reach a\
+    \ usable object:\n\n```python\nimport json\nwith open(path) as f:\n    raw = json.loads(f.read())\n\
+    payload = json.loads(raw[0][\"text\"])\n```\n\n```powershell\n$payload = ((Get-Content\
+    \ $path -Raw | ConvertFrom-Json)[0].text) | ConvertFrom-Json\n```\n\n### Rules\
+    \ of thumb\n\n1. **Extract, don't echo.** Pull the specific field(s) you need\
+    \ (one `operationId`, one action's outputs) and discard the rest before reasoning\
+    \ about it.\n2. **Always pass `actionName` to `get_live_flow_run_action_outputs`.**\
+    \ Omitting it fetches all top-level actions. For actions inside a foreach, passing\
+    \ `actionName` without `iterationIndex` can return every repetition of that action.\n\
+    3. **Reuse the spill file within a session.** Refetching the same connector swagger\
+    \ costs 30+ seconds and produces another spill \u2014 cache the path.\n4. **Don't\
+    \ grep the spill file for JSON keys directly.** Strings are JSON-escaped inside\
+    \ the file (`\\\"OperationId\\\":`), so a plain grep for `\"OperationId\":` will\
+    \ not match. Parse first, then filter.\n5. **Summarize tool output to the user.**\
+    \ Echo `name + state + trigger` for flow lists and `actionName + status + code`\
+    \ for run errors \u2014 not raw JSON, unless asked.\n\n```python\n# Good \u2014\
+    \ drill into one operation in a connector swagger\nconn = mcp(\"describe_live_connector\"\
+    , {\"environmentName\": ENV, \"connectorName\": \"shared_sharepointonline\"})\n\
+    op = conn[\"properties\"][\"swagger\"][\"paths\"][\"/datasets/{dataset}/tables/{table}/items\"\
+    ][\"get\"]\nprint(op[\"operationId\"], \"\u2014\", op.get(\"summary\"))\n\n# Bad\
+    \ \u2014 keeping the whole 500 KB swagger in context\nprint(json.dumps(conn, indent=2))\
+    \   # don't do this\n```\n\n---\n\n## Auth & Connection Notes\n\n| Field | Value\
+    \ |\n|---|---|\n| Auth header | `x-api-key: <JWT>` \u2014 **not** `Authorization:\
+    \ Bearer` |\n| Token format | Plain JWT \u2014 do not strip, alter, or prefix\
+    \ it |\n| Timeout | Use \u2265 120 s for `get_live_flow_run_action_outputs` (large\
+    \ outputs) |\n| Environment name | `Default-<tenant-guid>` (find it via `list_live_environments`\
+    \ or `list_live_flows` response) |\n\n---\n\n## Reference Files\n\n- [MCP-BOOTSTRAP.md](references/MCP-BOOTSTRAP.md)\
+    \ \u2014 endpoint, auth, request/response format (read this first)\n- [tool-reference.md](references/tool-reference.md)\
+    \ \u2014 response shapes and behavioral notes (parameters are in `tool_search`)\n\
+    - [action-types.md](references/action-types.md) \u2014 Power Automate action type\
+    \ patterns\n- [connection-references.md](references/connection-references.md)\
+    \ \u2014 connector reference guide"

@@ -1,0 +1,48 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__java-docs
+name: java-docs
+description: Ensure that Java types are documented with Javadoc comments and follow
+  best practices for documentation.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/java-docs/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- documentation
+languages: []
+platforms: []
+aliases:
+- java-docs
+content:
+  kind: skill_markdown
+  sha256: 9f837092e00114d9f18a9e744707ef11bfc68913247d8014adc534a29e46d087
+  char_count: 1439
+  text: "# Java Documentation (Javadoc) Best Practices\n\n- Public and protected members\
+    \ should be documented with Javadoc comments.\n- It is encouraged to document\
+    \ package-private and private members as well, especially if they are complex\
+    \ or not self-explanatory.\n- The first sentence of the Javadoc comment is the\
+    \ summary description. It should be a concise overview of what the method does\
+    \ and end with a period.\n- Use `@param` for method parameters. The description\
+    \ starts with a lowercase letter and does not end with a period.\n- Use `@return`\
+    \ for method return values.\n- Use `@throws` or `@exception` to document exceptions\
+    \ thrown by methods.\n- Use `@see` for references to other types or members.\n\
+    - Use `{@inheritDoc}` to inherit documentation from base classes or interfaces.\n\
+    \  - Unless there is major behavior change, in which case you should document\
+    \ the differences.\n- Use `@param <T>` for type parameters in generic types or\
+    \ methods.\n- Use `{@code}` for inline code snippets.\n- Use `<pre>{@code ...\
+    \ }</pre>` for code blocks.\n- Use `@since` to indicate when the feature was introduced\
+    \ (e.g., version number).\n- Use `@version` to specify the version of the member.\n\
+    - Use `@author` to specify the author of the code.\n- Use `@deprecated` to mark\
+    \ a member as deprecated and provide an alternative."

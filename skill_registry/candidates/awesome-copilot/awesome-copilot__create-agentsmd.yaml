@@ -1,0 +1,129 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__create-agentsmd
+name: create-agentsmd
+description: Prompt for generating an AGENTS.md file for a repository
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/create-agentsmd/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- create-agentsmd
+content:
+  kind: skill_markdown
+  sha256: 97b71d3f7c5e30e9f1740fcd7a45d4bf107b7887947cfd3ab92ac99dee294855
+  char_count: 7855
+  text: "# Create high\u2011quality AGENTS.md file\n\nYou are a code agent. Your task\
+    \ is to create a complete, accurate AGENTS.md at the root of this repository that\
+    \ follows the public guidance at https://agents.md/.\n\nAGENTS.md is an open format\
+    \ designed to provide coding agents with the context and instructions they need\
+    \ to work effectively on a project.\n\n## What is AGENTS.md?\n\nAGENTS.md is a\
+    \ Markdown file that serves as a \"README for agents\" - a dedicated, predictable\
+    \ place to provide context and instructions to help AI coding agents work on your\
+    \ project. It complements README.md by containing detailed technical context that\
+    \ coding agents need but might clutter a human-focused README.\n\n## Key Principles\n\
+    \n- **Agent-focused**: Contains detailed technical instructions for automated\
+    \ tools\n- **Complements README.md**: Doesn't replace human documentation but\
+    \ adds agent-specific context\n- **Standardized location**: Placed at repository\
+    \ root (or subproject roots for monorepos)\n- **Open format**: Uses standard Markdown\
+    \ with flexible structure\n- **Ecosystem compatibility**: Works across 20+ different\
+    \ AI coding tools and agents\n\n## File Structure and Content Guidelines\n\n###\
+    \ 1. Required Setup\n\n- Create the file as `AGENTS.md` in the repository root\n\
+    - Use standard Markdown formatting\n- No required fields - flexible structure\
+    \ based on project needs\n\n### 2. Essential Sections to Include\n\n#### Project\
+    \ Overview\n\n- Brief description of what the project does\n- Architecture overview\
+    \ if complex\n- Key technologies and frameworks used\n\n#### Setup Commands\n\n\
+    - Installation instructions\n- Environment setup steps\n- Dependency management\
+    \ commands\n- Database setup if applicable\n\n#### Development Workflow\n\n- How\
+    \ to start development server\n- Build commands\n- Watch/hot-reload setup\n- Package\
+    \ manager specifics (npm, pnpm, yarn, etc.)\n\n#### Testing Instructions\n\n-\
+    \ How to run tests (unit, integration, e2e)\n- Test file locations and naming\
+    \ conventions\n- Coverage requirements\n- Specific test patterns or frameworks\
+    \ used\n- How to run subset of tests or focus on specific areas\n\n#### Code Style\
+    \ Guidelines\n\n- Language-specific conventions\n- Linting and formatting rules\n\
+    - File organization patterns\n- Naming conventions\n- Import/export patterns\n\
+    \n#### Build and Deployment\n\n- Build commands and outputs\n- Environment configurations\n\
+    - Deployment steps and requirements\n- CI/CD pipeline information\n\n### 3. Optional\
+    \ but Recommended Sections\n\n#### Security Considerations\n\n- Security testing\
+    \ requirements\n- Secrets management\n- Authentication patterns\n- Permission\
+    \ models\n\n#### Monorepo Instructions (if applicable)\n\n- How to work with multiple\
+    \ packages\n- Cross-package dependencies\n- Selective building/testing\n- Package-specific\
+    \ commands\n\n#### Pull Request Guidelines\n\n- Title format requirements\n- Required\
+    \ checks before submission\n- Review process\n- Commit message conventions\n\n\
+    #### Debugging and Troubleshooting\n\n- Common issues and solutions\n- Logging\
+    \ patterns\n- Debug configuration\n- Performance considerations\n\n## Example\
+    \ Template\n\nUse this as a starting template and customize based on the specific\
+    \ project:\n\n```markdown\n# AGENTS.md\n\n## Project Overview\n\n[Brief description\
+    \ of the project, its purpose, and key technologies]\n\n## Setup Commands\n\n\
+    - Install dependencies: `[package manager] install`\n- Start development server:\
+    \ `[command]`\n- Build for production: `[command]`\n\n## Development Workflow\n\
+    \n- [Development server startup instructions]\n- [Hot reload/watch mode information]\n\
+    - [Environment variable setup]\n\n## Testing Instructions\n\n- Run all tests:\
+    \ `[command]`\n- Run unit tests: `[command]`\n- Run integration tests: `[command]`\n\
+    - Test coverage: `[command]`\n- [Specific testing patterns or requirements]\n\n\
+    ## Code Style\n\n- [Language and framework conventions]\n- [Linting rules and\
+    \ commands]\n- [Formatting requirements]\n- [File organization patterns]\n\n##\
+    \ Build and Deployment\n\n- [Build process details]\n- [Output directories]\n\
+    - [Environment-specific builds]\n- [Deployment commands]\n\n## Pull Request Guidelines\n\
+    \n- Title format: [component] Brief description\n- Required checks: `[lint command]`,\
+    \ `[test command]`\n- [Review requirements]\n\n## Additional Notes\n\n- [Any project-specific\
+    \ context]\n- [Common gotchas or troubleshooting tips]\n- [Performance considerations]\n\
+    ```\n\n## Working Example from agents.md\n\nHere's a real example from the agents.md\
+    \ website:\n\n```markdown\n# Sample AGENTS.md file\n\n## Dev environment tips\n\
+    \n- Use `pnpm dlx turbo run where <project_name>` to jump to a package instead\
+    \ of scanning with `ls`.\n- Run `pnpm install --filter <project_name>` to add\
+    \ the package to your workspace so Vite, ESLint, and TypeScript can see it.\n\
+    - Use `pnpm create vite@latest <project_name> -- --template react-ts` to spin\
+    \ up a new React + Vite package with TypeScript checks ready.\n- Check the name\
+    \ field inside each package's package.json to confirm the right name\u2014skip\
+    \ the top-level one.\n\n## Testing instructions\n\n- Find the CI plan in the .github/workflows\
+    \ folder.\n- Run `pnpm turbo run test --filter <project_name>` to run every check\
+    \ defined for that package.\n- From the package root you can just call `pnpm test`.\
+    \ The commit should pass all tests before you merge.\n- To focus on one step,\
+    \ add the Vitest pattern: `pnpm vitest run -t \"<test name>\"`.\n- Fix any test\
+    \ or type errors until the whole suite is green.\n- After moving files or changing\
+    \ imports, run `pnpm lint --filter <project_name>` to be sure ESLint and TypeScript\
+    \ rules still pass.\n- Add or update tests for the code you change, even if nobody\
+    \ asked.\n\n## PR instructions\n\n- Title format: [<project_name>] <Title>\n-\
+    \ Always run `pnpm lint` and `pnpm test` before committing.\n```\n\n## Implementation\
+    \ Steps\n\n1. **Analyze the project structure** to understand:\n\n   - Programming\
+    \ languages and frameworks used\n   - Package managers and build tools\n   - Testing\
+    \ frameworks\n   - Project architecture (monorepo, single package, etc.)\n\n2.\
+    \ **Identify key workflows** by examining:\n\n   - package.json scripts\n   -\
+    \ Makefile or other build files\n   - CI/CD configuration files\n   - Documentation\
+    \ files\n\n3. **Create comprehensive sections** covering:\n\n   - All essential\
+    \ setup and development commands\n   - Testing strategies and commands\n   - Code\
+    \ style and conventions\n   - Build and deployment processes\n\n4. **Include specific,\
+    \ actionable commands** that agents can execute directly\n\n5. **Test the instructions**\
+    \ by ensuring all commands work as documented\n\n6. **Keep it focused** on what\
+    \ agents need to know, not general project information\n\n## Best Practices\n\n\
+    - **Be specific**: Include exact commands, not vague descriptions\n- **Use code\
+    \ blocks**: Wrap commands in backticks for clarity\n- **Include context**: Explain\
+    \ why certain steps are needed\n- **Stay current**: Update as the project evolves\n\
+    - **Test commands**: Ensure all listed commands actually work\n- **Consider nested\
+    \ files**: For monorepos, create AGENTS.md files in subprojects as needed\n\n\
+    ## Monorepo Considerations\n\nFor large monorepos:\n\n- Place a main AGENTS.md\
+    \ at the repository root\n- Create additional AGENTS.md files in subproject directories\n\
+    - The closest AGENTS.md file takes precedence for any given location\n- Include\
+    \ navigation tips between packages/projects\n\n## Final Notes\n\n- AGENTS.md works\
+    \ with 20+ AI coding tools including Cursor, Aider, Gemini CLI, and many others\n\
+    - The format is intentionally flexible - adapt it to your project's needs\n- Focus\
+    \ on actionable instructions that help agents understand and work with your codebase\n\
+    - This is living documentation - update it as your project evolves\n\nWhen creating\
+    \ the AGENTS.md file, prioritize clarity, completeness, and actionability. The\
+    \ goal is to give any coding agent enough context to effectively contribute to\
+    \ the project without requiring additional human guidance."

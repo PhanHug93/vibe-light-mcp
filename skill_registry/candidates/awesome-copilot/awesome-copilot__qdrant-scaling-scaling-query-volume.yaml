@@ -1,0 +1,47 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-scaling-scaling-query-volume
+name: qdrant-scaling-query-volume
+description: Guides Qdrant query volume scaling. Use when someone asks 'query returns
+  too many results', 'scroll performance', 'large limit values', 'paginating search
+  results', 'fetching many vectors', or 'high cardinality results'.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-scaling/scaling-query-volume/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- qdrant-scaling-query-volume
+content:
+  kind: skill_markdown
+  sha256: 992e499c8897fca3de1f07838d7a01317d1300d22473a09d8ca5953bb169cf29
+  char_count: 1402
+  text: "# Scaling for Query Volume\n\nProblem: When a query has a large limit (e.g.\
+    \ 1000) and there are multiple shards (e.g. 10), naively each shard must return\
+    \ the full 1000 results \u2014 totaling 10,000 scored points transferred and merged.\
+    \ This is wasteful since data is randomly distributed across auto-shards.\n\n\
+    ## Core idea\n\nInstead of asking every shard for the full limit, ask each shard\
+    \ for a smaller limit computed via Poisson distribution statistics, then merge.\
+    \ This is safe because auto-sharding guarantees random, independent data distribution.\n\
+    \n## When it activates\n\n- More than 1 shard\n- Auto-sharding is in use (all\
+    \ queried shards share the same shard key)\n- The request's limit + offset >=\
+    \ SHARD_QUERY_SUBSAMPLING_LIMIT (128)\n- The query is not exact\n\n## Key tradeoff\n\
+    \n The strategy trades a small probability of slightly incomplete results for\
+    \ a large reduction in inter-shard data transfer, especially for high-limit queries\
+    \ across many shards. The 1.2x safety factor and the 99.9% Poisson threshold keep\
+    \ the error rate very low \u2014 comparable to inaccuracies already introduced\
+    \ by approximate vector indices like HNSW."

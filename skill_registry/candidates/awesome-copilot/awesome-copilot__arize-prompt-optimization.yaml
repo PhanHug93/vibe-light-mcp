@@ -1,0 +1,272 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-prompt-optimization
+name: arize-prompt-optimization
+description: Optimizes, improves, and debugs LLM prompts using production trace data,
+  evaluations, and annotations. Extracts prompts from spans, gathers performance signal,
+  and runs a data-driven optimization loop using the ax CLI. Use when the user mentions
+  optimize prompt, improve prompt, make AI respond better, improve output quality,
+  prompt engineering, prompt tuning, or system prompt improvement.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-prompt-optimization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets: []
+languages: []
+platforms: []
+aliases:
+- arize-prompt-optimization
+content:
+  kind: skill_markdown
+  sha256: c46bfbea3014681cc140827d9bed11834371b74dc26d792a31ba615bb60f919e
+  char_count: 19194
+  text: "# Arize Prompt Optimization Skill\n\n> **`SPACE`** \u2014 All `--space` flags\
+    \ and the `ARIZE_SPACE` env var accept a space **name** (e.g., `my-workspace`)\
+    \ or a base64 space **ID** (e.g., `U3BhY2U6...`). Find yours with `ax spaces list`.\n\
+    \n## Concepts\n\n### Where Prompts Live in Trace Data\n\nLLM applications emit\
+    \ spans following OpenInference semantic conventions. Prompts are stored in different\
+    \ span attributes depending on the span kind and instrumentation:\n\n| Column\
+    \ | What it contains | When to use |\n|--------|-----------------|-------------|\n\
+    | `attributes.llm.input_messages` | Structured chat messages (system, user, assistant,\
+    \ tool) in role-based format | **Primary source** for chat-based LLM prompts |\n\
+    | `attributes.llm.input_messages.roles` | Array of roles: `system`, `user`, `assistant`,\
+    \ `tool` | Extract individual message roles |\n| `attributes.llm.input_messages.contents`\
+    \ | Array of message content strings | Extract message text |\n| `attributes.input.value`\
+    \ | Serialized prompt or user question (generic, all span kinds) | Fallback when\
+    \ structured messages are not available |\n| `attributes.llm.prompt_template.template`\
+    \ | Template with `{variable}` placeholders (e.g., `\"Answer {question} using\
+    \ {context}\"`) | When the app uses prompt templates |\n| `attributes.llm.prompt_template.variables`\
+    \ | Template variable values (JSON object) | See what values were substituted\
+    \ into the template |\n| `attributes.output.value` | Model response text | See\
+    \ what the LLM produced |\n| `attributes.llm.output_messages` | Structured model\
+    \ output (including tool calls) | Inspect tool-calling responses |\n\n### Finding\
+    \ Prompts by Span Kind\n\n- **LLM span** (`attributes.openinference.span.kind\
+    \ = 'LLM'`): Check `attributes.llm.input_messages` for structured chat messages,\
+    \ OR `attributes.input.value` for a serialized prompt. Check `attributes.llm.prompt_template.template`\
+    \ for the template.\n- **Chain/Agent span**: `attributes.input.value` contains\
+    \ the user's question. The actual LLM prompt lives on **child LLM spans** -- navigate\
+    \ down the trace tree.\n- **Tool span**: `attributes.input.value` has tool input,\
+    \ `attributes.output.value` has tool result. Not typically where prompts live.\n\
+    \n### Performance Signal Columns\n\nThese columns carry the feedback data used\
+    \ for optimization:\n\n| Column pattern | Source | What it tells you |\n|---------------|--------|-------------------|\n\
+    | `annotation.<name>.label` | Human reviewers | Categorical grade (e.g., `correct`,\
+    \ `incorrect`, `partial`) |\n| `annotation.<name>.score` | Human reviewers | Numeric\
+    \ quality score (e.g., 0.0 - 1.0) |\n| `annotation.<name>.text` | Human reviewers\
+    \ | Freeform explanation of the grade |\n| `eval.<name>.label` | LLM-as-judge\
+    \ evals | Automated categorical assessment |\n| `eval.<name>.score` | LLM-as-judge\
+    \ evals | Automated numeric score |\n| `eval.<name>.explanation` | LLM-as-judge\
+    \ evals | Why the eval gave that score -- **most valuable for optimization** |\n\
+    | `attributes.input.value` | Trace data | What went into the LLM |\n| `attributes.output.value`\
+    \ | Trace data | What the LLM produced |\n| `{experiment_name}.output` | Experiment\
+    \ runs | Output from a specific experiment |\n\n## Prerequisites\n\nProceed directly\
+    \ with the task \u2014 run the `ax` command you need. Do NOT check versions, env\
+    \ vars, or profiles upfront.\n\nIf an `ax` command fails, troubleshoot based on\
+    \ the error:\n- `command not found` or version error \u2192 see references/ax-setup.md\n\
+    - `401 Unauthorized` / missing API key \u2192 run `ax profiles show` to inspect\
+    \ the current profile. If the profile is missing or the API key is wrong, follow\
+    \ references/ax-profiles.md to create/update it. If the user doesn't have their\
+    \ key, direct them to https://app.arize.com/admin > API Keys\n- Space unknown\
+    \ \u2192 run `ax spaces list` to pick by name, or ask the user\n- Project unclear\
+    \ \u2192 ask the user, or run `ax projects list -o json --limit 100` and present\
+    \ as selectable options\n- LLM provider call fails (missing OPENAI_API_KEY / ANTHROPIC_API_KEY)\
+    \ \u2192 run `ax ai-integrations list --space SPACE` to check for platform-managed\
+    \ credentials. If none exist, ask the user to provide the key or create an integration\
+    \ via the **arize-ai-provider-integration** skill\n- **Security:** Never read\
+    \ `.env` files or search the filesystem for credentials. Use `ax profiles` for\
+    \ Arize credentials and `ax ai-integrations` for LLM provider keys. If credentials\
+    \ are not available through these channels, ask the user.\n\n## Phase 1: Extract\
+    \ the Current Prompt\n\n### Find LLM spans containing prompts\n\n```bash\n# Sample\
+    \ LLM spans (where prompts live)\nax spans export PROJECT --filter \"attributes.openinference.span.kind\
+    \ = 'LLM'\" -l 10 --stdout\n\n# Filter by model\nax spans export PROJECT --filter\
+    \ \"attributes.llm.model_name = 'gpt-4o'\" -l 10 --stdout\n\n# Filter by span\
+    \ name (e.g., a specific LLM call)\nax spans export PROJECT --filter \"name =\
+    \ 'ChatCompletion'\" -l 10 --stdout\n```\n\n### Export a trace to inspect prompt\
+    \ structure\n\n```bash\n# Export all spans in a trace\nax spans export PROJECT\
+    \ --trace-id TRACE_ID\n\n# Export a single span\nax spans export PROJECT --span-id\
+    \ SPAN_ID\n```\n\n### Extract prompts from exported JSON\n\n```bash\n# Extract\
+    \ structured chat messages (system + user + assistant)\njq '.[0] | {\n  messages:\
+    \ .attributes.llm.input_messages,\n  model: .attributes.llm.model_name\n}' trace_*/spans.json\n\
+    \n# Extract the system prompt specifically\njq '[.[] | select(.attributes.llm.input_messages.roles[]?\
+    \ == \"system\")] | .[0].attributes.llm.input_messages' trace_*/spans.json\n\n\
+    # Extract prompt template and variables\njq '.[0].attributes.llm.prompt_template'\
+    \ trace_*/spans.json\n\n# Extract from input.value (fallback for non-structured\
+    \ prompts)\njq '.[0].attributes.input.value' trace_*/spans.json\n```\n\n### Reconstruct\
+    \ the prompt as messages\n\nOnce you have the span data, reconstruct the prompt\
+    \ as a messages array:\n\n```json\n[\n  {\"role\": \"system\", \"content\": \"\
+    You are a helpful assistant that...\"},\n  {\"role\": \"user\", \"content\": \"\
+    Given {input}, answer the question: {question}\"}\n]\n```\n\nIf the span has `attributes.llm.prompt_template.template`,\
+    \ the prompt uses variables. Preserve these placeholders (`{variable}` or `{{variable}}`)\
+    \ -- they are substituted at runtime.\n\n## Phase 2: Gather Performance Data\n\
+    \n### From traces (production feedback)\n\n```bash\n# Find error spans -- these\
+    \ indicate prompt failures\nax spans export PROJECT \\\n  --filter \"status_code\
+    \ = 'ERROR' AND attributes.openinference.span.kind = 'LLM'\" \\\n  -l 20 --stdout\n\
+    \n# Find spans with low eval scores\nax spans export PROJECT \\\n  --filter \"\
+    annotation.correctness.label = 'incorrect'\" \\\n  -l 20 --stdout\n\n# Find spans\
+    \ with high latency (may indicate overly complex prompts)\nax spans export PROJECT\
+    \ \\\n  --filter \"attributes.openinference.span.kind = 'LLM' AND latency_ms >\
+    \ 10000\" \\\n  -l 20 --stdout\n\n# Export error traces for detailed inspection\n\
+    ax spans export PROJECT --trace-id TRACE_ID\n```\n\n### From datasets and experiments\n\
+    \n```bash\n# Export a dataset (ground truth examples)\nax datasets export DATASET_NAME\
+    \ --space SPACE\n# -> dataset_*/examples.json\n\n# Export experiment results (what\
+    \ the LLM produced)\nax experiments export EXPERIMENT_NAME --dataset DATASET_NAME\
+    \ --space SPACE\n# -> experiment_*/runs.json\n```\n\n### Merge dataset + experiment\
+    \ for analysis\n\nJoin the two files by `example_id` to see inputs alongside outputs\
+    \ and evaluations:\n\n```bash\n# Count examples and runs\njq 'length' dataset_*/examples.json\n\
+    jq 'length' experiment_*/runs.json\n\n# View a single joined record\njq -s '\n\
+    \  .[0] as $dataset |\n  .[1][0] as $run |\n  ($dataset[] | select(.id == $run.example_id))\
+    \ as $example |\n  {\n    input: $example,\n    output: $run.output,\n    evaluations:\
+    \ $run.evaluations\n  }\n' dataset_*/examples.json experiment_*/runs.json\n\n\
+    # Find failed examples (where eval score < threshold)\njq '[.[] | select(.evaluations.correctness.score\
+    \ < 0.5)]' experiment_*/runs.json\n```\n\n### Identify what to optimize\n\nLook\
+    \ for patterns across failures:\n\n1. **Compare outputs to ground truth**: Where\
+    \ does the LLM output differ from expected?\n2. **Read eval explanations**: `eval.*.explanation`\
+    \ tells you WHY something failed\n3. **Check annotation text**: Human feedback\
+    \ describes specific issues\n4. **Look for verbosity mismatches**: If outputs\
+    \ are too long/short vs ground truth\n5. **Check format compliance**: Are outputs\
+    \ in the expected format?\n\n## Phase 3: Optimize the Prompt\n\n### The Optimization\
+    \ Meta-Prompt\n\nUse this template to generate an improved version of the prompt.\
+    \ Fill in the three placeholders and send it to your LLM (GPT-4o, Claude, etc.):\n\
+    \n````\nYou are an expert in prompt optimization. Given the original baseline\
+    \ prompt\nand the associated performance data (inputs, outputs, evaluation labels,\
+    \ and\nexplanations), generate a revised version that improves results.\n\nORIGINAL\
+    \ BASELINE PROMPT\n========================\n\n{PASTE_ORIGINAL_PROMPT_HERE}\n\n\
+    ========================\n\nPERFORMANCE DATA\n================\n\nThe following\
+    \ records show how the current prompt performed. Each record\nincludes the input,\
+    \ the LLM output, and evaluation feedback:\n\n{PASTE_RECORDS_HERE}\n\n================\n\
+    \nHOW TO USE THIS DATA\n\n1. Compare outputs: Look at what the LLM generated vs\
+    \ what was expected\n2. Review eval scores: Check which examples scored poorly\
+    \ and why\n3. Examine annotations: Human feedback shows what worked and what didn't\n\
+    4. Identify patterns: Look for common issues across multiple examples\n5. Focus\
+    \ on failures: The rows where the output DIFFERS from the expected\n   value are\
+    \ the ones that need fixing\n\nALIGNMENT STRATEGY\n\n- If outputs have extra text\
+    \ or reasoning not present in the ground truth,\n  remove instructions that encourage\
+    \ explanation or verbose reasoning\n- If outputs are missing information, add\
+    \ instructions to include it\n- If outputs are in the wrong format, add explicit\
+    \ format instructions\n- Focus on the rows where the output differs from the target\
+    \ -- these are\n  the failures to fix\n\nRULES\n\nMaintain Structure:\n- Use the\
+    \ same template variables as the current prompt ({var} or {{var}})\n- Don't change\
+    \ sections that are already working\n- Preserve the exact return format instructions\
+    \ from the original prompt\n\nAvoid Overfitting:\n- DO NOT copy examples verbatim\
+    \ into the prompt\n- DO NOT quote specific test data outputs exactly\n- INSTEAD:\
+    \ Extract the ESSENCE of what makes good vs bad outputs\n- INSTEAD: Add general\
+    \ guidelines and principles\n- INSTEAD: If adding few-shot examples, create SYNTHETIC\
+    \ examples that\n  demonstrate the principle, not real data from above\n\nGoal:\
+    \ Create a prompt that generalizes well to new inputs, not one that\nmemorizes\
+    \ the test data.\n\nOUTPUT FORMAT\n\nReturn the revised prompt as a JSON array\
+    \ of messages:\n\n[\n  {\"role\": \"system\", \"content\": \"...\"},\n  {\"role\"\
+    : \"user\", \"content\": \"...\"}\n]\n\nAlso provide a brief reasoning section\
+    \ (bulleted list) explaining:\n- What problems you found\n- How the revised prompt\
+    \ addresses each one\n````\n\n### Preparing the performance data\n\nFormat the\
+    \ records as a JSON array before pasting into the template:\n\n```bash\n# From\
+    \ dataset + experiment: join and select relevant columns\njq -s '\n  .[0] as $ds\
+    \ |\n  [.[1][] | . as $run |\n    ($ds[] | select(.id == $run.example_id)) as\
+    \ $ex |\n    {\n      input: $ex.input,\n      expected: $ex.expected_output,\n\
+    \      actual_output: $run.output,\n      eval_score: $run.evaluations.correctness.score,\n\
+    \      eval_label: $run.evaluations.correctness.label,\n      eval_explanation:\
+    \ $run.evaluations.correctness.explanation\n    }\n  ]\n' dataset_*/examples.json\
+    \ experiment_*/runs.json\n\n# From exported spans: extract input/output pairs\
+    \ with annotations\njq '[.[] | select(.attributes.openinference.span.kind == \"\
+    LLM\") | {\n  input: .attributes.input.value,\n  output: .attributes.output.value,\n\
+    \  status: .status_code,\n  model: .attributes.llm.model_name\n}]' trace_*/spans.json\n\
+    ```\n\n### Applying the revised prompt\n\nAfter the LLM returns the revised messages\
+    \ array:\n\n1. Compare the original and revised prompts side by side\n2. Verify\
+    \ all template variables are preserved\n3. Check that format instructions are\
+    \ intact\n4. Test on a few examples before full deployment\n\n## Phase 4: Iterate\n\
+    \n### The optimization loop\n\n```\n1. Extract prompt    -> Phase 1 (once)\n2.\
+    \ Run experiment    -> ax experiments create ...\n3. Export results    -> ax experiments\
+    \ export EXPERIMENT_NAME --dataset DATASET_NAME --space SPACE\n4. Analyze failures\
+    \  -> jq to find low scores\n5. Run meta-prompt   -> Phase 3 with new failure\
+    \ data\n6. Apply revised prompt\n7. Repeat from step 2\n```\n\n### Measure improvement\n\
+    \n```bash\n# Compare scores across experiments\n# Experiment A (baseline)\njq\
+    \ '[.[] | .evaluations.correctness.score] | add / length' experiment_a/runs.json\n\
+    \n# Experiment B (optimized)\njq '[.[] | .evaluations.correctness.score] | add\
+    \ / length' experiment_b/runs.json\n\n# Find examples that flipped from fail to\
+    \ pass\njq -s '\n  [.[0][] | select(.evaluations.correctness.label == \"incorrect\"\
+    )] as $fails |\n  [.[1][] | select(.evaluations.correctness.label == \"correct\"\
+    ) |\n    select(.example_id as $id | $fails | any(.example_id == $id))\n  ] |\
+    \ length\n' experiment_a/runs.json experiment_b/runs.json\n```\n\n### A/B compare\
+    \ two prompts\n\n1. Create two experiments against the same dataset, each using\
+    \ a different prompt version\n2. Export both: `ax experiments export EXP_A` and\
+    \ `ax experiments export EXP_B`\n3. Compare average scores, failure rates, and\
+    \ specific example flips\n4. Check for regressions -- examples that passed with\
+    \ prompt A but fail with prompt B\n\n## Prompt Engineering Best Practices\n\n\
+    Apply these when writing or revising prompts:\n\n| Technique | When to apply |\
+    \ Example |\n|-----------|--------------|---------|\n| Clear, detailed instructions\
+    \ | Output is vague or off-topic | \"Classify the sentiment as exactly one of:\
+    \ positive, negative, neutral\" |\n| Instructions at the beginning | Model ignores\
+    \ later instructions | Put the task description before examples |\n| Step-by-step\
+    \ breakdowns | Complex multi-step processes | \"First extract entities, then classify\
+    \ each, then summarize\" |\n| Specific personas | Need consistent style/tone |\
+    \ \"You are a senior financial analyst writing for institutional investors\" |\n\
+    | Delimiter tokens | Sections blend together | Use `---`, `###`, or XML tags to\
+    \ separate input from instructions |\n| Few-shot examples | Output format needs\
+    \ clarification | Show 2-3 synthetic input/output pairs |\n| Output length specifications\
+    \ | Responses are too long or short | \"Respond in exactly 2-3 sentences\" |\n\
+    | Reasoning instructions | Accuracy is critical | \"Think step by step before\
+    \ answering\" |\n| \"I don't know\" guidelines | Hallucination is a risk | \"\
+    If the answer is not in the provided context, say 'I don't have enough information'\"\
+    \ |\n\n### Variable preservation\n\nWhen optimizing prompts that use template\
+    \ variables:\n\n- **Single braces** (`{variable}`): Python f-string / Jinja style.\
+    \ Most common in Arize.\n- **Double braces** (`{{variable}}`): Mustache style.\
+    \ Used when the framework requires it.\n- Never add or remove variable placeholders\
+    \ during optimization\n- Never rename variables -- the runtime substitution depends\
+    \ on exact names\n- If adding few-shot examples, use literal values, not variable\
+    \ placeholders\n\n## Workflows\n\n### Optimize a prompt from a failing trace\n\
+    \n1. Find failing traces:\n   ```bash\n   ax traces list PROJECT --filter \"status_code\
+    \ = 'ERROR'\" --limit 5\n   ```\n2. Export the trace:\n   ```bash\n   ax spans\
+    \ export PROJECT --trace-id TRACE_ID\n   ```\n3. Extract the prompt from the LLM\
+    \ span:\n   ```bash\n   jq '[.[] | select(.attributes.openinference.span.kind\
+    \ == \"LLM\")][0] | {\n     messages: .attributes.llm.input_messages,\n     template:\
+    \ .attributes.llm.prompt_template,\n     output: .attributes.output.value,\n \
+    \    error: .attributes.exception.message\n   }' trace_*/spans.json\n   ```\n\
+    4. Identify what failed from the error message or output\n5. Fill in the optimization\
+    \ meta-prompt (Phase 3) with the prompt and error context\n6. Apply the revised\
+    \ prompt\n\n### Optimize using a dataset and experiment\n\n1. Find the dataset\
+    \ and experiment:\n   ```bash\n   ax datasets list --space SPACE\n   ax experiments\
+    \ list --dataset DATASET_NAME --space SPACE\n   ```\n2. Export both:\n   ```bash\n\
+    \   ax datasets export DATASET_NAME --space SPACE\n   ax experiments export EXPERIMENT_NAME\
+    \ --dataset DATASET_NAME --space SPACE\n   ```\n3. Prepare the joined data for\
+    \ the meta-prompt\n4. Run the optimization meta-prompt\n5. Create a new experiment\
+    \ with the revised prompt to measure improvement\n\n### Debug a prompt that produces\
+    \ wrong format\n\n1. Export spans where the output format is wrong:\n   ```bash\n\
+    \   ax spans export PROJECT \\\n     --filter \"attributes.openinference.span.kind\
+    \ = 'LLM' AND annotation.format.label = 'incorrect'\" \\\n     -l 10 --stdout\
+    \ > bad_format.json\n   ```\n2. Look at what the LLM is producing vs what was\
+    \ expected\n3. Add explicit format instructions to the prompt (JSON schema, examples,\
+    \ delimiters)\n4. Common fix: add a few-shot example showing the exact desired\
+    \ output format\n\n### Reduce hallucination in a RAG prompt\n\n1. Find traces\
+    \ where the model hallucinated:\n   ```bash\n   ax spans export PROJECT \\\n \
+    \    --filter \"annotation.faithfulness.label = 'unfaithful'\" \\\n     -l 20\
+    \ --stdout\n   ```\n2. Export and inspect the retriever + LLM spans together:\n\
+    \   ```bash\n   ax spans export PROJECT --trace-id TRACE_ID\n   jq '[.[] | {kind:\
+    \ .attributes.openinference.span.kind, name, input: .attributes.input.value, output:\
+    \ .attributes.output.value}]' trace_*/spans.json\n   ```\n3. Check if the retrieved\
+    \ context actually contained the answer\n4. Add grounding instructions to the\
+    \ system prompt: \"Only use information from the provided context. If the answer\
+    \ is not in the context, say so.\"\n\n## Troubleshooting\n\n| Problem | Solution\
+    \ |\n|---------|----------|\n| `ax: command not found` | See references/ax-setup.md\
+    \ |\n| `No profile found` | No profile is configured. See references/ax-profiles.md\
+    \ to create one. |\n| No `input_messages` on span | Check span kind -- Chain/Agent\
+    \ spans store prompts on child LLM spans, not on themselves |\n| Prompt template\
+    \ is `null` | Not all instrumentations emit `prompt_template`. Use `input_messages`\
+    \ or `input.value` instead |\n| Variables lost after optimization | Verify the\
+    \ revised prompt preserves all `{var}` placeholders from the original |\n| Optimization\
+    \ makes things worse | Check for overfitting -- the meta-prompt may have memorized\
+    \ test data. Ensure few-shot examples are synthetic |\n| No eval/annotation columns\
+    \ | Run evaluations first (via Arize UI or SDK), then re-export |\n| Experiment\
+    \ output column not found | The column name is `{experiment_name}.output` -- check\
+    \ exact experiment name via `ax experiments get` |\n| `jq` errors on span JSON\
+    \ | Ensure you're targeting the correct file path (e.g., `trace_*/spans.json`)\
+    \ |"

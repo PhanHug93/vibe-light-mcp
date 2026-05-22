@@ -1,0 +1,76 @@
+schema_version: local-skill-candidate/v0.0.1
+id: openai-skills__gh-fix-ci
+name: gh-fix-ci
+description: Use when a user asks to debug or fix failing GitHub PR checks that run
+  in GitHub Actions; use `gh` to inspect checks and logs, summarize failure context,
+  draft a fix plan, and implement only after explicit approval. Treat external providers
+  (for example Buildkite) as out of scope and report only the details URL.
+status: candidate
+source_tier: official
+source:
+  source_id: openai-skills
+  repo: openai/skills
+  url: https://github.com/openai/skills.git
+  ref: main
+  commit: b0401f07213a66414d84a65cb50c1d226f99485a
+  path: skills/.curated/gh-fix-ci/SKILL.md
+license:
+  status: accepted
+  kind: Apache-2.0
+  file: skills/.curated/gh-fix-ci/LICENSE.txt
+risk:
+  level: medium
+  flags:
+  - has_assets_directory
+  - has_scripts_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- gh-fix-ci
+content:
+  kind: skill_markdown
+  sha256: 7b326b4a2f0f5f85122144628ec02077e48841e0e0e82efce88b3415bcfb7c26
+  char_count: 3651
+  text: "# Gh Pr Checks Plan Fix\n\n## Overview\n\nUse gh to locate failing PR checks,\
+    \ fetch GitHub Actions logs for actionable failures, summarize the failure snippet,\
+    \ then propose a fix plan and implement after explicit approval.\n- If a plan-oriented\
+    \ skill (for example `create-plan`) is available, use it; otherwise draft a concise\
+    \ plan inline and request approval before implementing.\n\nPrereq: authenticate\
+    \ with the standard GitHub CLI once (for example, run `gh auth login`), then confirm\
+    \ with `gh auth status` (repo + workflow scopes are typically required).\n\n##\
+    \ Inputs\n\n- `repo`: path inside the repo (default `.`)\n- `pr`: PR number or\
+    \ URL (optional; defaults to current branch PR)\n- `gh` authentication for the\
+    \ repo host\n\n## Quick start\n\n- `python \"<path-to-skill>/scripts/inspect_pr_checks.py\"\
+    \ --repo \".\" --pr \"<number-or-url>\"`\n- Add `--json` if you want machine-friendly\
+    \ output for summarization.\n\n## Workflow\n\n1. Verify gh authentication.\n \
+    \  - Run `gh auth status` in the repo.\n   - If unauthenticated, ask the user\
+    \ to run `gh auth login` (ensuring repo + workflow scopes) before proceeding.\n\
+    2. Resolve the PR.\n   - Prefer the current branch PR: `gh pr view --json number,url`.\n\
+    \   - If the user provides a PR number or URL, use that directly.\n3. Inspect\
+    \ failing checks (GitHub Actions only).\n   - Preferred: run the bundled script\
+    \ (handles gh field drift and job-log fallbacks):\n     - `python \"<path-to-skill>/scripts/inspect_pr_checks.py\"\
+    \ --repo \".\" --pr \"<number-or-url>\"`\n     - Add `--json` for machine-friendly\
+    \ output.\n   - Manual fallback:\n     - `gh pr checks <pr> --json name,state,bucket,link,startedAt,completedAt,workflow`\n\
+    \       - If a field is rejected, rerun with the available fields reported by\
+    \ `gh`.\n     - For each failing check, extract the run id from `detailsUrl` and\
+    \ run:\n       - `gh run view <run_id> --json name,workflowName,conclusion,status,url,event,headBranch,headSha`\n\
+    \       - `gh run view <run_id> --log`\n     - If the run log says it is still\
+    \ in progress, fetch job logs directly:\n       - `gh api \"/repos/<owner>/<repo>/actions/jobs/<job_id>/logs\"\
+    \ > \"<path>\"`\n4. Scope non-GitHub Actions checks.\n   - If `detailsUrl` is\
+    \ not a GitHub Actions run, label it as external and only report the URL.\n  \
+    \ - Do not attempt Buildkite or other providers; keep the workflow lean.\n5. Summarize\
+    \ failures for the user.\n   - Provide the failing check name, run URL (if any),\
+    \ and a concise log snippet.\n   - Call out missing logs explicitly.\n6. Create\
+    \ a plan.\n   - Use the `create-plan` skill to draft a concise plan and request\
+    \ approval.\n7. Implement after approval.\n   - Apply the approved plan, summarize\
+    \ diffs/tests, and ask about opening a PR.\n8. Recheck status.\n   - After changes,\
+    \ suggest re-running the relevant tests and `gh pr checks` to confirm.\n\n## Bundled\
+    \ Resources\n\n### scripts/inspect_pr_checks.py\n\nFetch failing PR checks, pull\
+    \ GitHub Actions logs, and extract a failure snippet. Exits non-zero when failures\
+    \ remain so it can be used in automation.\n\nUsage examples:\n- `python \"<path-to-skill>/scripts/inspect_pr_checks.py\"\
+    \ --repo \".\" --pr \"123\"`\n- `python \"<path-to-skill>/scripts/inspect_pr_checks.py\"\
+    \ --repo \".\" --pr \"https://github.com/org/repo/pull/123\" --json`\n- `python\
+    \ \"<path-to-skill>/scripts/inspect_pr_checks.py\" --repo \".\" --max-lines 200\
+    \ --context 40`"

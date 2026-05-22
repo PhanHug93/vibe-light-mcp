@@ -1,0 +1,201 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__mcp-create-adaptive-cards
+name: mcp-create-adaptive-cards
+description: Skill converted from mcp-create-adaptive-cards.prompt.md
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/mcp-create-adaptive-cards/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- mcp-create-adaptive-cards
+content:
+  kind: skill_markdown
+  sha256: e0fd8c15020fbdb4383804cccf457eda5adaa738a03020ede1712b4a5ef3f377
+  char_count: 12541
+  text: "````prompt\n---\nmode: 'agent'\ntools: ['changes', 'search/codebase', 'edit/editFiles',\
+    \ 'problems']\ndescription: 'Add Adaptive Card response templates to MCP-based\
+    \ API plugins for visual data presentation in Microsoft 365 Copilot'\nmodel: 'gpt-4.1'\n\
+    tags: [mcp, adaptive-cards, m365-copilot, api-plugin, response-templates]\n---\n\
+    \n# Create Adaptive Cards for MCP Plugins\n\nAdd Adaptive Card response templates\
+    \ to MCP-based API plugins to enhance how data is presented visually in Microsoft\
+    \ 365 Copilot.\n\n## Adaptive Card Types\n\n### Static Response Templates\nUse\
+    \ when API always returns items of the same type and format doesn't change often.\n\
+    \nDefine in `response_semantics.static_template` in ai-plugin.json:\n\n```json\n\
+    {\n  \"functions\": [\n    {\n      \"name\": \"GetBudgets\",\n      \"description\"\
+    : \"Returns budget details including name and available funds\",\n      \"capabilities\"\
+    : {\n        \"response_semantics\": {\n          \"data_path\": \"$\",\n    \
+    \      \"properties\": {\n            \"title\": \"$.name\",\n            \"subtitle\"\
+    : \"$.availableFunds\"\n          },\n          \"static_template\": {\n     \
+    \       \"type\": \"AdaptiveCard\",\n            \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\"\
+    ,\n            \"version\": \"1.5\",\n            \"body\": [\n              {\n\
+    \                \"type\": \"Container\",\n                \"$data\": \"${$root}\"\
+    ,\n                \"items\": [\n                  {\n                    \"type\"\
+    : \"TextBlock\",\n                    \"text\": \"Name: ${if(name, name, 'N/A')}\"\
+    ,\n                    \"wrap\": true\n                  },\n                \
+    \  {\n                    \"type\": \"TextBlock\",\n                    \"text\"\
+    : \"Available funds: ${if(availableFunds, formatNumber(availableFunds, 2), 'N/A')}\"\
+    ,\n                    \"wrap\": true\n                  }\n                ]\n\
+    \              }\n            ]\n          }\n        }\n      }\n    }\n  ]\n\
+    }\n```\n\n### Dynamic Response Templates\nUse when API returns multiple types\
+    \ and each item needs a different template.\n\n**ai-plugin.json configuration:**\n\
+    ```json\n{\n  \"name\": \"GetTransactions\",\n  \"description\": \"Returns transaction\
+    \ details with dynamic templates\",\n  \"capabilities\": {\n    \"response_semantics\"\
+    : {\n      \"data_path\": \"$.transactions\",\n      \"properties\": {\n     \
+    \   \"template_selector\": \"$.displayTemplate\"\n      }\n    }\n  }\n}\n```\n\
+    \n**API Response with Embedded Templates:**\n```json\n{\n  \"transactions\": [\n\
+    \    {\n      \"budgetName\": \"Fourth Coffee lobby renovation\",\n      \"amount\"\
+    : -2000,\n      \"description\": \"Property survey for permit application\",\n\
+    \      \"expenseCategory\": \"permits\",\n      \"displayTemplate\": \"$.templates.debit\"\
+    \n    },\n    {\n      \"budgetName\": \"Fourth Coffee lobby renovation\",\n \
+    \     \"amount\": 5000,\n      \"description\": \"Additional funds to cover cost\
+    \ overruns\",\n      \"expenseCategory\": null,\n      \"displayTemplate\": \"\
+    $.templates.credit\"\n    }\n  ],\n  \"templates\": {\n    \"debit\": {\n    \
+    \  \"type\": \"AdaptiveCard\",\n      \"version\": \"1.5\",\n      \"body\": [\n\
+    \        {\n          \"type\": \"TextBlock\",\n          \"size\": \"medium\"\
+    ,\n          \"weight\": \"bolder\",\n          \"color\": \"attention\",\n  \
+    \        \"text\": \"Debit\"\n        },\n        {\n          \"type\": \"FactSet\"\
+    ,\n          \"facts\": [\n            {\n              \"title\": \"Budget\"\
+    ,\n              \"value\": \"${budgetName}\"\n            },\n            {\n\
+    \              \"title\": \"Amount\",\n              \"value\": \"${formatNumber(amount,\
+    \ 2)}\"\n            },\n            {\n              \"title\": \"Category\"\
+    ,\n              \"value\": \"${if(expenseCategory, expenseCategory, 'N/A')}\"\
+    \n            },\n            {\n              \"title\": \"Description\",\n \
+    \             \"value\": \"${if(description, description, 'N/A')}\"\n        \
+    \    }\n          ]\n        }\n      ],\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\"\
+    \n    },\n    \"credit\": {\n      \"type\": \"AdaptiveCard\",\n      \"version\"\
+    : \"1.5\",\n      \"body\": [\n        {\n          \"type\": \"TextBlock\",\n\
+    \          \"size\": \"medium\",\n          \"weight\": \"bolder\",\n        \
+    \  \"color\": \"good\",\n          \"text\": \"Credit\"\n        },\n        {\n\
+    \          \"type\": \"FactSet\",\n          \"facts\": [\n            {\n   \
+    \           \"title\": \"Budget\",\n              \"value\": \"${budgetName}\"\
+    \n            },\n            {\n              \"title\": \"Amount\",\n      \
+    \        \"value\": \"${formatNumber(amount, 2)}\"\n            },\n         \
+    \   {\n              \"title\": \"Description\",\n              \"value\": \"\
+    ${if(description, description, 'N/A')}\"\n            }\n          ]\n       \
+    \ }\n      ],\n      \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\"\
+    \n    }\n  }\n}\n```\n\n### Combined Static and Dynamic Templates\nUse static\
+    \ template as default when item doesn't have template_selector or when value doesn't\
+    \ resolve.\n\n```json\n{\n  \"capabilities\": {\n    \"response_semantics\": {\n\
+    \      \"data_path\": \"$.items\",\n      \"properties\": {\n        \"title\"\
+    : \"$.name\",\n        \"template_selector\": \"$.templateId\"\n      },\n   \
+    \   \"static_template\": {\n        \"type\": \"AdaptiveCard\",\n        \"version\"\
+    : \"1.5\",\n        \"body\": [\n          {\n            \"type\": \"TextBlock\"\
+    ,\n            \"text\": \"Default: ${name}\",\n            \"wrap\": true\n \
+    \         }\n        ]\n      }\n    }\n  }\n}\n```\n\n## Response Semantics Properties\n\
+    \n### data_path\nJSONPath query indicating where data resides in API response:\n\
+    ```json\n\"data_path\": \"$\"           // Root of response\n\"data_path\": \"\
+    $.results\"   // In results property\n\"data_path\": \"$.data.items\"// Nested\
+    \ path\n```\n\n### properties\nMap response fields for Copilot citations:\n```json\n\
+    \"properties\": {\n  \"title\": \"$.name\",            // Citation title\n  \"\
+    subtitle\": \"$.description\",  // Citation subtitle\n  \"url\": \"$.link\"  \
+    \             // Citation link\n}\n```\n\n### template_selector\nProperty on each\
+    \ item indicating which template to use:\n```json\n\"template_selector\": \"$.displayTemplate\"\
+    \n```\n\n## Adaptive Card Template Language\n\n### Conditional Rendering\n```json\n\
+    {\n  \"type\": \"TextBlock\",\n  \"text\": \"${if(field, field, 'N/A')}\"  //\
+    \ Show field or 'N/A'\n}\n```\n\n### Number Formatting\n```json\n{\n  \"type\"\
+    : \"TextBlock\",\n  \"text\": \"${formatNumber(amount, 2)}\"  // Two decimal places\n\
+    }\n```\n\n### Data Binding\n```json\n{\n  \"type\": \"Container\",\n  \"$data\"\
+    : \"${$root}\",  // Break to root context\n  \"items\": [ ... ]\n}\n```\n\n###\
+    \ Conditional Display\n```json\n{\n  \"type\": \"Image\",\n  \"url\": \"${imageUrl}\"\
+    ,\n  \"$when\": \"${imageUrl != null}\"  // Only show if imageUrl exists\n}\n\
+    ```\n\n## Card Elements\n\n### TextBlock\n```json\n{\n  \"type\": \"TextBlock\"\
+    ,\n  \"text\": \"Text content\",\n  \"size\": \"medium\",      // small, default,\
+    \ medium, large, extraLarge\n  \"weight\": \"bolder\",    // lighter, default,\
+    \ bolder\n  \"color\": \"attention\",  // default, dark, light, accent, good,\
+    \ warning, attention\n  \"wrap\": true\n}\n```\n\n### FactSet\n```json\n{\n  \"\
+    type\": \"FactSet\",\n  \"facts\": [\n    {\n      \"title\": \"Label\",\n   \
+    \   \"value\": \"Value\"\n    }\n  ]\n}\n```\n\n### Image\n```json\n{\n  \"type\"\
+    : \"Image\",\n  \"url\": \"https://example.com/image.png\",\n  \"size\": \"medium\"\
+    ,  // auto, stretch, small, medium, large\n  \"style\": \"default\" // default,\
+    \ person\n}\n```\n\n### Container\n```json\n{\n  \"type\": \"Container\",\n  \"\
+    $data\": \"${items}\",  // Iterate over array\n  \"items\": [\n    {\n      \"\
+    type\": \"TextBlock\",\n      \"text\": \"${name}\"\n    }\n  ]\n}\n```\n\n###\
+    \ ColumnSet\n```json\n{\n  \"type\": \"ColumnSet\",\n  \"columns\": [\n    {\n\
+    \      \"type\": \"Column\",\n      \"width\": \"auto\",\n      \"items\": [ ...\
+    \ ]\n    },\n    {\n      \"type\": \"Column\",\n      \"width\": \"stretch\"\
+    ,\n      \"items\": [ ... ]\n    }\n  ]\n}\n```\n\n### Actions\n```json\n{\n \
+    \ \"type\": \"Action.OpenUrl\",\n  \"title\": \"View Details\",\n  \"url\": \"\
+    https://example.com/item/${id}\"\n}\n```\n\n## Responsive Design Best Practices\n\
+    \n### Single-Column Layouts\n- Use single columns for narrow viewports\n- Avoid\
+    \ multi-column layouts when possible\n- Ensure cards work at minimum viewport\
+    \ width\n\n### Flexible Widths\n- Don't assign fixed widths to elements\n- Use\
+    \ \"auto\" or \"stretch\" for width properties\n- Allow elements to resize with\
+    \ viewport\n- Fixed widths OK for icons/avatars only\n\n### Text and Images\n\
+    - Avoid placing text and images in same row\n- Exception: Small icons or avatars\n\
+    - Use \"wrap\": true for text content\n- Test at various viewport widths\n\n###\
+    \ Test Across Hubs\nValidate cards in:\n- Teams (desktop and mobile)\n- Word\n\
+    - PowerPoint\n- Various viewport widths (contract/expand UI)\n\n## Complete Example\n\
+    \n**ai-plugin.json:**\n```json\n{\n  \"functions\": [\n    {\n      \"name\":\
+    \ \"SearchProjects\",\n      \"description\": \"Search for projects with status\
+    \ and details\",\n      \"capabilities\": {\n        \"response_semantics\": {\n\
+    \          \"data_path\": \"$.projects\",\n          \"properties\": {\n     \
+    \       \"title\": \"$.name\",\n            \"subtitle\": \"$.status\",\n    \
+    \        \"url\": \"$.projectUrl\"\n          },\n          \"static_template\"\
+    : {\n            \"type\": \"AdaptiveCard\",\n            \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\"\
+    ,\n            \"version\": \"1.5\",\n            \"body\": [\n              {\n\
+    \                \"type\": \"Container\",\n                \"$data\": \"${$root}\"\
+    ,\n                \"items\": [\n                  {\n                    \"type\"\
+    : \"TextBlock\",\n                    \"size\": \"medium\",\n                \
+    \    \"weight\": \"bolder\",\n                    \"text\": \"${if(name, name,\
+    \ 'Untitled Project')}\",\n                    \"wrap\": true\n              \
+    \    },\n                  {\n                    \"type\": \"FactSet\",\n   \
+    \                 \"facts\": [\n                      {\n                    \
+    \    \"title\": \"Status\",\n                        \"value\": \"${status}\"\n\
+    \                      },\n                      {\n                        \"\
+    title\": \"Owner\",\n                        \"value\": \"${if(owner, owner, 'Unassigned')}\"\
+    \n                      },\n                      {\n                        \"\
+    title\": \"Due Date\",\n                        \"value\": \"${if(dueDate, dueDate,\
+    \ 'Not set')}\"\n                      },\n                      {\n         \
+    \               \"title\": \"Budget\",\n                        \"value\": \"\
+    ${if(budget, formatNumber(budget, 2), 'N/A')}\"\n                      }\n   \
+    \                 ]\n                  },\n                  {\n             \
+    \       \"type\": \"TextBlock\",\n                    \"text\": \"${if(description,\
+    \ description, 'No description')}\",\n                    \"wrap\": true,\n  \
+    \                  \"separator\": true\n                  }\n                ]\n\
+    \              }\n            ],\n            \"actions\": [\n              {\n\
+    \                \"type\": \"Action.OpenUrl\",\n                \"title\": \"\
+    View Project\",\n                \"url\": \"${projectUrl}\"\n              }\n\
+    \            ]\n          }\n        }\n      }\n    }\n  ]\n}\n```\n\n## Workflow\n\
+    \nAsk the user:\n1. What type of data does the API return?\n2. Are all items the\
+    \ same type (static) or different types (dynamic)?\n3. What fields should appear\
+    \ in the card?\n4. Should there be actions (e.g., \"View Details\")?\n5. Are there\
+    \ multiple states or categories requiring different templates?\n\nThen generate:\n\
+    - Appropriate response_semantics configuration\n- Static template, dynamic templates,\
+    \ or both\n- Proper data binding with conditional rendering\n- Responsive single-column\
+    \ layout\n- Test scenarios for validation\n\n## Resources\n\n- [Adaptive Card\
+    \ Designer](https://adaptivecards.microsoft.com/designer) - Visual design tool\n\
+    - [Adaptive Card Schema](https://adaptivecards.io/schemas/adaptive-card.json)\
+    \ - Full schema reference\n- [Template Language](https://learn.microsoft.com/en-us/adaptive-cards/templating/language)\
+    \ - Binding syntax guide\n- [JSONPath](https://www.rfc-editor.org/rfc/rfc9535)\
+    \ - Path query syntax\n\n## Common Patterns\n\n### List with Images\n```json\n\
+    {\n  \"type\": \"Container\",\n  \"$data\": \"${items}\",\n  \"items\": [\n  \
+    \  {\n      \"type\": \"ColumnSet\",\n      \"columns\": [\n        {\n      \
+    \    \"type\": \"Column\",\n          \"width\": \"auto\",\n          \"items\"\
+    : [\n            {\n              \"type\": \"Image\",\n              \"url\"\
+    : \"${thumbnailUrl}\",\n              \"size\": \"small\",\n              \"$when\"\
+    : \"${thumbnailUrl != null}\"\n            }\n          ]\n        },\n      \
+    \  {\n          \"type\": \"Column\",\n          \"width\": \"stretch\",\n   \
+    \       \"items\": [\n            {\n              \"type\": \"TextBlock\",\n\
+    \              \"text\": \"${title}\",\n              \"weight\": \"bolder\",\n\
+    \              \"wrap\": true\n            }\n          ]\n        }\n      ]\n\
+    \    }\n  ]\n}\n```\n\n### Status Indicators\n```json\n{\n  \"type\": \"TextBlock\"\
+    ,\n  \"text\": \"${status}\",\n  \"color\": \"${if(status == 'Completed', 'good',\
+    \ if(status == 'In Progress', 'attention', 'default'))}\"\n}\n```\n\n### Currency\
+    \ Formatting\n```json\n{\n  \"type\": \"TextBlock\",\n  \"text\": \"$${formatNumber(amount,\
+    \ 2)}\"\n}\n```\n\n````"

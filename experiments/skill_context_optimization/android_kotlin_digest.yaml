@@ -1,0 +1,73 @@
+id: android-kotlin
+version: 0.0.1
+source_pack:
+  name: local-mcp-server/android_kotlin
+  pyyaml_version: "6.0.3"
+
+applies_to:
+  facets: [android, kotlin]
+  project_signals:
+    - build.gradle
+    - build.gradle.kts
+    - .kt
+    - Fragment
+    - ViewModel
+    - StateFlow
+    - RecyclerView
+    - "@Composable"
+
+agent_contract:
+  primary_instruction: "Use this local Kotlin Android skill policy before implementing or reviewing Android code."
+  apply_order:
+    - android-kotlin-core
+    - android-lifecycle-state
+    - android-testing-quality
+  confidence_floor: 0.75
+
+must_follow:
+  - Keep business logic out of Fragment, Activity, Composable, and Adapter.
+  - Use ViewModel plus StateFlow for UI state.
+  - Collect Flow from Fragment with viewLifecycleOwner and repeatOnLifecycle.
+  - Do not use GlobalScope or runBlocking in production code.
+  - Do not log Authorization headers, PII, tokens, or raw sensitive JSON.
+  - Add regression coverage before changing behavior-critical legacy code.
+  - Do not rewrite legacy XML/View/custom View without tests and rollback.
+  - Use RecyclerView DiffUtil, ListAdapter, or stable identity where appropriate.
+  - Do not run blocking IO on the main thread.
+  - Map repository Result or errors into UI state instead of exposing raw exceptions.
+
+workflow:
+  - "Detect UI style: XML/View, Compose, custom View, or mixed legacy."
+  - Identify state owner and side effects.
+  - Check lifecycle, coroutine, navigation, network, and persistence boundaries.
+  - Select the smallest safe implementation path.
+  - Run relevant test/build command or provide a concrete verification gap.
+
+review_checks:
+  - Fragment binding cleanup
+  - lifecycle-aware collection
+  - one-shot event handling
+  - RecyclerView diffing and stable identity
+  - raw exception exposure
+  - network token refresh race
+  - secret logging
+  - main-thread blocking IO
+
+anti_patterns:
+  - Direct Retrofit call from ViewModel.
+  - Business logic inside Fragment or Adapter.
+  - Multiple LiveData flags for loading, data, and error.
+  - notifyDataSetChanged for normal list updates.
+  - Storing Context in Singleton.
+  - Catching Exception and ignoring it.
+  - GlobalScope or runBlocking in production.
+
+full_content_sources:
+  - tech_stacks/android_kotlin/rules.md
+  - tech_stacks/android_kotlin/skills.md
+  - mobile-local-skills-pack-v1.1.1/skills/android-kotlin-compose.md
+  - mobile-local-skills-pack-v1.1.1/skills/android-kotlin-xml-views.md
+  - mobile-local-skills-pack-v1.1.1/skills/android-custom-view-canvas.md
+  - mobile-local-skills-pack-v1.1.1/skills/legacy-mobile-maintenance.md
+  - mobile-local-skills-pack-v1.1.1/skills/testing-quality.md
+  - mobile-local-skills-pack-v1.1.1/skills/performance-observability.md

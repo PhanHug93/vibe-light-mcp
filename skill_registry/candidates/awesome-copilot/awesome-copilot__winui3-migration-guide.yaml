@@ -1,0 +1,140 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__winui3-migration-guide
+name: winui3-migration-guide
+description: UWP-to-WinUI 3 migration reference. Maps legacy UWP APIs to correct Windows
+  App SDK equivalents with before/after code snippets. Covers namespace changes, threading
+  (CoreDispatcher to DispatcherQueue), windowing (CoreWindow to AppWindow), dialogs,
+  pickers, sharing, printing, background tasks, and the most common Copilot code generation
+  mistakes.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/winui3-migration-guide/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- winui3-migration-guide
+content:
+  kind: skill_markdown
+  sha256: dcd44fcb881e370a52cb826dd2134633e297b1c905030828778fc1145b8db23b
+  char_count: 8903
+  text: "# WinUI 3 Migration Guide\n\nUse this skill when migrating UWP apps to WinUI\
+    \ 3 / Windows App SDK, or when verifying that generated code uses correct WinUI\
+    \ 3 APIs instead of legacy UWP patterns.\n\n---\n\n## Namespace Changes\n\nAll\
+    \ `Windows.UI.Xaml.*` namespaces move to `Microsoft.UI.Xaml.*`:\n\n| UWP Namespace\
+    \ | WinUI 3 Namespace |\n|--------------|-------------------|\n| `Windows.UI.Xaml`\
+    \ | `Microsoft.UI.Xaml` |\n| `Windows.UI.Xaml.Controls` | `Microsoft.UI.Xaml.Controls`\
+    \ |\n| `Windows.UI.Xaml.Media` | `Microsoft.UI.Xaml.Media` |\n| `Windows.UI.Xaml.Input`\
+    \ | `Microsoft.UI.Xaml.Input` |\n| `Windows.UI.Xaml.Data` | `Microsoft.UI.Xaml.Data`\
+    \ |\n| `Windows.UI.Xaml.Navigation` | `Microsoft.UI.Xaml.Navigation` |\n| `Windows.UI.Xaml.Shapes`\
+    \ | `Microsoft.UI.Xaml.Shapes` |\n| `Windows.UI.Composition` | `Microsoft.UI.Composition`\
+    \ |\n| `Windows.UI.Input` | `Microsoft.UI.Input` |\n| `Windows.UI.Colors` | `Microsoft.UI.Colors`\
+    \ |\n| `Windows.UI.Text` | `Microsoft.UI.Text` |\n| `Windows.UI.Core` | `Microsoft.UI.Dispatching`\
+    \ (for dispatcher) |\n\n---\n\n## Top 3 Most Common Copilot Mistakes\n\n### 1.\
+    \ ContentDialog Without XamlRoot\n\n```csharp\n// \u274C WRONG \u2014 Throws InvalidOperationException\
+    \ in WinUI 3\nvar dialog = new ContentDialog\n{\n    Title = \"Error\",\n    Content\
+    \ = \"Something went wrong.\",\n    CloseButtonText = \"OK\"\n};\nawait dialog.ShowAsync();\n\
+    ```\n\n```csharp\n// \u2705 CORRECT \u2014 Set XamlRoot before showing\nvar dialog\
+    \ = new ContentDialog\n{\n    Title = \"Error\",\n    Content = \"Something went\
+    \ wrong.\",\n    CloseButtonText = \"OK\",\n    XamlRoot = this.Content.XamlRoot\
+    \  // Required in WinUI 3\n};\nawait dialog.ShowAsync();\n```\n\n### 2. MessageDialog\
+    \ Instead of ContentDialog\n\n```csharp\n// \u274C WRONG \u2014 UWP API, not available\
+    \ in WinUI 3 desktop\nvar dialog = new Windows.UI.Popups.MessageDialog(\"Are you\
+    \ sure?\", \"Confirm\");\nawait dialog.ShowAsync();\n```\n\n```csharp\n// \u2705\
+    \ CORRECT \u2014 Use ContentDialog\nvar dialog = new ContentDialog\n{\n    Title\
+    \ = \"Confirm\",\n    Content = \"Are you sure?\",\n    PrimaryButtonText = \"\
+    Yes\",\n    CloseButtonText = \"No\",\n    XamlRoot = this.Content.XamlRoot\n\
+    };\nvar result = await dialog.ShowAsync();\nif (result == ContentDialogResult.Primary)\n\
+    {\n    // User confirmed\n}\n```\n\n### 3. CoreDispatcher Instead of DispatcherQueue\n\
+    \n```csharp\n// \u274C WRONG \u2014 CoreDispatcher does not exist in WinUI 3\n\
+    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>\n{\n    StatusText.Text\
+    \ = \"Done\";\n});\n```\n\n```csharp\n// \u2705 CORRECT \u2014 Use DispatcherQueue\n\
+    DispatcherQueue.TryEnqueue(() =>\n{\n    StatusText.Text = \"Done\";\n});\n\n\
+    // With priority:\nDispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, ()\
+    \ =>\n{\n    ProgressBar.Value = 100;\n});\n```\n\n---\n\n## Windowing Migration\n\
+    \n### Window Reference\n\n```csharp\n// \u274C WRONG \u2014 Window.Current does\
+    \ not exist in WinUI 3\nvar currentWindow = Window.Current;\n```\n\n```csharp\n\
+    // \u2705 CORRECT \u2014 Use a static property in App\npublic partial class App\
+    \ : Application\n{\n    public static Window MainWindow { get; private set; }\n\
+    \n    protected override void OnLaunched(LaunchActivatedEventArgs args)\n    {\n\
+    \        MainWindow = new MainWindow();\n        MainWindow.Activate();\n    }\n\
+    }\n// Access anywhere: App.MainWindow\n```\n\n### Window Management\n\n| UWP API\
+    \ | WinUI 3 API |\n|---------|-------------|\n| `ApplicationView.TryResizeView()`\
+    \ | `AppWindow.Resize()` |\n| `AppWindow.TryCreateAsync()` | `AppWindow.Create()`\
+    \ |\n| `AppWindow.TryShowAsync()` | `AppWindow.Show()` |\n| `AppWindow.TryConsolidateAsync()`\
+    \ | `AppWindow.Destroy()` |\n| `AppWindow.RequestMoveXxx()` | `AppWindow.Move()`\
+    \ |\n| `AppWindow.GetPlacement()` | `AppWindow.Position` property |\n| `AppWindow.RequestPresentation()`\
+    \ | `AppWindow.SetPresenter()` |\n\n### Title Bar\n\n| UWP API | WinUI 3 API |\n\
+    |---------|-------------|\n| `CoreApplicationViewTitleBar` | `AppWindowTitleBar`\
+    \ |\n| `CoreApplicationView.TitleBar.ExtendViewIntoTitleBar` | `AppWindow.TitleBar.ExtendsContentIntoTitleBar`\
+    \ |\n\n---\n\n## Dialogs and Pickers Migration\n\n### File/Folder Pickers\n\n\
+    ```csharp\n// \u274C WRONG \u2014 UWP style, no window handle\nvar picker = new\
+    \ FileOpenPicker();\npicker.FileTypeFilter.Add(\".txt\");\nvar file = await picker.PickSingleFileAsync();\n\
+    ```\n\n```csharp\n// \u2705 CORRECT \u2014 Initialize with window handle\nvar\
+    \ picker = new FileOpenPicker();\nvar hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);\n\
+    WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);\npicker.FileTypeFilter.Add(\"\
+    .txt\");\nvar file = await picker.PickSingleFileAsync();\n```\n\n## Threading\
+    \ Migration\n\n| UWP Pattern | WinUI 3 Equivalent |\n|-------------|-------------------|\n\
+    | `CoreDispatcher.RunAsync(priority, callback)` | `DispatcherQueue.TryEnqueue(priority,\
+    \ callback)` |\n| `Dispatcher.HasThreadAccess` | `DispatcherQueue.HasThreadAccess`\
+    \ |\n| `CoreDispatcher.ProcessEvents()` | No equivalent \u2014 restructure async\
+    \ code |\n| `CoreWindow.GetForCurrentThread()` | Not available \u2014 use `DispatcherQueue.GetForCurrentThread()`\
+    \ |\n\n**Key difference**: UWP uses ASTA (Application STA) with built-in reentrancy\
+    \ blocking. WinUI 3 uses standard STA without this protection. Watch for reentrancy\
+    \ issues when async code pumps messages.\n\n---\n\n## Background Tasks Migration\n\
+    \n```csharp\n// \u274C WRONG \u2014 UWP IBackgroundTask\npublic sealed class MyTask\
+    \ : IBackgroundTask\n{\n    public void Run(IBackgroundTaskInstance taskInstance)\
+    \ { }\n}\n```\n\n```csharp\n// \u2705 CORRECT \u2014 Windows App SDK AppLifecycle\n\
+    using Microsoft.Windows.AppLifecycle;\n\n// Register for activation\nvar args\
+    \ = AppInstance.GetCurrent().GetActivatedEventArgs();\nif (args.Kind == ExtendedActivationKind.AppNotification)\n\
+    {\n    // Handle background activation\n}\n```\n\n---\n\n## App Settings Migration\n\
+    \n| Scenario | Packaged App | Unpackaged App |\n|----------|-------------|----------------|\n\
+    | Simple settings | `ApplicationData.Current.LocalSettings` | JSON file in `LocalApplicationData`\
+    \ |\n| Local file storage | `ApplicationData.Current.LocalFolder` | `Environment.GetFolderPath(SpecialFolder.LocalApplicationData)`\
+    \ |\n\n---\n\n## GetForCurrentView() Replacements\n\nAll `GetForCurrentView()`\
+    \ patterns are unavailable in WinUI 3 desktop apps:\n\n| UWP API | WinUI 3 Replacement\
+    \ |\n|---------|-------------------|\n| `UIViewSettings.GetForCurrentView()` |\
+    \ Use `AppWindow` properties |\n| `ApplicationView.GetForCurrentView()` | `AppWindow.GetFromWindowId(windowId)`\
+    \ |\n| `DisplayInformation.GetForCurrentView()` | Win32 `GetDpiForWindow()` or\
+    \ `XamlRoot.RasterizationScale` |\n| `CoreApplication.GetCurrentView()` | Not\
+    \ available \u2014 track windows manually |\n| `SystemNavigationManager.GetForCurrentView()`\
+    \ | Handle back navigation in `NavigationView` directly |\n\n---\n\n## Testing\
+    \ Migration\n\nUWP unit test projects do not work with WinUI 3. You must migrate\
+    \ to the WinUI 3 test project templates.\n\n| UWP | WinUI 3 |\n|-----|---------|\n\
+    | Unit Test App (Universal Windows) | **Unit Test App (WinUI in Desktop)** |\n\
+    | Standard MSTest project with UWP types | Must use WinUI test app for Xaml runtime\
+    \ |\n| `[TestMethod]` for all tests | `[TestMethod]` for logic, `[UITestMethod]`\
+    \ for XAML/UI tests |\n| Class Library (Universal Windows) | **Class Library (WinUI\
+    \ in Desktop)** |\n\n```csharp\n// \u2705 WinUI 3 unit test \u2014 use [UITestMethod]\
+    \ for any XAML interaction\n[UITestMethod]\npublic void TestMyControl()\n{\n \
+    \   var control = new MyLibrary.MyUserControl();\n    Assert.AreEqual(expected,\
+    \ control.MyProperty);\n}\n```\n\n**Key:** The `[UITestMethod]` attribute tells\
+    \ the test runner to execute the test on the XAML UI thread, which is required\
+    \ for instantiating any `Microsoft.UI.Xaml` type.\n\n---\n\n## Migration Checklist\n\
+    \n1. [ ] Replace all `Windows.UI.Xaml.*` using directives with `Microsoft.UI.Xaml.*`\n\
+    2. [ ] Replace `Windows.UI.Colors` with `Microsoft.UI.Colors`\n3. [ ] Replace\
+    \ `CoreDispatcher.RunAsync` with `DispatcherQueue.TryEnqueue`\n4. [ ] Replace\
+    \ `Window.Current` with `App.MainWindow` static property\n5. [ ] Add `XamlRoot`\
+    \ to all `ContentDialog` instances\n6. [ ] Initialize all pickers with `InitializeWithWindow.Initialize(picker,\
+    \ hwnd)`\n7. [ ] Replace `MessageDialog` with `ContentDialog`\n8. [ ] Replace\
+    \ `ApplicationView`/`CoreWindow` with `AppWindow`\n9. [ ] Replace `CoreApplicationViewTitleBar`\
+    \ with `AppWindowTitleBar`\n10. [ ] Replace all `GetForCurrentView()` calls with\
+    \ `AppWindow` equivalents\n11. [ ] Update interop for Share and Print managers\n\
+    12. [ ] Replace `IBackgroundTask` with `AppLifecycle` activation\n13. [ ] Update\
+    \ project file: TFM to `net10.0-windows10.0.22621.0`, add `<UseWinUI>true</UseWinUI>`\n\
+    14. [ ] Migrate unit tests to **Unit Test App (WinUI in Desktop)** project; use\
+    \ `[UITestMethod]` for XAML tests\n15. [ ] Test both packaged and unpackaged configurations"

@@ -1,0 +1,66 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__java-refactoring-remove-parameter
+name: java-refactoring-remove-parameter
+description: Refactoring using Remove Parameter in Java Language
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/java-refactoring-remove-parameter/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- java-refactoring-remove-parameter
+content:
+  kind: skill_markdown
+  sha256: 40860d758c5a9ce679f4226d6d0c6bd8e6f220157bb2609fa111d2dbaee08c32
+  char_count: 2952
+  text: "# Refactoring Java Methods with Remove Parameter\n\n## Role\n\nYou are an\
+    \ expert in refactoring Java methods.\n\nBelow are **2 examples** (with titles\
+    \ code before and code after refactoring) that represents **Remove Parameter**.\n\
+    \n## Code Before Refactoring 1:\n```java\npublic Backend selectBackendForGroupCommit(long\
+    \ tableId, ConnectContext context, boolean isCloud)\n        throws LoadException,\
+    \ DdlException {\n    if (!Env.getCurrentEnv().isMaster()) {\n        try {\n\
+    \            long backendId = new MasterOpExecutor(context)\n                \
+    \    .getGroupCommitLoadBeId(tableId, context.getCloudCluster(), isCloud);\n \
+    \           return Env.getCurrentSystemInfo().getBackend(backendId);\n       \
+    \ } catch (Exception e) {\n            throw new LoadException(e.getMessage());\n\
+    \        }\n    } else {\n        return Env.getCurrentSystemInfo()\n        \
+    \        .getBackend(selectBackendForGroupCommitInternal(tableId, context.getCloudCluster(),\
+    \ isCloud));\n    }\n}\n```\n\n## Code After Refactoring 1:\n```java\npublic Backend\
+    \ selectBackendForGroupCommit(long tableId, ConnectContext context)\n        throws\
+    \ LoadException, DdlException {\n    if (!Env.getCurrentEnv().isMaster()) {\n\
+    \        try {\n            long backendId = new MasterOpExecutor(context)\n \
+    \                   .getGroupCommitLoadBeId(tableId, context.getCloudCluster());\n\
+    \            return Env.getCurrentSystemInfo().getBackend(backendId);\n      \
+    \  } catch (Exception e) {\n            throw new LoadException(e.getMessage());\n\
+    \        }\n    } else {\n        return Env.getCurrentSystemInfo()\n        \
+    \        .getBackend(selectBackendForGroupCommitInternal(tableId, context.getCloudCluster()));\n\
+    \    }\n}\n```\n\n## Code Before Refactoring 2:\n```java\nNodeImpl( long id, long\
+    \ firstRel, long firstProp )\n{\n     this( id, false );\n}\n```\n\n## Code After\
+    \ Refactoring 2:\n```java\nNodeImpl( long id)\n{\n     this( id, false );\n}\n\
+    ```\n\n## Task\n\nApply **Remove Parameter** to improve readability, testability,\
+    \ maintainability, reusability, modularity, cohesion, low coupling, and consistency.\n\
+    \nAlways return a complete and compilable method (Java 17).\n\nPerform intermediate\
+    \ steps internally:\n- First, analyze each method and identify parameters that\
+    \ are unused or redundant (i.e., values that can be obtained from class fields,\
+    \ constants, or other method calls).\n- For each qualifying method, remove the\
+    \ unnecessary parameters from its definition and from all its internal calls.\n\
+    - Ensure that the method continues to function correctly after parameter removal.\n\
+    - Output only the refactored code inside a single ```java``` block.\n- Do not\
+    \ remove any functionality from the original method.\n- Include a one-line comment\
+    \ above each modified method indicating which parameter was removed and why.\n\
+    \n## Code to be Refactored:\n\nNow, assess all methods with unused parameters\
+    \ and refactor them using **Remove Parameter**"

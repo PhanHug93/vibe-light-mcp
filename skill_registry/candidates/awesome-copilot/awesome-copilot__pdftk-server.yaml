@@ -1,0 +1,90 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__pdftk-server
+name: pdftk-server
+description: Skill for using the command-line tool pdftk (PDFtk Server) for working
+  with PDF files. Use when asked to merge PDFs, split PDFs, rotate pages, encrypt
+  or decrypt PDFs, fill PDF forms, apply watermarks, stamp overlays, extract metadata,
+  burst documents into pages, repair corrupted PDFs, attach or extract files, or perform
+  any PDF manipulation from the command line.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/pdftk-server/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets: []
+languages: []
+platforms: []
+aliases:
+- pdftk-server
+content:
+  kind: skill_markdown
+  sha256: 4fd8d834d63000642697089da926f177f542a0b3a7896dc8d5978ee780939743
+  char_count: 4743
+  text: "# PDFtk Server\n\nPDFtk Server is a command-line tool for working with PDF\
+    \ documents. It can merge, split, rotate, encrypt, decrypt, watermark, stamp,\
+    \ fill forms, extract metadata, and manipulate PDFs in a variety of ways.\n\n\
+    ## When to Use This Skill\n\n- Merging or joining multiple PDF files into one\n\
+    - Splitting or bursting a PDF into individual pages\n- Rotating PDF pages\n- Encrypting\
+    \ or decrypting PDF files\n- Filling PDF form fields from FDF/XFDF data\n- Applying\
+    \ background watermarks or foreground stamps\n- Extracting PDF metadata, bookmarks,\
+    \ or form field information\n- Repairing corrupted PDF files\n- Attaching or extracting\
+    \ files embedded in PDFs\n- Removing specific pages from a PDF\n- Collating separately\
+    \ scanned even/odd pages\n- Compressing or decompressing PDF page streams\n\n\
+    ## Prerequisites\n\n- PDFtk Server must be installed on the system\n  - **Windows**:\
+    \ `winget install --id PDFLabs.PDFtk.Server`\n  - **macOS**: `brew install pdftk-java`\n\
+    \  - **Linux (Debian/Ubuntu)**: `sudo apt-get install pdftk`\n  - **Linux (Red\
+    \ Hat/Fedora)**: `sudo dnf install pdftk`\n- Access to a terminal or command prompt\n\
+    - Verify installation by running `pdftk --version`\n\n## Step-by-Step Workflows\n\
+    \n### Merge Multiple PDFs\n\n```bash\npdftk file1.pdf file2.pdf cat output merged.pdf\n\
+    ```\n\nUsing handles for more control:\n\n```bash\npdftk A=file1.pdf B=file2.pdf\
+    \ cat A B output merged.pdf\n```\n\n### Split a PDF into Individual Pages\n\n\
+    ```bash\npdftk input.pdf burst\n```\n\n### Extract Specific Pages\n\nExtract pages\
+    \ 1-5 and 10-15:\n\n```bash\npdftk input.pdf cat 1-5 10-15 output extracted.pdf\n\
+    ```\n\n### Remove Specific Pages\n\nRemove page 13:\n\n```bash\npdftk input.pdf\
+    \ cat 1-12 14-end output output.pdf\n```\n\n### Rotate Pages\n\nRotate all pages\
+    \ 90 degrees clockwise:\n\n```bash\npdftk input.pdf cat 1-endeast output rotated.pdf\n\
+    ```\n\n### Encrypt a PDF\n\nSet an owner password and a user password with 128-bit\
+    \ encryption (default):\n\n```bash\npdftk input.pdf output secured.pdf owner_pw\
+    \ mypassword user_pw userpass\n```\n\n### Decrypt a PDF\n\nRemove encryption using\
+    \ the known password:\n\n```bash\npdftk secured.pdf input_pw mypassword output\
+    \ unsecured.pdf\n```\n\n### Fill a PDF Form\n\nPopulate form fields from an FDF\
+    \ file and flatten to prevent further edits:\n\n```bash\npdftk form.pdf fill_form\
+    \ data.fdf output filled.pdf flatten\n```\n\n### Apply a Background Watermark\n\
+    \nPlace a single-page PDF behind every page of the input (input should have transparency):\n\
+    \n```bash\npdftk input.pdf background watermark.pdf output watermarked.pdf\n```\n\
+    \n### Stamp an Overlay\n\nPlace a single-page PDF on top of every page of the\
+    \ input:\n\n```bash\npdftk input.pdf stamp overlay.pdf output stamped.pdf\n```\n\
+    \n### Extract Metadata\n\nExport bookmarks, page metrics, and document information:\n\
+    \n```bash\npdftk input.pdf dump_data output metadata.txt\n```\n\n### Repair a\
+    \ Corrupted PDF\n\nPass a broken PDF through pdftk to attempt automatic repair:\n\
+    \n```bash\npdftk broken.pdf output fixed.pdf\n```\n\n### Collate Scanned Pages\n\
+    \nInterleave separately scanned even and odd pages:\n\n```bash\npdftk A=even.pdf\
+    \ B=odd.pdf shuffle A B output collated.pdf\n```\n\n## Troubleshooting\n\n| Issue\
+    \ | Solution |\n|-------|----------|\n| `pdftk` command not found | Verify installation;\
+    \ check that pdftk is in your system PATH |\n| Cannot decrypt PDF | Ensure you\
+    \ are providing the correct owner or user password via `input_pw` |\n| Output\
+    \ file is empty or corrupt | Check input file integrity; try running `pdftk input.pdf\
+    \ output repaired.pdf` first |\n| Form fields not visible after fill | Use the\
+    \ `flatten` flag to merge fields into the page content |\n| Watermark not appearing\
+    \ | Ensure the input PDF has transparent regions; use `stamp` for opaque overlays\
+    \ |\n| Permission denied errors | Check file permissions on input and output paths\
+    \ |\n\n## References\n\nBundled reference documents in the `references/` folder:\n\
+    \n- [pdftk-man-page.md](references/pdftk-man-page.md) - Complete manual reference\
+    \ with all operations, options, and syntax\n- [pdftk-cli-examples.md](references/pdftk-cli-examples.md)\
+    \ - Practical command-line examples for common tasks\n- [download.md](references/download.md)\
+    \ - Installation and download instructions for all platforms\n- [pdftk-server-license.md](references/pdftk-server-license.md)\
+    \ - PDFtk Server licensing information\n- [third-party-materials.md](references/third-party-materials.md)\
+    \ - Third-party library licenses"

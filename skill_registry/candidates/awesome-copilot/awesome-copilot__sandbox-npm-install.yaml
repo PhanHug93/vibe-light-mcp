@@ -1,0 +1,80 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__sandbox-npm-install
+name: sandbox-npm-install
+description: Install npm packages in a Docker sandbox environment. Use this skill
+  whenever you need to install, reinstall, or update node_modules inside a container
+  where the workspace is mounted via virtiofs. Native binaries (esbuild, lightningcss,
+  rollup) crash on virtiofs, so packages must be installed on the local ext4 filesystem
+  and symlinked back.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/sandbox-npm-install/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_scripts_directory
+facets:
+- frontend
+- typescript
+languages: []
+platforms: []
+aliases:
+- sandbox-npm-install
+content:
+  kind: skill_markdown
+  sha256: efbad94eaadd3b4284dd4fb3e2dfab71e528bcad4dfbfe4dc8c03c34a35439b3
+  char_count: 3804
+  text: "# Sandbox npm Install\n\n## When to Use This Skill\n\nUse this skill whenever:\n\
+    - You need to install npm packages for the first time in a new sandbox session\n\
+    - `package.json` or `package-lock.json` has changed and you need to reinstall\n\
+    - You encounter native binary crashes with errors like `SIGILL`, `SIGSEGV`, `mmap`,\
+    \ or `unaligned sysNoHugePageOS`\n- The `node_modules` directory is missing or\
+    \ corrupted\n\n## Prerequisites\n\n- A Docker sandbox environment with a virtiofs-mounted\
+    \ workspace\n- Node.js and npm available in the container\n- A `package.json`\
+    \ file in the target workspace\n\n## Background\n\nDocker sandbox workspaces are\
+    \ typically mounted via **virtiofs** (file sync between the host and Linux VM).\
+    \ Native Go and Rust binaries (esbuild, lightningcss, rollup, etc.) crash with\
+    \ mmap alignment failures when executed from virtiofs on aarch64. The fix is to\
+    \ install on the container's local ext4 filesystem and symlink back into the workspace.\n\
+    \n## Step-by-Step Installation\n\nRun the bundled install script from the workspace\
+    \ root:\n\n```bash\nbash scripts/install.sh\n```\n\n### Common Options\n\n| Option\
+    \ | Description |\n|---|---|\n| `--workspace <path>` | Path to directory containing\
+    \ `package.json` (auto-detected if omitted) |\n| `--playwright` | Also install\
+    \ Playwright Chromium browser for E2E testing |\n\n### What the Script Does\n\n\
+    1. Copies `package.json`, `package-lock.json`, and `.npmrc` (if present) to a\
+    \ local ext4 directory\n2. Runs `npm ci` (or `npm install` if no lockfile) on\
+    \ the local filesystem\n3. Symlinks `node_modules` back into the workspace\n4.\
+    \ Verifies known native binaries (esbuild, rollup, lightningcss, vite) if present\n\
+    5. Optionally installs Playwright browsers and system dependencies (uses `sudo`\
+    \ when available)\n\nIf verification fails, run the script again \u2014 crashes\
+    \ can be intermittent during initial setup.\n\n## Post-Install Verification\n\n\
+    After the script completes, verify your toolchain works. For example:\n\n```bash\n\
+    npm test             # Run project tests\nnpm run build        # Build the project\n\
+    npm run dev          # Start dev server\n```\n\n## Important Notes\n\n- The local\
+    \ install directory (e.g., `/home/agent/project-deps`) is **container-local**\
+    \ and is NOT synced back to the host\n- The `node_modules` symlink appears as\
+    \ a broken link on the host \u2014 this is harmless since `node_modules` is typically\
+    \ gitignored\n- Running `npm ci` or `npm install` on the host naturally replaces\
+    \ the symlink with a real directory\n- After any `package.json` or `package-lock.json`\
+    \ change, re-run the install script\n- Do NOT run `npm ci` or `npm install` directly\
+    \ in the mounted workspace \u2014 native binaries will crash\n\n## Troubleshooting\n\
+    \n| Problem | Solution |\n|---|---|\n| `SIGILL` or `SIGSEGV` when running dev\
+    \ server | Re-run the install script; ensure you're not running `npm install`\
+    \ directly in the workspace |\n| `node_modules` not found after install | Check\
+    \ that the symlink exists: `ls -la node_modules` |\n| Permission errors during\
+    \ install | Ensure the local deps directory is writable by the current user |\n\
+    | Verification fails intermittently | Run the script again \u2014 native binary\
+    \ crashes can be non-deterministic on first load |\n\n## Vite Compatibility\n\n\
+    If your project uses Vite, you may need to allow the symlinked path in `server.fs.allow`.\
+    \ Add the symlink target's parent directory (e.g., `/home/agent/project-deps/`)\
+    \ to your Vite config so that Vite can serve files through the symlink."

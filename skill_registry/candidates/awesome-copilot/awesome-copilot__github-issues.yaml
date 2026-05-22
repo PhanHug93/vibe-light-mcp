@@ -1,0 +1,132 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__github-issues
+name: github-issues
+description: Create, update, and manage GitHub issues using MCP tools. Use this skill
+  when users want to create bug reports, feature requests, or task issues, update
+  existing issues, add labels/assignees/milestones, set issue fields (dates, priority,
+  custom fields), set issue types, manage issue workflows, link issues, add dependencies,
+  or track blocked-by/blocking relationships. Triggers on requests like "create an
+  issue", "file a bug", "request a feature", "update issue X", "set the priority",
+  "set the start date", "link issues", "add dependency", "blocked by", "blocking",
+  or any GitHub issue management task.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/github-issues/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- mcp
+languages: []
+platforms: []
+aliases:
+- github-issues
+content:
+  kind: skill_markdown
+  sha256: 0b015612542646ddca605ca6ba2de65863b2f367c48ad5badbe90b2c988f83a1
+  char_count: 8140
+  text: "# GitHub Issues\n\nManage GitHub issues using the `@modelcontextprotocol/server-github`\
+    \ MCP server.\n\n## Available Tools\n\n### MCP Tools (read operations)\n\n| Tool\
+    \ | Purpose |\n|------|---------|\n| `mcp__github__issue_read` | Read issue details,\
+    \ sub-issues, comments, labels (methods: get, get_comments, get_sub_issues, get_labels)\
+    \ |\n| `mcp__github__list_issues` | List and filter repository issues by state,\
+    \ labels, date |\n| `mcp__github__search_issues` | Search issues across repos\
+    \ using GitHub search syntax |\n| `mcp__github__projects_list` | List projects,\
+    \ project fields, project items, status updates |\n| `mcp__github__projects_get`\
+    \ | Get details of a project, field, item, or status update |\n| `mcp__github__projects_write`\
+    \ | Add/update/delete project items, create status updates |\n\n### CLI / REST\
+    \ API (write operations)\n\nThe MCP server does not currently support creating,\
+    \ updating, or commenting on issues. Use `gh api` for these operations.\n\n| Operation\
+    \ | Command |\n|-----------|---------|\n| Create issue | `gh api repos/{owner}/{repo}/issues\
+    \ -X POST -f title=... -f body=...` |\n| Update issue | `gh api repos/{owner}/{repo}/issues/{number}\
+    \ -X PATCH -f title=... -f state=...` |\n| Add comment | `gh api repos/{owner}/{repo}/issues/{number}/comments\
+    \ -X POST -f body=...` |\n| Close issue | `gh api repos/{owner}/{repo}/issues/{number}\
+    \ -X PATCH -f state=closed` |\n| Set issue type | Include `-f type=Bug` in the\
+    \ create call (REST API only, not supported by `gh issue create` CLI) |\n\n**Note:**\
+    \ `gh issue create` works for basic issue creation but does **not** support the\
+    \ `--type` flag. Use `gh api` when you need to set issue types.\n\n## Workflow\n\
+    \n1. **Determine action**: Create, update, or query?\n2. **Gather context**: Get\
+    \ repo info, existing labels, milestones if needed\n3. **Structure content**:\
+    \ Use appropriate template from [references/templates.md](references/templates.md)\n\
+    4. **Execute**: Use MCP tools for reads, `gh api` for writes\n5. **Confirm**:\
+    \ Report the issue URL to user\n\n## Creating Issues\n\nUse `gh api` to create\
+    \ issues. This supports all parameters including issue types.\n\n```bash\ngh api\
+    \ repos/{owner}/{repo}/issues \\\n  -X POST \\\n  -f title=\"Issue title\" \\\n\
+    \  -f body=\"Issue body in markdown\" \\\n  -f type=\"Bug\" \\\n  --jq '{number,\
+    \ html_url}'\n```\n\n### Optional Parameters\n\nAdd any of these flags to the\
+    \ `gh api` call:\n\n```\n-f type=\"Bug\"                    # Issue type (Bug,\
+    \ Feature, Task, Epic, etc.)\n-f labels[]=\"bug\"                # Labels (repeat\
+    \ for multiple)\n-f assignees[]=\"username\"        # Assignees (repeat for multiple)\n\
+    -f milestone=1                   # Milestone number\n```\n\n**Issue types** are\
+    \ organization-level metadata. To discover available types, use:\n```bash\ngh\
+    \ api graphql -f query='{ organization(login: \"ORG\") { issueTypes(first: 10)\
+    \ { nodes { name } } } }' --jq '.data.organization.issueTypes.nodes[].name'\n\
+    ```\n\n**Prefer issue types over labels for categorization.** When issue types\
+    \ are available (e.g., Bug, Feature, Task), use the `type` parameter instead of\
+    \ applying equivalent labels like `bug` or `enhancement`. Issue types are the\
+    \ canonical way to categorize issues on GitHub. Only fall back to labels when\
+    \ the org has no issue types configured.\n\n### Title Guidelines\n\n- Be specific\
+    \ and actionable\n- Keep under 72 characters\n- When issue types are set, don't\
+    \ add redundant prefixes like `[Bug]`\n- Examples:\n  - `Login fails with SSO\
+    \ enabled` (with type=Bug)\n  - `Add dark mode support` (with type=Feature)\n\
+    \  - `Add unit tests for auth module` (with type=Task)\n\n### Body Structure\n\
+    \nAlways use the templates in [references/templates.md](references/templates.md).\
+    \ Choose based on issue type:\n\n| User Request | Template |\n|--------------|----------|\n\
+    | Bug, error, broken, not working | Bug Report |\n| Feature, enhancement, add,\
+    \ new | Feature Request |\n| Task, chore, refactor, update | Task |\n\n## Updating\
+    \ Issues\n\nUse `gh api` with PATCH:\n\n```bash\ngh api repos/{owner}/{repo}/issues/{number}\
+    \ \\\n  -X PATCH \\\n  -f state=closed \\\n  -f title=\"Updated title\" \\\n \
+    \ --jq '{number, html_url}'\n```\n\nOnly include fields you want to change. Available\
+    \ fields: `title`, `body`, `state` (open/closed), `labels`, `assignees`, `milestone`.\n\
+    \n## Examples\n\n### Example 1: Bug Report\n\n**User**: \"Create a bug issue -\
+    \ the login page crashes when using SSO\"\n\n**Action**: \n```bash\ngh api repos/github/awesome-copilot/issues\
+    \ \\\n  -X POST \\\n  -f title=\"Login page crashes when using SSO\" \\\n  -f\
+    \ type=\"Bug\" \\\n  -f body=\"## Description\nThe login page crashes when users\
+    \ attempt to authenticate using SSO.\n\n## Steps to Reproduce\n1. Navigate to\
+    \ login page\n2. Click 'Sign in with SSO'\n3. Page crashes\n\n## Expected Behavior\n\
+    SSO authentication should complete and redirect to dashboard.\n\n## Actual Behavior\n\
+    Page becomes unresponsive and displays error.\" \\\n  --jq '{number, html_url}'\n\
+    ```\n\n### Example 2: Feature Request\n\n**User**: \"Create a feature request\
+    \ for dark mode with high priority\"\n\n**Action**:\n```bash\ngh api repos/github/awesome-copilot/issues\
+    \ \\\n  -X POST \\\n  -f title=\"Add dark mode support\" \\\n  -f type=\"Feature\"\
+    \ \\\n  -f labels[]=\"high-priority\" \\\n  -f body=\"## Summary\nAdd dark mode\
+    \ theme option for improved user experience and accessibility.\n\n## Motivation\n\
+    - Reduces eye strain in low-light environments\n- Increasingly expected by users\n\
+    \n## Proposed Solution\nImplement theme toggle with system preference detection.\n\
+    \n## Acceptance Criteria\n- [ ] Toggle switch in settings\n- [ ] Persists user\
+    \ preference\n- [ ] Respects system preference by default\" \\\n  --jq '{number,\
+    \ html_url}'\n```\n\n## Common Labels\n\nUse these standard labels when applicable:\n\
+    \n| Label | Use For |\n|-------|---------|\n| `bug` | Something isn't working\
+    \ |\n| `enhancement` | New feature or improvement |\n| `documentation` | Documentation\
+    \ updates |\n| `good first issue` | Good for newcomers |\n| `help wanted` | Extra\
+    \ attention needed |\n| `question` | Further information requested |\n| `wontfix`\
+    \ | Will not be addressed |\n| `duplicate` | Already exists |\n| `high-priority`\
+    \ | Urgent issues |\n\n## Tips\n\n- Always confirm the repository context before\
+    \ creating issues\n- Ask for missing critical information rather than guessing\n\
+    - Link related issues when known: `Related to #123`\n- For updates, fetch current\
+    \ issue first to preserve unchanged fields\n\n## Extended Capabilities\n\nThe\
+    \ following features require REST or GraphQL APIs beyond the basic MCP tools.\
+    \ Each is documented in its own reference file so the agent only loads the knowledge\
+    \ it needs.\n\n| Capability | When to use | Reference |\n|------------|-------------|-----------|\n\
+    | Advanced search | Complex queries with boolean logic, date ranges, cross-repo\
+    \ search, issue field filters (`field.name:value`) | [references/search.md](references/search.md)\
+    \ |\n| Sub-issues & parent issues | Breaking work into hierarchical tasks | [references/sub-issues.md](references/sub-issues.md)\
+    \ |\n| Issue dependencies | Tracking blocked-by / blocking relationships | [references/dependencies.md](references/dependencies.md)\
+    \ |\n| Issue types (advanced) | GraphQL operations beyond MCP `list_issue_types`\
+    \ / `type` param | [references/issue-types.md](references/issue-types.md) |\n\
+    | Projects V2 | Project boards, progress reports, field management | [references/projects.md](references/projects.md)\
+    \ |\n| Issue fields | Custom metadata: dates, priority, text, numbers (private\
+    \ preview) | [references/issue-fields.md](references/issue-fields.md) |\n| Images\
+    \ in issues | Embedding images in issue bodies and comments via CLI | [references/images.md](references/images.md)\
+    \ |"

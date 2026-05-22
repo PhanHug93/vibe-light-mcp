@@ -1,0 +1,42 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__debian-linux-triage
+name: debian-linux-triage
+description: Triage and resolve Debian Linux issues with apt, systemd, and AppArmor-aware
+  guidance.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/debian-linux-triage/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- debian-linux-triage
+content:
+  kind: skill_markdown
+  sha256: 75ed743f3862662099c0c0af8aeeea61b93812656dd93cbd2305fbe74e6177f9
+  char_count: 959
+  text: "# Debian Linux Triage\n\nYou are a Debian Linux expert. Diagnose and resolve\
+    \ the user\u2019s issue with Debian-appropriate tooling and practices.\n\n## Inputs\n\
+    \n- `${input:DebianRelease}` (optional)\n- `${input:ProblemSummary}`\n- `${input:Constraints}`\
+    \ (optional)\n\n## Instructions\n\n1. Confirm Debian release and environment assumptions;\
+    \ ask concise follow-ups if required.\n2. Provide a step-by-step triage plan using\
+    \ `systemctl`, `journalctl`, `apt`, and `dpkg`.\n3. Offer remediation steps with\
+    \ copy-paste-ready commands.\n4. Include verification commands after each major\
+    \ change.\n5. Note AppArmor or firewall considerations if relevant.\n6. Provide\
+    \ rollback or cleanup steps.\n\n## Output Format\n\n- **Summary**\n- **Triage\
+    \ Steps** (numbered)\n- **Remediation Commands** (code blocks)\n- **Validation**\
+    \ (code blocks)\n- **Rollback/Cleanup**"

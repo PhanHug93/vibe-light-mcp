@@ -1,0 +1,63 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__qdrant-clients-sdk
+name: qdrant-clients-sdk
+description: Qdrant provides client SDKs for various programming languages, allowing
+  easy integration with Qdrant deployments.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/qdrant-clients-sdk/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- qdrant-clients-sdk
+content:
+  kind: skill_markdown
+  sha256: eac9386970303787ccff5ce65f77e2bc51286a07b27977a8fba1f256f4c95426
+  char_count: 2993
+  text: "# Qdrant Clients SDK\n\nQdrant has the following officially supported client\
+    \ SDKs:\n\n- Python \u2014 [qdrant-client](https://github.com/qdrant/qdrant-client)\
+    \ \xB7 Installation: `pip install qdrant-client[fastembed]`\n- JavaScript / TypeScript\
+    \ \u2014 [qdrant-js](https://github.com/qdrant/qdrant-js) \xB7 Installation: `npm\
+    \ install @qdrant/js-client-rest`\n- Rust \u2014 [rust-client](https://github.com/qdrant/rust-client)\
+    \ \xB7 Installation: `cargo add qdrant-client`\n- Go \u2014 [go-client](https://github.com/qdrant/go-client)\
+    \ \xB7 Installation: `go get github.com/qdrant/go-client`\n- .NET \u2014 [qdrant-dotnet](https://github.com/qdrant/qdrant-dotnet)\
+    \ \xB7 Installation: `dotnet add package Qdrant.Client`\n- Java \u2014 [java-client](https://github.com/qdrant/java-client)\
+    \ \xB7 Available on Maven Central: https://central.sonatype.com/artifact/io.qdrant/client\n\
+    \n\n## API Reference\n\nAll interaction with Qdrant can happen through the REST\
+    \ API or gRPC API. We recommend using the REST API if you are using Qdrant for\
+    \ the first time or working on a prototype.\n\n* REST API - [OpenAPI Reference](https://api.qdrant.tech/api-reference)\
+    \ - [GitHub](https://github.com/qdrant/qdrant/blob/master/docs/redoc/master/openapi.json)\n\
+    * gRPC API - [gRPC protobuf definitions](https://github.com/qdrant/qdrant/tree/master/lib/api/src/grpc/proto)\n\
+    \n## Code examples\n\nTo obtain code examples for a specific client and use case,\
+    \ you can send a search request to the library of curated code snippets for the\
+    \ Qdrant client.\n\n```bash\ncurl -X GET \"https://snippets.qdrant.tech/search?language=python&query=how+to+upload+points\"\
+    \n```\n\nAvailable languages: `python`, `typescript`, `rust`, `java`, `go`, `csharp`\n\
+    \n\nResponse example:\n\n```markdown\n\n## Snippet 1\n\n*qdrant-client* (vlatest)\
+    \ \u2014 https://search.qdrant.tech/md/documentation/manage-data/points/\n\nUploads\
+    \ multiple vector-embedded points to a Qdrant collection using the Python qdrant_client\
+    \ (PointStruct) with id, payload (e.g., color), and a 3D-like vector for similarity\
+    \ search. It supports parallel uploads (parallel=4) and a retry policy (max_retries=3)\
+    \ for robust indexing. The operation is idempotent: re-uploading with the same\
+    \ id overwrites existing points; if ids aren\u2019t provided, Qdrant auto-generates\
+    \ UUIDs.\n\nclient.upload_points(\n    collection_name=\"{collection_name}\",\n\
+    \    points=[\n        models.PointStruct(\n            id=1,\n            payload={\n\
+    \                \"color\": \"red\",\n            },\n            vector=[0.9,\
+    \ 0.1, 0.1],\n        ),\n        models.PointStruct(\n            id=2,\n   \
+    \         payload={\n                \"color\": \"green\",\n            },\n \
+    \           vector=[0.1, 0.9, 0.1],\n        ),\n    ],\n    parallel=4,\n   \
+    \ max_retries=3,\n)\n```\n\nDefault response format is markdown, if snippet output\
+    \ is required in JSON format, you can add `&format=json` to the query string."

@@ -1,0 +1,167 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__arize-annotation
+name: arize-annotation
+description: Creates and manages annotation configs (categorical, continuous, freeform
+  label schemas) and annotation queues (human review workflows) on Arize. Applies
+  human annotations to project spans via the Python SDK. Use when the user mentions
+  annotation config, annotation queue, label schema, human feedback, bulk annotate
+  spans, update_annotations, labeling queue, annotate record, or human review.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/arize-annotation/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- python
+languages: []
+platforms: []
+aliases:
+- arize-annotation
+content:
+  kind: skill_markdown
+  sha256: 7c8370632bfb017a36c4c1315c60410a334f2cd3e2054165fba1bac37df40af3
+  char_count: 10784
+  text: "# Arize Annotation Skill\n\n> **`SPACE`** \u2014 All `--space` flags and\
+    \ the `ARIZE_SPACE` env var accept a space **name** (e.g., `my-workspace`) or\
+    \ a base64 space **ID** (e.g., `U3BhY2U6...`). Find yours with `ax spaces list`.\n\
+    \nThis skill covers **annotation configs** (the label schema) and **annotation\
+    \ queues** (human review workflows), as well as programmatically annotating project\
+    \ spans via the Python SDK.\n\n**Direction:** Human labeling in Arize attaches\
+    \ values defined by configs to **spans**, **dataset examples**, **experiment-related\
+    \ records**, and **queue items** in the product UI. This skill covers: `ax annotation-configs`,\
+    \ `ax annotation-queues`, and bulk span updates with `ArizeClient.spans.update_annotations`.\n\
+    \n---\n\n## Prerequisites\n\nProceed directly with the task \u2014 run the `ax`\
+    \ command you need. Do NOT check versions, env vars, or profiles upfront.\n\n\
+    If an `ax` command fails, troubleshoot based on the error:\n- `command not found`\
+    \ or version error \u2192 see references/ax-setup.md\n- `401 Unauthorized` / missing\
+    \ API key \u2192 run `ax profiles show` to inspect the current profile. If the\
+    \ profile is missing or the API key is wrong, follow references/ax-profiles.md\
+    \ to create/update it. If the user doesn't have their key, direct them to https://app.arize.com/admin\
+    \ > API Keys\n- Space unknown \u2192 run `ax spaces list` to pick by name, or\
+    \ ask the user\n- **Security:** Never read `.env` files or search the filesystem\
+    \ for credentials. Use `ax profiles` for Arize credentials and `ax ai-integrations`\
+    \ for LLM provider keys. If credentials are not available through these channels,\
+    \ ask the user.\n\n---\n\n## Concepts\n\n### What is an Annotation Config?\n\n\
+    An **annotation config** defines the schema for a single type of human feedback\
+    \ label. Before anyone can annotate a span, dataset record, experiment output,\
+    \ or queue item, a config must exist for that label in the space.\n\n| Field |\
+    \ Description |\n|-------|-------------|\n| **Name** | Descriptive identifier\
+    \ (e.g. `Correctness`, `Helpfulness`). Must be unique within the space. |\n| **Type**\
+    \ | `categorical` (pick from a list), `continuous` (numeric range), or `freeform`\
+    \ (free text). |\n| **Values** | For categorical: array of `{\"label\": str, \"\
+    score\": number}` pairs. |\n| **Min/Max Score** | For continuous: numeric bounds.\
+    \ |\n| **Optimization Direction** | Whether higher scores are better (`maximize`)\
+    \ or worse (`minimize`). Used to render trends in the UI. |\n\n### Where labels\
+    \ get applied (surfaces)\n\n| Surface | Typical path |\n|---------|----------------|\n\
+    | **Project spans** | Python SDK `spans.update_annotations` (below) and/or the\
+    \ Arize UI |\n| **Dataset examples** | Arize UI (human labeling flows); configs\
+    \ must exist in the space |\n| **Experiment outputs** | Often reviewed alongside\
+    \ datasets or traces in the UI \u2014 see arize-experiment, arize-dataset |\n\
+    | **Annotation queue items** | `ax annotation-queues` CLI (below) and/or the Arize\
+    \ UI; configs must exist |\n\nAlways ensure the relevant **annotation config**\
+    \ exists in the space before expecting labels to persist.\n\n---\n\n## Basic CRUD:\
+    \ Annotation Configs\n\n### List\n\n```bash\nax annotation-configs list --space\
+    \ SPACE\nax annotation-configs list --space SPACE -o json\nax annotation-configs\
+    \ list --space SPACE --limit 20\n```\n\n### Create \u2014 Categorical\n\nCategorical\
+    \ configs present a fixed set of labels for reviewers to choose from.\n\n```bash\n\
+    ax annotation-configs create \\\n  --name \"Correctness\" \\\n  --space SPACE\
+    \ \\\n  --type categorical \\\n  --value correct \\\n  --value incorrect \\\n\
+    \  --optimization-direction maximize\n```\n\nCommon binary label pairs:\n- `correct`\
+    \ / `incorrect`\n- `helpful` / `unhelpful`\n- `safe` / `unsafe`\n- `relevant`\
+    \ / `irrelevant`\n- `pass` / `fail`\n\n### Create \u2014 Continuous\n\nContinuous\
+    \ configs let reviewers enter a numeric score within a defined range.\n\n```bash\n\
+    ax annotation-configs create \\\n  --name \"Quality Score\" \\\n  --space SPACE\
+    \ \\\n  --type continuous \\\n  --min-score 0 \\\n  --max-score 10 \\\n  --optimization-direction\
+    \ maximize\n```\n\n### Create \u2014 Freeform\n\nFreeform configs collect open-ended\
+    \ text feedback. No additional flags needed beyond name, space, and type.\n\n\
+    ```bash\nax annotation-configs create \\\n  --name \"Reviewer Notes\" \\\n  --space\
+    \ SPACE \\\n  --type freeform\n```\n\n### Get\n\n```bash\nax annotation-configs\
+    \ get NAME_OR_ID\nax annotation-configs get NAME_OR_ID -o json\nax annotation-configs\
+    \ get NAME_OR_ID --space SPACE   # required when using name instead of ID\n```\n\
+    \n### Delete\n\n```bash\nax annotation-configs delete NAME_OR_ID\nax annotation-configs\
+    \ delete NAME_OR_ID --space SPACE   # required when using name instead of ID\n\
+    ax annotation-configs delete NAME_OR_ID --force   # skip confirmation\n```\n\n\
+    **Note:** Deletion is irreversible. Any annotation queue associations to this\
+    \ config are also removed in the product (queues may remain; fix associations\
+    \ in the Arize UI if needed).\n\n---\n\n## Annotation Queues: `ax annotation-queues`\n\
+    \nAnnotation queues route records (spans, dataset examples, experiment runs) to\
+    \ human reviewers. Each queue is linked to one or more annotation configs that\
+    \ define what labels reviewers can apply.\n\n### List / Get\n\n```bash\nax annotation-queues\
+    \ list --space SPACE\nax annotation-queues list --space SPACE -o json\n\nax annotation-queues\
+    \ get NAME_OR_ID --space SPACE\nax annotation-queues get NAME_OR_ID --space SPACE\
+    \ -o json\n```\n\n### Create\n\nAt least one `--annotation-config-id` is required.\n\
+    \n```bash\nax annotation-queues create \\\n  --name \"Correctness Review\" \\\n\
+    \  --space SPACE \\\n  --annotation-config-id CONFIG_ID \\\n  --annotator-email\
+    \ reviewer@example.com \\\n  --instructions \"Label each response as correct or\
+    \ incorrect.\" \\\n  --assignment-method all   # or: random\n```\n\nRepeat `--annotation-config-id`\
+    \ and `--annotator-email` to attach multiple configs or reviewers.\n\n### Update\n\
+    \nList flags (`--annotation-config-id`, `--annotator-email`) **fully replace**\
+    \ existing values when provided \u2014 pass all desired values, not just the new\
+    \ ones.\n\n```bash\nax annotation-queues update NAME_OR_ID --space SPACE --name\
+    \ \"New Name\"\nax annotation-queues update NAME_OR_ID --space SPACE --instructions\
+    \ \"Updated instructions\"\nax annotation-queues update NAME_OR_ID --space SPACE\
+    \ \\\n  --annotation-config-id CONFIG_ID_A \\\n  --annotation-config-id CONFIG_ID_B\n\
+    ```\n\n### Delete\n\n```bash\nax annotation-queues delete NAME_OR_ID --space SPACE\n\
+    ax annotation-queues delete NAME_OR_ID --space SPACE --force   # skip confirmation\n\
+    ```\n\n### List Records\n\n```bash\nax annotation-queues list-records NAME_OR_ID\
+    \ --space SPACE\nax annotation-queues list-records NAME_OR_ID --space SPACE --limit\
+    \ 50 -o json\n```\n\n### Submit an Annotation for a Record\n\nAnnotations are\
+    \ upserted by config name \u2014 call once per annotation config. Supply at least\
+    \ one of `--score`, `--label`, or `--text`.\n\n```bash\nax annotation-queues annotate-record\
+    \ NAME_OR_ID RECORD_ID \\\n  --annotation-name \"Correctness\" \\\n  --label \"\
+    correct\" \\\n  --space SPACE\n\nax annotation-queues annotate-record NAME_OR_ID\
+    \ RECORD_ID \\\n  --annotation-name \"Quality Score\" \\\n  --score 8.5 \\\n \
+    \ --text \"Response was accurate but slightly verbose.\" \\\n  --space SPACE\n\
+    ```\n\n### Assign a Record\n\nAssign users to review a specific record:\n\n```bash\n\
+    ax annotation-queues assign-record NAME_OR_ID RECORD_ID --space SPACE\n```\n\n\
+    ### Delete Records\n\n```bash\nax annotation-queues delete-records NAME_OR_ID\
+    \ --space SPACE\n```\n\n---\n\n## Applying Annotations to Spans (Python SDK)\n\
+    \nUse the Python SDK to bulk-apply annotations to **project spans** when you already\
+    \ have labels (e.g., from a review export or an external labeling tool).\n\n```python\n\
+    import pandas as pd\nfrom arize import ArizeClient\n\nimport os\n\nclient = ArizeClient(api_key=os.environ[\"\
+    ARIZE_API_KEY\"])\n\n# Build a DataFrame with annotation columns\n# Required:\
+    \ context.span_id + at least one annotation.<name>.label or annotation.<name>.score\n\
+    annotations_df = pd.DataFrame([\n    {\n        \"context.span_id\": \"span_001\"\
+    ,\n        \"annotation.Correctness.label\": \"correct\",\n        \"annotation.Correctness.updated_by\"\
+    : \"reviewer@example.com\",\n    },\n    {\n        \"context.span_id\": \"span_002\"\
+    ,\n        \"annotation.Correctness.label\": \"incorrect\",\n        \"annotation.Correctness.updated_by\"\
+    : \"reviewer@example.com\",\n    },\n])\n\nresponse = client.spans.update_annotations(\n\
+    \    space_id=os.environ[\"ARIZE_SPACE\"],\n    project_name=\"your-project\"\
+    ,\n    dataframe=annotations_df,\n    validate=True,\n)\n```\n\n**DataFrame column\
+    \ schema:**\n\n| Column | Required | Description |\n|--------|----------|-------------|\n\
+    | `context.span_id` | yes | The span to annotate |\n| `annotation.<name>.label`\
+    \ | one of | Categorical or freeform label |\n| `annotation.<name>.score` | one\
+    \ of | Numeric score |\n| `annotation.<name>.updated_by` | no | Annotator identifier\
+    \ (email or name) |\n| `annotation.<name>.updated_at` | no | Timestamp in milliseconds\
+    \ since epoch |\n| `annotation.notes` | no | Freeform notes on the span |\n\n\
+    **Limitation:** Annotations apply only to spans within 31 days prior to submission.\n\
+    \n---\n\n## Troubleshooting\n\n| Problem | Solution |\n|---------|----------|\n\
+    | `ax: command not found` | See references/ax-setup.md |\n| `401 Unauthorized`\
+    \ | API key may not have access to this space. Verify at https://app.arize.com/admin\
+    \ > API Keys |\n| `Annotation config not found` | `ax annotation-configs list\
+    \ --space SPACE` (or use `ax annotation-configs get NAME_OR_ID --space SPACE`)\
+    \ |\n| `409 Conflict on create` | Name already exists in the space. Use a different\
+    \ name or get the existing config ID. |\n| Queue not found | `ax annotation-queues\
+    \ list --space SPACE`; verify the queue name or ID |\n| Record not appearing in\
+    \ queue | Ensure the annotation config linked to the queue exists; check `ax annotation-configs\
+    \ list --space SPACE` |\n| Span SDK errors or missing spans | Confirm `project_name`,\
+    \ `space_id`, and span IDs; use arize-trace to export spans |\n\n---\n\n## Related\
+    \ Skills\n\n- **arize-trace**: Export spans to find span IDs and time ranges\n\
+    - **arize-dataset**: Find dataset IDs and example IDs\n- **arize-evaluator**:\
+    \ Automated LLM-as-judge alongside human annotation\n- **arize-experiment**: Experiments\
+    \ tied to datasets and evaluation workflows\n- **arize-link**: Deep links to annotation\
+    \ configs and queues in the Arize UI\n\n---\n\n## Save Credentials for Future\
+    \ Use\n\nSee references/ax-profiles.md \xA7 Save Credentials for Future Use."

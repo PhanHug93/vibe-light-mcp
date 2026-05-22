@@ -1,0 +1,199 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__gtm-technical-product-pricing
+name: gtm-technical-product-pricing
+description: Pricing strategy for technical products. Use when choosing usage-based
+  vs seat-based, designing freemium thresholds, structuring enterprise pricing conversations,
+  deciding when to raise prices, or using price as a positioning signal.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/gtm-technical-product-pricing/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- gtm-technical-product-pricing
+content:
+  kind: skill_markdown
+  sha256: afb71bdbcbc0bfe8ec1ba210b0184e9b03466f3db9c3e9805fb898d76bb90460
+  char_count: 12876
+  text: "# Technical Product Pricing\n\n\n## Initial Assessment\n\nBefore recommending\
+    \ pricing, understand:\n\n1. **Product type**: API/platform, developer tool, SaaS\
+    \ application, infrastructure?\n2. **Current pricing**: What do you charge now?\
+    \ How long has it been this way?\n3. **GTM motion**: Self-serve, sales-assisted,\
+    \ enterprise, or hybrid?\n4. **Cost structure**: What's your marginal cost per\
+    \ customer/user/unit?\n5. **Competitive landscape**: What do alternatives cost?\
+    \ (Including \"do nothing\")\n\n---\n\n## Core Frameworks\n\n### 1. The Price\
+    \ Increase Nobody Noticed (You're Probably Underpriced)\n\n**The Pattern:**\n\n\
+    Platform company, growth stage. Pricing hadn't changed since launch. Enterprise\
+    \ customers paying $15K/year for a product saving them $200K+ in engineering time.\n\
+    \nLeadership debate: \"If we raise prices, we'll lose customers.\"\n\n**What actually\
+    \ happened:**\n\nRaised enterprise tier from $15K to $45K/year. Added dedicated\
+    \ support, SSO, audit logs to justify the jump.\n\nLost: 0 enterprise customers.\
+    \ Zero.\n\nGained: 3x revenue per enterprise account. Plus the customers who stayed\
+    \ started taking the product more seriously \u2014 higher adoption, more internal\
+    \ champions, more expansion.\n\n**Why This Happens:**\n\nTechnical founders anchor\
+    \ pricing to cost (\"it costs us $X to serve them, so we charge $2X\"). Enterprise\
+    \ buyers anchor pricing to value (\"this saves us $200K, so $45K is cheap\").\n\
+    \n**The Pricing Sanity Check:**\n\nFor every customer segment, calculate:\n\n\
+    ```\nValue Ratio = Customer's alternative cost / Your price\n\nIf Value Ratio\
+    \ > 10x \u2192 You're massively underpriced\nIf Value Ratio > 5x  \u2192 You're\
+    \ underpriced (most startups are here)\nIf Value Ratio 3-5x  \u2192 Healthy pricing\n\
+    If Value Ratio < 3x  \u2192 Approaching ceiling\nIf Value Ratio < 2x  \u2192 You're\
+    \ expensive (need strong differentiation)\n```\n\n**How to Calculate Alternative\
+    \ Cost:**\n\n- Hours spent on manual process \xD7 hourly rate \xD7 frequency\n\
+    - Cost of building in-house (engineers \xD7 months \xD7 loaded cost)\n- Cost of\
+    \ existing tool + switching cost + productivity loss during transition\n- Cost\
+    \ of *not solving the problem* (incidents, downtime, churn)\n\n**Common Mistake:**\n\
+    \nComparing your price to competitors instead of to customer's alternative cost.\
+    \ Competitors anchor you to a race to the bottom. Value anchors you to what the\
+    \ customer actually saves.\n\n---\n\n### 2. The Three Pricing Models (And When\
+    \ Each Breaks)\n\n**Model 1: Seat-Based ($X/user/month)**\n\n**Works when:**\n\
+    - Value scales with number of users (collaboration tools, communication)\n- Usage\
+    \ is relatively uniform across users\n- You want predictable revenue\n\n**Breaks\
+    \ when:**\n- Power users and casual users get same price (casual users churn)\n\
+    - Product value doesn't scale with seats (one admin configures for 1,000 users)\n\
+    - Customers consolidate seats to reduce cost (usage goes up, revenue doesn't)\n\
+    \n**Model 2: Usage-Based ($X/unit)**\n\n**Works when:**\n- Usage varies significantly\
+    \ by customer (API calls, compute, storage)\n- Marginal cost is meaningful (you\
+    \ need usage to track with revenue)\n- Value directly correlates with usage\n\n\
+    **Breaks when:**\n- Customers can't predict bills (sticker shock at month-end)\n\
+    - Low-usage customers aren't worth supporting\n- High-usage customers negotiate\
+    \ volume discounts that compress margins\n\n**Model 3: Outcome-Based ($X/result)**\n\
+    \n**Works when:**\n- You can measure outcomes reliably (leads generated, tickets\
+    \ resolved, code deployed)\n- Outcomes directly create customer value\n- You have\
+    \ confidence in your product's effectiveness\n\n**Breaks when:**\n- Outcomes depend\
+    \ on factors outside your control\n- Measurement is disputed (\"that lead wasn't\
+    \ from your tool\")\n- Customers game the metric\n\n**The Hybrid That Usually\
+    \ Wins:**\n\nPlatform fee (covers your fixed costs) + usage/outcome variable (scales\
+    \ with value).\n\nExample: $500/month base + $0.05 per transaction (or API call,\
+    \ task completed, record processed \u2014 whatever your unit of value is).\n\n\
+    Why this works:\n- Base fee ensures every customer covers cost to serve\n- Variable\
+    \ fee aligns price with value\n- Customers can predict minimum spend (base) while\
+    \ scaling naturally\n- You capture upside when customers grow\n\n---\n\n### 3.\
+    \ Freemium Threshold Design (Where Free Ends and Paid Begins)\n\n**The Pattern:**\n\
+    \nThe hardest pricing decision for developer tools: where do you draw the line\
+    \ between free and paid?\n\n**The Framework: Find the Production Boundary**\n\n\
+    Free users who never pay are fine \u2014 they create awareness, community, and\
+    \ content. The problem is when *production users* never pay.\n\n**How to Find\
+    \ the Boundary:**\n\nMap your usage distribution:\n\n```\nUsage Level        \
+    \  |  User Type        |  Willingness to Pay\n\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+    \u2500\u2500\u2500\n<100 units/mo        |  Hobbyist/learner |  $0 (never paying)\n\
+    100-1K units/mo      |  Side project     |  $0-20/mo (maybe)\n1K-10K units/mo\
+    \      |  Production use   |  $50-200/mo (will pay)\n>10K units/mo        |  Business-critical|\
+    \  $200-2K/mo (must pay)\n```\n\n**Set your free tier limit just below where production\
+    \ usage starts.** In this example: 1,000 units/month free.\n\nWhy: Hobbyists and\
+    \ learners stay free (they're your marketing engine). Production users hit the\
+    \ limit naturally and convert (they have budget).\n\n**The Three Types of Free-to-Paid\
+    \ Triggers:**\n\n**1. Usage limit** (most common for platforms)\n- Free: 1,000\
+    \ units/month (API calls, tasks, records, whatever your value unit is)\n- Triggers\
+    \ when: Production usage exceeds limit\n- Conversion signal: User is building\
+    \ something real\n\n**2. Team/collaboration gate** (best for tools)\n- Free: Individual\
+    \ use\n- Triggers when: User invites second person\n- Conversion signal: Tool\
+    \ is valuable enough to share\n\n**3. Enterprise feature gate** (best for platforms)\n\
+    - Free: Core features\n- Triggers when: Needs SSO, RBAC, audit logs, SLAs\n- Conversion\
+    \ signal: IT/security involved (real deployment)\n\n**Common Mistake:**\n\nSetting\
+    \ free tier too high (\"we want developers to love us\"). If production users\
+    \ don't hit the limit, they never convert. Generosity in free tier should target\
+    \ *learners*, not *production users*.\n\n---\n\n### 4. Enterprise Pricing (The\
+    \ Conversation, Not the Number)\n\n**The Pattern:**\n\nEnterprise pricing isn't\
+    \ a page on your website. It's a conversation. The \"Contact Sales\" button exists\
+    \ because enterprise deals have unique requirements \u2014 and because you should\
+    \ be pricing based on value, not a menu.\n\n**Enterprise Pricing Variables:**\n\
+    \n**1. Deployment model** (self-serve cloud, dedicated cloud, on-prem, hybrid)\n\
+    - Each has different cost to serve \u2192 different price floor\n- On-prem commands\
+    \ 2-5x premium over cloud (support complexity)\n\n**2. Usage scale** (seats, API\
+    \ volume, data volume)\n- Volume discounts should never go below cost to serve\
+    \ + 40% margin\n- Discount off list price, not off already-discounted price\n\n\
+    **3. Support level** (community, standard, premium, dedicated)\n- Premium support:\
+    \ 1.5-2x base price\n- Dedicated CSM: 2-3x base price\n- 24/7 support with SLA:\
+    \ 3-5x base price\n\n**4. Compliance requirements** (SOC 2, HIPAA, FedRAMP, data\
+    \ residency)\n- Each compliance adds real cost (audits, infrastructure, process)\n\
+    - Price accordingly: 1.5-2x base per compliance standard\n\n**The Enterprise Pricing\
+    \ Conversation:**\n\nWhen prospect says \"what does it cost?\":\n\n1. **Don't\
+    \ answer with a number.** Answer with a question: \"It depends on your deployment\
+    \ and scale requirements. Help me understand what you need.\"\n\n2. **Map their\
+    \ requirements:**\n   - How many users/seats/units?\n   - Cloud or on-prem?\n\
+    \   - Compliance needs?\n   - Support expectations?\n   - Integration requirements?\n\
+    \n3. **Anchor to value before presenting price:**\n   - \"Based on what you've\
+    \ described, you're currently spending [X] on this problem. Our solution typically\
+    \ reduces that by [Y%].\"\n   - Then present price as fraction of savings.\n\n\
+    4. **Present 3 options:**\n   - Good: Meets minimum requirements\n   - Better:\
+    \ Meets requirements + nice-to-haves (anchor here)\n   - Best: Everything, including\
+    \ things they didn't ask for\n   - Most buyers pick Better. That's your real price.\n\
+    \n**Common Mistake:**\n\nPublishing enterprise pricing on your website. The moment\
+    \ you publish a number, that's the ceiling \u2014 the negotiation only goes down\
+    \ from there. Keep enterprise pricing as a conversation.\n\n---\n\n### 5. Pricing\
+    \ as Positioning Signal\n\n**The Pattern:**\n\nYour price tells buyers who you're\
+    \ for. This is as much a positioning decision as a revenue decision.\n\n**Price\
+    \ Signals:**\n\n**$0 (Open source / free tier):**\n- Signal: We're for developers\
+    \ who want to try before they buy\n- Attracts: Individual contributors, experimenters\n\
+    - Risk: Perceived as \"not enterprise-ready\"\n\n**$20-100/month:**\n- Signal:\
+    \ We're for teams and small businesses\n- Attracts: Self-serve buyers, startups\n\
+    - Risk: Enterprises won't take you seriously (too cheap)\n\n**$500-2,000/month:**\n\
+    - Signal: We're for production workloads\n- Attracts: Growing companies with real\
+    \ budgets\n- Risk: Startups priced out (may need free tier)\n\n**$5,000-50,000/year:**\n\
+    - Signal: We're for enterprises\n- Attracts: Mid-market and enterprise\n- Risk:\
+    \ Need sales team (can't be self-serve at this price)\n\n**$100K+/year:**\n- Signal:\
+    \ We're mission-critical infrastructure\n- Attracts: Large enterprises\n- Risk:\
+    \ Long sales cycles, heavy support expectations\n\n**The Positioning Test:**\n\
+    \nIf you price at $50/month but want enterprise customers, your price is undermining\
+    \ your positioning. Enterprise buyers associate low price with low value. You\
+    \ may need to *raise* prices to attract the customers you want.\n\n**Common Mistake:**\n\
+    \nPricing for the customer you have instead of the customer you want. If your\
+    \ roadmap is enterprise, price for enterprise \u2014 even if it means losing some\
+    \ SMB customers today.\n\n---\n\n### 6. When and How to Raise Prices\n\n**Timing\
+    \ Signals:**\n\n- Value ratio > 5x for most customers\n- Win rates above 40% (you're\
+    \ not losing on price)\n- No customer pushback on pricing in last 6 months\n-\
+    \ Customers expanding faster than expected\n- Competitors raised prices and didn't\
+    \ lose share\n\n**How to Raise Without Losing Customers:**\n\n**1. Grandfather\
+    \ existing customers** (12-24 months)\n- New pricing for new customers only\n\
+    - Existing customers get notice + timeline\n- Creates urgency for prospects (\"\
+    price is going up\")\n\n**2. Add value to justify increase**\n- New tier with\
+    \ new features at higher price\n- Move current tier features to new higher tier\n\
+    - This is repositioning, not just a price increase\n\n**3. Annual increase clause\
+    \ in contracts**\n- Include 5-10% annual escalator in enterprise contracts\n-\
+    \ Normalizes price increases\n- Prevents \"we've been paying the same for 4 years\"\
+    \ conversations\n\n**The Communication:**\n\n\"We're investing in [specific improvements].\
+    \ To continue this level of investment, we're updating our pricing on [date].\
+    \ Your current plan is locked in at your current rate until [grandfather date].\"\
+    \n\nNever apologize for raising prices. Frame it as investment in the product\
+    \ they love.\n\n---\n\n## Decision Trees\n\n### Which Pricing Model?\n\n```\n\
+    Does usage vary >5x between customers?\n\u251C\u2500 Yes \u2192 Usage-based (or\
+    \ hybrid with usage component)\n\u2514\u2500 No \u2192 Continue...\n    \u2502\
+    \n    Does value scale with team size?\n    \u251C\u2500 Yes \u2192 Seat-based\n\
+    \    \u2514\u2500 No \u2192 Continue...\n        \u2502\n        Can you measure\
+    \ customer outcomes reliably?\n        \u251C\u2500 Yes \u2192 Outcome-based (or\
+    \ hybrid)\n        \u2514\u2500 No \u2192 Platform fee + feature-based tiers\n\
+    ```\n\n### Should We Raise Prices?\n\n```\nIs value ratio > 5x for most customers?\n\
+    \u251C\u2500 Yes \u2192 Raise prices\n\u2514\u2500 No \u2192 Continue...\n   \
+    \ \u2502\n    Are win rates > 40%?\n    \u251C\u2500 Yes \u2192 Price isn't the\
+    \ problem, but consider raising\n    \u2514\u2500 No \u2192 Continue...\n    \
+    \    \u2502\n        Are you losing deals specifically on price?\n        \u251C\
+    \u2500 Yes \u2192 Don't raise. Improve value or segment better.\n        \u2514\
+    \u2500 No \u2192 Something else is wrong (product, positioning, sales)\n```\n\n\
+    ---\n\n## Related Skills\n\n- **ai-gtm**: AI-specific pricing models (variable-cost\
+    \ AI, pricing outputs vs inputs)\n- **product-led-growth**: Freemium conversion\
+    \ and PLG pricing gates\n- **enterprise-account-planning**: Enterprise deal structuring\
+    \ and negotiation\n- **positioning-strategy**: Price as positioning signal\n\n\
+    ---\n\n*Based on pricing work at developer platforms and enterprise software companies,\
+    \ including enterprise price increases with zero customer loss, freemium threshold\
+    \ design that separated hobbyists from production users, partner pricing models,\
+    \ and pricing conversations across hundreds of enterprise deal cycles. Not theory\
+    \ \u2014 patterns from pricing decisions that directly impacted revenue.*"

@@ -1,0 +1,124 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__fluentui-blazor
+name: fluentui-blazor
+description: Guide for using the Microsoft Fluent UI Blazor component library (Microsoft.FluentUI.AspNetCore.Components
+  NuGet package) in Blazor applications. Use this when the user is building a Blazor
+  app with Fluent UI components, setting up the library, using FluentUI components
+  like FluentButton, FluentDataGrid, FluentDialog, FluentToast, FluentNavMenu, FluentTextField,
+  FluentSelect, FluentAutocomplete, FluentDesignTheme, or any component prefixed with
+  "Fluent". Also use when troubleshooting missing providers, JS interop issues, or
+  theming.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/fluentui-blazor/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags:
+  - has_references_directory
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- fluentui-blazor
+content:
+  kind: skill_markdown
+  sha256: d23fbc5dfb9a1580f930652bdfbf8c891edbaaa3bf162fb4904de9cba74f01b0
+  char_count: 7487
+  text: "# Fluent UI Blazor \u2014 Consumer Usage Guide\n\nThis skill teaches how\
+    \ to correctly use the **Microsoft.FluentUI.AspNetCore.Components** (version 4)\
+    \ NuGet package in Blazor applications.\n\n## Critical Rules\n\n### 1. No manual\
+    \ `<script>` or `<link>` tags needed\n\nThe library auto-loads all CSS and JS\
+    \ via Blazor's static web assets and JS initializers. **Never tell users to add\
+    \ `<script>` or `<link>` tags for the core library.**\n\n### 2. Providers are\
+    \ mandatory for service-based components\n\nThese provider components **MUST**\
+    \ be added to the root layout (e.g. `MainLayout.razor`) for their corresponding\
+    \ services to work. Without them, service calls **fail silently** (no error, no\
+    \ UI).\n\n```razor\n<FluentToastProvider />\n<FluentDialogProvider />\n<FluentMessageBarProvider\
+    \ />\n<FluentTooltipProvider />\n<FluentKeyCodeProvider />\n```\n\n### 3. Service\
+    \ registration in Program.cs\n\n```csharp\nbuilder.Services.AddFluentUIComponents();\n\
+    \n// Or with configuration:\nbuilder.Services.AddFluentUIComponents(options =>\n\
+    {\n    options.UseTooltipServiceProvider = true;  // default: true\n    options.ServiceLifetime\
+    \ = ServiceLifetime.Scoped; // default\n});\n```\n\n**ServiceLifetime rules:**\n\
+    - `ServiceLifetime.Scoped` \u2014 for Blazor Server / Interactive (default)\n\
+    - `ServiceLifetime.Singleton` \u2014 for Blazor WebAssembly standalone\n- `ServiceLifetime.Transient`\
+    \ \u2014 **throws `NotSupportedException`**\n\n### 4. Icons require a separate\
+    \ NuGet package\n\n```\ndotnet add package Microsoft.FluentUI.AspNetCore.Components.Icons\n\
+    ```\n\nUsage with a `@using` alias:\n\n```razor\n@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons\n\
+    \n<FluentIcon Value=\"@(Icons.Regular.Size24.Save)\" />\n<FluentIcon Value=\"\
+    @(Icons.Filled.Size20.Delete)\" Color=\"@Color.Error\" />\n```\n\nPattern: `Icons.[Variant].[Size].[Name]`\n\
+    - Variants: `Regular`, `Filled`\n- Sizes: `Size12`, `Size16`, `Size20`, `Size24`,\
+    \ `Size28`, `Size32`, `Size48`\n\nCustom image: `Icon.FromImageUrl(\"/path/to/image.png\"\
+    )`\n\n**Never use string-based icon names** \u2014 icons are strongly-typed classes.\n\
+    \n### 5. List component binding model\n\n`FluentSelect<TOption>`, `FluentCombobox<TOption>`,\
+    \ `FluentListbox<TOption>`, and `FluentAutocomplete<TOption>` do NOT work like\
+    \ `<InputSelect>`. They use:\n\n- `Items` \u2014 the data source (`IEnumerable<TOption>`)\n\
+    - `OptionText` \u2014 `Func<TOption, string?>` to extract display text\n- `OptionValue`\
+    \ \u2014 `Func<TOption, string?>` to extract the value string\n- `SelectedOption`\
+    \ / `SelectedOptionChanged` \u2014 for single selection binding\n- `SelectedOptions`\
+    \ / `SelectedOptionsChanged` \u2014 for multi-selection binding\n\n```razor\n\
+    <FluentSelect Items=\"@countries\"\n              OptionText=\"@(c => c.Name)\"\
+    \n              OptionValue=\"@(c => c.Code)\"\n              @bind-SelectedOption=\"\
+    @selectedCountry\"\n              Label=\"Country\" />\n```\n\n**NOT** like this\
+    \ (wrong pattern):\n```razor\n@* WRONG \u2014 do not use InputSelect pattern *@\n\
+    <FluentSelect @bind-Value=\"@selectedValue\">\n    <option value=\"1\">One</option>\n\
+    </FluentSelect>\n```\n\n### 6. FluentAutocomplete specifics\n\n- Use `ValueText`\
+    \ (NOT `Value` \u2014 it's obsolete) for the search input text\n- `OnOptionsSearch`\
+    \ is the required callback to filter options\n- Default is `Multiple=\"true\"\
+    `\n\n```razor\n<FluentAutocomplete TOption=\"Person\"\n                    OnOptionsSearch=\"\
+    @OnSearch\"\n                    OptionText=\"@(p => p.FullName)\"\n         \
+    \           @bind-SelectedOptions=\"@selectedPeople\"\n                    Label=\"\
+    Search people\" />\n\n@code {\n    private void OnSearch(OptionsSearchEventArgs<Person>\
+    \ args)\n    {\n        args.Items = allPeople.Where(p =>\n            p.FullName.Contains(args.Text,\
+    \ StringComparison.OrdinalIgnoreCase));\n    }\n}\n```\n\n### 7. Dialog service\
+    \ pattern\n\n**Do NOT toggle visibility of `<FluentDialog>` tags.** The service\
+    \ pattern is:\n\n1. Create a content component implementing `IDialogContentComponent<TData>`:\n\
+    \n```csharp\npublic partial class EditPersonDialog : IDialogContentComponent<Person>\n\
+    {\n    [Parameter] public Person Content { get; set; } = default!;\n\n    [CascadingParameter]\
+    \ public FluentDialog Dialog { get; set; } = default!;\n\n    private async Task\
+    \ SaveAsync()\n    {\n        await Dialog.CloseAsync(Content);\n    }\n\n   \
+    \ private async Task CancelAsync()\n    {\n        await Dialog.CancelAsync();\n\
+    \    }\n}\n```\n\n2. Show the dialog via `IDialogService`:\n\n```csharp\n[Inject]\
+    \ private IDialogService DialogService { get; set; } = default!;\n\nprivate async\
+    \ Task ShowEditDialog()\n{\n    var dialog = await DialogService.ShowDialogAsync<EditPersonDialog,\
+    \ Person>(\n        person,\n        new DialogParameters\n        {\n       \
+    \     Title = \"Edit Person\",\n            PrimaryAction = \"Save\",\n      \
+    \      SecondaryAction = \"Cancel\",\n            Width = \"500px\",\n       \
+    \     PreventDismissOnOverlayClick = true,\n        });\n\n    var result = await\
+    \ dialog.Result;\n    if (!result.Cancelled)\n    {\n        var updatedPerson\
+    \ = result.Data as Person;\n    }\n}\n```\n\nFor convenience dialogs:\n```csharp\n\
+    await DialogService.ShowConfirmationAsync(\"Are you sure?\", \"Yes\", \"No\");\n\
+    await DialogService.ShowSuccessAsync(\"Done!\");\nawait DialogService.ShowErrorAsync(\"\
+    Something went wrong.\");\n```\n\n### 8. Toast notifications\n\n```csharp\n[Inject]\
+    \ private IToastService ToastService { get; set; } = default!;\n\nToastService.ShowSuccess(\"\
+    Item saved successfully\");\nToastService.ShowError(\"Failed to save\");\nToastService.ShowWarning(\"\
+    Check your input\");\nToastService.ShowInfo(\"New update available\");\n```\n\n\
+    `FluentToastProvider` parameters: `Position` (default `TopRight`), `Timeout` (default\
+    \ 7000ms), `MaxToastCount` (default 4).\n\n### 9. Design tokens and themes work\
+    \ only after render\n\nDesign tokens rely on JS interop. **Never set them in `OnInitialized`**\
+    \ \u2014 use `OnAfterRenderAsync`.\n\n```razor\n<FluentDesignTheme Mode=\"DesignThemeModes.System\"\
+    \n                   OfficeColor=\"OfficeColor.Teams\"\n                   StorageName=\"\
+    mytheme\" />\n```\n\n### 10. FluentEditForm vs EditForm\n\n`FluentEditForm` is\
+    \ only needed inside `FluentWizard` steps (per-step validation). For regular forms,\
+    \ use standard `EditForm` with Fluent form components:\n\n```razor\n<EditForm\
+    \ Model=\"@model\" OnValidSubmit=\"HandleSubmit\">\n    <DataAnnotationsValidator\
+    \ />\n    <FluentTextField @bind-Value=\"@model.Name\" Label=\"Name\" Required\
+    \ />\n    <FluentSelect Items=\"@options\"\n                  OptionText=\"@(o\
+    \ => o.Label)\"\n                  @bind-SelectedOption=\"@model.Category\"\n\
+    \                  Label=\"Category\" />\n    <FluentValidationSummary />\n  \
+    \  <FluentButton Type=\"ButtonType.Submit\" Appearance=\"Appearance.Accent\">Save</FluentButton>\n\
+    </EditForm>\n```\n\nUse `FluentValidationMessage` and `FluentValidationSummary`\
+    \ instead of standard Blazor validation components for Fluent styling.\n\n## Reference\
+    \ files\n\nFor detailed guidance on specific topics, see:\n\n- [Setup and configuration](references/SETUP.md)\n\
+    - [Layout and navigation](references/LAYOUT-AND-NAVIGATION.md)\n- [Data grid](references/DATAGRID.md)\n\
+    - [Theming](references/THEMING.md)"

@@ -1,0 +1,138 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__impediment-prioritization
+name: impediment-prioritization
+description: Ranks any list of impediments and their countermeasures using a value-stream
+  scoring model (ROI, Cost to Implement, Ease of Deployment, Risk Factor) and a fixed
+  prioritization formula. Use when someone asks to prioritize, rank, sequence, or
+  triage impediments, countermeasures, remediation items, risks, findings, gaps, action
+  items, or backlog entries; or mentions value-stream prioritization, A3 / lean countermeasure
+  ranking, ROI vs. effort scoring, or building a remediation / improvement backlog.
+  Works with GHQR findings, audit results, retrospective action items, risk registers,
+  architecture review gaps, or any free-form `{impediment, countermeasure}` list.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/impediment-prioritization/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: medium
+  flags:
+  - has_references_directory
+  - mentions_secret_or_token
+facets:
+- frontend
+languages: []
+platforms: []
+aliases:
+- impediment-prioritization
+content:
+  kind: skill_markdown
+  sha256: dd6c9adda40b97375f9a72537d536ef9c9e98a1f43827d9f84bea4e699bece43
+  char_count: 9024
+  text: "# Impediment Prioritization Skill\n\nA domain-agnostic skill for ranking\
+    \ impediments and their countermeasures. Works with any `{impediment, countermeasure}`\
+    \ list \u2014 GHQR findings, audit results, retro action items, risk registers,\
+    \ architecture review gaps, etc.\n\n## When to Activate\n\nActivate when the user:\n\
+    - Asks to prioritize, rank, sequence, or triage impediments, gaps, risks, findings,\
+    \ or remediation items\n- Provides a list of impediments with proposed countermeasures\
+    \ (or asks you to propose countermeasures for a list of problems)\n- Asks \"what\
+    \ should we fix first\" on any improvement / remediation backlog\n- Mentions value-stream\
+    \ prioritization, A3 countermeasures, ROI-vs-effort, or lean impediment ranking\n\
+    \n## Inputs\n\nAccepted input: a list of `{impediment, countermeasure}` pairs.\
+    \ Sources include (non-exhaustive):\n\n| Source | Maps to Impediment | Maps to\
+    \ Countermeasure |\n|--------|---------------------|-------------------------|\n\
+    | GHQR / health-check findings | Finding or gap (Status \u2260 Expected) | Recommendation\
+    \ / expected value |\n| Audit results | Non-conformance | Remediation action |\n\
+    | Retrospective | \"What went wrong\" item | Agreed improvement |\n| Risk register\
+    \ | Risk | Mitigation |\n| Architecture review | Gap vs. target state | Proposed\
+    \ change |\n| User free-form list | Problem statement | Proposed fix |\n\n**Rules:**\n\
+    - One countermeasure per impediment. If the input suggests multiple remediation\
+    \ paths, select the primary one and note alternatives in the rationale \u2014\
+    \ do not emit multiple rows for the same impediment.\n- Collapse duplicates before\
+    \ scoring.\n- If a source link / citation is available, attach it to the countermeasure.\n\
+    - If a confidence level is available on the source, surface it as an optional\
+    \ `Confidence` column.\n\n## Scoring Rubric (1\u201310 scales)\n\nScore each impediment's\
+    \ countermeasure against all four criteria. See [references/scoring-rubric.md](./references/scoring-rubric.md)\
+    \ for anchoring examples at the 1 / 5 / 10 levels across multiple domains (platform\
+    \ engineering, security, SRE, application development, governance).\n\n| Criterion\
+    \ | Scale | Definition |\n|-----------|-------|------------|\n| **Return on Investment\
+    \ (ROI)** | 1 = low, 10 = high | Efficiency gain delivered by the countermeasure\
+    \ to this step AND to the overall value stream. Not purely financial \u2014 weight\
+    \ throughput, cycle-time reduction, defect removal, user / developer experience,\
+    \ and compliance lift. |\n| **Cost to Implement** | 1 = inexpensive, 10 = very\
+    \ expensive | Human capital (salary + time of people needed) plus any purchases,\
+    \ licenses, or infrastructure required to implement the countermeasure. |\n| **Ease\
+    \ of Deployment** | 1 = extremely hard, 10 = very easy | Remediation effort required\
+    \ to actually deploy the countermeasure end-to-end. Reflects technical complexity,\
+    \ change-management burden, and rollback risk. |\n| **Risk Factor** | 1 = low\
+    \ risk, 10 = very high risk | Risk weighted on impact to the overall value stream\
+    \ if the countermeasure goes wrong, stalls, or is deferred. |\n\nEvery score must\
+    \ be accompanied by a one-line rationale. When a score is an estimate rather than\
+    \ drawn from explicit data, mark the rationale with `(estimated)`.\n\n## Formula\n\
+    \n```\nPriority = ((ROI * (10 / Cost)) + (Ease * (10 / Risk))) / 2\n```\n\n- Theoretical\
+    \ range: **1 \u2192 100**. Practical range on typical backlogs: ~1 \u2192 100.\n\
+    - The scale minimum of `1` guarantees Cost and Risk are never zero (no divide-by-zero).\n\
+    - Higher Priority = do first.\n- Boundary checks:\n  - ROI=10, Cost=1, Ease=10,\
+    \ Risk=1 \u2192 `((10*10)+(10*10))/2 = 100`\n  - ROI=1, Cost=10, Ease=1, Risk=10\
+    \ \u2192 `((1*1)+(1*1))/2 = 1`\n\nUse the formula verbatim. Do not reweight, normalize,\
+    \ or substitute.\n\n## Method (agent procedure)\n\n1. **Ingest** the impediment\
+    \ list. Confirm 1:1 impediment-to-countermeasure mapping; collapse duplicates.\n\
+    2. **Confirm the countermeasure** for each impediment. Prefer documented best\
+    \ practice for the domain. Cite a public / authoritative link when one is available.\n\
+    3. **Score** all four criteria using the rubric. Write a one-line rationale per\
+    \ criterion.\n4. **Compute** Priority using the formula. Round to one decimal\
+    \ place.\n5. **Sort** rows by Priority descending. Assign Rank starting at 1.\n\
+    6. **Render** the output table (see below).\n7. **Call out** the top 3 impediments\
+    \ with a short \"why act first\" paragraph.\n8. **Optional tags**: if the workflow\
+    \ requires ownership flags (e.g., `[CSA Action Required]` vs. `[Customer Self-Service]`\
+    \ for GHQR/PAK, or `[Owner: Team X]` / `[Self-Service]` for internal backlogs),\
+    \ include them on the top-ranked items. Skip if not requested.\n\n## Output Template\n\
+    \n```markdown\n## Prioritized Impediments\n\n**Scoring:** ROI (1 low \u2192 10\
+    \ high), Cost (1 cheap \u2192 10 expensive), Ease (1 hard \u2192 10 easy), Risk\
+    \ (1 low \u2192 10 high).\n**Formula:** `Priority = ((ROI * (10/Cost)) + (Ease\
+    \ * (10/Risk))) / 2`\n\n| Rank | Impediment | Countermeasure | ROI | Cost | Ease\
+    \ | Risk | Priority | Rationale |\n|------|------------|----------------|-----|------|------|------|----------|-----------|\n\
+    | 1 | [gap] | [action + link] | [n] | [n] | [n] | [n] | [n.n] | ROI: \u2026<br>Cost:\
+    \ \u2026<br>Ease: \u2026<br>Risk: \u2026 |\n\n### Top 3 \u2014 Act First\n1. **[Impediment]**\
+    \ \u2014 [why it wins on the formula + optional ownership tag]\n2. \u2026\n3.\
+    \ \u2026\n```\n\n**Worked example (GitHub Enterprise adoption):**\n\n| Rank |\
+    \ Impediment | Countermeasure | ROI | Cost | Ease | Risk | Priority | Rationale\
+    \ |\n|------|------------|----------------|-----|------|------|------|----------|-----------|\n\
+    | 1 | 2FA not enforced at org level | Enforce org-wide 2FA ([docs](https://docs.github.com/en/organizations/keeping-your-organization-secure/setting-up-two-factor-authentication/requiring-two-factor-authentication-in-your-organization))\
+    \ | 9 | 2 | 8 | 2 | 42.5 | ROI: removes broad credential-compromise class<br>Cost:\
+    \ admin toggle + member comms<br>Ease: single org setting, members re-enroll<br>Risk:\
+    \ low \u2014 can stage with grace period |\n| 2 | Secret scanning disabled | Enable\
+    \ secret scanning + push protection org-wide ([docs](https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning))\
+    \ | 8 | 3 | 7 | 3 | 25.0 | ROI: catches leaked creds pre-merge<br>Cost: GHAS seats\
+    \ if not bundled (estimated)<br>Ease: org-level default<br>Risk: push-protection\
+    \ may block legitimate commits; stage per repo |\n| 3 | No CODEOWNERS on critical\
+    \ repos | Add CODEOWNERS to top-20 repos ([docs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners))\
+    \ | 6 | 4 | 6 | 4 | 15.0 | ROI: targeted review coverage<br>Cost: team time to\
+    \ define owners (estimated)<br>Ease: file-level change, but requires owner buy-in<br>Risk:\
+    \ review bottlenecks if owners undersized |\n\n**Worked example (generic retrospective\
+    \ action items):**\n\n| Rank | Impediment | Countermeasure | ROI | Cost | Ease\
+    \ | Risk | Priority |\n|------|------------|----------------|-----|------|------|------|----------|\n\
+    | 1 | Flaky test suite blocks deploys daily | Quarantine top-10 flaky tests +\
+    \ add retry policy | 9 | 2 | 8 | 2 | 42.5 |\n| 2 | No on-call runbook for payment\
+    \ service | Draft runbook from last 3 incidents | 7 | 3 | 8 | 2 | 31.7 |\n| 3\
+    \ | Manual release notes take 2h/release | Generate from Conventional Commits\
+    \ via CI | 6 | 4 | 5 | 3 | 15.8 |\n\n## Assumptions & Guardrails\n\n- Scores are\
+    \ estimates informed by the rubric and any available source / citation. Mark estimated\
+    \ rationales explicitly with `(estimated)`.\n- Never fabricate context (team size,\
+    \ budget, tool inventory, organizational constraints). If required, ask the user\
+    \ or mark the score as estimated.\n- Final ranking is a recommendation \u2014\
+    \ it should be reviewed with the accountable team / owner before it's committed\
+    \ to an execution plan.\n- Read-only by default \u2014 this skill does not execute\
+    \ remediations; it produces a ranked list consumed downstream.\n\n## Downstream\
+    \ Integration (optional)\n\nThe ranked table produced by this skill is the deliverable.\
+    \ Wire it into whatever downstream artifact your workflow needs (Jira epic, ADR,\
+    \ OKR backlog, incident review, health check report, etc.). This skill does not\
+    \ depend on any sibling skills or external templates."

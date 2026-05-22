@@ -46,7 +46,7 @@ FROM python:3.10-slim AS runtime
 
 LABEL maintainer="PhanHug93"
 LABEL description="TechStack Local MCP Server — Production"
-LABEL version="1.0.15"
+LABEL version="1.0.16"
 
 # ── Non-root user ──────────────────────────────────────────────────────────
 # Tạo user `mcpuser` (uid=1000) để KHÔNG chạy dưới quyền root.
@@ -70,23 +70,38 @@ COPY --chown=mcpuser:mcpuser main.py ./
 COPY --chown=mcpuser:mcpuser cascade_bridge.py ./
 COPY --chown=mcpuser:mcpuser src/ ./src/
 COPY --chown=mcpuser:mcpuser tech_stacks/ ./tech_stacks/
+COPY --chown=mcpuser:mcpuser skill_registry/ ./skill_registry/
 COPY --chown=mcpuser:mcpuser scripts/ ./scripts/
 
+# Immutable defaults used to seed empty Docker named volumes on first boot.
+COPY --chown=mcpuser:mcpuser tech_stacks/ /opt/mcp-defaults/tech_stacks/
+COPY --chown=mcpuser:mcpuser skill_registry/ /opt/mcp-defaults/skill_registry/
+
+# Build generated SQLite skill store inside the image. Runtime named volumes
+# rebuild this file in entrypoint when the volume does not already contain it.
+RUN python scripts/build_skill_store.py \
+    --registry-dir /app/skill_registry \
+    --output /app/skill_registry/index/skill_store.sqlite
+
 # Tạo thư mục data với quyền cho mcpuser
-RUN mkdir -p /data/logs /data/db /data/usage_logs \
-    && chown -R mcpuser:mcpuser /data
+RUN mkdir -p /data/logs /data/db /data/usage_logs /app/tech_stacks /app/skill_registry \
+    && chown -R mcpuser:mcpuser /data /app/tech_stacks /app/skill_registry /opt/mcp-defaults
 
 # ── Environment defaults ──────────────────────────────────────────────────
 # Tất cả có thể override qua docker-compose environment hoặc .env
 ENV MCP_TRANSPORT=sse
 ENV MCP_HOST=0.0.0.0
 ENV MCP_PORT=8000
-ENV MCP_CHROMA_HOST=chromadb
+ENV MCP_CHROMA_HOST=memorydb
 ENV MCP_CHROMA_PORT=8000
 ENV MCP_CHROMA_DB=/data/db
+ENV MCP_USAGE_LOG_DIR=/data/usage_logs
+ENV MCP_TECH_STACKS_DIR=/app/tech_stacks
+ENV MCP_SKILL_REGISTRY_DIR=/app/skill_registry
+ENV MCP_SKILL_STORE_PATH=/app/skill_registry/index/skill_store.sqlite
 ENV MCP_EXEC_MODE=allowlist
 
-VOLUME ["/data"]
+VOLUME ["/data", "/app/tech_stacks", "/app/skill_registry"]
 
 # ── Health check ──────────────────────────────────────────────────────────
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

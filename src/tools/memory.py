@@ -19,7 +19,13 @@ from src.engine.context import (
     cleanup_l1,
     get_memory_stats,
 )
-from src.tools.helpers import make_workspace_id, WORKSPACE_ERROR_MSG
+from src.tools.helpers import (
+    WORKSPACE_ERROR_MSG,
+    make_session_namespace,
+    make_workspace_id,
+    validate_memory_scope,
+    validate_session_scope_inputs,
+)
 from src.utils.usage_tracker import record_tool_call
 
 # Rate limiter state for auto_recall
@@ -38,8 +44,11 @@ def register_memory_tools(mcp: FastMCP) -> None:
         metadata_source: str,
         workspace_path: str,
         tech_stack: str = "general",
+        memory_scope: str = "workspace",
+        agent_id: str = "",
+        session_id: str = "",
     ) -> str:
-        """Store working context into L1 (per-workspace short-term memory).
+        """Store working context into local memory (workspace or session scope).
 
         Call this tool when user asks to:
         - Save, store, or remember code, logs, or error traces
@@ -56,6 +65,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 directory (e.g. /Users/admin/projects/my-android-app). Infer this
                 from the file paths the user is currently editing. DO NOT omit.
             tech_stack: Tech stack tag (e.g. android_kotlin, flutter_dart).
+            memory_scope: `workspace` or `session` (global is not allowed).
+            agent_id: Required when `memory_scope="session"`.
+            session_id: Optional sub-scope discriminator when in session scope.
 
         Returns:
             JSON string reporting storage status.
@@ -67,8 +79,40 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 {"status": "error", "message": WORKSPACE_ERROR_MSG},
                 ensure_ascii=False,
             )
+        scope = memory_scope.strip().lower()
+        scope_err = validate_memory_scope(scope, allow_global=False)
+        if scope_err:
+            return json.dumps(
+                {"status": "error", "message": scope_err},
+                ensure_ascii=False,
+            )
+        session_namespace = None
+        if scope == "session":
+            session_input_err = validate_session_scope_inputs(agent_id, session_id)
+            if session_input_err:
+                return json.dumps(
+                    {"status": "error", "message": session_input_err},
+                    ensure_ascii=False,
+                )
+            try:
+                session_namespace = make_session_namespace(
+                    workspace_path,
+                    agent_id=agent_id,
+                    session_id=session_id,
+                )
+            except ValueError as exc:
+                return json.dumps(
+                    {"status": "error", "message": str(exc)},
+                    ensure_ascii=False,
+                )
         result = await compress_and_store(
-            text_data, metadata_source, "L1", ws_id, tech_stack
+            text_data,
+            metadata_source,
+            "L1",
+            ws_id,
+            tech_stack,
+            scope,
+            session_namespace,
         )
         record_tool_call("compress_and_store_context", query=metadata_source)
         return result
@@ -106,16 +150,19 @@ def register_memory_tools(mcp: FastMCP) -> None:
         workspace_path: str,
         n_results: int = 5,
         tech_stack: str = "",
+        memory_scope: str = "workspace",
+        agent_id: str = "",
+        session_id: str = "",
     ) -> str:
-        """Federated search across L1 (local) and L2 (global) memory.
+        """Federated search across local and global memory tiers.
 
         Call this tool when user asks to:
         - Search, find, or recall stored context or knowledge
         - Look up previous code, logs, errors, or best practices
         - Query the memory / knowledge base for relevant information
 
-        Queries both tiers, merges results, re-ranks by similarity distance.
-        Results are tagged [L1_LOCAL] or [L2_GLOBAL] for context awareness.
+        Queries relevant tiers, merges results, and re-ranks by similarity distance.
+        Session scope reads `SESSION_LOCAL + L1_LOCAL + L2_GLOBAL`.
 
         Args:
             query: Natural-language query to search for.
@@ -124,6 +171,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 from the file paths the user is currently editing. DO NOT omit.
             n_results: Total results to return after merge (default 5).
             tech_stack: If provided, only search within this tech stack.
+            memory_scope: `workspace`, `session`, or `global`.
+            agent_id: Required when `memory_scope="session"`.
+            session_id: Optional sub-scope discriminator when in session scope.
 
         Returns:
             JSON with merged, re-ranked results from both memory tiers.
@@ -135,7 +185,40 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 {"status": "error", "message": WORKSPACE_ERROR_MSG},
                 ensure_ascii=False,
             )
-        result = await query_memory(query, ws_id, tech_stack or None, n_results)
+        scope = memory_scope.strip().lower()
+        scope_err = validate_memory_scope(scope)
+        if scope_err:
+            return json.dumps(
+                {"status": "error", "message": scope_err},
+                ensure_ascii=False,
+            )
+        session_namespace = None
+        if scope == "session":
+            session_input_err = validate_session_scope_inputs(agent_id, session_id)
+            if session_input_err:
+                return json.dumps(
+                    {"status": "error", "message": session_input_err},
+                    ensure_ascii=False,
+                )
+            try:
+                session_namespace = make_session_namespace(
+                    workspace_path,
+                    agent_id=agent_id,
+                    session_id=session_id,
+                )
+            except ValueError as exc:
+                return json.dumps(
+                    {"status": "error", "message": str(exc)},
+                    ensure_ascii=False,
+                )
+        result = await query_memory(
+            query,
+            ws_id,
+            tech_stack or None,
+            n_results,
+            scope,
+            session_namespace,
+        )
         record_tool_call("query_local_memory", query=query)
         return result
 
@@ -145,6 +228,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
         workspace_path: str,
         tech_stack: str = "",
         n_results: int = 3,
+        memory_scope: str = "workspace",
+        agent_id: str = "",
+        session_id: str = "",
     ) -> str:
         """⚡ Auto-retrieve relevant context from memory for the current conversation.
 
@@ -165,6 +251,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 from the file paths the user is currently editing. DO NOT omit.
             tech_stack: Filter results by tech stack (optional).
             n_results: Max context chunks to return (default 3, max 5).
+            memory_scope: `workspace`, `session`, or `global`.
+            agent_id: Required when `memory_scope="session"`.
+            session_id: Optional sub-scope discriminator when in session scope.
 
         Returns:
             JSON with status and recalled context (if any).
@@ -176,11 +265,37 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 {"status": "error", "message": WORKSPACE_ERROR_MSG},
                 ensure_ascii=False,
             )
+        scope = memory_scope.strip().lower()
+        scope_err = validate_memory_scope(scope)
+        if scope_err:
+            return json.dumps(
+                {"status": "error", "message": scope_err},
+                ensure_ascii=False,
+            )
+        session_namespace = None
+        if scope == "session":
+            session_input_err = validate_session_scope_inputs(agent_id, session_id)
+            if session_input_err:
+                return json.dumps(
+                    {"status": "error", "message": session_input_err},
+                    ensure_ascii=False,
+                )
+            try:
+                session_namespace = make_session_namespace(
+                    workspace_path,
+                    agent_id=agent_id,
+                    session_id=session_id,
+                )
+            except ValueError as exc:
+                return json.dumps(
+                    {"status": "error", "message": str(exc)},
+                    ensure_ascii=False,
+                )
         n_results = min(n_results, 5)
 
         # Rate limiter + Dedup (thread-safe)
         query_hash = hashlib.md5(
-            f"{user_message}:{ws_id}:{tech_stack}".encode(),
+            f"{user_message}:{ws_id}:{tech_stack}:{scope}:{session_namespace or ''}".encode(),
         ).hexdigest()[:12]  # noqa: S324
         now = _time.time()
 
@@ -210,6 +325,8 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 workspace_id=ws_id,
                 tech_stack=tech_stack or None,
                 n_results=n_results,
+                memory_scope=scope,
+                session_namespace=session_namespace,
             )
         except Exception:  # noqa: BLE001
             context = ""
@@ -240,6 +357,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
     async def cleanup_workspace(
         workspace_path: str,
         days: int = 3,
+        memory_scope: str = "workspace",
+        agent_id: str = "",
+        session_id: str = "",
     ) -> str:
         """Delete old L1 records to free resources.
 
@@ -253,6 +373,9 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 directory (e.g. /Users/admin/projects/my-android-app). Infer this
                 from the file paths the user is currently editing. DO NOT omit.
             days: Records older than this will be deleted (default 3).
+            memory_scope: `workspace` or `session` (global is not allowed).
+            agent_id: Required when `memory_scope="session"`.
+            session_id: Optional sub-scope discriminator when in session scope.
 
         Returns:
             JSON with deletion count and remaining records.
@@ -264,7 +387,33 @@ def register_memory_tools(mcp: FastMCP) -> None:
                 {"status": "error", "message": WORKSPACE_ERROR_MSG},
                 ensure_ascii=False,
             )
-        return await cleanup_l1(ws_id, days)
+        scope = memory_scope.strip().lower()
+        scope_err = validate_memory_scope(scope, allow_global=False)
+        if scope_err:
+            return json.dumps(
+                {"status": "error", "message": scope_err},
+                ensure_ascii=False,
+            )
+        session_namespace = None
+        if scope == "session":
+            session_input_err = validate_session_scope_inputs(agent_id, session_id)
+            if session_input_err:
+                return json.dumps(
+                    {"status": "error", "message": session_input_err},
+                    ensure_ascii=False,
+                )
+            try:
+                session_namespace = make_session_namespace(
+                    workspace_path,
+                    agent_id=agent_id,
+                    session_id=session_id,
+                )
+            except ValueError as exc:
+                return json.dumps(
+                    {"status": "error", "message": str(exc)},
+                    ensure_ascii=False,
+                )
+        return await cleanup_l1(ws_id, days, scope, session_namespace)
 
     @mcp.tool()
     async def memory_stats() -> str:

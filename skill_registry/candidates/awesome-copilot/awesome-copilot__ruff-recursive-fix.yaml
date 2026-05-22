@@ -1,0 +1,109 @@
+schema_version: local-skill-candidate/v0.0.1
+id: awesome-copilot__ruff-recursive-fix
+name: ruff-recursive-fix
+description: Run Ruff checks with optional scope and rule overrides, apply safe and
+  unsafe autofixes iteratively, review each change, and resolve remaining findings
+  with targeted edits or user decisions.
+status: candidate
+source_tier: community
+source:
+  source_id: awesome-copilot
+  repo: github/awesome-copilot
+  url: https://github.com/github/awesome-copilot.git
+  ref: main
+  commit: 5b049e4e196c10aab8ddfd9e492323d08cf985b0
+  path: skills/ruff-recursive-fix/SKILL.md
+license:
+  status: accepted
+  kind: MIT
+  file: LICENSE
+risk:
+  level: low
+  flags: []
+facets: []
+languages: []
+platforms: []
+aliases:
+- ruff-recursive-fix
+content:
+  kind: skill_markdown
+  sha256: 92151e328fbccab628de9496797fce39636555e65dd7434687751673b4b57f8c
+  char_count: 6193
+  text: "# Ruff Recursive Fix\n\n## Overview\n\nUse this skill to enforce code quality\
+    \ with Ruff in a controlled, iterative workflow.\nIt supports:\n\n- Optional scope\
+    \ limitation to a specific folder.\n- Default project settings from `pyproject.toml`.\n\
+    - Flexible Ruff invocation (`uv`, direct `ruff`, `python -m ruff`, or equivalent).\n\
+    - Optional per-run rule overrides (`--select`, `--ignore`, `--extend-select`,\
+    \ `--extend-ignore`).\n- Automatic safe then unsafe autofixes.\n- Diff review\
+    \ after each fix pass.\n- Recursive repetition until findings are resolved or\
+    \ require a decision.\n- Judicious use of inline `# noqa` only when suppression\
+    \ is justified.\n\n## Inputs\n\nCollect these inputs before running:\n\n- `target_path`\
+    \ (optional): folder or file to check. Empty means whole repository.\n- `ruff_runner`\
+    \ (optional): explicit Ruff command prefix (for example `uv run`, `ruff`, `python\
+    \ -m ruff`, `pipx run ruff`).\n- `rules_select` (optional): comma-separated rule\
+    \ codes to enforce.\n- `rules_ignore` (optional): comma-separated rule codes to\
+    \ ignore.\n- `extend_select` (optional): extra rules to add without replacing\
+    \ configured defaults.\n- `extend_ignore` (optional): extra ignored rules without\
+    \ replacing configured defaults.\n- `allow_unsafe_fixes` (default: true): whether\
+    \ to run Ruff unsafe fixes.\n- `ask_on_ambiguity` (default: true): always ask\
+    \ the user when multiple valid choices exist.\n\n## Command Construction\n\nBuild\
+    \ Ruff commands from inputs.\n\n### 0. Resolve Ruff Runner\n\nDetermine a reusable\
+    \ `ruff_cmd` prefix before building commands.\n\nResolution order:\n\n1. If `ruff_runner`\
+    \ is provided, use it as-is.\n2. Else if `uv` is available and Ruff is managed\
+    \ through `uv`, use `uv run ruff`.\n3. Else if `ruff` is available on `PATH`,\
+    \ use `ruff`.\n4. Else if Python is available and Ruff is installed in that environment,\
+    \ use `python -m ruff`.\n5. Else use any project-specific equivalent that invokes\
+    \ installed Ruff (for example `pipx run ruff`), or stop and ask the user.\n\n\
+    Use the same resolved `ruff_cmd` for all `check` and `format` commands in the\
+    \ workflow.\n\nBase command:\n\n```bash\n<ruff_cmd> check\n```\n\nFormatter command:\n\
+    \n```bash\n<ruff_cmd> format\n```\n\nWith optional target:\n\n```bash\n<ruff_cmd>\
+    \ format <target_path>\n```\n\nAdd optional target:\n\n```bash\n<ruff_cmd> check\
+    \ <target_path>\n```\n\nAdd optional overrides as needed:\n\n```bash\n--select\
+    \ <codes>\n--ignore <codes>\n--extend-select <codes>\n--extend-ignore <codes>\n\
+    ```\n\nExamples:\n\n```bash\n# Full project with defaults from pyproject.toml\n\
+    ruff check\n\n# One folder with defaults\npython -m ruff check src/models\n\n\
+    # Override to skip docs and TODO-like rules for this run\nuv run ruff check src\
+    \ --extend-ignore D,TD\n\n# Check only selected rules in a folder\nruff check\
+    \ src/data --select F,E9,I\n```\n\n## Workflow\n\n### 1. Baseline Analysis\n\n\
+    1. Run `<ruff_cmd> check` with the selected scope and options.\n2. Classify findings\
+    \ by type:\n\t- Autofixable safe.\n\t- Autofixable unsafe.\n\t- Not autofixable.\n\
+    3. If no findings remain, stop.\n\n### 2. Safe Autofix Pass\n\n1. Run Ruff with\
+    \ `--fix` using the same scope/options.\n2. Review resulting diff carefully for\
+    \ semantic correctness and style consistency.\n3. Run `<ruff_cmd> format` on the\
+    \ same scope.\n4. Re-run `<ruff_cmd> check` to refresh remaining findings.\n\n\
+    ### 3. Unsafe Autofix Pass\n\nRun only if findings remain and `allow_unsafe_fixes=true`.\n\
+    \n1. Run Ruff with `--fix --unsafe-fixes` using the same scope/options.\n2. Review\
+    \ resulting diff carefully, prioritizing behavior-sensitive edits.\n3. Run `<ruff_cmd>\
+    \ format` on the same scope.\n4. Re-run `<ruff_cmd> check`.\n\n### 4. Manual Remediation\
+    \ Pass\n\nFor remaining findings:\n\n1. Fix directly in code when there is a clear,\
+    \ safe correction.\n2. Keep edits minimal and local.\n3. Run `<ruff_cmd> format`\
+    \ on the same scope.\n4. Re-run `<ruff_cmd> check`.\n\n### 5. Ambiguity Policy\n\
+    \nIf there are multiple valid solutions at any step, always ask the user before\
+    \ proceeding.\nDo not choose silently between equivalent options.\n\n### 6. Suppression\
+    \ Decision (`# noqa`)\n\nUse suppression only when all conditions are true:\n\n\
+    - The rule conflicts with required behavior, public API, framework conventions,\
+    \ or readability goals.\n- Refactoring would be disproportionate to the value\
+    \ of the rule.\n- The suppression is narrow and specific (single line, explicit\
+    \ code when possible).\n\nGuidelines:\n\n- Prefer `# noqa: <RULE>` over broad\
+    \ `# noqa`.\n- Add a brief reason comment for non-obvious suppressions.\n- If\
+    \ two or more valid outcomes exist, always ask the user which option to prefer.\n\
+    \n### 7. Recursive Loop and Stop Criteria\n\nRepeat steps 2 to 6 until one of\
+    \ these outcomes:\n\n- `<ruff_cmd> check` returns clean.\n- Remaining findings\
+    \ require architectural/product decisions.\n- Remaining findings are intentionally\
+    \ suppressed with documented rationale.\n- Repeated loop makes no progress.\n\n\
+    Each loop iteration must include `<ruff_cmd> format` before the next `<ruff_cmd>\
+    \ check`.\n\nWhen no progress is detected:\n\n1. Summarize blocked rules and affected\
+    \ files.\n2. Present valid options and trade-offs.\n3. Ask the user to choose.\n\
+    \n## Quality Gates\n\nBefore declaring completion:\n\n- Ruff returns no unexpected\
+    \ findings for the chosen scope/options.\n- All autofix diffs are reviewed for\
+    \ correctness.\n- No suppression is added without explicit justification.\n- Any\
+    \ unsafe fix with possible behavioral impact is highlighted to the user.\n- Ruff\
+    \ formatting is executed in every iteration.\n\n## Output Contract\n\nAt the end\
+    \ of execution, report:\n\n- Scope and Ruff options used.\n- Number of iterations\
+    \ performed.\n- Summary of fixed findings.\n- List of manual fixes.\n- List of\
+    \ suppressions with rationale.\n- Remaining findings, if any, and required user\
+    \ decisions.\n\n## Suggested Prompt Starters\n\n- \"Run ruff-recursive-fix on\
+    \ the whole repo with default config.\"\n- \"Run ruff-recursive-fix only on src/models,\
+    \ ignore DOC rules.\"\n- \"Run ruff-recursive-fix on tests with select F,E9,I\
+    \ and no unsafe fixes.\"\n- \"Run ruff-recursive-fix on src/data and ask me before\
+    \ adding any noqa.\""
